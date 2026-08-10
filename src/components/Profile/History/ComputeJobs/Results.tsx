@@ -1,7 +1,6 @@
 import {
   ComputeResultType,
   downloadFileBrowser,
-  getErrorMessage,
   LoggerInstance,
   Provider
 } from '@oceanprotocol/lib'
@@ -17,6 +16,12 @@ import { useAccount, useSigner } from 'wagmi'
 import { toast } from 'react-toastify'
 import { prettySize } from '@components/@shared/FormInput/InputElement/FilesInput/utils'
 import { useAutomation } from '../../../../@context/Automation/AutomationProvider'
+import { safeErrorMessage } from '../../../../@utils/safeError'
+import {
+  buildComputeResultUrlViaOceanNode,
+  downloadUrlAsFile,
+  isLocalOceanNode
+} from '../../../../@utils/oceanNodeAuth'
 
 export default function Results({
   job
@@ -35,8 +40,12 @@ export default function Results({
 
   useEffect(() => {
     async function getAssetMetadata() {
-      const ddo = await getAsset(job.inputDID[0], newCancelToken())
-      setDatasetProvider(ddo.services[0].serviceEndpoint)
+      // Ocean Node 3.2.0 のジョブには inputDID が無いことがある。
+      // 無いまま [0] を取ると Results がまるごと落ち、成果物のボタンが出ない。
+      const did = job.inputDID?.[0]
+      if (!did) return
+      const ddo = await getAsset(did, newCancelToken())
+      setDatasetProvider(ddo?.services?.[0]?.serviceEndpoint)
     }
     getAssetMetadata()
   }, [job.inputDID, newCancelToken])
@@ -75,15 +84,33 @@ export default function Results({
         : signer
 
     try {
-      const jobResult = await providerInstance.getComputeResultUrl(
-        datasetProvider,
-        signerToUse,
-        job.jobId,
-        resultIndex
-      )
-      await downloadFileBrowser(jobResult)
+      // Ocean Node 3.2.0 は署名対象が変わっている
+      // （consumerAddress + nonce + "getComputeResult"）。
+      // ocean.js 3.1.3 は旧方式で署名するため、手元のノードでは弾かれる。
+      const jobResult = isLocalOceanNode(datasetProvider)
+        ? await buildComputeResultUrlViaOceanNode(
+            signerToUse as any,
+            datasetProvider,
+            job.jobId,
+            resultIndex,
+            (job as any).environment
+          )
+        : await providerInstance.getComputeResultUrl(
+            datasetProvider,
+            signerToUse,
+            job.jobId,
+            resultIndex
+          )
+      // ノードは Content-Disposition を返さないため、downloadFileBrowser に
+      // 任せると拡張子なしの `file` で保存される。既に分かっている名前を使う。
+      const filename = job.results?.[resultIndex]?.filename
+      if (isLocalOceanNode(datasetProvider) && filename) {
+        await downloadUrlAsFile(jobResult, filename)
+      } else {
+        await downloadFileBrowser(jobResult)
+      }
     } catch (error) {
-      const message = getErrorMessage(error.message)
+      const message = safeErrorMessage(error.message)
       LoggerInstance.error('[Provider Get c2d results url] Error:', message)
       toast.error(message)
     }

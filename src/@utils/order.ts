@@ -11,8 +11,7 @@ import {
   ProviderComputeInitialize,
   ProviderFees,
   ProviderInstance,
-  ProviderInitialize,
-  getErrorMessage
+  ProviderInitialize
 } from '@oceanprotocol/lib'
 import { Signer, ethers } from 'ethers'
 import { getOceanConfig } from './ocean'
@@ -23,6 +22,7 @@ import {
   customProviderUrl
 } from '../../app.config'
 import { toast } from 'react-toastify'
+import { safeErrorMessage } from './safeError'
 
 async function initializeProvider(
   asset: AssetExtended,
@@ -40,7 +40,7 @@ async function initializeProvider(
     )
     return provider
   } catch (error) {
-    const message = getErrorMessage(error.message)
+    const message = safeErrorMessage(error.message)
     LoggerInstance.log('[Initialize Provider] Error:', message)
     toast.error(message)
   }
@@ -163,11 +163,19 @@ export async function order(
     case 'free': {
       if (asset.accessDetails.templateId === 1) {
         const dispenser = new Dispenser(config.dispenserAddress, signer)
-        const dispenserTx = await dispenser.dispense(
+        const dispenserTx: any = await dispenser.dispense(
           asset.accessDetails?.datatoken.address,
           '1',
           accountId
         )
+        // 【重要】dispense の採掘を待たずに startOrder を投げると、まだ datatoken を
+        // 受け取っていない状態で注文することになり
+        // "Not enough datatokens to start Order" で revert する。
+        // ローカルチェーンでは即時に採掘されるので露見しないが、Sepolia のように
+        // ブロック間隔がある鎖では確実に踏む。
+        if (typeof dispenserTx?.wait === 'function') {
+          await dispenserTx.wait()
+        }
         return await datatoken.startOrder(
           asset.accessDetails.datatoken.address,
           orderParams.consumer,

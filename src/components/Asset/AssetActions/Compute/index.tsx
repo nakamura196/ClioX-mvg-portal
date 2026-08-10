@@ -65,6 +65,8 @@ import { useAutomation } from '../../../../@context/Automation/AutomationProvide
 import { Signer } from 'ethers'
 import { useAccount } from 'wagmi'
 import { useMarketMetadata } from '@context/MarketMetadata'
+import { safeErrorMessage } from '../../../../@utils/safeError'
+import { startFreeCompute, isFreeAsset } from '../../../../@utils/freeCompute'
 
 const refreshInterval = 10000 // 10 sec.
 
@@ -421,6 +423,62 @@ export default function Compute({
           'Dataset is not orderable in combination with selected algorithm.'
         )
 
+      // 【無償資産の経路】
+      // データセットとアルゴリズムがどちらも無償（Dispenser）なら、
+      // initializeCompute（payment / escrow 必須）を通さず、Ocean Node の
+      // freeStartCompute へ直接投げる。注文も支払いも発生せず、認可は
+      // 計算環境の free.access（アドレス列挙 / AccessList NFT）で行われる。
+      if (
+        isFreeAsset(asset) &&
+        isFreeAsset(selectedAlgorithmAsset) &&
+        selectedComputeEnv?.id
+      ) {
+        // 選んだ資産がアルゴリズムでない（コンテナ情報を持たない）場合、
+        // ノードは "Unable to extract docker image null" で 500 を返す。
+        // 何を選び間違えたのか分からないので、手前で止めて理由を出す。
+        if (!selectedAlgorithmAsset?.metadata?.algorithm?.container?.image) {
+          throw new Error(
+            `選択された資産にコンテナ情報がありません（アルゴリズムではない可能性があります）: ${
+              selectedAlgorithmAsset?.metadata?.name ||
+              selectedAlgorithmAsset?.id
+            }`
+          )
+        }
+        LoggerInstance.log(
+          '[compute] 無償資産のため freeStartCompute を使います'
+        )
+        setComputeStatusText(getComputeFeedback()[4])
+        const freeResponse = await startFreeCompute(
+          signer,
+          asset.services[0].serviceEndpoint,
+          {
+            environment: selectedComputeEnv.id,
+            // ノードは DDO を引かず algorithm.meta のコンテナ情報を直接読む
+            // （getAlgorithmImage）。DDO の metadata.algorithm をそのまま渡す。
+            algorithm: {
+              ...(computeAlgorithm as any),
+              meta: selectedAlgorithmAsset?.metadata?.algorithm
+            },
+            datasets: [
+              {
+                documentId: asset.id,
+                serviceId: asset.services[0].id,
+                userdata: userCustomParameters?.dataServiceParams
+              }
+            ]
+            // output は渡さない。ノードの validateOutput は「ECIES で暗号化した
+            // JSON の hex 文字列」を期待しており（外部ストレージへのアップロード指定）、
+            // オブジェクトを渡すと 400 になる。省略すれば成果物はノード内に残り、
+            // computeResult から取得できる。
+          }
+        )
+        if (!freeResponse) throw new Error('Error starting compute job.')
+        LoggerInstance.log('[compute] freeStartCompute の応答:', freeResponse)
+        setIsOrdered(true)
+        setRefetchJobs(!refetchJobs)
+        return
+      }
+
       await initPriceAndFees()
 
       setComputeStatusText(
@@ -491,7 +549,7 @@ export default function Compute({
       setRefetchJobs(!refetchJobs)
       initPriceAndFees()
     } catch (error) {
-      const message = getErrorMessage(error.message)
+      const message = safeErrorMessage(error.message)
       LoggerInstance.error('[Compute] Error:', message)
       setError(message)
       setRetry(true)

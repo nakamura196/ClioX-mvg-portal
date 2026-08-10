@@ -73,11 +73,15 @@ export default function ComputeEnvSelection({
                   size="small"
                   className={assetSelectionStyles.price}
                   symbol={`${
-                    approvedBaseTokens?.find(
-                      (token) =>
-                        token.address.toLowerCase() ===
-                        env.feeToken.toLowerCase()
-                    )?.symbol || defaultTokenSymbol
+                    // [local patch] 無償のみの実行環境（fees 未設定）では feeToken が
+                    // 存在せず、toLowerCase() で全体がクラッシュする。既定シンボルに退避する。
+                    (env.feeToken &&
+                      approvedBaseTokens?.find(
+                        (token) =>
+                          token.address?.toLowerCase() ===
+                          env.feeToken.toLowerCase()
+                      )?.symbol) ||
+                    defaultTokenSymbol
                   } / minute`}
                 />
               </label>

@@ -17,6 +17,7 @@ import axios from 'axios'
 import { useCancelToken } from '@hooks/useCancelToken'
 import { useNetwork } from 'wagmi'
 import { ChevronDownIcon } from '@heroicons/react/24/outline'
+import { safeErrorMessage } from '../../../../../@utils/safeError'
 
 export default function CustomProvider(props: InputProps): ReactElement {
   const { chain } = useNetwork()
@@ -93,7 +94,7 @@ export default function CustomProvider(props: InputProps): ReactElement {
 
       helpers.setValue({ url, valid: isValid, custom })
     } catch (error) {
-      const message = getErrorMessage(error.message)
+      const message = safeErrorMessage(error.message)
       setFieldError(`${field.name}.url`, message)
       LoggerInstance.error('[Custom Provider]:', message)
     } finally {

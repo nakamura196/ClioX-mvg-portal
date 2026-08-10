@@ -9,8 +9,7 @@ import {
   Service,
   ProviderInstance,
   ComputeEnvironment,
-  ComputeJob,
-  getErrorMessage
+  ComputeJob
 } from '@oceanprotocol/lib'
 import { CancelToken } from 'axios'
 import { gql } from 'urql'
@@ -28,6 +27,8 @@ import { transformAssetToAssetSelection } from './assetConvertor'
 import { ComputeEditForm } from '../components/Asset/Edit/_types'
 import { getFileDidInfo } from './provider'
 import { toast } from 'react-toastify'
+import { safeErrorMessage } from './safeError'
+import { fetchComputeJobsViaOceanNode, isLocalOceanNode } from './oceanNodeAuth'
 
 const getComputeOrders = gql`
   query ComputeOrders($user: String!) {
@@ -152,7 +153,7 @@ export async function getComputeEnvironment(
     if (!computeEnv) return null
     return computeEnv
   } catch (e) {
-    const message = getErrorMessage(e.message)
+    const message = safeErrorMessage(e.message)
     LoggerInstance.error(
       '[Compute to Data] Fetch compute environment:',
       message
@@ -249,10 +250,13 @@ async function getJobs(
 
   try {
     for (let i = 0; i < uniqueProviders.length; i++) {
-      const providerComputeJobs = (await ProviderInstance.computeStatus(
-        uniqueProviders[i],
-        accountId
-      )) as ComputeJob[]
+      // Ocean Node 3.2.0 に対しては ocean.js 3.1.3 の computeStatus が空を返す。
+      // 手元のノードには直接問い合わせる。
+      const providerComputeJobs = (
+        isLocalOceanNode(uniqueProviders[i])
+          ? await fetchComputeJobsViaOceanNode(uniqueProviders[i], accountId)
+          : await ProviderInstance.computeStatus(uniqueProviders[i], accountId)
+      ) as ComputeJob[]
 
       providerComputeJobs.forEach((job) =>
         providersComputeJobsExtended.push({
@@ -288,7 +292,7 @@ async function getJobs(
       })
     }
   } catch (err) {
-    const message = getErrorMessage(err.message)
+    const message = safeErrorMessage(err.message)
     LoggerInstance.error('[Compute to Data] Error:', message)
     toast.error(message)
   }
@@ -347,6 +351,25 @@ export async function getComputeJobs(
     )
   )
   if (tokenOrders.length === 0) {
+    // 【重要】ジョブ一覧を「オンチェーンの注文」から組み立てる前提が、
+    // 無償実行（freeStartCompute）では成り立たない。無償ジョブは注文を
+    // 一切作らないため、ここで打ち切ると実行済みのジョブが画面に出ない。
+    // 手元のノードには直接問い合わせて補う。
+    const endpoint = asset?.services?.[0]?.serviceEndpoint
+    if (endpoint && isLocalOceanNode(endpoint)) {
+      const jobs = await fetchComputeJobsViaOceanNode(endpoint, accountId)
+      computeResult.computeJobs = jobs.map((job) => ({
+        ...job,
+        // Ocean Node 3.2.0 のジョブには inputDID が無い。
+        // 画面側（Results）はこれを使ってデータセットの Provider を引くので、
+        // 無いまま渡すと job.inputDID[0] で落ちる。今見ている資産で補う。
+        inputDID: job.inputDID?.length ? job.inputDID : [asset?.id],
+        assetName: asset?.metadata?.name,
+        assetDtSymbol: asset?.datatokens?.[0]?.symbol,
+        networkId: asset?.chainId,
+        providerUrl: endpoint
+      })) as ComputeJobMetaData[]
+    }
     computeResult.isLoaded = true
     return computeResult
   }

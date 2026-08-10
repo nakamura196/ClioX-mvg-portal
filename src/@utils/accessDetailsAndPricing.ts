@@ -21,6 +21,7 @@ import {
 } from '../../app.config'
 import { Signer } from 'ethers'
 import { toast } from 'react-toastify'
+import { safeErrorMessage } from './safeError'
 
 const tokenPriceQuery = gql`
   query TokenPriceQuery($datatokenId: ID!, $account: String) {
@@ -194,7 +195,7 @@ export async function getOrderPriceAndFees(
         customProviderUrl || asset?.services[0].serviceEndpoint
       ))
   } catch (error) {
-    const message = getErrorMessage(error.message)
+    const message = safeErrorMessage(error.message)
     LoggerInstance.error('[Initialize Provider] Error:', message)
 
     // Customize error message for accountId non included in allow list

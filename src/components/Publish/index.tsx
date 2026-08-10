@@ -26,6 +26,7 @@ import { setNFTMetadataAndTokenURI } from '@utils/nft'
 import { customProviderUrl } from '../../../app.config'
 import { useAccount, useNetwork, useSigner } from 'wagmi'
 import { useAutomation } from '../../@context/Automation/AutomationProvider'
+import { safeErrorMessage } from '../../@utils/safeError'
 
 export default function PublishPage({
   content
@@ -164,7 +165,7 @@ export default function PublishPage({
           newAbortController()
         )
       } catch (error) {
-        const message = getErrorMessage(error.message)
+        const message = safeErrorMessage(error.message)
         LoggerInstance.error('[Provider Encrypt] Error:', message)
       }
 

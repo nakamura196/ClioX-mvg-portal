@@ -22,19 +22,23 @@ function Asset({
   return (
     <div className={styles.asset}>
       <h3 className={styles.assetTitle}>
-        {title}{' '}
-        <a
-          className={styles.assetLink}
-          href={`/asset/${did}`}
-          target="_blank"
-          rel="noreferrer"
-        >
-          <External />
-        </a>
+        {title || '(名称不明)'}{' '}
+        {/* Ocean Node 3.2.0 のジョブは algoDID を返さないことがある。
+            無いまま描くと /asset/null へのリンクになるので、その場合は出さない。 */}
+        {did && (
+          <a
+            className={styles.assetLink}
+            href={`/asset/${did}`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            <External />
+          </a>
+        )}
       </h3>
       <p className={styles.assetMeta}>
-        <span className={styles.assetMeta}> {`${symbol} | `}</span>
-        <code className={styles.assetMeta}>{did}</code>
+        {symbol && <span className={styles.assetMeta}> {`${symbol} | `}</span>}
+        <code className={styles.assetMeta}>{did || '(DID なし)'}</code>
       </p>
     </div>
   )

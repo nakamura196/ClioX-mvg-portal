@@ -30,10 +30,14 @@ export default function TagsAutoComplete({
   const generateAutocompleteOptions = (
     options: string[]
   ): AutoCompleteOption[] => {
-    return options?.map((tag) => ({
-      value: tag,
-      label: tag
-    }))
+    // 候補の取得に失敗すると undefined が返り、そのまま matchSorter に渡って
+    // 「入力した瞬間に画面が落ちる」ことになる。空配列に落として先へ流す。
+    return (
+      options?.map((tag) => ({
+        value: tag,
+        label: tag
+      })) ?? []
+    )
   }
 
   const selectedTags = field.value
@@ -74,7 +78,9 @@ export default function TagsAutoComplete({
     input: string
   ): void => {
     setInput(input)
-    const matchedTagsList = matchSorter(options, input, { keys: ['value'] })
+    const matchedTagsList = matchSorter(options ?? [], input, {
+      keys: ['value']
+    })
     setMatchedTagsList(matchedTagsList)
   }
 

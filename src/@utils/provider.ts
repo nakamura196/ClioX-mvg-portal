@@ -13,8 +13,7 @@ import {
   ProviderInstance,
   UrlFile,
   AbiItem,
-  UserCustomParameters,
-  getErrorMessage
+  UserCustomParameters
 } from '@oceanprotocol/lib'
 // if customProviderUrl is set, we need to call provider using this custom endpoint
 import { customProviderUrl } from '../../app.config'
@@ -23,6 +22,12 @@ import { Signer } from 'ethers'
 import { getValidUntilTime } from './compute'
 import { toast } from 'react-toastify'
 import { OCEAN_ERROR_STATES } from '../@constants/errors'
+import { safeErrorMessage } from './safeError'
+import {
+  encryptViaOceanNode,
+  isLocalOceanNode,
+  buildDownloadUrlViaOceanNode
+} from './oceanNodeAuth'
 
 export async function initializeProviderForCompute(
   dataset: AssetExtended,
@@ -77,15 +82,17 @@ export async function getEncryptedFiles(
   providerUrl: string
 ): Promise<string> {
   try {
+    const url = customProviderUrl || providerUrl
+    // Ocean Node 3.2.0 の encrypt は認証必須だが、ocean.js 3.1.3 は送らないため
+    // 401 になる。手元のノードに対しては、署名を付けて直接叩く。
+    if (isLocalOceanNode(url)) {
+      return await encryptViaOceanNode(files, url)
+    }
     // https://github.com/oceanprotocol/provider/blob/v4main/API.md#encrypt-endpoint
-    const response = await ProviderInstance.encrypt(
-      files,
-      chainId,
-      customProviderUrl || providerUrl
-    )
+    const response = await ProviderInstance.encrypt(files, chainId, url)
     return response
   } catch (error) {
-    const message = getErrorMessage(error.message)
+    const message = safeErrorMessage(error.message)
     LoggerInstance.error('[Provider Encrypt] Error:', message)
     toast.error(message)
   }
@@ -106,7 +113,7 @@ export async function getFileDidInfo(
     )
     return response
   } catch (error) {
-    const message = getErrorMessage(error.message)
+    const message = safeErrorMessage(error.message)
     LoggerInstance.error('[Initialize check file did] Error:', message)
     toast.error(`[Initialize check file did] Error: ${message}`)
     throw new Error(`[Initialize check file did] Error: ${message}`)
@@ -146,7 +153,7 @@ export async function getFileInfo(
           withChecksum
         )
       } catch (error) {
-        const message = getErrorMessage(error.message)
+        const message = safeErrorMessage(error.message)
         LoggerInstance.error('[Provider Get File info] Error:', message)
         toast.error(message)
       }
@@ -164,7 +171,7 @@ export async function getFileInfo(
           withChecksum
         )
       } catch (error) {
-        const message = getErrorMessage(error.message)
+        const message = safeErrorMessage(error.message)
         LoggerInstance.error('[Provider Get File info] Error:', message)
         toast.error(message)
       }
@@ -183,7 +190,7 @@ export async function getFileInfo(
           customProviderUrl || providerUrl
         )
       } catch (error) {
-        const message = getErrorMessage(error.message)
+        const message = safeErrorMessage(error.message)
         LoggerInstance.error('[Provider Get File info] Error:', message)
         toast.error(message)
       }
@@ -203,7 +210,7 @@ export async function getFileInfo(
           customProviderUrl || providerUrl
         )
       } catch (error) {
-        const message = getErrorMessage(error.message)
+        const message = safeErrorMessage(error.message)
         LoggerInstance.error('[Provider Get File info] Error:', message)
         toast.error(message)
       }
@@ -224,7 +231,7 @@ export async function getFileInfo(
           withChecksum
         )
       } catch (error) {
-        const message = getErrorMessage(error.message)
+        const message = safeErrorMessage(error.message)
         LoggerInstance.error('[Provider Get File info] Error:', message)
         toast.error(message)
       }
@@ -242,18 +249,28 @@ export async function downloadFile(
   userCustomParameters?: UserCustomParameters
 ) {
   let downloadUrl
+  const providerUrl = customProviderUrl || asset.services[0].serviceEndpoint
   try {
-    downloadUrl = await ProviderInstance.getDownloadUrl(
-      asset.id,
-      asset.services[0].id,
-      0,
-      validOrderTx || asset.accessDetails.validOrderTx,
-      customProviderUrl || asset.services[0].serviceEndpoint,
-      signer,
-      userCustomParameters
-    )
+    // Ocean Node 3.2.0 は署名の作り方が変わっている。手元のノードには自前で組む。
+    downloadUrl = isLocalOceanNode(providerUrl)
+      ? await buildDownloadUrlViaOceanNode(signer, providerUrl, {
+          documentId: asset.id,
+          serviceId: asset.services[0].id,
+          transferTxId: validOrderTx || asset.accessDetails.validOrderTx,
+          fileIndex: 0,
+          userdata: userCustomParameters
+        })
+      : await ProviderInstance.getDownloadUrl(
+          asset.id,
+          asset.services[0].id,
+          0,
+          validOrderTx || asset.accessDetails.validOrderTx,
+          providerUrl,
+          signer,
+          userCustomParameters
+        )
   } catch (error) {
-    const message = getErrorMessage(error.message)
+    const message = safeErrorMessage(error.message)
     LoggerInstance.error('[Provider Get download url] Error:', message)
     toast.error(message)
   }
@@ -267,7 +284,7 @@ export async function checkValidProvider(
     const response = await ProviderInstance.isValidProvider(providerUrl)
     return response
   } catch (error) {
-    const message = getErrorMessage(error.message)
+    const message = safeErrorMessage(error.message)
     LoggerInstance.error('[Provider Check] Error:', message)
     toast.error(message)
   }

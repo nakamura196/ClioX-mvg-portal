@@ -57,12 +57,16 @@ export function getInitialValues(
   return {
     algorithm: selectedAlgorithmAsset?.id,
     computeEnv: selectedComputeEnv?.id,
-    dataServiceParams: getDefaultValues(asset?.services[0].consumerParameters),
+    // オプショナルチェーンが途中で切れていたため、services が空・metadata に
+    // algorithm が無い資産を選んだ瞬間に画面ごと落ちていた。最後まで繋ぐ。
+    dataServiceParams: getDefaultValues(
+      asset?.services?.[0]?.consumerParameters
+    ),
     algoServiceParams: getDefaultValues(
-      selectedAlgorithmAsset?.services[0].consumerParameters
+      selectedAlgorithmAsset?.services?.[0]?.consumerParameters
     ),
     algoParams: getDefaultValues(
-      selectedAlgorithmAsset?.metadata?.algorithm.consumerParameters
+      selectedAlgorithmAsset?.metadata?.algorithm?.consumerParameters
     ),
     assetTermsAndConditions: !!assetTermsAndConditions,
     portalTermsAndConditions: !!portalTermsAndConditions

@@ -6,13 +6,13 @@ import {
   ProviderInstance,
   DDO,
   MetadataAndTokenURI,
-  NftCreateData,
-  getErrorMessage
+  NftCreateData
 } from '@oceanprotocol/lib'
 import { SvgWaves } from './SvgWaves'
 import { customProviderUrl } from '../../app.config'
 import { Signer, ethers } from 'ethers'
 import { toast } from 'react-toastify'
+import { safeErrorMessage } from './safeError'
 
 // https://docs.opensea.io/docs/metadata-standards
 export interface NftMetadata {
@@ -136,7 +136,7 @@ export async function setNftMetadata(
       signal
     )
   } catch (err) {
-    const message = getErrorMessage(err.message)
+    const message = safeErrorMessage(err.message)
     LoggerInstance.error('[Encrypt Data] Error:', message)
     toast.error(message)
   }
@@ -178,7 +178,7 @@ export async function setNFTMetadataAndTokenURI(
       signal
     )
   } catch (err) {
-    const message = getErrorMessage(err.message)
+    const message = safeErrorMessage(err.message)
     LoggerInstance.error('[Encrypt Data] Error:', message)
     toast.error(message)
   }

@@ -38,8 +38,11 @@ export default function RelatedAssets(): ReactElement {
             generateQuery(chainIds, asset.nftAddress, 4, asset.metadata.tags)
           )
 
-          tagResults = (await queryMetadata(tagQuery, newCancelToken()))
-            ?.results
+          // 手元の Ocean Node は該当なしのとき results を返さないことがある。
+          // undefined のまま先へ流すと下の concat が [undefined] を作り、
+          // AssetList の asset.id で落ちる。
+          tagResults =
+            (await queryMetadata(tagQuery, newCancelToken()))?.results ?? []
         }
 
         if (tagResults.length === 4) {
@@ -62,8 +65,9 @@ export default function RelatedAssets(): ReactElement {
           // combine both results, and filter out duplicates
           // stolen from: https://stackoverflow.com/a/70326769/733677
           const bothResults = tagResults.concat(
-            ownerResults?.filter(
-              (asset2) => !tagResults.find((asset1) => asset1.id === asset2.id)
+            (ownerResults ?? []).filter(
+              (asset2) =>
+                asset2 && !tagResults.find((asset1) => asset1?.id === asset2.id)
             )
           )
           setRelatedAssets(bothResults)

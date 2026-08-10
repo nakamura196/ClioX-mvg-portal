@@ -140,10 +140,17 @@ export function generateBaseQuery(
           ...(baseQueryParams.chainIds
             ? [getFilterTerm('chainId', baseQueryParams.chainIds)]
             : []),
-          getFilterTerm(
-            '_index',
-            getIndexForChainIds(baseQueryParams.chainIds)
-          ),
+          // [local patch] `_index` は Elasticsearch 固有のフィルタ。Ocean Node は
+          // Typesense で `op_ddo_v<DDOのversion>` というコレクションに分けて持つため、
+          // 'v510' で絞ると常に 0 件になる。Ocean Node 構成では外す。
+          ...(metadataCacheUri.includes('localhost')
+            ? []
+            : [
+                getFilterTerm(
+                  '_index',
+                  getIndexForChainIds(baseQueryParams.chainIds)
+                )
+              ]),
           ...(baseQueryParams.ignorePurgatory
             ? []
             : [getFilterTerm('purgatory.state', false)]),
@@ -235,6 +242,44 @@ export function generateBaseQuery(
   return generatedQuery
 }
 
+// [local patch] Ocean Node と Aquarius(Elasticsearch) の DDO 形状差を吸収する。
+//
+//   Aquarius   : { …, nft: {...}, stats: { orders, allocated, price }, purgatory: {...} }
+//   Ocean Node : { …, indexedMetadata: { nft, stats, purgatory, event } }
+//                 かつ stats は datatoken ごとの配列
+//
+// ポータルの各所（AssetTeaser / Asset.tsx など）はトップレベルの nft・stats を
+// 参照するため、ここで詰め替える。Aquarius 由来のデータはそのまま通す。
+export function normalizeOceanNodeAsset(input: any): Asset {
+  if (!input) return input
+  const doc = { ...input }
+  const im = doc.indexedMetadata || {}
+  if (!doc.indexedMetadata) return doc as Asset
+
+  const rawStats = doc.stats || im.stats
+  const stats = Array.isArray(rawStats)
+    ? {
+        orders: rawStats.reduce(
+          (n: number, x: any) => n + (Number(x?.orders) || 0),
+          0
+        ),
+        allocated: 0,
+        price: {
+          value: Number(rawStats?.[0]?.prices?.[0]?.price) || 0,
+          tokenSymbol: rawStats?.[0]?.prices?.[0]?.token || undefined
+        }
+      }
+    : rawStats || { orders: 0, allocated: 0, price: { value: 0 } }
+
+  return {
+    ...doc,
+    nft: doc.nft || im.nft,
+    stats,
+    purgatory: doc.purgatory || im.purgatory || { state: false },
+    event: doc.event || im.event
+  } as Asset
+}
+
 export function transformQueryResult(
   queryResult: SearchResponse,
   from = 0,
@@ -248,15 +293,38 @@ export function transformQueryResult(
     aggregations: []
   }
 
-  result.results = (queryResult.hits.hits || []).map(
-    (hit) => hit._source as Asset
-  )
+  // [local patch] Ocean Node(Typesense) と Aquarius(Elasticsearch) で応答形式が違う。
+  //
+  //   Aquarius   : { hits: { hits: [{ _source: DDO }], total: { value } } }
+  //   Ocean Node : [ { request_params: { collection_name }, found, hits: [{ document: DDO }] }, … ]
+  //                 ← DDO の version ごとのコレクション(op_ddo_v4.1.0 等)を個別に検索した
+  //                    結果が、コレクションの数だけ並んで返る
+  //
+  // Ocean Node 形式なら、全コレクションの hits を 1 本に平坦化する。
+  if (Array.isArray(queryResult as unknown)) {
+    const collections = queryResult as unknown as any[]
+    const hits = collections.flatMap((c) => c?.hits || [])
+    // Ocean Node は nft / stats / purgatory / event を indexedMetadata の下に入れる。
+    // ポータルの各コンポーネント（AssetTeaser 等）はトップレベルを参照するので持ち上げる。
+    result.results = hits.map((h) => {
+      return normalizeOceanNodeAsset(h.document || h._source || h)
+    })
+    result.aggregations = []
+    result.totalResults = collections.reduce(
+      (sum, c) => sum + (Number(c?.found) || 0),
+      0
+    )
+  } else {
+    result.results = (queryResult.hits.hits || []).map(
+      (hit) => hit._source as Asset
+    )
 
-  result.aggregations = queryResult.aggregations
-  // Temporary fix to handle old Aquarius deployment
-  result.totalResults =
-    queryResult.hits.total?.value ||
-    (queryResult.hits.total as unknown as number)
+    result.aggregations = queryResult.aggregations
+    // Temporary fix to handle old Aquarius deployment
+    result.totalResults =
+      queryResult.hits.total?.value ||
+      (queryResult.hits.total as unknown as number)
+  }
 
   result.totalPages =
     result.totalResults / size < 1
@@ -267,19 +335,108 @@ export function transformQueryResult(
   return result
 }
 
+/**
+ * [local patch] Elasticsearch のクエリを、取得済みの資産に対して手元で評価する。
+ *
+ * ローカルの Ocean Node は ES 形式の filter を解釈できないため、絞り込みを外して
+ * 全件取得したうえでここで同じ条件を適用する。対応するのはポータルが実際に使う
+ * 範囲（term / terms / match / bool の filter・must・should・must_not）に限る。
+ */
+function esFieldValue(asset: any, field: string): any {
+  // 'metadata.type' のようなドット記法をたどる。'_id' は DID を指す。
+  if (field === '_id' || field === 'id') return asset?.id
+  return field
+    .split('.')
+    .reduce((o: any, k: string) => (o == null ? o : o[k]), asset)
+}
+
+function esClauseMatches(asset: any, clause: any): boolean {
+  if (!clause || typeof clause !== 'object') return true
+
+  if (clause.bool) {
+    const b = clause.bool
+    const all = (list: any) =>
+      !list ||
+      (Array.isArray(list) ? list : [list]).every((c) =>
+        esClauseMatches(asset, c)
+      )
+    const any = (list: any) => {
+      if (!list) return true
+      const arr = Array.isArray(list) ? list : [list]
+      return arr.length === 0 || arr.some((c) => esClauseMatches(asset, c))
+    }
+    const none = (list: any) =>
+      !list ||
+      !(Array.isArray(list) ? list : [list]).some((c) =>
+        esClauseMatches(asset, c)
+      )
+    return all(b.filter) && all(b.must) && any(b.should) && none(b.must_not)
+  }
+
+  const cmp = (a: any, b: any) =>
+    String(a).toLowerCase() === String(b).toLowerCase()
+
+  for (const kind of ['term', 'match', 'match_phrase']) {
+    if (clause[kind]) {
+      const [field, raw] = Object.entries(clause[kind])[0] as [string, any]
+      const want = raw?.value ?? raw?.query ?? raw
+      return cmp(esFieldValue(asset, field), want)
+    }
+  }
+  if (clause.terms) {
+    const [field, raw] = Object.entries(clause.terms)[0] as [string, any]
+    const list = Array.isArray(raw) ? raw : [raw]
+    // terms が空 = 条件なし（絞り込まない）
+    if (list.length === 0) return true
+    const v = esFieldValue(asset, field)
+    return list.some((w) => cmp(v, w))
+  }
+  if (clause.exists?.field) {
+    return esFieldValue(asset, clause.exists.field) != null
+  }
+  // 未対応の節（range / query_string 等）は素通しにする。
+  // 落として全件消すより、多めに返して表示側で弾く方が安全。
+  return true
+}
+
+function matchesEsQuery(asset: any, query: any): boolean {
+  if (!query) return true
+  return esClauseMatches(asset, query)
+}
+
 export async function queryMetadata(
   query: SearchQuery,
   cancelToken: CancelToken
 ): Promise<PagedAssets> {
   try {
+    // [local patch] Ocean Node は query.bool.filter に terms/term を入れると
+    // 空配列を返す（Typesense へのフィルタ変換が Elasticsearch 形式に追随していない）。
+    // ローカル構成では絞り込みを外して取得し、**同じ条件を手元で適用する**。
+    //
+    // 【重要】ここで chainId だけしか適用しないと、「このデータセットが信頼する
+    // アルゴリズム一覧」のような問い合わせまで全件返ってしまい、アルゴリズムの
+    // 選択欄にデータセットが並ぶ（実際に踏んだ）。落とした条件は必ず手元で戻すこと。
+    const isLocalNode = metadataCacheUri.includes('localhost')
+
     const response: AxiosResponse<SearchResponse> = await axios.post(
-      `${metadataCacheUri}/api/aquarius/assets/query`,
-      { ...query },
+      `${metadataCacheUri}/api/aquarius/assets/metadata/query`,
+      isLocalNode ? { query: { bool: { filter: [] } } } : { ...query },
       { cancelToken }
     )
     if (!response || response.status !== 200 || !response.data) return
 
-    return transformQueryResult(response.data, query.from, query.size)
+    const transformed = transformQueryResult(
+      response.data,
+      query.from,
+      query.size
+    )
+    if (isLocalNode && transformed?.results) {
+      transformed.results = transformed.results.filter((a) =>
+        matchesEsQuery(a, (query as any)?.query)
+      )
+      transformed.totalResults = transformed.results.length
+    }
+    return transformed
   } catch (error) {
     if (axios.isCancel(error)) {
       LoggerInstance.log(error.message)
@@ -302,8 +459,8 @@ export async function getAsset(
     )
     if (!response || response.status !== 200 || !response.data) return
 
-    const data = { ...response.data }
-    return data
+    // [local patch] Ocean Node 形式なら nft / stats をトップレベルへ持ち上げる
+    return normalizeOceanNodeAsset({ ...response.data })
   } catch (error) {
     if (axios.isCancel(error)) {
       LoggerInstance.log(error.message)
@@ -609,9 +766,11 @@ export async function getTagsList(
   chainIds: number[],
   cancelToken: CancelToken
 ): Promise<string[]> {
+  // 集計に頼れないローカル構成では、件数 0 だと手元で集めるものが無くなる。
+  const isLocalNode = metadataCacheUri.includes('localhost')
   const baseQueryParams = {
     chainIds,
-    esPaginationOptions: { from: 0, size: 0 }
+    esPaginationOptions: { from: 0, size: isLocalNode ? 1000 : 0 }
   } as BaseQueryParams
   const query = {
     ...generateBaseQuery(baseQueryParams),
@@ -627,11 +786,23 @@ export async function getTagsList(
 
   try {
     const response: AxiosResponse<SearchResponse> = await axios.post(
-      `${metadataCacheUri}/api/aquarius/assets/query`,
+      `${metadataCacheUri}/api/aquarius/assets/metadata/query`,
       { ...query },
       { cancelToken }
     )
     if (response?.status !== 200 || !response?.data) return
+
+    // [local patch] Ocean Node は Elasticsearch の aggregations を返さない。
+    // 集計できないので、取得した資産から手元でタグを集める。
+    if (!response.data.aggregations?.tags) {
+      const hits: any[] = (response.data as any)?.hits?.hits || []
+      const tags = hits
+        .map((h) => h?._source?.metadata?.tags || h?.metadata?.tags || [])
+        .flat()
+        .filter((t: string) => t && t !== '')
+      return Array.from(new Set<string>(tags)).sort()
+    }
+
     const { buckets }: { buckets: AggregatedTag[] } =
       response.data.aggregations.tags
 
