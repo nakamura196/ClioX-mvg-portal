@@ -9,6 +9,7 @@ import { getAssetsFromDids } from '@utils/aquarius'
 import { useCancelToken } from '@hooks/useCancelToken'
 import { useMarketMetadata } from '@context/MarketMetadata'
 import { useAccount } from 'wagmi'
+import { useTranslation } from 'react-i18next'
 
 const columns: TableOceanColumn<AssetExtended>[] = [
   {
@@ -37,6 +38,7 @@ const columns: TableOceanColumn<AssetExtended>[] = [
 ]
 
 export default function Bookmarks(): ReactElement {
+  const { t } = useTranslation('common')
   const { appConfig } = useMarketMetadata()
   const { address: accountId } = useAccount()
   const { bookmarks } = useUserPreferences()
@@ -87,9 +89,7 @@ export default function Bookmarks(): ReactElement {
       data={pinned}
       isLoading={isLoading}
       emptyMessage={
-        chainIds.length === 0
-          ? 'No network selected'
-          : 'Your bookmarks will appear here.'
+        chainIds.length === 0 ? t('bookmarks.noNetwork') : t('bookmarks.empty')
       }
     />
   )

@@ -221,7 +221,7 @@ export default function Filter({
         {filterList.map((filter) => (
           <div key={filter.id} className={styles.compactFilterContainer}>
             <Accordion
-              title={filter.label}
+              title={label(filter.label)}
               badgeNumber={filters[filter.id].length}
               compact
             >
@@ -233,7 +233,7 @@ export default function Filter({
                       key={option.value}
                       name={option.label}
                       type="checkbox"
-                      options={[option.label]}
+                      options={[label(option.label)]}
                       checked={isSelected}
                       onChange={async () => {
                         handleSelectedFilter(option.value, filter.id)
@@ -248,7 +248,7 @@ export default function Filter({
         {showPurgatoryOption && (
           <div className={styles.compactFilterContainer}>
             <Accordion
-              title="Purgatory"
+              title={t('search.purgatory')}
               badgeNumber={ignorePurgatory ? 1 : 0}
               compact
             >

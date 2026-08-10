@@ -1,11 +1,14 @@
 import { ReactElement, useEffect } from 'react'
 import Page from '@shared/Page'
 import { useRouter } from 'next/router'
-import content from '../../../content/pages/visualizations.json'
+import contentEn from '../../../content/pages/visualizations.json'
+import contentJa from '../../../content/pages/visualizations.ja.json'
+import useLocaleContent from '../../i18n/useLocaleContent'
 import VisualizationsUnified from '../../components/VisualizationsUnified'
 import { useUseCases } from '../../@context/UseCases'
 
 export default function VisualizationsUnifiedPage(): ReactElement {
+  const content = useLocaleContent(contentEn, contentJa)
   const router = useRouter()
   const { clearTextAnalysis, clearCameroonGazette } = useUseCases()
 

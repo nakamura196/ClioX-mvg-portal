@@ -23,7 +23,8 @@
     "terms": "Terms & Conditions",
     "stayInTheLoop": "Stay in the loop",
     "stayInTheLoopText": "Bite-sized insights on Web3 tech to help you explore Clio-X with confidence — delivered monthly.",
-    "subscribe": "Subscribe"
+    "subscribe": "Subscribe",
+    "copyright": "© {{year}} Clio-X Data Solutions Limited. All rights reserved."
   },
   "search": {
     "placeholder": "Search for service offerings",
@@ -84,6 +85,63 @@
   },
   "error": {
     "generic": "Something went wrong.",
-    "notFound": "Page not found."
+    "notFound": "Page not found.",
+    "notFoundTitle": "404 - Page Not Found",
+    "notFoundHeading": "Page Not Found",
+    "notFoundBody": "The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.",
+    "backHome": "Return to Homepage"
+  },
+  "publish": {
+    "back": "Back",
+    "continue": "Continue",
+    "submit": "Submit",
+    "retry": "Retry",
+    "unsupportedNetwork": "Unsupported Network",
+    "into": "into",
+    "validate": "Validate",
+    "boxTitles": {
+      "dataset": "Dataset",
+      "algorithm": "Algorithm",
+      "saas": "SaaS",
+      "download": "Download",
+      "compute": "Compute"
+    }
+  },
+  "profile": {
+    "published": "Published",
+    "downloads": "Downloads",
+    "computeJobs": "Compute Jobs",
+    "connectWallet": "Please connect your wallet.",
+    "sales_one": "Sale",
+    "sales_other": "Sales"
+  },
+  "resources": {
+    "title": "The Reading Room",
+    "introBefore": "Welcome to your go-to hub for valuable resources and everything you need to get the most out of Clio-X. If you don’t see what you need, feel free to ",
+    "introLink": "get in touch",
+    "introAfter": ".",
+    "featured": "Featured",
+    "featuredResearch": "Featured Research",
+    "readMore": "Read more →",
+    "linkComingSoon": "Link coming soon",
+    "tabs": {
+      "articles": "Resource Articles",
+      "academy": "Clio-X Academy",
+      "events": "Events",
+      "guides": "Guides",
+      "glossary": "Glossary",
+      "research": "Research"
+    }
+  },
+  "bookmarks": {
+    "empty": "Your bookmarks will appear here.",
+    "noNetwork": "No network selected"
+  },
+  "web3": {
+    "noAccountTitle": "No account connected",
+    "wrongNetworkTitle": "Not connected to asset network",
+    "outOfSyncTitle": "Data out of sync",
+    "outOfSyncMessage": "The data for this network has only synced to Ethereum block {{blockGraph}} (out of {{blockHead}}). Transactions may fail! Please check back soon.",
+    "genericTitle": "Something went wrong."
   }
 }

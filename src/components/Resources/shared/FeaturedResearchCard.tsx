@@ -1,5 +1,6 @@
 import { ReactElement } from 'react'
 import { motion, Variants } from 'motion/react'
+import { useTranslation } from 'react-i18next'
 
 interface FeaturedResearchCardProps {
   title: string
@@ -24,6 +25,7 @@ export default function FeaturedResearchCard({
   imageSrc,
   imageAlt = ''
 }: FeaturedResearchCardProps): ReactElement {
+  const { t } = useTranslation('common')
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
@@ -60,7 +62,7 @@ export default function FeaturedResearchCard({
       <div className="space-y-4 text-left">
         <motion.div variants={itemVariants}>
           <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-tight text-[var(--color-primary)] bg-[var(--button-secondary-background)] px-3 py-2 rounded-full mb-3">
-            <span>Featured Research</span>
+            <span>{t('resources.featuredResearch')}</span>
           </div>
         </motion.div>
 

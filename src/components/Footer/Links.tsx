@@ -8,12 +8,19 @@ import styles from './Links.module.css'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
+import { useRouter } from 'next/router'
 
 export default function Links(): ReactElement {
   const { appConfig } = useMarketMetadata()
   const { setShowPPC, privacyPolicySlug } = useUserPreferences()
   const cookies = useGdprMetadata()
   const { t } = useTranslation('common')
+  const { locale } = useRouter()
+
+  // The legal pages carry their own language in the slug (/privacy/en,
+  // /privacy/ja). Follow the UI locale, unless the visitor picked a policy
+  // language explicitly via the in-page switcher.
+  const policyLang = locale === 'ja' ? 'ja' : 'en'
 
   const partnerLogos = [
     {
@@ -199,7 +206,11 @@ export default function Links(): ReactElement {
                 </li>
                 <li>
                   <Button
-                    to={privacyPolicySlug || '/privacy'}
+                    to={
+                      locale === 'ja'
+                        ? '/privacy/ja'
+                        : privacyPolicySlug || '/privacy'
+                    }
                     className={`${styles.link} ${styles.footerLink}`}
                     style="text"
                   >
@@ -208,7 +219,7 @@ export default function Links(): ReactElement {
                 </li>
                 <li>
                   <Button
-                    to="/cookies/en"
+                    to={`/cookies/${policyLang}`}
                     className={`${styles.link} ${styles.footerLink}`}
                     style="text"
                   >

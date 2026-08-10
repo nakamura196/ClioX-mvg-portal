@@ -1,0 +1,226 @@
+{
+  "metadata": {
+    "title": "メタデータ",
+    "fields": [
+      {
+        "label": "データ NFT",
+        "help": "データ NFT は、デジタルサービスの知的財産を表す唯一無二のデジタル資産です。柔軟なライセンス設定と、価値あるビジネスデータへの高度な制御を可能にします。1 つのデータ NFT から条件の異なる複数のアクセストークンを発行でき、アクセス範囲や期間を使い分けられます。"
+      },
+      {
+        "label": "資産の種類"
+      },
+      {
+        "label": "タイトル",
+        "placeholder": "例: 砂漠植物のかたち"
+      },
+      {
+        "label": "説明",
+        "help": "できるだけ詳しい説明を記載してください。[Markdown](https://daringfireball.net/projects/markdown/basics) が使えます。説明はいつでも変更できます。個人情報を記載した場合、その内容はトランザクション履歴に残り続ける点にご注意ください。"
+      },
+      {
+        "label": "作成者",
+        "placeholder": "例: ブリティッシュコロンビア大学",
+        "help": "この資産を作成した個人または組織。"
+      },
+      {
+        "label": "サービスクレデンシャル",
+        "placeholder": "例: https://file.com/service-credential.json",
+        "help": "有効なサービスクレデンシャルの URL を入力し、「ADD FILE」を押して検証してください。この URL とその内容は公開後に一般公開されます"
+      },
+      {
+        "label": "タグ",
+        "placeholder": "例: 物流"
+      },
+      {
+        "label": "ライセンス",
+        "placeholder": "例: MIT",
+        "help": "このサービスに適用されるライセンスの SPDX 識別子。"
+      },
+      {
+        "label": "利用規約",
+        "placeholder": "例: https://file.com/tandc.md",
+        "help": "このサービスを利用する際の規約です。規約文書への解決可能なリンクを指定してください。指定がない場合は [本ポータルの既定の規約](/terms) が適用されます。"
+      },
+      {
+        "label": "Docker イメージ",
+        "help": "アルゴリズムを実行するイメージを選択してください。"
+      },
+      {
+        "label": "カスタム Docker イメージ",
+        "placeholder": "例: oceanprotocol/algo_dockers:node-vibrant または quay.io/startx/mariadb",
+        "help": "公開 Docker Hub イメージの名前とタグ、またはサードパーティのリポジトリでホストしているカスタムイメージを指定してください"
+      },
+      {
+        "label": "Docker イメージのチェックサム",
+        "help": "Docker イメージのチェックサム (DIGEST) を指定してください。"
+      },
+      {
+        "label": "Docker イメージのエントリポイント",
+        "placeholder": "例: python $ALGO",
+        "help": "アルゴリズムのエントリポイントを指定してください。"
+      },
+      {
+        "label": "アルゴリズムのカスタムパラメータ",
+        "help": "カスタムパラメータは、Compute-to-Data 環境でアルゴリズムを実行する前に利用者へ入力を求める項目を定義します。",
+        "options": ["この資産はアルゴリズムのカスタムパラメータを使用します"]
+      },
+      {
+        "label": "個人識別情報 (PII)",
+        "options": ["提供するデータセットには PII が含まれます"]
+      },
+      {
+        "label": "データ管理者",
+        "help": "GDPR で定義されるデータ管理者 (data controller)。"
+      },
+      {
+        "label": "法的根拠",
+        "help": "PII を処理する法的根拠。GDPR で定義されるもの。",
+        "placeholder": "例: GDPR2016:6.1.a"
+      },
+      {
+        "label": "利用目的",
+        "help": "含まれる PII を処理する目的。[確立された語彙](https://w3c.github.io/dpv/dpv/#vocab-purpose) の利用を推奨します。",
+        "placeholder": "例: ServiceOptimization, UserInterfacePersonalization"
+      },
+      {
+        "label": "データ保護に関する連絡先"
+      },
+      {
+        "label": "同意撤回の連絡先"
+      },
+      {
+        "label": "利用規約への同意",
+        "options": ["利用規約"],
+        "prefixes": ["以下に同意します:"]
+      }
+    ]
+  },
+  "services": {
+    "title": "アクセス",
+    "fields": [
+      {
+        "label": "データトークン",
+        "help": "この資産へのアクセスに使うデータトークンが、指定した名前とシンボルで作成されます。"
+      },
+      {
+        "label": "アクセスコントローラ URL",
+        "help": "独自の [provider](https://github.com/oceanprotocol/provider/) の URL を入力するか、既定のまま利用してください。ファイル追加後に provider URL を変更した場合は、ファイルを追加し直して再検証してください。",
+        "placeholder": "例: https://provider.oceanprotocol.com/"
+      },
+      {
+        "title": "リダイレクト URL",
+        "label": "リダイレクト URL",
+        "placeholder": "例: https://delta-dao/the-future-is-now",
+        "help": "SaaS 提供物へのアクセス購入後に、利用者がリダイレクトされる URL。"
+      },
+      {
+        "title": "支払い方式",
+        "label": "支払い方式",
+        "help": "SaaS 提供物の支払い方式を選択してください。"
+      },
+      {
+        "label": "ファイル",
+        "fields": [
+          {
+            "title": "URL",
+            "label": "ファイル",
+            "placeholder": "例: https://file.com/file.json",
+            "help": "この URL は公開後に暗号化して保存されます。**エンドポイントがインターネットから到達可能で、ファイアウォールや認証で保護されていないことを確認してください。**",
+            "computeHelp": "コンピュート用データセットの場合、ファイルはアルゴリズムが要求する形式と一致し、サイズは 1 GB を超えないようにしてください。"
+          },
+          {
+            "title": "API",
+            "label": "エンドポイント",
+            "placeholder": "例: https://file.com/file.json",
+            "help": "この URL は公開後に暗号化して保存されます。**エンドポイントがインターネットから到達可能で、ファイアウォールや認証で保護されていないことを確認してください。**",
+            "computeHelp": "コンピュート用データセットの場合、ファイルはアルゴリズムが要求する形式と一致し、サイズは 1 GB を超えないようにしてください。",
+            "innerFields": [
+              {
+                "title": "ヘッダ",
+                "label": "ヘッダ",
+                "help": "このヘッダは公開後に暗号化して保存されます。"
+              }
+            ]
+          },
+          {
+            "title": "GraphQL",
+            "label": "URL",
+            "help": "この URL は公開後に暗号化して保存されます。",
+            "computeHelp": "コンピュート用データセットの場合、ファイルはアルゴリズムが要求する形式と一致し、サイズは 1 GB を超えないようにしてください。",
+            "innerFields": [
+              {
+                "title": "ヘッダ",
+                "label": "ヘッダ",
+                "help": "このヘッダは公開後に暗号化して保存されます。"
+              },
+              {
+                "title": "クエリ",
+                "label": "クエリ",
+                "help": "このクエリは公開後に暗号化して保存されます。"
+              }
+            ]
+          },
+          {
+            "title": "IPFS",
+            "label": "CID",
+            "help": "この CID は公開後に暗号化して保存されます。",
+            "computeHelp": "コンピュート用データセットの場合、ファイルはアルゴリズムが要求する形式と一致し、サイズは 1 GB を超えないようにしてください。"
+          }
+        ]
+      },
+      {
+        "label": "サンプルファイル",
+        "fields": [
+          {
+            "title": "URL",
+            "label": "ファイル",
+            "placeholder": "例: https://file.com/file.json",
+            "help": "この URL は公開後に暗号化して保存されます。**エンドポイントがインターネットから到達可能で、ファイアウォールや認証で保護されていないことを確認してください。**",
+            "computeHelp": "コンピュート用データセットの場合、ファイルはアルゴリズムが要求する形式と一致し、サイズは 1 GB を超えないようにしてください。"
+          }
+        ]
+      },
+      {
+        "label": "アルゴリズムの非公開設定",
+        "options": ["Compute-to-Data 専用にしてアルゴリズムを非公開にする"],
+        "help": "既定では、アルゴリズムはコンピュートジョブでの実行に加えて、無料または固定価格でダウンロードできます。この設定を有効にするとダウンロードが禁止され、データセットに対するコンピュートジョブの一部としてのみ実行できるようになります。"
+      },
+      {
+        "label": "アクセス種別",
+        "help": "指定した価格でファイルをどのように利用可能にするかを選んでください。",
+        "disclaimer": "データ主体の同意なしに、ダウンロード可能な個人データを提供しないでください。"
+      },
+      {
+        "label": "利用者定義パラメータ",
+        "help": "利用者定義パラメータは、公開した資産を絞り込んだり問い合わせたりするために使います。",
+        "options": ["この資産は利用者定義パラメータを使用します"]
+      }
+    ]
+  },
+  "policies": {
+    "title": "ポリシー",
+    "fields": [
+      {
+        "label": "アクセス可能期間",
+        "help": "購入者が最初の購入後にどれくらいの期間、提供物へ再アクセスできるかを設定します。"
+      },
+      {
+        "label": "許可するウォレットアドレス",
+        "help": "ウォレットアドレスを入力し ADD ボタンでリストに追加します。許可リストにあるアドレスだけがこの資産を利用できます。リストが空の場合は誰でもダウンロード/コンピュートできます。詳細は [Pontus-X レジストリ](https://docs.pontus-x.eu/docs/participants-and-federators/ecosystem-participants) を参照してください。"
+      },
+      {
+        "label": "拒否するウォレットアドレス",
+        "help": "ウォレットアドレスを入力し ADD ボタンでリストに追加します。拒否リストにあるアドレスからのダウンロード/コンピュートは拒否されます。詳細は [Pontus-X レジストリ](https://docs.pontus-x.eu/docs/participants-and-federators/ecosystem-participants) を参照してください。"
+      }
+    ]
+  },
+  "pricing": {
+    "title": "価格"
+  },
+  "preview": {
+    "title": "プレビュー"
+  },
+  "submission": {
+    "title": "送信"
+  }
+}

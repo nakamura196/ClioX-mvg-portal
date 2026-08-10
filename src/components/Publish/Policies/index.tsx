@@ -1,10 +1,13 @@
 import Input from '@shared/FormInput'
 import { Field } from 'formik'
 import { ReactElement } from 'react'
-import content from '../../../../content/publish/form.json'
+import contentEn from '../../../../content/publish/form.json'
+import contentJa from '../../../../content/publish/form.ja.json'
+import useLocaleContent from '../../../i18n/useLocaleContent'
 import { getFieldContent } from '@utils/form'
 
 export default function PoliciesFields(): ReactElement {
+  const content = useLocaleContent(contentEn, contentJa)
   return (
     <>
       <Field

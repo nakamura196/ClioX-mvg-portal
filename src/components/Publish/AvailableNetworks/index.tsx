@@ -4,10 +4,13 @@ import Network from './Network'
 import useNetworkMetadata, {
   filterNetworksByType
 } from '@hooks/useNetworkMetadata'
-import content from '../../../../content/publish/index.json'
+import contentEn from '../../../../content/publish/index.json'
+import contentJa from '../../../../content/publish/index.ja.json'
+import useLocaleContent from '../../../i18n/useLocaleContent'
 import { useMarketMetadata } from '@context/MarketMetadata'
 
 export default function AvailableNetworks(): ReactElement {
+  const content = useLocaleContent(contentEn, contentJa)
   const { networksList } = useNetworkMetadata()
   const { appConfig } = useMarketMetadata()
 

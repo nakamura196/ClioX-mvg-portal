@@ -14,11 +14,26 @@ export interface PageData {
   content: string
 }
 
-export function getPageBySlug(slug: string, subDir?: string): PageData {
+// Matches a translated sibling of a page, e.g. `imprint.ja.md` next to
+// `imprint.md`. Pages whose slug *is* the language (content/pages/privacy/en.md)
+// have no dot before the language tag and are deliberately not matched.
+const translatedFile = /\.[a-z]{2}\.md$/
+
+export function getPageBySlug(
+  slug: string,
+  subDir?: string,
+  locale?: string
+): PageData {
   const realSlug = slug.replace(/\.md$/, '')
-  const fullPath = subDir
-    ? join(pagesDirectory, subDir, `${realSlug}.md`)
-    : join(pagesDirectory, `${realSlug}.md`)
+  const dir = subDir ? join(pagesDirectory, subDir) : pagesDirectory
+
+  // Prefer `<slug>.<locale>.md` when it exists, fall back to the English page.
+  const localizedPath = locale && join(dir, `${realSlug}.${locale}.md`)
+  const fullPath =
+    localizedPath && fs.existsSync(localizedPath)
+      ? localizedPath
+      : join(dir, `${realSlug}.md`)
+
   const fileContents = fs.readFileSync(fullPath, 'utf8')
   const { data, content } = matter(fileContents)
 
@@ -29,6 +44,9 @@ export function getAllPages(subDir?: string): PageData[] {
   const slugs = fs
     .readdirSync(join(pagesDirectory, subDir || ''))
     .filter((slug) => slug.includes('.md'))
+    // Translations are served through the locale of an existing page, so they
+    // must not become routes of their own (`/imprint.ja`).
+    .filter((slug) => !translatedFile.test(slug))
   const pages = slugs.map((slug) => getPageBySlug(slug, subDir))
 
   return pages

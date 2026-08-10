@@ -5,7 +5,9 @@ import { LoggerInstance } from '@oceanprotocol/lib'
 import { ReactElement, useCallback, useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 import { useAccount, useNetwork, useSignMessage } from 'wagmi'
-import content from '../../../content/pages/faucet.json'
+import contentEn from '../../../content/pages/faucet.json'
+import contentJa from '../../../content/pages/faucet.ja.json'
+import useLocaleContent from '../../i18n/useLocaleContent'
 import { getMessage, requestTokens } from '../../@utils/faucet'
 import styles from './index.module.css'
 import NetworkName from '../@shared/NetworkName'
@@ -29,6 +31,7 @@ interface Content {
 }
 
 const FaucetPage = (): ReactElement => {
+  const content: Content = useLocaleContent(contentEn, contentJa)
   const { buttonLabel }: Content = content
   const { card }: Content = content
   const {

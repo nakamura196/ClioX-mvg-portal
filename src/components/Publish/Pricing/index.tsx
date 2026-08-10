@@ -4,12 +4,15 @@ import Tabs from '@shared/atoms/Tabs'
 import { FormPublishData } from '../_types'
 import Fixed from './Fixed'
 import Free from './Free'
-import content from '../../../../content/price.json'
+import contentEn from '../../../../content/price.json'
+import contentJa from '../../../../content/price.ja.json'
+import useLocaleContent from '../../../i18n/useLocaleContent'
 import styles from './index.module.css'
 import { useMarketMetadata } from '@context/MarketMetadata'
 import { useNetwork } from 'wagmi'
 
 export default function PricingFields(): ReactElement {
+  const content = useLocaleContent(contentEn, contentJa)
   const {
     appConfig: { allowFixedPricing, allowFreePricing, defaultTokenSymbol }
   } = useMarketMetadata()

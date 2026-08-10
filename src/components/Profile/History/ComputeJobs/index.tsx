@@ -9,6 +9,7 @@ import { ReactElement, useEffect, useState } from 'react'
 import { useAccount } from 'wagmi'
 import Details from './Details'
 import styles from './index.module.css'
+import { useTranslation } from 'react-i18next'
 
 export function Status({ children }: { children: string }): ReactElement {
   return <div className={styles.status}>{children}</div>
@@ -76,6 +77,7 @@ export default function ComputeJobs({
   }[]
   hideDetails?: boolean
 }): ReactElement {
+  const { t } = useTranslation('common')
   const { address: accountId } = useAccount()
   const { chainIds } = useUserPreferences()
 
@@ -136,6 +138,6 @@ export default function ComputeJobs({
       />
     </>
   ) : (
-    <div>Please connect your wallet.</div>
+    <div>{t('profile.connectWallet')}</div>
   )
 }

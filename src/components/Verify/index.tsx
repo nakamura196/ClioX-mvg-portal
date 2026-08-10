@@ -11,7 +11,9 @@ import InputElement from '@components/@shared/FormInput/InputElement'
 import Button from '@components/@shared/atoms/Button'
 import Loader from '@components/@shared/atoms/Loader'
 import ServiceCredentialVisualizer from '@components/@shared/ServiceCredentialVisualizer'
-import content from '../../../content/pages/verify.json'
+import contentEn from '../../../content/pages/verify.json'
+import contentJa from '../../../content/pages/verify.ja.json'
+import useLocaleContent from '../../i18n/useLocaleContent'
 import { useAsset } from '@context/Asset'
 import Alert from '@components/@shared/atoms/Alert'
 
@@ -40,6 +42,7 @@ export default function VerifyPage({
     serviceCredentialVersion
   } = useAsset()
 
+  const content: Content = useLocaleContent(contentEn, contentJa)
   const { input }: Content = content
   const { label, placeholder, buttonLabel } = input
 

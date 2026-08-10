@@ -13,7 +13,9 @@ import Web3Feedback from '@shared/Web3Feedback'
 import { useCancelToken } from '@hooks/useCancelToken'
 import { getComputeSettingsInitialValues } from './_constants'
 import { computeSettingsValidationSchema } from './_validation'
-import content from '../../../../content/pages/editComputeDataset.json'
+import contentEn from '../../../../content/pages/editComputeDataset.json'
+import contentJa from '../../../../content/pages/editComputeDataset.ja.json'
+import useLocaleContent from '../../../i18n/useLocaleContent'
 import { getServiceByName } from '@utils/ddo'
 import { setMinterToPublisher, setMinterToDispenser } from '@utils/dispenser'
 import { transformComputeFormToServiceComputeOptions } from '@utils/compute'
@@ -35,6 +37,7 @@ export default function EditComputeDataset({
 }: {
   asset: AssetExtended
 }): ReactElement {
+  const content = useLocaleContent(contentEn, contentJa)
   const { debug } = useUserPreferences()
   const { address: accountId } = useAccount()
   const { data: signer } = useSigner()

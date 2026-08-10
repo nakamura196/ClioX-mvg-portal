@@ -21,6 +21,7 @@ import Academy from './Academy'
 import Events from './Events'
 import ResourceGridCard from './shared/ResourceGridCard'
 import ResourceArticles from './ResourceArticles'
+import { useTranslation } from 'react-i18next'
 // Glossary is loaded lazily to keep main bundle small
 const Glossary = dynamic(() => import('./Glossary'), { loading: () => null })
 
@@ -42,6 +43,7 @@ interface ResourcesProps {
 export default function Resources({
   initialArticles = []
 }: ResourcesProps): ReactElement {
+  const { t } = useTranslation('common')
   const [activeTab, setActiveTab] = useState('articles')
   const [searchQuery, setSearchQuery] = useState('')
   const [resourceCards, setResourceCards] =
@@ -356,20 +358,18 @@ export default function Resources({
         <div className="flex flex-wrap gap-10 items-center justify-center">
           <div className="flex-1 min-w-[280px]">
             <h1 className="text-4xl md:text-5xl font-bold mb-5 text-black">
-              The Reading Room
+              {t('resources.title')}
             </h1>
             <p className="max-w-2xl text-lg text-gray-600 leading-relaxed">
-              Welcome to your go-to hub for valuable resources and everything
-              you need to get the most out of Clio-X. If you don&apos;t see what
-              you need, feel free to{' '}
+              {t('resources.introBefore')}
               <a
                 href="/#contact"
                 onClick={handleContactClick}
                 className="text-[var(--color-primary)] underline hover:opacity-90"
               >
-                get in touch
+                {t('resources.introLink')}
               </a>
-              .
+              {t('resources.introAfter')}
             </p>
           </div>
           <div className="flex-1 min-w-[300px] max-w-[560px]">
@@ -385,7 +385,7 @@ export default function Resources({
             </div>
             <div className="mt-4">
               <span className="inline-block bg-[var(--button-secondary-background)] text-[var(--color-primary)] text-xs font-bold uppercase px-3 py-1 rounded-xl tracking-tight">
-                Featured
+                {t('resources.featured')}
               </span>
             </div>
           </div>
@@ -460,7 +460,7 @@ export default function Resources({
                     : 'text-black hover:text-[var(--color-primary)]'
                 }`}
               >
-                {tab.label}
+                {t(`resources.tabs.${tab.id}`, { defaultValue: tab.label })}
               </button>
             ))}
 
@@ -579,11 +579,11 @@ export default function Resources({
                             href={card.link}
                             className="text-amber-700 font-semibold text-sm hover:underline hover:text-amber-800 transition-colors duration-200"
                           >
-                            Read more →
+                            {t('resources.readMore')}
                           </a>
                         ) : (
                           <span className="text-gray-400 font-semibold text-sm">
-                            Link coming soon
+                            {t('resources.linkComingSoon')}
                           </span>
                         )}
                       </div>

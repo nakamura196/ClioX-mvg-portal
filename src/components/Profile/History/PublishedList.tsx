@@ -11,12 +11,14 @@ import { CancelToken } from 'axios'
 import { useProfile } from '@context/Profile'
 import { useFilter, Filters } from '@context/Filter'
 import { useDebouncedCallback } from 'use-debounce'
+import { useTranslation } from 'react-i18next'
 
 export default function PublishedList({
   accountId
 }: {
   accountId: string
 }): ReactElement {
+  const { t } = useTranslation('common')
   const { appConfig } = useMarketMetadata()
   const { chainIds } = useUserPreferences()
   const { ownAccount } = useProfile()
@@ -104,6 +106,6 @@ export default function PublishedList({
       </div>
     </div>
   ) : (
-    <div>Please connect your wallet.</div>
+    <div>{t('profile.connectWallet')}</div>
   )
 }

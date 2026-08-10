@@ -1,0 +1,6 @@
+{
+  "title": "公開する",
+  "description": "データセットやアルゴリズムの重要な特徴を示して見つけてもらいやすくし、データ利用者の関心を引きましょう。",
+  "warning": "まずテストネットワークで公開することを強く推奨します。[マーケット](https://oceanprotocol.com/technology/marketplaces)、[リスク](https://blog.oceanprotocol.com/on-staking-on-data-in-ocean-market-3d8e09eb0a13)、および [利用規約](/terms) をご確認ください。",
+  "tooltipAvailableNetworks": "資産は、ウォレットが接続しているネットワークに公開されます。現在サポートしているネットワークは以下のとおりです:"
+}

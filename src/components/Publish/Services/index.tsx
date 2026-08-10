@@ -3,17 +3,27 @@ import { Field, useFormikContext } from 'formik'
 import { ReactElement, useEffect } from 'react'
 import IconDownload from '@images/download.svg'
 import IconCompute from '@images/compute.svg'
-import content from '../../../../content/publish/form.json'
+import contentEn from '../../../../content/publish/form.json'
+import contentJa from '../../../../content/publish/form.ja.json'
+import useLocaleContent from '../../../i18n/useLocaleContent'
 import consumerParametersContent from '../../../../content/publish/consumerParameters.json'
 import { getFieldContent } from '@utils/form'
 import { FormPublishData } from '../_types'
+import { useTranslation } from 'react-i18next'
 
 const accessTypeOptionsTitles = getFieldContent(
   'access',
-  content.services.fields
+  contentEn.services.fields
 ).options
 
 export default function ServicesFields(): ReactElement {
+  const content = useLocaleContent(contentEn, contentJa)
+  const { t } = useTranslation('common')
+
+  // Only the visible title is translated: `name`/`value` stay English because
+  // the publish form stores them verbatim as the access type.
+  const boxTitle = (title: string) =>
+    t(`publish.boxTitles.${title.toLowerCase()}`, { defaultValue: title })
   // connect with Form state, use for conditional field rendering
   const { values, setFieldValue } = useFormikContext<FormPublishData>()
 
@@ -22,7 +32,7 @@ export default function ServicesFields(): ReactElement {
     {
       name: 'download',
       value: accessTypeOptionsTitles[0].toLowerCase(),
-      title: 'Download',
+      title: boxTitle('Download'),
       icon: <IconDownload />,
       // BoxSelection component is not a Formik component
       // so we need to handle checked state manually.
@@ -32,7 +42,7 @@ export default function ServicesFields(): ReactElement {
     {
       name: accessTypeOptionsTitles[1].toLowerCase(),
       value: accessTypeOptionsTitles[1].toLowerCase(),
-      title: accessTypeOptionsTitles[1],
+      title: boxTitle(accessTypeOptionsTitles[1]),
       icon: <IconCompute />,
       checked:
         values.services[0].access === accessTypeOptionsTitles[1].toLowerCase()

@@ -16,11 +16,14 @@ import { SortTermOptions } from '../../../@types/aquarius/SearchQuery'
 import { getServiceByName } from '@utils/ddo'
 import { transformAssetToAssetSelection } from '@utils/assetConvertor'
 import { ComputeEditForm } from './_types'
-import content from '../../../../content/pages/editComputeDataset.json'
+import contentEn from '../../../../content/pages/editComputeDataset.json'
+import contentJa from '../../../../content/pages/editComputeDataset.ja.json'
+import useLocaleContent from '../../../i18n/useLocaleContent'
 import { getFieldContent } from '@utils/form'
 import { useAccount } from 'wagmi'
 
 export default function FormEditComputeDataset(): ReactElement {
+  const content = useLocaleContent(contentEn, contentJa)
   const { asset } = useAsset()
   const { address: accountId } = useAccount()
   const { values }: FormikContextType<ComputeEditForm> = useFormikContext()

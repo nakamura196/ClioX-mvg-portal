@@ -23,7 +23,8 @@
     "terms": "利用規約",
     "stayInTheLoop": "最新情報を受け取る",
     "stayInTheLoopText": "Clio-X を安心して使いこなすための Web3 技術の要点を、毎月コンパクトにお届けします。",
-    "subscribe": "登録する"
+    "subscribe": "登録する",
+    "copyright": "© {{year}} Clio-X Data Solutions Limited. 無断複写・転載を禁じます。"
   },
   "search": {
     "placeholder": "サービス提供物を検索",
@@ -82,6 +83,62 @@
   },
   "error": {
     "generic": "問題が発生しました。",
-    "notFound": "ページが見つかりません。"
+    "notFound": "ページが見つかりません。",
+    "notFoundTitle": "404 - ページが見つかりません",
+    "notFoundHeading": "ページが見つかりません",
+    "notFoundBody": "お探しのページは削除されたか、名称が変更されたか、一時的に利用できなくなっている可能性があります。",
+    "backHome": "トップページへ戻る"
+  },
+  "publish": {
+    "back": "戻る",
+    "continue": "次へ",
+    "submit": "公開する",
+    "retry": "再試行",
+    "unsupportedNetwork": "未対応のネットワーク",
+    "into": "→",
+    "validate": "検証",
+    "boxTitles": {
+      "dataset": "データセット",
+      "algorithm": "アルゴリズム",
+      "saas": "SaaS",
+      "download": "ダウンロード",
+      "compute": "コンピュート"
+    }
+  },
+  "profile": {
+    "published": "公開した資産",
+    "downloads": "ダウンロード",
+    "computeJobs": "コンピュートジョブ",
+    "connectWallet": "ウォレットを接続してください。",
+    "sales_other": "販売数"
+  },
+  "resources": {
+    "title": "リーディングルーム",
+    "introBefore": "Clio-X を最大限に活用するための資料をまとめたハブです。お探しのものが見つからない場合は、お気軽に",
+    "introLink": "お問い合わせ",
+    "introAfter": "ください。",
+    "featured": "注目",
+    "featuredResearch": "注目の研究",
+    "readMore": "続きを読む →",
+    "linkComingSoon": "リンクは準備中です",
+    "tabs": {
+      "articles": "資料記事",
+      "academy": "Clio-X アカデミー",
+      "events": "イベント",
+      "guides": "ガイド",
+      "glossary": "用語集",
+      "research": "研究"
+    }
+  },
+  "bookmarks": {
+    "empty": "ブックマークした資産がここに表示されます。",
+    "noNetwork": "ネットワークが選択されていません"
+  },
+  "web3": {
+    "noAccountTitle": "アカウントが接続されていません",
+    "wrongNetworkTitle": "資産のネットワークに接続されていません",
+    "outOfSyncTitle": "データが同期されていません",
+    "outOfSyncMessage": "このネットワークのデータは Ethereum ブロック {{blockGraph}} まで（全 {{blockHead}} 中）しか同期されていません。トランザクションが失敗する可能性があります。しばらくしてから再度お試しください。",
+    "genericTitle": "問題が発生しました。"
   }
 }

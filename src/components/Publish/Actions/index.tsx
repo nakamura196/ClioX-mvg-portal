@@ -8,6 +8,7 @@ import SuccessConfetti from '@shared/SuccessConfetti'
 import { useRouter } from 'next/router'
 import Tooltip from '@shared/atoms/Tooltip'
 import AvailableNetworks from '@components/Publish/AvailableNetworks'
+import { useTranslation } from 'react-i18next'
 import Info from '@images/info.svg'
 import Loader from '@shared/atoms/Loader'
 import useNetworkMetadata from '@hooks/useNetworkMetadata'
@@ -27,6 +28,7 @@ export default function Actions({
     isValid,
     isSubmitting
   }: FormikContextType<FormPublishData> = useFormikContext()
+  const { t } = useTranslation('common')
   // async function handleActivation(e: FormEvent<HTMLButtonElement>) {
   //   // prevent accidentially submitting a form the button might be in
   //   e.preventDefault()
@@ -83,7 +85,7 @@ export default function Actions({
               onClick={handlePrevious}
               disabled={isSubmitting}
             >
-              Back
+              {t('publish.back')}
             </Button>
           )}
 
@@ -93,7 +95,7 @@ export default function Actions({
               onClick={handleNext}
               disabled={isContinueDisabled}
             >
-              Continue
+              {t('publish.continue')}
             </Button>
           ) : // !address ? (
           // <Button type="submit" style="primary" onClick={handleActivation}>
@@ -108,7 +110,8 @@ export default function Actions({
                 disabled
                 className={styles.infoButton}
               >
-                Unsupported Network <Info className={styles.infoIcon} />
+                {t('publish.unsupportedNetwork')}{' '}
+                <Info className={styles.infoIcon} />
               </Button>
             </Tooltip>
           ) : (
@@ -117,7 +120,13 @@ export default function Actions({
               style="primary"
               disabled={isSubmitting || !isValid}
             >
-              {isSubmitting ? <Loader /> : hasSubmitError ? 'Retry' : 'Submit'}
+              {isSubmitting ? (
+                <Loader />
+              ) : hasSubmitError ? (
+                t('publish.retry')
+              ) : (
+                t('publish.submit')
+              )}
             </Button>
           )}
         </>

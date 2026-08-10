@@ -31,11 +31,13 @@ export default function PageMarkdown(page: PageData): ReactElement | null {
 }
 
 export async function getStaticProps({
-  params
+  params,
+  locale
 }: {
   params: { slug: string }
+  locale: string
 }): Promise<{ props: PageData }> {
-  const page = getPageBySlug(params.slug)
+  const page = getPageBySlug(params.slug, undefined, locale)
   const content = markdownToHtmlWithToc(page?.content || '')
 
   return {

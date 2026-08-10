@@ -1,5 +1,7 @@
 import { ReactElement, useCallback, useEffect, useState } from 'react'
 import Tabs from '@shared/atoms/Tabs'
+import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import PublishedList from './PublishedList'
 import Downloads from './Downloads'
 import ComputeJobs from './ComputeJobs'
@@ -25,20 +27,21 @@ function getTabs(
   jobs: ComputeJobMetaData[],
   isLoadingJobs: boolean,
   refetchJobs: boolean,
-  setRefetchJobs: any
+  setRefetchJobs: any,
+  t: TFunction
 ): HistoryTab[] {
   const defaultTabs: HistoryTab[] = [
     {
-      title: 'Published',
+      title: t('profile.published'),
       content: <PublishedList accountId={accountId} />
     },
     {
-      title: 'Downloads',
+      title: t('profile.downloads'),
       content: <Downloads accountId={accountId} />
     }
   ]
   const computeTab: HistoryTab = {
-    title: 'Compute Jobs',
+    title: t('profile.computeJobs'),
     content: (
       <ComputeJobs
         jobs={jobs}
@@ -67,6 +70,7 @@ export default function HistoryPage({
 }): ReactElement {
   const { address: accountId } = useAccount()
   const { autoWallet } = useAutomation()
+  const { t } = useTranslation('common')
   const { chainIds } = useUserPreferences()
   const newCancelToken = useCancelToken()
 
@@ -148,7 +152,8 @@ export default function HistoryPage({
     jobs,
     isLoadingJobs,
     refetchJobs,
-    setRefetchJobs
+    setRefetchJobs,
+    t
   )
 
   return (

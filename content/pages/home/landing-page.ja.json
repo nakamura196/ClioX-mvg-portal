@@ -110,7 +110,16 @@
       "submitButton": "送信する",
       "loadingText": "送信中...",
       "successMessage": "ありがとうございます。メッセージを送信しました。",
-      "errorMessage": "送信中にエラーが発生しました。もう一度お試しください。"
+      "errorMessage": "送信中にエラーが発生しました。もう一度お試しください。",
+      "heading": "メッセージを送る",
+      "placeholders": {
+        "name": "お名前",
+        "email": "your@email.com",
+        "message": "ご用件をお書きください"
+      },
+      "privacyAgreementPrefix": "以下のプライバシーポリシーに従って情報が保存・処理されることに同意します:",
+      "privacyPolicyLink": "プライバシーポリシー",
+      "errorFallback": "メッセージを送信できませんでした。info@cliox.org まで直接ご連絡ください"
     }
   }
 }
