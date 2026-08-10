@@ -6,6 +6,7 @@ import classNames from 'classnames/bind'
 import { ReactElement } from 'react'
 import NetworkStatus from '../NetworkStatus'
 import styles from './PageHeader.module.css'
+import { useTranslation } from 'react-i18next'
 
 const cx = classNames.bind(styles)
 
@@ -22,6 +23,8 @@ export default function PageHeader({
   isHome?: boolean
   showSearch?: boolean
 }): ReactElement {
+  const { t } = useTranslation('common')
+
   const styleClasses = cx({
     header: true,
     center
@@ -57,7 +60,7 @@ export default function PageHeader({
       )}
       {showSearch && (
         <div className={styles.search}>
-          <SearchBar placeholder="Search for service offerings" />
+          <SearchBar placeholder={t('search.placeholder')} />
         </div>
       )}
     </header>

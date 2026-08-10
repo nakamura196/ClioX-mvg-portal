@@ -1,5 +1,5 @@
 import { ReactElement, useState, useMemo } from 'react'
-import { motion } from 'motion/react'
+import { motion, Variants } from 'motion/react'
 
 interface LessonCard {
   id: string
@@ -71,7 +71,7 @@ export default function Academy({ lessons = [] }: AcademyProps): ReactElement {
     })
   }, [lessons, activeFilter])
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -82,7 +82,7 @@ export default function Academy({ lessons = [] }: AcademyProps): ReactElement {
     }
   }
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
       opacity: 1,

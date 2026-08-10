@@ -4,27 +4,34 @@ import styles from './MetaSecondary.module.css'
 import Tags from '@shared/atoms/Tags'
 import Button from '@shared/atoms/Button'
 import { Asset } from '@oceanprotocol/lib'
+import { useTranslation } from 'react-i18next'
 
-const SampleButton = ({ url }: { url: string }) => (
-  <Button
-    href={url}
-    target="_blank"
-    rel="noreferrer"
-    download
-    style="text"
-    size="small"
-  >
-    Download Sample
-  </Button>
-)
+const SampleButton = ({ url }: { url: string }) => {
+  const { t } = useTranslation('common')
+
+  return (
+    <Button
+      href={url}
+      target="_blank"
+      rel="noreferrer"
+      download
+      style="text"
+      size="small"
+    >
+      {t('asset.downloadSample')}
+    </Button>
+  )
+}
 
 export default function MetaSecondary({ ddo }: { ddo: Asset }): ReactElement {
+  const { t } = useTranslation('common')
+
   return (
     <aside className={styles.metaSecondary}>
       {ddo?.metadata.links?.length > 0 && (
         <div className={styles.samples}>
           <MetaItem
-            title="Sample Data"
+            title={t('asset.sampleData')}
             content={<SampleButton url={ddo?.metadata.links[0]} />}
           />
         </div>

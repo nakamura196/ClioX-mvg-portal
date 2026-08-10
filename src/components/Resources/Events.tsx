@@ -1,5 +1,5 @@
 import { ReactElement, useState, useMemo, useEffect } from 'react'
-import { motion } from 'motion/react'
+import { motion, Variants } from 'motion/react'
 // import * as Select from '@radix-ui/react-select'
 import * as Checkbox from '@radix-ui/react-checkbox'
 import * as Separator from '@radix-ui/react-separator'
@@ -257,7 +257,7 @@ export default function Events({ events = [] }: EventsProps): ReactElement {
     sortDir
   ])
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -268,7 +268,7 @@ export default function Events({ events = [] }: EventsProps): ReactElement {
     }
   }
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
       opacity: 1,

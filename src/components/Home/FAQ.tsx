@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Container from '@components/@shared/atoms/Container'
-import { getLandingPageContent } from '@utils/landingPageContent'
+import { useLandingPageContent } from '@utils/landingPageContent'
 
 interface FAQItem {
   question: string
@@ -11,7 +11,7 @@ interface FAQItem {
 }
 
 const FAQ = () => {
-  const content = getLandingPageContent()
+  const content = useLandingPageContent()
   const { faq } = content
   const [expandedIndices, setExpandedIndices] = useState<number[]>([])
 

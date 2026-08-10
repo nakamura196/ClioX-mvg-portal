@@ -1,9 +1,9 @@
 import Image from 'next/image'
 import Container from '@components/@shared/atoms/Container'
-import { getLandingPageContent } from '@utils/landingPageContent'
+import { useLandingPageContent } from '@utils/landingPageContent'
 
 export default function Pillars() {
-  const content = getLandingPageContent()
+  const content = useLandingPageContent()
   const { pillars } = content
 
   return (

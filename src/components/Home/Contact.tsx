@@ -2,7 +2,7 @@
 import { useState, FormEvent } from 'react'
 import Button from '../Home/common/Button'
 import Container from '@components/@shared/atoms/Container'
-import { getLandingPageContent } from '@utils/landingPageContent'
+import { useLandingPageContent } from '@utils/landingPageContent'
 
 interface FormData {
   name: string
@@ -12,7 +12,7 @@ interface FormData {
 }
 
 export default function ContactAndOnboarding() {
-  const content = getLandingPageContent()
+  const content = useLandingPageContent()
   const { contact } = content
 
   const [formData, setFormData] = useState<FormData>({

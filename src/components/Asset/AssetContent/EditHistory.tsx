@@ -6,6 +6,7 @@ import { gql, OperationContext, useQuery } from 'urql'
 import { NftUpdate_nftUpdates as NftUpdate } from '../../../@types/subgraph/NftUpdate'
 import { getQueryContext } from '@utils/subgraph'
 import styles from './EditHistory.module.css'
+import { useTranslation } from 'react-i18next'
 
 const getReceipts = gql`
   query NftUpdate($address: String!) {
@@ -36,6 +37,7 @@ export default function EditHistory({
   setReceipts: (receipts: NftUpdate[]) => void
 }): ReactElement {
   const { asset } = useAsset()
+  const { t } = useTranslation('common')
 
   function getUpdateType(type: string): string {
     switch (type) {
@@ -83,7 +85,7 @@ export default function EditHistory({
 
   return (
     <>
-      <h3 className={styles.title}>Metadata History</h3>
+      <h3 className={styles.title}>{t('asset.metadataHistory')}</h3>
       <ul className={styles.history}>
         {receipts?.map((receipt) => (
           <li key={receipt.id} className={styles.item}>

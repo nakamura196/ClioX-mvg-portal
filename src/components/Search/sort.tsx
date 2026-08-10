@@ -10,6 +10,8 @@ import Accordion from '@components/@shared/Accordion'
 import Input from '@components/@shared/FormInput'
 import { Sort as SortInterface, useFilter } from '@context/Filter'
 import queryString from 'query-string'
+import { useTranslation } from 'react-i18next'
+import useSearchLabel from '../../i18n/useSearchLabel'
 
 const sortItems = [
   { display: 'Relevance', value: SortTermOptions.Relevance },
@@ -41,6 +43,8 @@ export default function Sort({
   expanded?: boolean
 }): ReactElement {
   const { sort, setSort } = useFilter()
+  const { t } = useTranslation('common')
+  const label = useSearchLabel()
 
   const router = useRouter()
 
@@ -76,16 +80,16 @@ export default function Sort({
   return (
     <>
       <div className={styles.sidePositioning}>
-        <Accordion title="Sort" defaultExpanded={expanded}>
+        <Accordion title={t('search.sort')} defaultExpanded={expanded}>
           <div className={styles.sortList}>
             <div className={styles.sortType}>
-              <h5 className={styles.sortTypeLabel}>Type</h5>
+              <h5 className={styles.sortTypeLabel}>{t('search.type')}</h5>
               {sortItems.map((item) => (
                 <Input
                   key={item.value}
                   name="sortType"
                   type="radio"
-                  options={[item.display]}
+                  options={[label(item.display)]}
                   value={item.value}
                   checked={sort.sort === item.value}
                   onChange={() => sortResults(item.value, null)}
@@ -93,13 +97,15 @@ export default function Sort({
               ))}
             </div>
             <div className={styles.sortDirection}>
-              <h5 className={styles.sortDirectionLabel}>Direction</h5>
+              <h5 className={styles.sortDirectionLabel}>
+                {t('search.direction')}
+              </h5>
               {sortDirections.map((item) => (
                 <Input
                   key={item.value}
                   name="sortDirection"
                   type="radio"
-                  options={[item.display]}
+                  options={[label(item.display)]}
                   value={item.value}
                   checked={sort.sortOrder === item.value}
                   onChange={() => sortResults(null, item.value)}
@@ -111,14 +117,14 @@ export default function Sort({
       </div>
       <div className={styles.topPositioning}>
         <div className={styles.compactFilterContainer}>
-          <Accordion title="Sort Type" compact>
+          <Accordion title={t('search.sortType')} compact>
             <div className={styles.compactOptionsContainer}>
               {sortItems.map((item) => (
                 <Input
                   key={item.value}
                   name="sortTypeCompact"
                   type="radio"
-                  options={[item.display]}
+                  options={[label(item.display)]}
                   value={item.value}
                   checked={sort.sort === item.value}
                   onChange={() => sortResults(item.value, null)}
@@ -128,14 +134,14 @@ export default function Sort({
           </Accordion>
         </div>
         <div className={styles.compactFilterContainer}>
-          <Accordion title="Sort Direction" compact>
+          <Accordion title={t('search.sortDirection')} compact>
             <div className={styles.compactOptionsContainer}>
               {sortDirections.map((item) => (
                 <Input
                   key={item.value}
                   name="sortDirectionCompact"
                   type="radio"
-                  options={[item.display]}
+                  options={[label(item.display)]}
                   value={item.value}
                   checked={sort.sortOrder === item.value}
                   onChange={() => sortResults(null, item.value)}

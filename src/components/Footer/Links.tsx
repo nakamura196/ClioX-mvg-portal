@@ -7,11 +7,13 @@ import { useMarketMetadata } from '@context/MarketMetadata'
 import styles from './Links.module.css'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useTranslation } from 'react-i18next'
 
 export default function Links(): ReactElement {
   const { appConfig } = useMarketMetadata()
   const { setShowPPC, privacyPolicySlug } = useUserPreferences()
   const cookies = useGdprMetadata()
+  const { t } = useTranslation('common')
 
   const partnerLogos = [
     {
@@ -78,11 +80,7 @@ export default function Links(): ReactElement {
         </div>
 
         <p className="text-[13px] mt-4 max-w-3xl text-gray-600 text-center">
-          Clio-X draws on research supported by InterPARES Trust AI, The Social
-          Sciences and Humanities Research Council of Canada (SSHRC), The
-          University of British Columbia (UBC), Universidad Nacional de
-          Educación a Distancia (UNED), The University of Lleida (UdL), and The
-          Natural Sciences and Engineering Research Council of Canada (NSERC).
+          {t('footer.funding')}
         </p>
 
         <hr className="my-6 border-gray-200" />
@@ -120,12 +118,7 @@ export default function Links(): ReactElement {
           </div>
 
           <p className="text-[13px] mt-5 max-w-md text-gray-600">
-            Clio-X draws on research supported by InterPARES Trust AI, The
-            Social Sciences and Humanities Research Council of Canada (SSHRC),
-            The University of British Columbia (UBC), Universidad Nacional de
-            Educación a Distancia (UNED), The University of Lleida (UdL), and
-            The Natural Sciences and Engineering Research Council of Canada
-            (NSERC).
+            {t('footer.funding')}
           </p>
         </div>
 
@@ -163,7 +156,7 @@ export default function Links(): ReactElement {
                     className={`${styles.link} ${styles.footerLink}`}
                     style="text"
                   >
-                    Documentation
+                    {t('footer.documentation')}
                   </Button>
                 </li>
                 <li>
@@ -173,7 +166,7 @@ export default function Links(): ReactElement {
                     className={`${styles.link} ${styles.footerLink}`}
                     style="text"
                   >
-                    Newsletter
+                    {t('footer.newsletter')}
                   </Button>
                 </li>
                 <li>
@@ -182,7 +175,7 @@ export default function Links(): ReactElement {
                     className={`${styles.link} ${styles.footerLink}`}
                     style="text"
                   >
-                    Bookmarks
+                    {t('footer.bookmarks')}
                   </Button>
                 </li>
               </ul>
@@ -191,7 +184,7 @@ export default function Links(): ReactElement {
             {/* Column 2: Legal */}
             <div className="col-span-1">
               <div className={styles.titleContainer}>
-                <h3 className={styles.sectionTitle}>Legal</h3>
+                <h3 className={styles.sectionTitle}>{t('footer.legal')}</h3>
               </div>
 
               <ul className="space-y-2.5 mt-0">
@@ -201,7 +194,7 @@ export default function Links(): ReactElement {
                     className={`${styles.link} ${styles.footerLink}`}
                     style="text"
                   >
-                    Imprint
+                    {t('footer.imprint')}
                   </Button>
                 </li>
                 <li>
@@ -210,7 +203,7 @@ export default function Links(): ReactElement {
                     className={`${styles.link} ${styles.footerLink}`}
                     style="text"
                   >
-                    Privacy Policy
+                    {t('footer.privacyPolicy')}
                   </Button>
                 </li>
                 <li>
@@ -219,7 +212,7 @@ export default function Links(): ReactElement {
                     className={`${styles.link} ${styles.footerLink}`}
                     style="text"
                   >
-                    Cookie Policy
+                    {t('footer.cookiePolicy')}
                   </Button>
                 </li>
                 {appConfig?.privacyPreferenceCenter === 'true' && (
@@ -229,7 +222,9 @@ export default function Links(): ReactElement {
                       onClick={() => setShowPPC(true)}
                       className={`${styles.link} ${styles.footerLink}`}
                     >
-                      {cookies?.optionalCookies ? 'Cookie Settings' : 'Cookies'}
+                      {cookies?.optionalCookies
+                        ? t('footer.cookieSettings')
+                        : t('footer.cookies')}
                     </Button>
                   </li>
                 )}
@@ -239,15 +234,14 @@ export default function Links(): ReactElement {
             {/* Join the community - Full width of right side */}
             <div className="col-span-2 mt-1">
               <h3 className={`${styles.sectionTitle} mb-1.5`}>
-                Stay in the loop
+                {t('footer.stayInTheLoop')}
               </h3>
               <p className={`${styles.subtitle} text-sm mb-2.5`}>
-                Bite-sized insights on Web3 tech to help you explore Clio-X with
-                confidence — delivered monthly.
+                {t('footer.stayInTheLoopText')}
               </p>
               <Link href="/coming-soon">
                 <button className="bg-[var(--color-primary)] hover:bg-[var(--color-highlight)] text-white font-bold py-2 px-5 rounded transition-colors cursor-pointer">
-                  Subscribe
+                  {t('footer.subscribe')}
                 </button>
               </Link>
             </div>

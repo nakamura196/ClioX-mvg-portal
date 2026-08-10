@@ -43,22 +43,28 @@ export async function getStaticProps({
   }
 }
 
-export async function getStaticPaths(): Promise<{
+export async function getStaticPaths({
+  locales
+}: {
+  locales: string[]
+}): Promise<{
   paths: {
     params: {
       slug: string
     }
+    locale: string
   }[]
   fallback: boolean
 }> {
   const pages = getAllPages()
 
+  // With locale routing enabled, emit every markdown page once per locale.
+  // Without the explicit `locale`, only the default locale gets prerendered and
+  // the /ja/... variants 404 in a production build.
   return {
-    paths: pages.map((page) => {
-      return {
-        params: { slug: page.slug }
-      }
-    }),
+    paths: pages.flatMap((page) =>
+      locales.map((locale) => ({ params: { slug: page.slug }, locale }))
+    ),
     fallback: false
   }
 }

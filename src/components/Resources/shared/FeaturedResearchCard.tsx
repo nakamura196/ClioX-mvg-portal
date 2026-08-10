@@ -1,5 +1,5 @@
 import { ReactElement } from 'react'
-import { motion } from 'motion/react'
+import { motion, Variants } from 'motion/react'
 
 interface FeaturedResearchCardProps {
   title: string
@@ -24,7 +24,7 @@ export default function FeaturedResearchCard({
   imageSrc,
   imageAlt = ''
 }: FeaturedResearchCardProps): ReactElement {
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -35,7 +35,7 @@ export default function FeaturedResearchCard({
     }
   }
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 12 },
     visible: {
       opacity: 1,

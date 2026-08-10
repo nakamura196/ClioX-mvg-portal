@@ -1,5 +1,5 @@
 import { ReactElement } from 'react'
-import { AnimatePresence, motion } from 'motion/react'
+import { AnimatePresence, motion, Variants } from 'motion/react'
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline'
 import { ResearchGroup, ResearchTopic } from './types'
 
@@ -22,7 +22,7 @@ export default function ResearchTopicCard({
 }): ReactElement {
   const hasMoreThanThree = topic.papers.length > 3
 
-  const topicCardVariants = {
+  const topicCardVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,

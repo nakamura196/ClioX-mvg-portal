@@ -13,6 +13,7 @@ import Button from '@components/@shared/atoms/Button'
 import UserPreferences from './UserPreferences'
 import Automation from './UserPreferences/Automation'
 import NetworkMenu from './NetworkMenu'
+import LanguageSwitcher from './LanguageSwitcher'
 const Wallet = loadable(() => import('./Wallet'))
 
 const cx = classNames.bind(styles)
@@ -74,6 +75,7 @@ export default function Menu(): ReactElement {
       </ul>
 
       <div className={styles.actions}>
+        <LanguageSwitcher />
         <SearchButton />
         {appConfig.chainIdsSupported.length > 1 && <Networks />}
         <NetworkMenu />

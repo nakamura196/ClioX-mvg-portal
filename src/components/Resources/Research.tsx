@@ -1,5 +1,5 @@
 import { ReactElement, useEffect, useState, useMemo } from 'react'
-import { AnimatePresence, motion } from 'motion/react'
+import { AnimatePresence, motion, Variants } from 'motion/react'
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline'
 import { IconBrandLinkedin } from '@tabler/icons-react'
 import { ResearchSortBy, ResearchGroup } from './types'
@@ -69,7 +69,7 @@ export default function Research(): ReactElement {
     }
   }, [sortBy, filterGroup, activeTopicList])
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -77,7 +77,7 @@ export default function Research(): ReactElement {
     }
   }
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 16 },
     visible: {
       opacity: 1,
@@ -134,7 +134,7 @@ export default function Research(): ReactElement {
   }
 
   // Topic cards: use fade only to avoid any perceived parent shift after animation
-  const topicCardVariants = {
+  const topicCardVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,

@@ -12,6 +12,7 @@ import Time from '../atoms/Time'
 import Loader from '../atoms/Loader'
 import NetworkName from '../NetworkName'
 import { useUserPreferences } from '../../../@context/UserPreferences'
+import { useTranslation } from 'react-i18next'
 
 const networkColumn: TableOceanColumn<AssetExtended> = {
   name: 'Network',
@@ -108,6 +109,7 @@ export default function AssetList({
   defaultAssetView
 }: AssetListProps): ReactElement {
   const { chainIds } = useUserPreferences()
+  const { t } = useTranslation('common')
 
   const [columns, setColumns] = useState(tableColumns)
 
@@ -164,7 +166,7 @@ export default function AssetList({
               ))}
           </>
         ) : (
-          <div className={styles.empty}>No results found</div>
+          <div className={styles.empty}>{t('search.noResultsFound')}</div>
         )}
       </div>
       {showPagination && (

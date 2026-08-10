@@ -1,0 +1,89 @@
+{
+  "language": {
+    "label": "Language",
+    "en": "English",
+    "ja": "日本語"
+  },
+  "nav": {
+    "search": "Search",
+    "bookmarks": "Bookmarks",
+    "profile": "Profile"
+  },
+  "footer": {
+    "funding": "Clio-X draws on research supported by InterPARES Trust AI, The Social Sciences and Humanities Research Council of Canada (SSHRC), The University of British Columbia (UBC), Universidad Nacional de Educación a Distancia (UNED), The University of Lleida (UdL), and The Natural Sciences and Engineering Research Council of Canada (NSERC).",
+    "documentation": "Documentation",
+    "newsletter": "Newsletter",
+    "bookmarks": "Bookmarks",
+    "legal": "Legal",
+    "imprint": "Imprint",
+    "privacyPolicy": "Privacy Policy",
+    "cookiePolicy": "Cookie Policy",
+    "cookieSettings": "Cookie Settings",
+    "cookies": "Cookies",
+    "terms": "Terms & Conditions",
+    "stayInTheLoop": "Stay in the loop",
+    "stayInTheLoopText": "Bite-sized insights on Web3 tech to help you explore Clio-X with confidence — delivered monthly.",
+    "subscribe": "Subscribe"
+  },
+  "search": {
+    "placeholder": "Search for service offerings",
+    "searching": "Searching...",
+    "noResults": "No results",
+    "noResultsFound": "No results found",
+    "publishedBy": "Published by {{owner}}",
+    "resultsCount_one": "{{count}} result",
+    "resultsCount_other": "{{count}} results",
+    "resultsCountFor_one": "{{count}} result for {{term}}",
+    "resultsCountFor_other": "{{count}} results for {{term}}",
+    "tooManyResults": ">10000 results",
+    "tooManyResultsFor": ">10000 results for {{term}}",
+    "tooManyResultsHint": "**Results displayed are limited to the first 10k, please refine your search.**",
+    "filters": "Filters",
+    "clearFilters": "Clear filters",
+    "purgatory": "Purgatory",
+    "sort": "Sort",
+    "sortType": "Sort Type",
+    "sortDirection": "Sort Direction",
+    "type": "Type",
+    "direction": "Direction",
+    "labels": {
+      "Service Type": "Service Type",
+      "Access Type": "Access Type",
+      "datasets": "datasets",
+      "algorithms": "algorithms",
+      "saas": "saas",
+      "download": "download",
+      "compute": "compute",
+      "Relevance": "Relevance",
+      "Published": "Published",
+      "Sales": "Sales",
+      "Price": "Price",
+      "↑ Ascending": "↑ Ascending",
+      "↓ Descending": "↓ Descending"
+    }
+  },
+  "asset": {
+    "dataAuthor": "Data Author",
+    "owner": "Owner",
+    "assetState": "Asset State",
+    "revenueSentTo": "Revenue Sent To",
+    "dockerImage": "Docker Image",
+    "did": "DID",
+    "sampleData": "Sample Data",
+    "downloadSample": "Download Sample",
+    "metadataHistory": "Metadata History"
+  },
+  "actions": {
+    "connectWallet": "Connect Wallet",
+    "cancel": "Cancel",
+    "submit": "Submit",
+    "back": "Back",
+    "next": "Next",
+    "retry": "Retry",
+    "loading": "Loading..."
+  },
+  "error": {
+    "generic": "Something went wrong.",
+    "notFound": "Page not found."
+  }
+}

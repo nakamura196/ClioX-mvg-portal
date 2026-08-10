@@ -1,5 +1,5 @@
 import { ReactElement, useState, useMemo, useEffect } from 'react'
-import { motion } from 'motion/react'
+import { motion, Variants } from 'motion/react'
 import SearchIcon from '@images/search.svg'
 import { GlossaryTerm, GlossarySection } from './types'
 import { loadGlossaryTerms } from '@/utils/loadGlossary'
@@ -231,7 +231,7 @@ export default function Glossary(): ReactElement {
     )
   }
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -239,7 +239,7 @@ export default function Glossary(): ReactElement {
     }
   }
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 16 },
     visible: {
       opacity: 1,

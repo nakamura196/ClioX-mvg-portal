@@ -6,7 +6,7 @@ import {
   useRef,
   useLayoutEffect
 } from 'react'
-import { motion } from 'motion/react'
+import { motion, Variants } from 'motion/react'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
 import { IconSearch as SearchIcon } from '@tabler/icons-react'
@@ -250,7 +250,7 @@ export default function Resources({
   }, [searchQuery, viewMode])
 
   // Animations for search results (grid & list)
-  const resultsContainerVariants = {
+  const resultsContainerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -261,7 +261,7 @@ export default function Resources({
     }
   }
 
-  const resultsItemVariants = {
+  const resultsItemVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
       opacity: 1,
@@ -274,7 +274,7 @@ export default function Resources({
   }
 
   // For list view, avoid vertical translate to remove perceived parent shift
-  const resultsListItemVariants = {
+  const resultsListItemVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -450,7 +450,9 @@ export default function Resources({
             {tabs.map((tab) => (
               <button
                 key={tab.id}
-                ref={(el) => (tabRefs.current[tab.id] = el)}
+                ref={(el) => {
+                  tabRefs.current[tab.id] = el
+                }}
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center justify-center px-4 py-2.5 cursor-pointer font-semibold text-base h-12 transition-colors duration-200 ${
                   activeTab === tab.id
