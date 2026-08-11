@@ -1,4 +1,5 @@
 import { forwardRef, FormEvent } from 'react'
+import { useTranslation } from 'react-i18next'
 import Caret from '@images/caret.svg'
 import { accountTruncate } from '@utils/wallet'
 // import Loader from '@shared/atoms/Loader'
@@ -10,6 +11,7 @@ import { useModal } from 'connectkit'
 // Forward ref for Tippy.js
 // eslint-disable-next-line
 const Account = forwardRef((props, ref: any) => {
+  const { t } = useTranslation('common')
   const { address: accountId } = useAccount()
   const { setOpen } = useModal()
 
@@ -41,7 +43,7 @@ const Account = forwardRef((props, ref: any) => {
       // the Tippy to show in this state.
       ref={ref}
     >
-      Connect <span>Wallet</span>
+      {t('wallet.connect')} <span>{t('wallet.connectWord')}</span>
     </button>
   )
 })

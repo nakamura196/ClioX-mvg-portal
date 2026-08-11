@@ -4,9 +4,12 @@ import PriceUnit from '@shared/Price/PriceUnit'
 import Loader from '@shared/atoms/Loader'
 import styles from './index.module.css'
 import { AssetSelectionAsset } from '@shared/FormInput/InputElement/AssetSelection'
+import { useTranslation } from 'react-i18next'
 
 function Empty() {
-  return <div className={styles.empty}>No assets found.</div>
+  const { t } = useTranslation('common')
+
+  return <div className={styles.empty}>{t('compute.noAssets')}</div>
 }
 
 export default function AssetComputeSelection({

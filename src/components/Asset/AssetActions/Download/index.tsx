@@ -21,6 +21,7 @@ import {
   getOrderPriceAndFees
 } from '@utils/accessDetailsAndPricing'
 import { toast } from 'react-toastify'
+import { useTranslation } from 'react-i18next'
 import { useIsMounted } from '@hooks/useIsMounted'
 import { useMarketMetadata } from '@context/MarketMetadata'
 import Alert from '@shared/atoms/Alert'
@@ -66,6 +67,7 @@ export default function Download({
   consumableFeedback?: string
 }): ReactElement {
   const content = useLocaleContent(contentEn, contentJa)
+  const { t } = useTranslation('common')
   const { isConnected } = useAccount()
   const { isSupportedOceanNetwork } = useNetworkMetadata()
   const {
@@ -237,8 +239,8 @@ export default function Download({
       LoggerInstance.error(error)
       setRetry(true)
       const message = isOwned
-        ? 'Failed to download file!'
-        : 'An error occurred, please retry. Check console for more information.'
+        ? t('asset.downloadFailed')
+        : t('asset.orderFailed')
       toast.error(message)
     }
     setIsLoading(false)
@@ -291,7 +293,7 @@ export default function Download({
           <Alert
             className={styles.fieldWarning}
             state="info"
-            text={`The publisher temporarily disabled ordering for this asset`}
+            text={t('asset.orderingDisabled')}
           />
         ) : (
           <>
@@ -299,12 +301,12 @@ export default function Download({
               <Alert
                 className={styles.fieldWarning}
                 state="info"
-                text={`No pricing schema available for this asset.`}
+                text={t('asset.noPricingSchema')}
               />
             ) : (
               <div className={styles.priceWrapper}>
                 {isPriceLoading ? (
-                  <Loader message="Calculating full price (including fees)" />
+                  <Loader message={t('asset.calculatingPrice')} />
                 ) : (
                   <Price
                     price={price}
@@ -327,7 +329,7 @@ export default function Download({
                             }}
                             disabled={!isValid}
                           >
-                            Go to service
+                            {t('buy.goToService')}
                           </Button>
                         </div>
                       )}
@@ -394,16 +396,21 @@ export default function Download({
           {isOwned && (
             <div className={styles.confettiContainer}>
               <SuccessConfetti
-                success={`You successfully bought this ${
-                  asset?.metadata?.additionalInformation?.saas?.redirectUrl
-                    ?.length > 0
-                    ? 'service'
-                    : asset.metadata.type
-                } and are now able to ${
+                success={t(
                   asset?.metadata?.additionalInformation?.saas
-                    ? 'access'
-                    : 'download'
-                } it.`}
+                    ? 'asset.purchaseSuccessAccess'
+                    : 'asset.purchaseSuccessDownload',
+                  {
+                    type: t(
+                      `assetType.${
+                        asset?.metadata?.additionalInformation?.saas
+                          ?.redirectUrl?.length > 0
+                          ? 'service'
+                          : asset.metadata.type
+                      }`
+                    )
+                  }
+                )}
               />
             </div>
           )}

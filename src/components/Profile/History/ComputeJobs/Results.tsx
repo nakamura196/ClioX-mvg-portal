@@ -5,6 +5,7 @@ import {
   Provider
 } from '@oceanprotocol/lib'
 import { ReactElement, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { ListItem } from '@shared/atoms/Lists'
 import Button from '@shared/atoms/Button'
 import styles from './Results.module.css'
@@ -31,6 +32,7 @@ export default function Results({
   job: ComputeJobMetaData
 }): ReactElement {
   const content = useLocaleContent(contentEn, contentJa)
+  const { t } = useTranslation('common')
   const providerInstance = new Provider()
   const { address: accountId } = useAccount()
   const { autoWallet } = useAutomation()
@@ -60,19 +62,19 @@ export default function Results({
     let buttonName
     switch (type) {
       case 'output':
-        buttonName = `RESULTS (${name})`
+        buttonName = t('compute.resultsFile', { name })
         break
       case 'algorithmLog':
-        buttonName = 'ALGORITHM LOGS'
+        buttonName = t('compute.algorithmLogs')
         break
       case 'configrationLog':
-        buttonName = 'CONFIGURATION LOGS'
+        buttonName = t('compute.configurationLogs')
         break
       case 'publishLog':
-        buttonName = 'PUBLISH LOGS'
+        buttonName = t('compute.publishLogs')
         break
       default:
-        buttonName = `RESULTS (${name})`
+        buttonName = t('compute.resultsFile', { name })
         break
     }
     return buttonName
@@ -122,7 +124,7 @@ export default function Results({
 
   return (
     <div className={styles.results}>
-      <h4 className={styles.title}>Results</h4>
+      <h4 className={styles.title}>{t('compute.results')}</h4>
       {isFinished ? (
         <ul>
           {job.results &&
@@ -146,12 +148,12 @@ export default function Results({
                   </Button>
                 </ListItem>
               ) : (
-                <ListItem key={i}>No results found.</ListItem>
+                <ListItem key={i}>{t('compute.noResults')}</ListItem>
               )
             )}
         </ul>
       ) : (
-        <p> Waiting for results...</p>
+        <p> {t('compute.waitingForResults')}</p>
       )}
       <FormHelp className={styles.help}>{content.compute.storage}</FormHelp>
     </div>

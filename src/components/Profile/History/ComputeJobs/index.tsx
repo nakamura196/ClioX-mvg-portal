@@ -12,12 +12,22 @@ import styles from './index.module.css'
 import { useTranslation } from 'react-i18next'
 
 export function Status({ children }: { children: string }): ReactElement {
-  return <div className={styles.status}>{children}</div>
+  const { t } = useTranslation('common')
+
+  // statusText は Ocean Node がそのまま返す英語文字列。既知のものだけ訳し、
+  // 未知の値は原文のまま出す（欠落した状態を隠さないため）。
+  return (
+    <div className={styles.status}>
+      {t(`compute.status.${children}`, { defaultValue: children })}
+    </div>
+  )
 }
 
-const columns: TableOceanColumn<ComputeJobMetaData>[] = [
+const getColumns = (
+  t: (key: string) => string
+): TableOceanColumn<ComputeJobMetaData>[] => [
   {
-    name: 'Dataset',
+    name: t('compute.columns.dataset'),
     selector: (row) => (
       <AssetListTitle did={row.inputDID?.[0] ?? ''} title={row.assetName} />
     ),
@@ -27,32 +37,34 @@ const columns: TableOceanColumn<ComputeJobMetaData>[] = [
     minWidth: '260px'
   },
   {
-    name: 'Network',
+    name: t('compute.columns.network'),
     selector: (row) => <NetworkName networkId={row.networkId} />
   },
   {
-    name: 'Provider',
+    name: t('compute.columns.provider'),
     selector: (row) => <span title={row.providerUrl}>{row.providerUrl}</span>
   },
   {
-    name: 'Created',
+    name: t('compute.columns.created'),
     selector: (row) => <Time date={row.dateCreated} isUnix relative />
   },
   {
-    name: 'Finished',
+    name: t('compute.columns.finished'),
     selector: (row) =>
       row.dateFinished ? <Time date={row.dateFinished} isUnix relative /> : ''
   },
   {
-    name: 'Status',
+    name: t('compute.columns.status'),
     selector: (row) => <Status>{row.statusText}</Status>
   }
 ]
 
-const defaultActionsColumn: TableOceanColumn<ComputeJobMetaData> = {
-  name: 'Actions',
+const getDefaultActionsColumn = (
+  t: (key: string) => string
+): TableOceanColumn<ComputeJobMetaData> => ({
+  name: t('compute.columns.actions'),
   selector: (row) => <Details job={row} />
-}
+})
 
 export type GetCustomActions = (job: ComputeJobMetaData) => {
   label: ReactElement
@@ -80,6 +92,9 @@ export default function ComputeJobs({
   const { t } = useTranslation('common')
   const { address: accountId } = useAccount()
   const { chainIds } = useUserPreferences()
+
+  const columns = getColumns(t)
+  const defaultActionsColumn = getDefaultActionsColumn(t)
 
   const [actionsColumn, setActionsColumn] =
     useState<TableOceanColumn<ComputeJobMetaData>>(defaultActionsColumn)
@@ -113,13 +128,13 @@ export default function ComputeJobs({
         <Button
           style="text"
           size="small"
-          title="Refresh compute jobs"
+          title={t('compute.refreshTitle')}
           onClick={async () => await refetchJobs(true)}
           disabled={isLoading}
           className={styles.refresh}
         >
           <Refresh />
-          Refresh
+          {t('compute.refresh')}
         </Button>
       )}
       <Table
@@ -133,7 +148,7 @@ export default function ComputeJobs({
         isLoading={isLoading}
         defaultSortFieldId="row.dateCreated"
         defaultSortAsc={false}
-        emptyMessage={chainIds.length === 0 ? 'No network selected' : null}
+        emptyMessage={chainIds.length === 0 ? t('bookmarks.noNetwork') : null}
         onChangePage={async () => await refetchJobs(true)}
       />
     </>

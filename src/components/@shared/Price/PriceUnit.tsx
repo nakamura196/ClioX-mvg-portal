@@ -1,4 +1,5 @@
 import { ReactElement } from 'react'
+import { useTranslation } from 'react-i18next'
 import styles from './PriceUnit.module.css'
 import { useUserPreferences } from '@context/UserPreferences'
 import { formatNumber } from '@utils/numbers'
@@ -18,12 +19,13 @@ export default function PriceUnit({
   decimals?: string
   explicitZero?: boolean
 }): ReactElement {
+  const { t } = useTranslation('common')
   const { locale } = useUserPreferences()
 
   return (
     <div className={`${styles.price} ${styles[size]} ${className}`}>
       {price === 0 && !explicitZero ? (
-        <div>Free</div>
+        <div>{t('price.free')}</div>
       ) : (!price && price !== 0) || Number.isNaN(price) ? (
         <div>-</div>
       ) : (

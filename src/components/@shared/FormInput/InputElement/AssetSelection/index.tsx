@@ -10,6 +10,7 @@ import WhitelistIndicator from '@components/Asset/AssetActions/Compute/Whitelist
 import { Badge } from '@components/@shared/VerifiedBadge'
 import styles from './index.module.css'
 import classNames from 'classnames/bind'
+import { useTranslation } from 'react-i18next'
 import { useRouter } from 'next/router'
 
 const cx = classNames.bind(styles)
@@ -42,6 +43,7 @@ export default function AssetSelection({
   disabled?: boolean
   accountId?: string
 }): JSX.Element {
+  const { t } = useTranslation('common')
   const [searchValue, setSearchValue] = useState('')
   const router = useRouter()
   const isOnEditPage = router.pathname.includes('/edit')
@@ -62,7 +64,7 @@ export default function AssetSelection({
         type="search"
         name="assetSearch"
         size="small"
-        placeholder="Search by title, datatoken, or DID..."
+        placeholder={t('compute.searchPlaceholder')}
         value={searchValue}
         onChange={handleSearchInput}
         className={styles.search}
@@ -72,7 +74,7 @@ export default function AssetSelection({
         {!assets ? (
           <Loader />
         ) : assets && !assets.length ? (
-          <Empty message="No assets found." />
+          <Empty message={t('compute.noAssets')} />
         ) : (
           assets
             .filter((asset: AssetSelectionAsset) =>
@@ -154,7 +156,10 @@ export default function AssetSelection({
                         />
                       }
                     >
-                      <Badge isValid={false} verifiedService="Access denied" />
+                      <Badge
+                        isValid={false}
+                        verifiedService={t('asset.accessDenied')}
+                      />
                     </Tooltip>
                   )}
                 </label>

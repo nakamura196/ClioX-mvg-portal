@@ -1,5 +1,6 @@
 import { accountTruncate } from '@utils/wallet'
 import { Badge } from '@components/@shared/VerifiedBadge'
+import { useTranslation } from 'react-i18next'
 import classNames from 'classnames/bind'
 import styles from './WhitelistIndicator.module.css'
 
@@ -14,6 +15,7 @@ export default function WhitelistIndicator({
   isAccountIdWhitelisted: boolean
   minimal?: boolean
 }) {
+  const { t } = useTranslation('common')
   const styleClasses = cx({
     container: true,
     minimal
@@ -24,15 +26,15 @@ export default function WhitelistIndicator({
       <Badge
         isValid={isAccountIdWhitelisted}
         verifiedService={
-          isAccountIdWhitelisted ? 'Access allowed' : 'Access denied'
+          isAccountIdWhitelisted
+            ? t('asset.accessAllowed')
+            : t('asset.accessDenied')
         }
         className={styles.whitelistBadge}
       />
       {!isAccountIdWhitelisted && (
         <p className={styles.invalidAddressMessage}>
-          {`The address ${accountTruncate(
-            accountId
-          )} is not allowed to access this asset. Please, connect with a different account and try again.`}
+          {t('asset.notWhitelisted', { account: accountTruncate(accountId) })}
         </p>
       )}
     </div>

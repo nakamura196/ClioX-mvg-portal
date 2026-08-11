@@ -1,4 +1,5 @@
 import { ReactElement, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import Button from '../atoms/Button'
 import Modal from '../atoms/Modal'
 import Input from '../FormInput'
@@ -23,6 +24,7 @@ export default function DDODownloadButton({
 }: {
   asset: DDOData
 }): ReactElement {
+  const { t } = useTranslation('common')
   const [openModal, setOpenModal] = useState(false)
   const [serviceCredentialList, setServiceCredentialList] = useState<
     { id: string }[]
@@ -52,7 +54,7 @@ export default function DDODownloadButton({
         onClick={() => setOpenModal(true)}
         size="small"
       >
-        Prepare Service Credential
+        {t('asset.prepareServiceCredential')}
       </Button>
 
       <Modal

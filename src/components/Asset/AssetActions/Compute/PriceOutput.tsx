@@ -1,4 +1,5 @@
 import { ReactElement } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useAsset } from '@context/Asset'
 import PriceUnit from '@shared/Price/PriceUnit'
 import Tooltip from '@shared/atoms/Tooltip'
@@ -41,6 +42,8 @@ function Row({
   sign?: string
   type?: string
 }) {
+  const { t } = useTranslation('common')
+
   return (
     <div className={styles.priceRow}>
       <div className={styles.sign}>{sign}</div>
@@ -57,7 +60,7 @@ function Row({
           {timeout &&
             timeout !== 'Forever' &&
             !hasPreviousOrder &&
-            `for ${timeout}`}
+            t('compute.priceFor', { timeout })}
         </span>
       </div>
     </div>
@@ -81,22 +84,25 @@ export default function PriceOutput({
   validUntil,
   totalPrices
 }: PriceOutputProps): ReactElement {
+  const { t } = useTranslation('common')
   const { asset } = useAsset()
 
   return (
     <div className={styles.priceComponent}>
       {totalPrices ? (
         totalPrices.length === 0 ? (
-          <>Select an algorithm to calculate the Compute Job price</>
+          <>{t('compute.selectAlgorithmForPrice')}</>
         ) : (
           <>
             {totalPrices.every((price) => price.value === '0') ? (
               <>
-                You can order this Compute Job for <strong>free</strong>
+                {t('compute.orderForFreeBefore')}
+                <strong>{t('compute.orderForFreeWord')}</strong>
+                {t('compute.orderForFreeAfter')}
               </>
             ) : (
               <>
-                You will pay{' '}
+                {t('compute.youWillPay')}
                 {totalPrices.map((item, index) => (
                   <div key={item.symbol}>
                     <PriceUnit
@@ -140,7 +146,7 @@ export default function PriceOutput({
                   />
                   <Row
                     price={providerFeeAmount} // initializeCompute.provider fee amount
-                    timeout={`${validUntil} seconds`} // valid until value
+                    timeout={t('compute.seconds', { seconds: validUntil })} // valid until value
                     symbol={providerFeesSymbol} // we assume that provider fees will always be in OCEAN token
                     sign="+"
                     type="C2D RESOURCES"
@@ -159,7 +165,7 @@ export default function PriceOutput({
           </>
         )
       ) : (
-        <>The price will be calculated once you select an algorithm.</>
+        <>{t('compute.priceAfterAlgorithm')}</>
       )}
     </div>
   )

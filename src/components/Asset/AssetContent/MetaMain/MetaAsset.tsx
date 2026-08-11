@@ -3,6 +3,7 @@ import { Asset } from '@oceanprotocol/lib'
 import AddToken from '@shared/AddToken'
 import Publisher from '@shared/Publisher'
 import { ReactElement } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useAccount } from 'wagmi'
 import ExplorerTokenLink from '../../../@shared/ExplorerLink/ExplorerTokenLink'
 import styles from './MetaAsset.module.css'
@@ -12,6 +13,7 @@ export default function MetaAsset({
 }: {
   asset: AssetExtended
 }): ReactElement {
+  const { t } = useTranslation('common')
   const { isAssetNetwork } = useAsset()
   const { connector: activeConnector } = useAccount()
 
@@ -20,7 +22,7 @@ export default function MetaAsset({
   return (
     <div className={styles.wrapper}>
       <span className={styles.owner}>
-        Owned by &nbsp;
+        {t('asset.ownedBy')} &nbsp;
         <Publisher account={asset?.nft?.owner} showName={true} />
       </span>
       <span>
@@ -29,7 +31,7 @@ export default function MetaAsset({
           networkId={asset?.chainId}
           className={styles.datatoken}
         >
-          {`Accessed with ${dataTokenSymbol}`}
+          {t('asset.accessedWith', { symbol: dataTokenSymbol })}
         </ExplorerTokenLink>
         {activeConnector?.name === 'MetaMask' && isAssetNetwork && (
           <span className={styles.addWrap}>
@@ -37,7 +39,9 @@ export default function MetaAsset({
               // service を持たない資産が実在するため、途中で切らない
               address={asset?.services?.[0]?.datatokenAddress}
               symbol={(asset as Asset)?.datatokens[0]?.symbol}
-              text={`Add ${(asset as Asset)?.datatokens[0]?.symbol} to wallet`}
+              text={t('asset.addToWallet', {
+                symbol: (asset as Asset)?.datatokens[0]?.symbol
+              })}
               className={styles.add}
               minimal
             />

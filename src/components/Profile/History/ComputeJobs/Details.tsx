@@ -1,4 +1,5 @@
 import { ReactElement, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import Time from '@shared/atoms/Time'
 import Button from '@shared/atoms/Button'
 import Modal from '@shared/atoms/Modal'
@@ -79,15 +80,18 @@ export default function Details({
 }: {
   job: ComputeJobMetaData
 }): ReactElement {
+  const { t } = useTranslation('common')
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   return (
     <>
       <Button style="text" size="small" onClick={() => setIsDialogOpen(true)}>
-        Show Details
+        {t('compute.showDetails')}
       </Button>
       <Modal
-        title={job.statusText}
+        title={t(`compute.status.${job.statusText}`, {
+          defaultValue: job.statusText
+        })}
         isOpen={isDialogOpen}
         onToggleModal={() => setIsDialogOpen(false)}
       >
@@ -96,16 +100,19 @@ export default function Details({
 
         <div className={styles.meta}>
           <MetaItem
-            title="Created"
+            title={t('compute.columns.created')}
             content={<Time date={job.dateCreated} isUnix relative />}
           />
           {job.dateFinished && (
             <MetaItem
-              title="Finished"
+              title={t('compute.columns.finished')}
               content={<Time date={job.dateFinished} isUnix relative />}
             />
           )}
-          <MetaItem title="Job ID" content={<code>{job.jobId}</code>} />
+          <MetaItem
+            title={t('compute.jobId')}
+            content={<code>{job.jobId}</code>}
+          />
         </div>
       </Modal>
     </>

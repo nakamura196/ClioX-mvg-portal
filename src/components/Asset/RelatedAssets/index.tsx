@@ -6,9 +6,11 @@ import { useAsset } from '@context/Asset'
 import styles from './index.module.css'
 import { useCancelToken } from '@hooks/useCancelToken'
 import AssetList from '@shared/AssetList'
+import { useTranslation } from 'react-i18next'
 import { generateQuery } from './_utils'
 
 export default function RelatedAssets(): ReactElement {
+  const { t } = useTranslation('common')
   const { asset } = useAsset()
   const { chainIds } = useUserPreferences()
   const newCancelToken = useCancelToken()
@@ -83,7 +85,7 @@ export default function RelatedAssets(): ReactElement {
 
   return (
     <section className={styles.section}>
-      <h3>Related Assets</h3>
+      <h3>{t('asset.relatedAssets')}</h3>
       <AssetList
         assets={relatedAssets}
         showPagination={false}

@@ -1,5 +1,6 @@
 import Input from '@components/@shared/FormInput'
 import { Field } from 'formik'
+import { useTranslation } from 'react-i18next'
 import styles from './index.module.css'
 
 export default function TermsAndConditionsCheckbox({
@@ -19,6 +20,8 @@ export default function TermsAndConditionsCheckbox({
   prefixes: string[]
   postfixes?: string[]
 }) {
+  const { t } = useTranslation('common')
+
   return (
     <Field
       name={name}
@@ -26,7 +29,9 @@ export default function TermsAndConditionsCheckbox({
       options={
         options ||
         licenses?.map((option) =>
-          option.includes('http') ? 'a custom' : `the ${option}`
+          option.includes('http')
+            ? t('asset.licenseCustom')
+            : t('asset.licenseNamed', { license: option })
         )
       }
       prefixes={prefixes}

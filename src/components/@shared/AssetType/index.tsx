@@ -1,4 +1,5 @@
 import { ReactElement } from 'react'
+import { useTranslation } from 'react-i18next'
 import styles from './index.module.css'
 import Compute from '@images/compute.svg'
 import Download from '@images/download.svg'
@@ -17,6 +18,8 @@ export default function AssetType({
   accessType: string
   className?: string
 }): ReactElement {
+  const { t } = useTranslation('common')
+
   return (
     <div className={className || null}>
       {accessType === 'access' ? (
@@ -36,8 +39,8 @@ export default function AssetType({
         {accessType === 'saas'
           ? null
           : accessType === 'access'
-          ? 'download'
-          : 'compute'}
+          ? t('assetType.download')
+          : t('assetType.compute')}
       </div>
       <div
         className={cx({
@@ -46,10 +49,10 @@ export default function AssetType({
         })}
       >
         {type === 'dataset'
-          ? 'dataset'
+          ? t('assetType.dataset')
           : type === 'saas'
-          ? 'saas'
-          : 'algorithm'}
+          ? t('assetType.saas')
+          : t('assetType.algorithm')}
       </div>
     </div>
   )

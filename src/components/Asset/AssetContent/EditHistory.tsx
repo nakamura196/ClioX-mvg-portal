@@ -42,13 +42,13 @@ export default function EditHistory({
   function getUpdateType(type: string): string {
     switch (type) {
       case 'METADATA_CREATED':
-        return 'published'
+        return t('asset.history.published')
       case 'METADATA_UPDATED':
-        return 'updated'
+        return t('asset.history.updated')
       case 'STATE_UPDATED':
-        return 'state updated'
+        return t('asset.history.stateUpdated')
       case 'TOKENURI_UPDATED':
-        return 'NFT metadata updated'
+        return t('asset.history.nftMetadataUpdated')
       default:
         return ''
     }

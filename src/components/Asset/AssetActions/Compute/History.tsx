@@ -1,4 +1,5 @@
 import { ReactElement, ReactNode, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import Button from '@shared/atoms/Button'
 import styles from './History.module.css'
 import Caret from '@images/caret.svg'
@@ -12,6 +13,7 @@ export default function ComputeHistory({
   children: ReactNode
   refetchJobs?: React.Dispatch<React.SetStateAction<boolean>>
 }): ReactElement {
+  const { t } = useTranslation('common')
   const [open, setOpen] = useState(false)
 
   async function handleClick() {
@@ -30,7 +32,7 @@ export default function ComputeHistory({
           onClick={handleClick}
           className={styles.toggle}
         >
-          {open ? 'Hide' : 'Show'} <Caret />
+          {open ? t('compute.hide') : t('compute.show')} <Caret />
         </Button>
       </h3>
       {open === true && children}

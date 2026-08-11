@@ -1,5 +1,6 @@
 import { ReactElement, useEffect, useState } from 'react'
 import { format, formatDistance } from 'date-fns'
+import useDateFnsLocale from '../../../../i18n/useDateFnsLocale'
 
 export interface TimeProps {
   date: string
@@ -16,6 +17,7 @@ export default function Time({
   displayFormat,
   className
 }: TimeProps): ReactElement {
+  const dateFnsLocale = useDateFnsLocale()
   const [dateIso, setDateIso] = useState<string>()
   const [dateNew, setDateNew] = useState<Date>()
 
@@ -31,13 +33,18 @@ export default function Time({
     <></>
   ) : (
     <time
-      title={format(dateNew, displayFormat || 'PPppp')}
+      title={format(dateNew, displayFormat || 'PPppp', {
+        locale: dateFnsLocale
+      })}
       dateTime={dateIso}
       className={className || undefined}
     >
       {relative
-        ? formatDistance(dateNew, Date.now(), { addSuffix: true })
-        : format(dateNew, displayFormat || 'PP')}
+        ? formatDistance(dateNew, Date.now(), {
+            addSuffix: true,
+            locale: dateFnsLocale
+          })
+        : format(dateNew, displayFormat || 'PP', { locale: dateFnsLocale })}
     </time>
   )
 }

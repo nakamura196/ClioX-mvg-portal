@@ -8,6 +8,8 @@ import { Empty } from '../AssetSelection'
 import { formatDuration, intervalToDuration } from 'date-fns'
 import { useMarketMetadata } from '@context/MarketMetadata'
 import Tooltip from '@components/@shared/atoms/Tooltip'
+import { useTranslation } from 'react-i18next'
+import useDateFnsLocale from '../../../../../i18n/useDateFnsLocale'
 import ComputeEnvDetails from './ComputeEnvDetails'
 
 export default function ComputeEnvSelection({
@@ -20,6 +22,8 @@ export default function ComputeEnvSelection({
   selected?: string
   disabled?: boolean
 }): JSX.Element {
+  const { t } = useTranslation('common')
+  const dateFnsLocale = useDateFnsLocale()
   const {
     approvedBaseTokens,
     appConfig: { defaultTokenSymbol }
@@ -34,7 +38,7 @@ export default function ComputeEnvSelection({
         {!computeEnvs ? (
           <Loader />
         ) : computeEnvs && !computeEnvs.length ? (
-          <Empty message="No Compute Environment available." />
+          <Empty message={t('compute.noEnvironment')} />
         ) : (
           computeEnvs.map((env) => (
             <div className={styles.row} key={env.id}>
@@ -60,12 +64,13 @@ export default function ComputeEnvSelection({
                 <Dotdotdot clamp={1} tagName="code" className={styles.details}>
                   {env?.cpuNumber > 0 && 'CPU | '}
                   {env?.gpuNumber > 0 && 'GPU | '}
-                  {'max duration: '}
+                  {t('compute.maxDuration')}
                   {formatDuration(
                     intervalToDuration({
                       start: 0,
                       end: env?.maxJobDuration * 1000
-                    })
+                    }),
+                    { locale: dateFnsLocale }
                   )}
                 </Dotdotdot>
                 <PriceUnit
@@ -82,7 +87,7 @@ export default function ComputeEnvSelection({
                           env.feeToken.toLowerCase()
                       )?.symbol) ||
                     defaultTokenSymbol
-                  } / minute`}
+                  }${t('compute.perMinute')}`}
                 />
               </label>
             </div>

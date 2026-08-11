@@ -1,4 +1,6 @@
 import { FormEvent, ReactElement } from 'react'
+import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import Button from '../../../@shared/atoms/Button'
 import Loader from '../../../@shared/atoms/Loader'
 import { PAYMENT_MODES, PaymentMode } from '../Download/ContractingProvider'
@@ -36,7 +38,14 @@ export interface ButtonBuyProps {
   paymentMode?: PaymentMode
 }
 
+// `assetType` はコード上の値 ('dataset' / 'algorithm' / 'saas') なので、
+// 文面に埋め込む前に必ず訳語に置き換える。
+function localizedType(t: TFunction, type: string): string {
+  return t(`assetType.${type || 'dataset'}`)
+}
+
 function getConsumeHelpText(
+  t: TFunction,
   btSymbol: string,
   dtBalance: string,
   dtSymbol: string,
@@ -54,18 +63,22 @@ function getConsumeHelpText(
     isConsumable === false
       ? consumableFeedback
       : hasPreviousOrder && isAccountConnected && isSupportedOceanNetwork
-      ? `You bought this ${assetType} already allowing you to use it without paying again.`
+      ? t('buy.alreadyBought', { type: localizedType(t, assetType) })
       : hasDatatoken
-      ? `You own ${dtBalance} ${dtSymbol} allowing you to use this dataset by spending 1 ${dtSymbol}, but without paying ${btSymbol} again.`
+      ? t('buy.ownDatatoken', { balance: dtBalance, dtSymbol, btSymbol })
       : isBalanceSufficient === false
-      ? `You do not have enough ${btSymbol} in your wallet to purchase this asset.`
+      ? t('buy.insufficientBalance', { btSymbol })
       : priceType === 'free'
-      ? `This ${assetType} is free to use.`
-      : `To use this ${assetType}, you will buy 1 ${dtSymbol} and immediately send it back to the publisher.`
+      ? t('buy.freeToUse', { type: localizedType(t, assetType) })
+      : t('buy.willBuyDatatoken', {
+          type: localizedType(t, assetType),
+          dtSymbol
+        })
   return text
 }
 
 function getAlgoHelpText(
+  t: TFunction,
   dtSymbolSelectedComputeAsset: string,
   dtBalanceSelectedComputeAsset: string,
   isConsumable: boolean,
@@ -86,20 +99,30 @@ function getAlgoHelpText(
       : hasPreviousOrderSelectedComputeAsset &&
         isAccountConnected &&
         isSupportedOceanNetwork
-      ? `You already bought the selected ${selectedComputeAssetType}, allowing you to use it without paying again.`
+      ? t('buy.algoAlreadyBought', {
+          type: localizedType(t, selectedComputeAssetType)
+        })
       : hasDatatokenSelectedComputeAsset
-      ? `You own ${dtBalanceSelectedComputeAsset} ${dtSymbolSelectedComputeAsset} allowing you to use the selected ${selectedComputeAssetType} by spending 1 ${dtSymbolSelectedComputeAsset}, but without paying OCEAN again.`
+      ? t('buy.algoOwnDatatoken', {
+          balance: dtBalanceSelectedComputeAsset,
+          dtSymbol: dtSymbolSelectedComputeAsset,
+          type: localizedType(t, selectedComputeAssetType)
+        })
       : isAccountConnected && !isSupportedOceanNetwork
-      ? `Connect to the correct network to interact with this asset.`
+      ? t('buy.wrongNetwork')
       : isBalanceSufficient === false
       ? ''
       : algorithmPriceType === 'free'
-      ? `Additionally, the selected ${selectedComputeAssetType} is free to use.`
-      : `Additionally, you will buy 1 ${dtSymbolSelectedComputeAsset} for the ${selectedComputeAssetType} and send it back to the publisher.`
+      ? t('buy.algoFree', { type: localizedType(t, selectedComputeAssetType) })
+      : t('buy.algoWillBuy', {
+          dtSymbol: dtSymbolSelectedComputeAsset,
+          type: localizedType(t, selectedComputeAssetType)
+        })
   return text
 }
 
 function getComputeAssetHelpText(
+  t: TFunction,
   hasPreviousOrder: boolean,
   hasDatatoken: boolean,
   btSymbol: string,
@@ -122,6 +145,7 @@ function getComputeAssetHelpText(
   hasProviderFee?: boolean
 ) {
   const computeAssetHelpText = getConsumeHelpText(
+    t,
     btSymbol,
     dtBalance,
     dtSymbol,
@@ -137,6 +161,7 @@ function getComputeAssetHelpText(
   )
 
   const computeAlgoHelpText = getAlgoHelpText(
+    t,
     dtSymbolSelectedComputeAsset,
     dtBalanceSelectedComputeAsset,
     isConsumable,
@@ -151,8 +176,8 @@ function getComputeAssetHelpText(
   )
 
   const providerFeeHelpText = hasProviderFee
-    ? 'In order to start the job you also need to pay the fees for renting the c2d resources.'
-    : 'The C2D resources required to start the job are available, no payment is required for them.'
+    ? t('buy.providerFeeRequired')
+    : t('buy.providerFeeFree')
   let computeHelpText = `${computeAssetHelpText} ${computeAlgoHelpText} ${providerFeeHelpText}`
 
   computeHelpText = computeHelpText.replace(/^\s+/, '')
@@ -190,36 +215,41 @@ export default function ButtonBuy({
   isSupportedOceanNetwork,
   isAccountConnected
 }: ButtonBuyProps): ReactElement {
+  const { t } = useTranslation('common')
+
   const buttonText = retry
-    ? 'Retry'
+    ? t('actions.retry')
     : action === 'download'
     ? hasPreviousOrder && assetType === 'saas'
       ? paymentMode === PAYMENT_MODES.PAYPERUSE
-        ? `Buy access credit`
-        : 'Go to service'
+        ? t('buy.buyAccessCredit')
+        : t('buy.goToService')
       : hasPreviousOrder
-      ? 'Download'
+      ? t('buy.download')
       : priceType === 'free'
-      ? 'Get'
+      ? t('buy.get')
       : assetType === 'saas'
       ? paymentMode === PAYMENT_MODES.PAYPERUSE
-        ? `Buy access credit`
-        : `Subscribe ${
-            assetTimeout === 'Forever' ? '' : ` for ${assetTimeout}`
-          }`
-      : `Buy ${assetTimeout === 'Forever' ? '' : ` for ${assetTimeout}`}`
+        ? t('buy.buyAccessCredit')
+        : assetTimeout === 'Forever'
+        ? t('buy.subscribe')
+        : t('buy.subscribeFor', { timeout: assetTimeout })
+      : assetTimeout === 'Forever'
+      ? t('buy.buy')
+      : t('buy.buyFor', { timeout: assetTimeout })
     : hasPreviousOrder &&
       hasPreviousOrderSelectedComputeAsset &&
       !hasProviderFee
-    ? 'Start Compute Job'
+    ? t('compute.startJob')
     : priceType === 'free' && algorithmPriceType === 'free'
-    ? 'Order Compute Job'
-    : `Buy Compute Job`
+    ? t('compute.orderJob')
+    : t('compute.buyJob')
 
   function message(): string {
     let message = ''
     if (action === 'download') {
       message = getConsumeHelpText(
+        t,
         btSymbol,
         dtBalance,
         dtSymbol,
@@ -235,6 +265,7 @@ export default function ButtonBuy({
       )
     } else {
       message = getComputeAssetHelpText(
+        t,
         hasPreviousOrder,
         hasDatatoken,
         btSymbol,
@@ -258,8 +289,7 @@ export default function ButtonBuy({
       )
     }
     if (priceType === 'free' || algorithmPriceType === 'free') {
-      message +=
-        ' Please note that network gas fees still apply, even when using free assets.'
+      message += ` ${t('buy.gasFeeNote')}`
     }
     return message
   }

@@ -1,4 +1,5 @@
 import { ReactElement } from 'react'
+import { useTranslation } from 'react-i18next'
 import { filesize } from 'filesize'
 import cleanupContentType from '@utils/cleanupContentType'
 import styles from './index.module.css'
@@ -26,6 +27,7 @@ export default function FileIcon({
   small?: boolean
   isLoading?: boolean
 }): ReactElement {
+  const { t } = useTranslation('common')
   const styleClasses = `${styles.file} ${small ? styles.small : ''} ${
     className || ''
   }`
@@ -48,7 +50,7 @@ export default function FileIcon({
               </li>
             </>
           ) : (
-            <li className={styles.empty}>No file info available</li>
+            <li className={styles.empty}>{t('asset.noFileInfo')}</li>
           )}
         </>
       ) : (
