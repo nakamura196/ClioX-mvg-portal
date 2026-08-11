@@ -19,6 +19,7 @@ import {
   getErrorMessage
 } from '@oceanprotocol/lib'
 import { toast } from 'react-toastify'
+import { useTranslation } from 'react-i18next'
 import Price from '@shared/Price'
 import FileIcon from '@shared/FileIcon'
 import Alert from '@shared/atoms/Alert'
@@ -89,6 +90,7 @@ export default function Compute({
   fileIsLoading?: boolean
   consumableFeedback?: string
 }): ReactElement {
+  const { t } = useTranslation('common')
   const { address } = useAccount()
   const { chainIds } = useUserPreferences()
 
@@ -241,6 +243,18 @@ export default function Compute({
 
   async function initPriceAndFees() {
     try {
+      // 【無償資産では価格の初期化そのものが不要】
+      // initializeProviderForCompute は Ocean Node 3.2.0 では payment(escrow) を
+      // 必須とするため、無償の組み合わせでは必ず 400 になる。実行自体は
+      // freeStartCompute に振り分けて成功するのに、アルゴリズムを選んだ時点で
+      // このエラーが赤帯として出てしまい、失敗したように見えていた。
+      // 支払いが無い以上、価格も手数料も算出するものが無いので手前で抜ける。
+      if (isFreeAsset(asset) && isFreeAsset(selectedAlgorithmAsset)) {
+        setIsConsumablePrice(true)
+        setIsConsumableAlgorithmPrice(true)
+        return
+      }
+
       if (!selectedComputeEnv || !selectedComputeEnv.id)
         throw new Error(`Error getting compute environment!`)
 
@@ -599,10 +613,7 @@ export default function Compute({
           small
         />
         {isUnsupportedPricing ? (
-          <Alert
-            text={`No pricing schema available for this asset.`}
-            state="info"
-          />
+          <Alert text={t('asset.noPricingSchema')} state="info" />
         ) : (
           <Price
             price={price}
@@ -615,12 +626,7 @@ export default function Compute({
       {isUnsupportedPricing ? null : asset.metadata.type === 'algorithm' ? (
         <>
           {asset.services[0].type === 'compute' && (
-            <Alert
-              text={
-                "This algorithm has been set to private by the publisher and can't be downloaded. You can run it against any allowed datasets though!"
-              }
-              state="info"
-            />
+            <Alert text={t('asset.privateAlgorithm')} state="info" />
           )}
           <AlgorithmDatasetsListForCompute
             algorithmDid={asset.id}
@@ -694,7 +700,7 @@ export default function Compute({
 
       <footer className={styles.feedback}>
         {isOrdered && (
-          <SuccessConfetti success="Your job started successfully! Watch the progress below or on your profile." />
+          <SuccessConfetti success={t('compute.jobStartedSuccess')} />
         )}
       </footer>
       {accountId && (
@@ -705,7 +711,7 @@ export default function Compute({
       )}
       {accountId && asset?.accessDetails?.datatoken && (
         <ComputeHistory
-          title="Your Compute Jobs"
+          title={t('compute.yourComputeJobs')}
           refetchJobs={() => setRefetchJobs(!refetchJobs)}
         >
           <ComputeJobs
