@@ -278,13 +278,15 @@ async function getJobs(
       })
 
       providersComputeJobsExtended.forEach((job) => {
-        const did = job.inputDID[0]
+        // ComputeJob.inputDID は optional で、Ocean Node 3.2.0 のジョブには無い。
+        // datatokens も Ocean Node 由来の文書では欠けることがある。
+        const did = job.inputDID?.[0]
         const asset = assets.filter((x) => x.id === did)[0]
         if (asset) {
           const compJob: ComputeJobMetaData = {
             ...job,
-            assetName: asset.metadata.name,
-            assetDtSymbol: asset.datatokens[0].symbol,
+            assetName: asset.metadata?.name,
+            assetDtSymbol: asset.datatokens?.[0]?.symbol,
             networkId: asset.chainId
           }
           computeJobs.push(compJob)
@@ -312,7 +314,8 @@ export function filterForUniqueJobs(
 
     // compare providerUrl where the job status was accessed from
     // with the serviceEndpoint found in asset with first inputDID
-    const inputAsset = assets.find((asset) => asset.id === inputDID[0])
+    // inputDID は Ocean Node 3.2.0 のジョブには存在しないため optional で読む。
+    const inputAsset = assets.find((asset) => asset.id === inputDID?.[0])
     return providerUrl === inputAsset?.services[0]?.serviceEndpoint
   })
 }

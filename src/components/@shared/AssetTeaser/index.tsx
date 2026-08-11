@@ -24,14 +24,18 @@ export default function AssetTeaser({
   noDescription
 }: AssetTeaserProps): ReactElement {
   const { name, type, description } = asset.metadata
-  const { datatokens } = asset
+  // Ocean Node 由来の文書は datatokens / nft / stats / services が欠けることが
+  // あり、分割代入や [0] アクセスの時点で例外になる。読み出しは全て optional に。
+  const datatokens = asset.datatokens || []
   const isCompute = Boolean(getServiceByName(asset, 'compute'))
   const accessType = isCompute ? 'compute' : 'access'
-  const { owner } = asset.nft
-  const { orders, allocated, price } = asset.stats
+  const owner = asset.nft?.owner
+  const orders = asset.stats?.orders
+  const allocated = asset.stats?.allocated
+  const price = asset.stats?.price
   const isUnsupportedPricing =
-    !asset.services.length ||
-    price.value === undefined ||
+    !asset.services?.length ||
+    price?.value === undefined ||
     asset?.accessDetails?.type === 'NOT_SUPPORTED'
   const { locale } = useUserPreferences()
 
@@ -47,7 +51,7 @@ export default function AssetTeaser({
             }
           />
           <span className={styles.typeLabel}>
-            {datatokens[0]?.symbol.substring(0, 9)}
+            {datatokens[0]?.symbol?.substring(0, 9)}
           </span>
         </aside>
         <header className={styles.header}>

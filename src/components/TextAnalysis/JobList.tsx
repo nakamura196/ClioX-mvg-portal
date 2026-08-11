@@ -149,13 +149,21 @@ export default function JobList(props: {
     // Always fetch fresh data from chain
     try {
       const loadingId = showUploadingToast('Adding to visualization…')
-      const datasetDDO = await getAsset(job.inputDID[0], newCancelToken())
+      // Ocean Node 3.2.0 のジョブには inputDID が無い。DID が引けなければ
+      // Provider が特定できないので、ここで理由を出して止める。
+      const datasetDid = job.inputDID?.[0]
+      if (!datasetDid)
+        throw new Error('ジョブにデータセットの DID がありません')
+      const datasetDDO = await getAsset(datasetDid, newCancelToken())
+      if (!datasetDDO?.services?.[0]?.serviceEndpoint)
+        throw new Error('データセットの Provider が特定できません')
       const signerToUse =
-        job.owner.toLowerCase() === autoWallet?.address.toLowerCase()
+        job.owner?.toLowerCase() === autoWallet?.address?.toLowerCase()
           ? autoWallet
           : signer
 
-      const resultFiles = job.results.slice(0, 5)
+      // 成果物が未生成のジョブでは results が無い
+      const resultFiles = job.results?.slice(0, 5) ?? []
       const results = []
 
       for (let i = 0; i < resultFiles.length; i++) {

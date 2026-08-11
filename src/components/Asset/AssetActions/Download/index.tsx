@@ -353,13 +353,13 @@ export default function Download({
     <Formik
       initialValues={{
         dataServiceParams: getDefaultValues(
-          asset?.services[0].consumerParameters
+          asset?.services?.[0]?.consumerParameters
         ),
         termsAndConditions: false
       }}
       validateOnMount
       validationSchema={getDownloadValidationSchema(
-        asset?.services[0].consumerParameters
+        asset?.services?.[0]?.consumerParameters
       )}
       onSubmit={async (values) => {
         const dataServiceParams = parseConsumerParameterValues(

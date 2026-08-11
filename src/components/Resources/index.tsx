@@ -216,10 +216,12 @@ export default function Resources({
         const researchCards: ResourceCard[] = researchMatches.map((paper) => ({
           id: `research-${paper.id}`,
           title: paper.title,
-          description:
-            paper.abstract?.substring(0, 150) +
-              (paper.abstract && paper.abstract.length > 150 ? '...' : '') ||
-            `Research paper by ${paper.authors.join(', ')} (${paper.year})`,
+          // + は || より強く結合するため、abstract が undefined だと
+          // 文字列 "undefined" が truthy となり、既定文が使われなかった。
+          description: paper.abstract
+            ? paper.abstract.substring(0, 150) +
+              (paper.abstract.length > 150 ? '...' : '')
+            : `Research paper by ${paper.authors.join(', ')} (${paper.year})`,
           image:
             viewMode === 'list'
               ? researchFns.generateResearchImageForList(paper.title)

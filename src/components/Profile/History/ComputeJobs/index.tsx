@@ -18,7 +18,7 @@ const columns: TableOceanColumn<ComputeJobMetaData>[] = [
   {
     name: 'Dataset',
     selector: (row) => (
-      <AssetListTitle did={row.inputDID[0]} title={row.assetName} />
+      <AssetListTitle did={row.inputDID?.[0] ?? ''} title={row.assetName} />
     ),
     wrap: true,
     allowOverflow: true,

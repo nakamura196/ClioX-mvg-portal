@@ -34,7 +34,8 @@ export default function MetaAsset({
         {activeConnector?.name === 'MetaMask' && isAssetNetwork && (
           <span className={styles.addWrap}>
             <AddToken
-              address={asset?.services[0].datatokenAddress}
+              // service を持たない資産が実在するため、途中で切らない
+              address={asset?.services?.[0]?.datatokenAddress}
               symbol={(asset as Asset)?.datatokens[0]?.symbol}
               text={`Add ${(asset as Asset)?.datatokens[0]?.symbol} to wallet`}
               className={styles.add}

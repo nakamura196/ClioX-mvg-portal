@@ -57,7 +57,9 @@ const DocumentSummary = ({ data }: DocumentSummaryProps) => {
           </div>
         ) : error ? (
           <ChartError message={error} onRetry={fetchSummary} />
-        ) : summary ? (
+        ) : // data は optional で、結果ファイルが JSON でない場合は文字列のまま
+        // 渡ってくる。形を確かめてから描画する（描画中の例外は画面ごと落ちる）。
+        summary && typeof summary.totalDocuments === 'number' ? (
           <div className="prose dark:prose-invert max-w-none">
             <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
               This corpus has {summary.totalDocuments.toLocaleString()} document
@@ -73,7 +75,7 @@ const DocumentSummary = ({ data }: DocumentSummaryProps) => {
                   Vocabulary Density:
                 </h3>
                 <p className="text-xl font-bold text-indigo-600 dark:text-indigo-400">
-                  {summary.vocabularyDensity.toFixed(3)}
+                  {summary.vocabularyDensity?.toFixed(3) ?? '—'}
                 </p>
               </div>
 
@@ -100,7 +102,7 @@ const DocumentSummary = ({ data }: DocumentSummaryProps) => {
                   Most frequent words in the corpus:
                 </h3>
                 <ul className="list-disc list-inside space-y-1 pl-4">
-                  {summary.frequentWords.map((item, index) => (
+                  {(summary.frequentWords ?? []).map((item, index) => (
                     <li
                       key={index}
                       className="text-gray-700 dark:text-gray-300"

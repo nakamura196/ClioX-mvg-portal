@@ -78,8 +78,9 @@ export default function Results({
   async function downloadResults(resultIndex: number) {
     if (!accountId || !job) return
 
+    // owner が無いジョブでも落ちないようにする（try の外なので捕捉されない）
     const signerToUse =
-      job.owner.toLowerCase() === autoWallet?.address.toLowerCase()
+      job.owner?.toLowerCase() === autoWallet?.address?.toLowerCase()
         ? autoWallet
         : signer
 

@@ -83,6 +83,9 @@ const SentimentTable: React.FC<SentimentTableProps> = ({
     const dataMap = new Map<string, { count: number; words: string[] }>()
 
     sentimentData.forEach((dataset) => {
+      // 出現ゼロの分類は values が空になる。初期値なしの reduce は
+      // "Reduce of empty array" で落ちるため、先に飛ばす。
+      if (!dataset.values?.length) return
       // Find closest timestamp
       const closestEntry = dataset.values.reduce((prev, curr) => {
         const prevTime = Math.abs(new Date(prev[0]).getTime() - targetTime)

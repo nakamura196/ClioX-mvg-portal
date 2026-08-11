@@ -66,9 +66,11 @@ export default function EditHistory({
 
   const [result] = useQuery({
     query: getReceipts,
-    variables: { address: asset?.nft.address.toLowerCase() },
+    // Ocean Node 由来の文書では nft が欠けることがあり、address まで辿ると落ちる。
+    // アドレスが取れないときはクエリ自体を止める。
+    variables: { address: asset?.nft?.address?.toLowerCase() },
     context: queryContext,
-    pause: !asset || !queryContext
+    pause: !asset || !queryContext || !asset?.nft?.address
   })
   const { data } = result
 

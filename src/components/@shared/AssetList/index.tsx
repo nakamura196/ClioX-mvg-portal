@@ -57,22 +57,27 @@ const tableColumns: TableOceanColumn<AssetExtended>[] = [
   },
   {
     name: 'Price',
+    // Ocean Node 由来の文書には stats が無いことがあり、row.stats.price で落ちる。
     selector: (row) => {
-      return <Price price={row.stats.price} size="small" />
+      return <Price price={row.stats?.price} size="small" />
     },
     maxWidth: '7rem'
   },
   {
     name: 'Sales',
+    // 同上。orders が無いときは比較せず「—」を出す(0 件の 0 と区別する)。
     selector: (row) => {
-      return <strong>{row.stats.orders < 0 ? 'N/A' : row.stats.orders}</strong>
+      const orders = row.stats?.orders
+      if (orders === undefined || orders === null) return <strong>—</strong>
+      return <strong>{orders < 0 ? 'N/A' : orders}</strong>
     },
     maxWidth: '7rem'
   },
   {
     name: 'Published',
+    // nft も同様に欠けうる。Time は falsy な date を空表示にするので素通しで良い。
     selector: (row) => {
-      return <Time date={row.nft.created} />
+      return <Time date={row.nft?.created} />
     },
     maxWidth: '7rem'
   }
@@ -145,7 +150,9 @@ export default function AssetList({
             {activeAssetView === AssetViewOptions.List && (
               <Table
                 columns={columns}
-                data={assets}
+                // Grid 側だけ filter していたが、List 表示でも undefined が
+                // 列セレクタに渡って画面全体が落ちる。両方で弾く。
+                data={assets?.filter(Boolean)}
                 pagination={false}
                 paginationPerPage={assets?.length}
                 dense

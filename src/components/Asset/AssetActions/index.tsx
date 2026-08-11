@@ -105,7 +105,10 @@ export default function AssetActions({
         const datasetSchema = document.scripts?.namedItem('datasetSchema')
         if (datasetSchema) {
           const datasetSchemaJSON = JSON.parse(datasetSchema.innerText)
-          if (datasetSchemaJSON?.distribution[0]['@type'] === 'DataDownload') {
+          // ?. が途中で切れており、distribution が無いと落ちる
+          if (
+            datasetSchemaJSON?.distribution?.[0]?.['@type'] === 'DataDownload'
+          ) {
             const contentType = fileInfoResponse[0]?.contentType
             datasetSchemaJSON.distribution[0].encodingFormat = contentType
             datasetSchema.innerText = JSON.stringify(datasetSchemaJSON)

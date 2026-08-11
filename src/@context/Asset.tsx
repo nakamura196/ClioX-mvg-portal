@@ -113,35 +113,41 @@ function AssetProvider({
 
       LoggerInstance.log('[asset] Fetching asset...')
       setLoading(true)
-      const asset = await getAsset(did, token)
-      const isWhitelisted = isDDOWhitelisted(asset)
 
-      if (!asset) {
-        setError(
-          did +
-            '\n\nWe could not find an asset for this DID in the cache. If you just published a new asset, wait some seconds and refresh this page.'
-        )
-        LoggerInstance.error(`[asset] Failed getting asset for ${did}`, asset)
-        return
-      }
+      // 早期 return や例外(Ocean Node 由来の文書は nft/stats が欠けるため
+      // asset.nft.xxx で落ちる)で setLoading(false) に到達しないと、画面が
+      // 「読み込み中」のまま固まる。finally で必ずローディングを解除する。
+      try {
+        const asset = await getAsset(did, token)
+        const isWhitelisted = isDDOWhitelisted(asset)
 
-      if (!isWhitelisted) {
-        setError(did + '\n\nThis DID can not be retrieved on this portal.')
-        LoggerInstance.error(`[asset] Failed getting asset for ${did}`, asset)
-        return
-      }
+        if (!asset) {
+          setError(
+            did +
+              '\n\nWe could not find an asset for this DID in the cache. If you just published a new asset, wait some seconds and refresh this page.'
+          )
+          LoggerInstance.error(`[asset] Failed getting asset for ${did}`, asset)
+          return
+        }
 
-      if (asset.nft.state === (1 | 2 | 3)) {
-        setTitle(
-          `This asset has been set as "${assetStateToString(
-            asset.nft.state
-          )}" by the publisher`
-        )
-        setError(did + `\n\nPublisher Address: ${asset.nft.owner}`)
-        LoggerInstance.error(`[asset] Failed getting asset for ${did}`, asset)
-        return
-      }
-      if (asset) {
+        if (!isWhitelisted) {
+          setError(did + '\n\nThis DID can not be retrieved on this portal.')
+          LoggerInstance.error(`[asset] Failed getting asset for ${did}`, asset)
+          return
+        }
+
+        // nft が無い文書では state を判定できないので、この分岐は素通しにする。
+        if (asset.nft?.state === (1 | 2 | 3)) {
+          setTitle(
+            `This asset has been set as "${assetStateToString(
+              asset.nft?.state
+            )}" by the publisher`
+          )
+          setError(did + `\n\nPublisher Address: ${asset.nft?.owner}`)
+          LoggerInstance.error(`[asset] Failed getting asset for ${did}`, asset)
+          return
+        }
+
         setError(undefined)
         setAsset((prevState) => ({
           ...prevState,
@@ -151,11 +157,14 @@ function AssetProvider({
         setOwner(asset.nft?.owner)
         setIsInPurgatory(asset.purgatory?.state)
         setPurgatoryData(asset.purgatory)
-        setAssetState(assetStateToString(asset.nft.state))
+        setAssetState(assetStateToString(asset.nft?.state))
         LoggerInstance.log('[asset] Got asset', asset)
+      } catch (err) {
+        setError(did + `\n\n${err?.message || 'Failed getting asset.'}`)
+        LoggerInstance.error(`[asset] Failed getting asset for ${did}`, err)
+      } finally {
+        setLoading(false)
       }
-
-      setLoading(false)
     },
     [did, accountId]
   )
@@ -291,7 +300,8 @@ function AssetProvider({
   useEffect(() => {
     if (!asset?.nft) return
 
-    setAssetState(assetStateToString(asset.nft.state))
+    // nft はあっても state が無い文書があるため、こちらも optional で読む。
+    setAssetState(assetStateToString(asset.nft?.state))
   }, [asset])
 
   // -----------------------------------

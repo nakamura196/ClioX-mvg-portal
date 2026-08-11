@@ -28,8 +28,10 @@ export default function AssetListTitle({
     const source = axios.CancelToken.source()
 
     async function getAssetName() {
+      // getAssetsNames は非200・キャンセル・例外のとき undefined を返すため、
+      // title[did] で落ちる。取れないときはタイトル無し(空)で描画する。
       const title = await getAssetsNames([did], source.token)
-      setAssetTitle(title[did])
+      setAssetTitle(title?.[did] ?? '')
     }
 
     !asset && did && getAssetName()

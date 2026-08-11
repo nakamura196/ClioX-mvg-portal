@@ -22,16 +22,18 @@ const columns: TableOceanColumn<AssetExtended>[] = [
   },
   {
     name: 'Datatoken Symbol',
+    // Ocean Node 由来の文書には datatokens / stats が無いことがあり、
+    // [0] や .price を直接辿ると一覧全体が描画できずに落ちる。
     selector: (row) => (
-      <Tooltip content={row.datatokens[0].name}>
-        <>{row.datatokens[0].symbol}</>
+      <Tooltip content={row.datatokens?.[0]?.name || ''}>
+        <>{row.datatokens?.[0]?.symbol}</>
       </Tooltip>
     ),
     maxWidth: '10rem'
   },
   {
     name: 'Price',
-    selector: (row) => <Price price={row.stats.price} size="small" />,
+    selector: (row) => <Price price={row.stats?.price} size="small" />,
     right: true
   }
 ]

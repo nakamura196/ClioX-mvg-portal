@@ -273,7 +273,10 @@ export function normalizeOceanNodeAsset(input: any): Asset {
 
   return {
     ...doc,
-    nft: doc.nft || im.nft,
+    // stats / purgatory には既定値があるのに nft だけ無く、Ocean Node 由来の
+    // 文書では asset.nft が undefined になる。AssetTeaser や EditHistory など
+    // 各所が asset.nft.xxx を直接読むため、ここが多くのクラッシュの源になる。
+    nft: doc.nft || im.nft || { owner: '', state: 0, address: '', created: '' },
     stats,
     purgatory: doc.purgatory || im.purgatory || { state: false },
     event: doc.event || im.event
@@ -508,8 +511,10 @@ export async function getAssetsFromDids(
     const query = generateBaseQuery(baseQueryparams)
     const result = await queryMetadata(query, cancelToken)
 
+    // queryMetadata は非200・空・キャンセル・例外のとき undefined を返す設計。
+    // result.results を直接辿ると TypeError になるので optional で読む。
     didList.forEach((did: string) => {
-      const ddo = result.results.find((ddo: Asset) => ddo.id === did)
+      const ddo = result?.results?.find((ddo: Asset) => ddo.id === did)
       if (ddo) orderedDDOListByDIDList.push(ddo)
     })
     return orderedDDOListByDIDList
@@ -546,7 +551,9 @@ export async function getAlgorithmDatasetsForCompute(
 
   const query = generateBaseQuery(baseQueryParams)
   const computeDatasets = await queryMetadata(query, cancelToken)
-  if (computeDatasets?.results?.length === 0) return []
+  // `?.length === 0` では queryMetadata が返す undefined を弾けず、
+  // 直後の computeDatasets.results で落ちる。長さの真偽値で判定する。
+  if (!computeDatasets?.results?.length) return []
 
   const datasets = await transformAssetToAssetSelection(
     datasetProviderUri,
@@ -735,7 +742,9 @@ export async function getDownloadAssets(
   const query = generateBaseQuery(baseQueryparams)
   try {
     const result = await queryMetadata(query, cancelToken)
-    const downloadedAssets: DownloadedAsset[] = result.results
+    // queryMetadata は非200・空・キャンセル時に undefined を返すため、
+    // result.results をそのまま map すると履歴タブごと落ちる。
+    const downloadedAssets: DownloadedAsset[] = (result?.results || [])
       .map((asset) => {
         const order = tokenOrders.find(
           ({ datatoken }) =>

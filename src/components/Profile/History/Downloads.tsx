@@ -21,7 +21,14 @@ const columns: TableOceanColumn<DownloadedAsset>[] = [
   },
   {
     name: 'Time',
-    selector: (row) => <Time date={row.timestamp.toString()} relative isUnix />
+    // subgraph の order が見つからないと timestamp が undefined になる
+    // (Ocean Node 由来の資産では起きやすい)。toString() を呼ぶ前に弾く。
+    selector: (row) =>
+      row.timestamp ? (
+        <Time date={row.timestamp.toString()} relative isUnix />
+      ) : (
+        '—'
+      )
   }
 ]
 
