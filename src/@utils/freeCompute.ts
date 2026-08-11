@@ -35,14 +35,19 @@ export interface FreeComputeAlgorithmRef extends FreeComputeAssetRef {
 
 const COMMAND = 'freeStartCompute'
 
-async function getNonce(providerUrl: string, address: string): Promise<string> {
-  const res = await fetch(
-    `${providerUrl}/api/services/nonce?userAddress=${address}`
-  )
-  if (!res.ok) throw new Error(`nonce の取得に失敗しました (${res.status})`)
-  const body = await res.json()
-  // ノードは { nonce: "12" } を返す。未使用のアドレスでは 0 のことがある。
-  return String(Number(body?.nonce ?? 0) + 1)
+/**
+ * ノードの nonce は「前回より大きい数」であればよく、連番である必要はない。
+ *
+ * 【なぜ取得した値 +1 ではないか】
+ * ノードは他の経路（publish の encrypt など）で `Date.now()` をそのまま
+ * nonce に使う。いったんミリ秒の時刻が保存されると、GET /nonce が返すのは
+ * その巨大な値になり、"取得した値 +1" では直前の書き込みと競合して
+ * 401 "consumer address and nonce signature mismatch" を延々と返す状態に陥る。
+ * 単調増加であれば何でもよいので、他の経路と同じく時刻を使って揃える。
+ * （GET は投げない。取得と送信の間に別経路が nonce を進める余地を作らない）
+ */
+function makeNonce(): string {
+  return String(Date.now())
 }
 
 async function signForCommand(
@@ -71,7 +76,7 @@ export async function startFreeCompute(
   }
 ): Promise<any> {
   const consumerAddress = await signer.getAddress()
-  const nonce = await getNonce(providerUrl, consumerAddress)
+  const nonce = makeNonce()
   const signature = await signForCommand(signer, consumerAddress, nonce)
 
   const body = {

@@ -32,11 +32,14 @@ export async function signNodeCommand(
   const signer = existingSigner || (await browserSigner())
   const consumerAddress = await signer.getAddress()
 
-  const res = await fetch(
-    `${providerUrl}/api/services/nonce?userAddress=${consumerAddress}`
-  )
-  const body = res.ok ? await res.json() : {}
-  const nonce = String(Number(body?.nonce ?? 0) + 1)
+  // 【重要】GET /nonce の値 +1 にしてはいけない。
+  // ノードは publish の encrypt など他の経路で `Date.now()` をそのまま nonce に
+  // 使うため、一度ミリ秒の時刻が保存されると "+1" では追いつけず、以後ずっと
+  // 401 "consumer address and nonce signature mismatch" を返す。
+  // 症状は認証エラーとして出ず、「ジョブ一覧が空」「ダウンロードできない」
+  // 「成果物が出ない」という別の顔で現れるので、原因に辿り着きにくい。
+  // 単調増加でありさえすればよいので、他の経路と同じく時刻で揃える。
+  const nonce = String(Date.now())
 
   const message = String(consumerAddress) + nonce + command
   const hash = ethers.utils.solidityKeccak256(
