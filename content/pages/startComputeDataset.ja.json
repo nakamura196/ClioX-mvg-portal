@@ -1,0 +1,22 @@
+{
+  "form": {
+    "success": "🎉 コンピュートジョブを開始しました。🎉",
+    "error": "コンピュートジョブを開始できませんでした。",
+    "data": [
+      {
+        "label": "コンピュート環境を選択"
+      },
+      {
+        "label": "コンピュートジョブで実行するアルゴリズムを選択"
+      }
+    ],
+    "portalTermsAndConditions": {
+      "options": ["ポータル利用規約"],
+      "prefixes": ["以下に同意します:"]
+    },
+    "assetTermsAndConditions": {
+      "prefixes": ["この資産が以下のライセンスで提供されることを了承し、"],
+      "postfixes": ["その条件に同意します"]
+    }
+  }
+}

@@ -25,7 +25,9 @@ import { sanitizeUrl } from '@utils/url'
 import { Formik } from 'formik'
 import { ReactElement, useEffect, useState } from 'react'
 import { useAccount, useNetwork, useProvider, useSigner } from 'wagmi'
-import content from '../../../../content/pages/editMetadata.json'
+import contentEn from '../../../../content/pages/editMetadata.json'
+import contentJa from '../../../../content/pages/editMetadata.ja.json'
+import useLocaleContent from '../../../i18n/useLocaleContent'
 import { useAutomation } from '../../../@context/Automation/AutomationProvider'
 import DebugEditMetadata from './DebugEditMetadata'
 import EditFeedback from './EditFeedback'
@@ -40,6 +42,7 @@ export default function Edit({
 }: {
   asset: AssetExtended
 }): ReactElement {
+  const content = useLocaleContent(contentEn, contentJa)
   const { debug } = useUserPreferences()
   const { fetchAsset, isAssetNetwork, assetState } = useAsset()
   const { address: accountId } = useAccount()

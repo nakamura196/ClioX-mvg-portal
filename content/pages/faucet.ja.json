@@ -1,0 +1,17 @@
+{
+  "title": "Pontus-X フォーセット",
+  "description": "Pontus-X ネットワーク用のトークンを取得します",
+  "buttonLabel": "トークンを取得",
+  "card": {
+    "cardTitle": "Pontus-X フォーセットへようこそ",
+    "cardDescription": "フォーセットは、テスト目的で無償のトークンを配布するサービスです。登録済みのアカウントは、Pontus-X ネットワークで利用する 10 EURAU の手数料用トークンと 1000 EURAU の支払い用トークンを請求できます。12 時間ごとに再取得できます。",
+    "cardExplainerTitle": "トークンの請求手順",
+    "cardExplainerFirstStep": "Web3 ウォレット (MetaMask など) を接続してください。",
+    "cardExplainerSecondStep": "ウォレットアドレスが自動的に検出され、下に表示されます。",
+    "cardExplainerThirdStep": "ボタンを押して無償トークンを請求します。",
+    "cardExplainerFourthStep": "リクエストが処理されるまで数秒お待ちください。",
+    "cardExplainerFithStep": "トークンの送付が完了すると、確認メッセージが表示されます。",
+    "cardNetworkAddress": "あなたの Pontus-X アドレス",
+    "cardNetwork": "接続中のネットワーク"
+  }
+}

@@ -4,6 +4,7 @@ import Time from '@shared/atoms/Time'
 import AssetTitle from '@shared/AssetListTitle'
 import NetworkName from '@shared/NetworkName'
 import { useProfile } from '@context/Profile'
+import { useTranslation } from 'react-i18next'
 import { useUserPreferences } from '@context/UserPreferences'
 
 const columns: TableOceanColumn<DownloadedAsset>[] = [
@@ -38,6 +39,7 @@ export default function ComputeDownloads({
   accountId: string
 }): ReactElement {
   const { downloads, isDownloadsLoading } = useProfile()
+  const { t } = useTranslation('common')
   const { chainIds } = useUserPreferences()
 
   return accountId ? (
@@ -49,6 +51,6 @@ export default function ComputeDownloads({
       emptyMessage={chainIds.length === 0 ? 'No network selected' : null}
     />
   ) : (
-    <div>Please connect your wallet.</div>
+    <div>{t('profile.connectWallet')}</div>
   )
 }

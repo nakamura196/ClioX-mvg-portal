@@ -1,5 +1,6 @@
 import { ReactElement, useEffect, useRef, useState } from 'react'
 import { ResourceCard as ResourceCardModel } from '../types'
+import { useTranslation } from 'react-i18next'
 
 interface ResourceGridCardProps {
   card: ResourceCardModel
@@ -14,8 +15,9 @@ export default function ResourceGridCard({
   imageHeightClass = 'h-40',
   contentHeightClass = 'h-48',
   footerHeightClass = 'h-12',
-  linkText = 'Read more →'
+  linkText
 }: ResourceGridCardProps): ReactElement {
+  const { t } = useTranslation('common')
   const titleRef = useRef<HTMLHeadingElement | null>(null)
   const [descClamp, setDescClamp] = useState<number>(4)
 
@@ -76,11 +78,11 @@ export default function ResourceGridCard({
               href={card.link}
               className="text-[var(--color-primary)] font-semibold text-sm hover:underline hover:text-[#a25e3c] transition-colors duration-200"
             >
-              {linkText}
+              {linkText || t('resources.readMore')}
             </a>
           ) : (
             <span className="text-gray-400 font-semibold text-sm">
-              Link coming soon
+              {t('resources.linkComingSoon')}
             </span>
           )}
         </div>

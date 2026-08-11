@@ -2,17 +2,22 @@ import { ReactElement } from 'react'
 import NetworkName from '@shared/NetworkName'
 import Tooltip from '@shared/atoms/Tooltip'
 import styles from './index.module.css'
-import content from '../../../../content/publish/index.json'
+import contentEn from '../../../../content/publish/index.json'
+import contentJa from '../../../../content/publish/index.ja.json'
+import useLocaleContent from '../../../i18n/useLocaleContent'
 import Info from '@images/info.svg'
 import AvailableNetworks from '@components/Publish/AvailableNetworks'
 import useNetworkMetadata from '@hooks/useNetworkMetadata'
 import { useAccount } from 'wagmi'
+import { useTranslation } from 'react-i18next'
 
 export default function Title({
   networkId
 }: {
   networkId: number
 }): ReactElement {
+  const content = useLocaleContent(contentEn, contentJa)
+  const { t } = useTranslation('common')
   const { address: accountId } = useAccount()
   const { isSupportedOceanNetwork } = useNetworkMetadata()
 
@@ -21,7 +26,7 @@ export default function Title({
       {content.title}{' '}
       {networkId && (
         <>
-          into
+          {t('publish.into')}
           <NetworkName
             networkId={networkId}
             className={

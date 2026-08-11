@@ -1,12 +1,15 @@
 import { ReactElement, useEffect } from 'react'
 import Page from '@shared/Page'
 import { useRouter } from 'next/router'
-import content from '../../../content/pages/chatbot.json'
+import contentEn from '../../../content/pages/chatbot.json'
+import contentJa from '../../../content/pages/chatbot.ja.json'
+import useLocaleContent from '../../i18n/useLocaleContent'
 import ChatbotInteparesGeneral from '../../components/ChatbotInteparesGeneral'
 import { useUseCases } from '../../@context/UseCases'
 import { chatbotApi } from '../../@utils/chatbot'
 
 export default function PageChatbotInteparesGeneral(): ReactElement {
+  const content = useLocaleContent(contentEn, contentJa)
   const router = useRouter()
   const { clearChatbot } = useUseCases()
 

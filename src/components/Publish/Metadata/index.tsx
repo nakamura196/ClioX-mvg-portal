@@ -2,7 +2,9 @@ import { BoxSelectionOption } from '@shared/FormInput/InputElement/BoxSelection'
 import Input from '@shared/FormInput'
 import { Field, useField, useFormikContext } from 'formik'
 import { ReactElement, useEffect } from 'react'
-import content from '../../../../content/publish/form.json'
+import contentEn from '../../../../content/publish/form.json'
+import contentJa from '../../../../content/publish/form.ja.json'
+import useLocaleContent from '../../../i18n/useLocaleContent'
 import consumerParametersContent from '../../../../content/publish/consumerParameters.json'
 import { FormPublishData } from '../_types'
 import IconDataset from '@images/dataset.svg'
@@ -12,13 +14,21 @@ import styles from './index.module.css'
 import { algorithmContainerPresets } from '../_constants'
 import { useMarketMetadata } from '@context/MarketMetadata'
 import { getFieldContent } from '@utils/form'
+import { useTranslation } from 'react-i18next'
 
 const assetTypeOptionsTitles = getFieldContent(
   'type',
-  content.metadata.fields
+  contentEn.metadata.fields
 ).options
 
 export default function MetadataFields(): ReactElement {
+  const content = useLocaleContent(contentEn, contentJa)
+  const { t } = useTranslation('common')
+
+  // Only the visible title is translated: `name`/`value` stay English because
+  // the publish form stores them verbatim as the asset type / access type.
+  const boxTitle = (title: string) =>
+    t(`publish.boxTitles.${title.toLowerCase()}`, { defaultValue: title })
   const { siteContent, appConfig } = useMarketMetadata()
 
   // connect with Form state, use for conditional field rendering
@@ -31,7 +41,7 @@ export default function MetadataFields(): ReactElement {
   const assetTypeOptions: BoxSelectionOption[] = [
     {
       name: assetTypeOptionsTitles[0].toLowerCase(),
-      title: assetTypeOptionsTitles[0],
+      title: boxTitle(assetTypeOptionsTitles[0]),
       checked:
         values.metadata.type === assetTypeOptionsTitles[0].toLowerCase() &&
         values.services[0]?.files[0]?.type !== 'saas',
@@ -39,13 +49,13 @@ export default function MetadataFields(): ReactElement {
     },
     {
       name: assetTypeOptionsTitles[1].toLowerCase(),
-      title: assetTypeOptionsTitles[1],
+      title: boxTitle(assetTypeOptionsTitles[1]),
       checked: values.metadata.type === assetTypeOptionsTitles[1].toLowerCase(),
       icon: <IconAlgorithm />
     },
     {
       name: assetTypeOptionsTitles[2].toLowerCase(),
-      title: assetTypeOptionsTitles[2],
+      title: boxTitle(assetTypeOptionsTitles[2]),
       checked:
         values.metadata.type === assetTypeOptionsTitles[0].toLowerCase() &&
         values.services[0]?.files[0]?.type === 'saas',

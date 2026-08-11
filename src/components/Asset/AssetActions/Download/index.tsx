@@ -40,7 +40,9 @@ import Input from '@components/@shared/FormInput'
 import ContractingProvider, { PAYMENT_MODES } from './ContractingProvider'
 import Button from '@components/@shared/atoms/Button'
 import TermsAndConditionsCheckbox from '../TermsAndConditionsCheckbox'
-import content from '../../../../../content/pages/startDownloadDataset.json'
+import contentEn from '../../../../../content/pages/startDownloadDataset.json'
+import contentJa from '../../../../../content/pages/startDownloadDataset.ja.json'
+import useLocaleContent from '../../../../i18n/useLocaleContent'
 
 export default function Download({
   accountId,
@@ -63,6 +65,7 @@ export default function Download({
   fileIsLoading?: boolean
   consumableFeedback?: string
 }): ReactElement {
+  const content = useLocaleContent(contentEn, contentJa)
   const { isConnected } = useAccount()
   const { isSupportedOceanNetwork } = useNetworkMetadata()
   const {

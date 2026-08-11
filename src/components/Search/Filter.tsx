@@ -13,6 +13,8 @@ import { useFilter, Filters } from '@context/Filter'
 import Input from '@components/@shared/FormInput'
 import Accordion from '@components/@shared/Accordion'
 import customFilters from '../../../filters.config'
+import { useTranslation } from 'react-i18next'
+import useSearchLabel from '../../i18n/useSearchLabel'
 
 const cx = classNames.bind(styles)
 
@@ -89,6 +91,8 @@ export default function Filter({
 }): ReactElement {
   const { filters, setFilters, ignorePurgatory, setIgnorePurgatory } =
     useFilter()
+  const { t } = useTranslation('common')
+  const label = useSearchLabel()
 
   const router = useRouter()
 
@@ -153,7 +157,7 @@ export default function Filter({
     <>
       <div className={styles.sidePositioning}>
         <Accordion
-          title="Filters"
+          title={t('search.filters')}
           defaultExpanded={expanded}
           badgeNumber={selectedFiltersCount}
           action={
@@ -166,7 +170,7 @@ export default function Filter({
                 }}
                 className={styles.clearBtn}
               >
-                Clear filters
+                {t('search.clearFilters')}
               </Button>
             )
           }
@@ -174,7 +178,9 @@ export default function Filter({
           <div className={styleClasses}>
             {filterList.map((filter) => (
               <div key={filter.id} className={styles.filterType}>
-                <h5 className={styles.filterTypeLabel}>{filter.label}</h5>
+                <h5 className={styles.filterTypeLabel}>
+                  {label(filter.label)}
+                </h5>
                 {filter.options.map((option) => {
                   const isSelected = filters[filter.id].includes(option.value)
                   return (
@@ -182,7 +188,7 @@ export default function Filter({
                       key={option.value}
                       name={option.label}
                       type="checkbox"
-                      options={[option.label]}
+                      options={[label(option.label)]}
                       checked={isSelected}
                       onChange={async () => {
                         handleSelectedFilter(option.value, filter.id)
@@ -194,7 +200,9 @@ export default function Filter({
             ))}
             {showPurgatoryOption && (
               <div className={styles.filterType}>
-                <h5 className={styles.filterTypeLabel}>Purgatory</h5>
+                <h5 className={styles.filterTypeLabel}>
+                  {t('search.purgatory')}
+                </h5>
                 <Input
                   name={purgatoryFilterItem.value}
                   type="checkbox"
@@ -213,7 +221,7 @@ export default function Filter({
         {filterList.map((filter) => (
           <div key={filter.id} className={styles.compactFilterContainer}>
             <Accordion
-              title={filter.label}
+              title={label(filter.label)}
               badgeNumber={filters[filter.id].length}
               compact
             >
@@ -225,7 +233,7 @@ export default function Filter({
                       key={option.value}
                       name={option.label}
                       type="checkbox"
-                      options={[option.label]}
+                      options={[label(option.label)]}
                       checked={isSelected}
                       onChange={async () => {
                         handleSelectedFilter(option.value, filter.id)
@@ -240,7 +248,7 @@ export default function Filter({
         {showPurgatoryOption && (
           <div className={styles.compactFilterContainer}>
             <Accordion
-              title="Purgatory"
+              title={t('search.purgatory')}
               badgeNumber={ignorePurgatory ? 1 : 0}
               compact
             >

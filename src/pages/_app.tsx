@@ -1,5 +1,7 @@
 import { ReactElement } from 'react'
 import type { AppProps } from 'next/app'
+import { appWithTranslation } from 'next-i18next/pages'
+import nextI18NextConfig from '../i18n'
 import { UserPreferencesProvider } from '@context/UserPreferences'
 import UrqlProvider from '@context/UrqlProvider'
 import ConsentProvider from '@context/CookieConsent'
@@ -67,4 +69,6 @@ function MyApp({ Component, pageProps }: AppProps): ReactElement {
   )
 }
 
-export default MyApp
+// Translations are bundled into the config (see `src/i18n`), so pages do not
+// need `serverSideTranslations()` in their data-fetching functions.
+export default appWithTranslation(MyApp, nextI18NextConfig)

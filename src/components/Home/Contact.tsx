@@ -2,7 +2,8 @@
 import { useState, FormEvent } from 'react'
 import Button from '../Home/common/Button'
 import Container from '@components/@shared/atoms/Container'
-import { getLandingPageContent } from '@utils/landingPageContent'
+import { useLandingPageContent } from '@utils/landingPageContent'
+import { useRouter } from 'next/router'
 
 interface FormData {
   name: string
@@ -12,7 +13,9 @@ interface FormData {
 }
 
 export default function ContactAndOnboarding() {
-  const content = getLandingPageContent()
+  const content = useLandingPageContent()
+  const { locale } = useRouter()
+  const contactForm = content.contact.form
   const { contact } = content
 
   const [formData, setFormData] = useState<FormData>({
@@ -54,7 +57,8 @@ export default function ContactAndOnboarding() {
 
       if (result.success) {
         setSubmitStatus('success')
-        setSubmitMessage(result.message)
+        // The API returns an English confirmation; show the localized one.
+        setSubmitMessage(contactForm.successMessage || result.message)
 
         // Reset form after successful submission
         setTimeout(() => {
@@ -69,15 +73,11 @@ export default function ContactAndOnboarding() {
         }, 5000)
       } else {
         setSubmitStatus('error')
-        setSubmitMessage(
-          result.message || 'Failed to send message. Please try again.'
-        )
+        setSubmitMessage(result.message || contactForm.errorMessage)
       }
     } catch (error) {
       setSubmitStatus('error')
-      setSubmitMessage(
-        'Failed to send message. Please try contacting us directly at info@cliox.org'
-      )
+      setSubmitMessage(contactForm.errorFallback)
       console.error('Contact form submission error:', error)
     } finally {
       setIsSubmitting(false)
@@ -244,7 +244,7 @@ export default function ContactAndOnboarding() {
           {/* Message Form - Right Side */}
           <div className="bg-white p-8 rounded-lg border border-gray-200 shadow-sm">
             <h3 className="text-xl font-sans font-semibold mb-6">
-              Send us a message
+              {contactForm.heading}
             </h3>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
@@ -252,7 +252,7 @@ export default function ContactAndOnboarding() {
                   htmlFor="name"
                   className="block text-sm font-medium text-gray-700 mb-1.5"
                 >
-                  Name
+                  {contactForm.fields.name}
                 </label>
                 <input
                   type="text"
@@ -263,7 +263,7 @@ export default function ContactAndOnboarding() {
                     setFormData((prev) => ({ ...prev, name: e.target.value }))
                   }
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-[#734B3D] focus:border-[#734B3D]"
-                  placeholder="Your name"
+                  placeholder={contactForm.placeholders.name}
                   required
                 />
               </div>
@@ -273,7 +273,7 @@ export default function ContactAndOnboarding() {
                   htmlFor="email"
                   className="block text-sm font-medium text-gray-700 mb-1.5"
                 >
-                  Email
+                  {contactForm.fields.email}
                 </label>
                 <input
                   type="email"
@@ -284,7 +284,7 @@ export default function ContactAndOnboarding() {
                     setFormData((prev) => ({ ...prev, email: e.target.value }))
                   }
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-[#734B3D] focus:border-[#734B3D]"
-                  placeholder="your@email.com"
+                  placeholder={contactForm.placeholders.email}
                   required
                 />
               </div>
@@ -294,7 +294,7 @@ export default function ContactAndOnboarding() {
                   htmlFor="message"
                   className="block text-sm font-medium text-gray-700 mb-1.5"
                 >
-                  Message
+                  {contactForm.fields.message}
                 </label>
                 <textarea
                   id="message"
@@ -308,7 +308,7 @@ export default function ContactAndOnboarding() {
                     }))
                   }
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-[#734B3D] focus:border-[#734B3D]"
-                  placeholder="How can we help?"
+                  placeholder={contactForm.placeholders.message}
                   required
                 ></textarea>
               </div>
@@ -335,15 +335,14 @@ export default function ContactAndOnboarding() {
                   htmlFor="privacyAgreement"
                   className="text-sm text-gray-700 leading-relaxed"
                 >
-                  I agree to the storage and processing of my information in
-                  accordance with the{' '}
+                  {contactForm.privacyAgreementPrefix}{' '}
                   <a
-                    href="/privacy/en"
+                    href={locale === 'ja' ? '/privacy/ja' : '/privacy/en'}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-[#734B3D] hover:opacity-80 underline"
                   >
-                    privacy policy
+                    {contactForm.privacyPolicyLink}
                   </a>
                 </label>
               </div>
@@ -370,7 +369,9 @@ export default function ContactAndOnboarding() {
                 }`}
                 disabled={!formData.privacyAgreement || isSubmitting}
               >
-                {isSubmitting ? 'Sending...' : 'Send Message'}
+                {isSubmitting
+                  ? contactForm.loadingText
+                  : contactForm.submitButton}
               </Button>
             </form>
           </div>

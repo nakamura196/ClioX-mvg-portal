@@ -3,6 +3,7 @@ import Status from '@shared/atoms/Status'
 import styles from './index.module.css'
 import WalletNetworkSwitcher from '../WalletNetworkSwitcher'
 import { useGraphSyncStatus } from '@hooks/useGraphSyncStatus'
+import { useTranslation } from 'react-i18next'
 
 export declare type Web3Error = {
   status: 'error' | 'warning' | 'success'
@@ -24,6 +25,7 @@ export default function Web3Feedback({
   const [title, setTitle] = useState<string>()
   const [message, setMessage] = useState<string>()
   const [showFeedback, setShowFeedback] = useState<boolean>(false)
+  const { t } = useTranslation('common')
 
   useEffect(() => {
     setShowFeedback(
@@ -32,22 +34,20 @@ export default function Web3Feedback({
     if (accountId && isAssetNetwork && isGraphSynced) return
     if (!accountId) {
       setState('error')
-      setTitle('No account connected')
-      setMessage('Please connect your wallet.')
+      setTitle(t('web3.noAccountTitle'))
+      setMessage(t('profile.connectWallet'))
     } else if (isAssetNetwork === false) {
       setState('error')
-      setTitle('Not connected to asset network')
-      setMessage('Please connect your wallet.')
+      setTitle(t('web3.wrongNetworkTitle'))
+      setMessage(t('profile.connectWallet'))
     } else if (isGraphSynced === false) {
       setState('warning')
-      setTitle('Data out of sync')
-      setMessage(
-        `The data for this network has only synced to Ethereum block ${blockGraph} (out of ${blockHead}). Transactions may fail! Please check back soon.`
-      )
+      setTitle(t('web3.outOfSyncTitle'))
+      setMessage(t('web3.outOfSyncMessage', { blockGraph, blockHead }))
     } else {
       setState('warning')
-      setTitle('Something went wrong.')
-      setMessage('Something went wrong.')
+      setTitle(t('web3.genericTitle'))
+      setMessage(t('error.generic'))
     }
   }, [accountId, isGraphSynced, isAssetNetwork])
 

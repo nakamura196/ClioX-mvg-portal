@@ -9,7 +9,9 @@ import { ListItem } from '@shared/atoms/Lists'
 import Button from '@shared/atoms/Button'
 import styles from './Results.module.css'
 import FormHelp from '@shared/FormInput/Help'
-import content from '../../../../../content/pages/history.json'
+import contentEn from '../../../../../content/pages/history.json'
+import contentJa from '../../../../../content/pages/history.ja.json'
+import useLocaleContent from '../../../../i18n/useLocaleContent'
 import { useCancelToken } from '@hooks/useCancelToken'
 import { getAsset } from '@utils/aquarius'
 import { useAccount, useSigner } from 'wagmi'
@@ -28,6 +30,7 @@ export default function Results({
 }: {
   job: ComputeJobMetaData
 }): ReactElement {
+  const content = useLocaleContent(contentEn, contentJa)
   const providerInstance = new Provider()
   const { address: accountId } = useAccount()
   const { autoWallet } = useAutomation()

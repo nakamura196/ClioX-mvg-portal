@@ -1,6 +1,7 @@
 import { ReactElement, useState, useEffect } from 'react'
 import MetaItem from './MetaItem'
 import styles from './MetaFull.module.css'
+import { useTranslation } from 'react-i18next'
 import Publisher from '@shared/Publisher'
 import { useAsset } from '@context/Asset'
 import { Asset, LoggerInstance, Datatoken } from '@oceanprotocol/lib'
@@ -10,6 +11,7 @@ import { getDummySigner } from '@utils/wallet'
 
 export default function MetaFull({ ddo }: { ddo: Asset }): ReactElement {
   const { isInPurgatory, assetState } = useAsset()
+  const { t } = useTranslation('common')
 
   const [paymentCollector, setPaymentCollector] = useState<string>()
 
@@ -42,26 +44,29 @@ export default function MetaFull({ ddo }: { ddo: Asset }): ReactElement {
   return ddo ? (
     <div className={styles.metaFull}>
       {!isInPurgatory && (
-        <MetaItem title="Data Author" content={ddo?.metadata?.author} />
+        <MetaItem
+          title={t('asset.dataAuthor')}
+          content={ddo?.metadata?.author}
+        />
       )}
       <MetaItem
-        title="Owner"
+        title={t('asset.owner')}
         content={<Publisher account={ddo?.nft?.owner} />}
       />
       {assetState !== 'Active' && (
-        <MetaItem title="Asset State" content={assetState} />
+        <MetaItem title={t('asset.assetState')} content={assetState} />
       )}
       {paymentCollector && paymentCollector !== ddo?.nft?.owner && (
         <MetaItem
-          title="Revenue Sent To"
+          title={t('asset.revenueSentTo')}
           content={<Publisher account={paymentCollector} />}
         />
       )}
 
       {ddo?.metadata?.type === 'algorithm' && ddo?.metadata?.algorithm && (
-        <MetaItem title="Docker Image" content={<DockerImage />} />
+        <MetaItem title={t('asset.dockerImage')} content={<DockerImage />} />
       )}
-      <MetaItem title="DID" content={<code>{ddo?.id}</code>} />
+      <MetaItem title={t('asset.did')} content={<code>{ddo?.id}</code>} />
     </div>
   ) : null
 }

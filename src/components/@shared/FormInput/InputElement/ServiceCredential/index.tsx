@@ -16,6 +16,7 @@ import {
 } from '@components/Publish/_utils'
 import URLInput from '../URLInput'
 import FileInfo from '../FilesInput/Info'
+import { useTranslation } from 'react-i18next'
 
 const serviceCredentialOptions = [
   {
@@ -31,6 +32,7 @@ const serviceCredentialOptions = [
 ]
 
 export default function ServiceCredential(props: InputProps): ReactElement {
+  const { t } = useTranslation('common')
   const [field, meta, helpers] = useField(props.name)
   const [userSelection, setUserSelection] = useState<string>()
   const [isVerified, setIsVerified] = useState(false)
@@ -138,7 +140,7 @@ export default function ServiceCredential(props: InputProps): ReactElement {
         />
       ) : (
         <URLInput
-          submitText="Validate"
+          submitText={t('publish.validate')}
           {...props}
           name={`${field.name}[0].url`}
           isLoading={isLoading}

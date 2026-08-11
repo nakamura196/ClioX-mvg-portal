@@ -7,7 +7,9 @@ import { compareAsBN } from '@utils/numbers'
 import ButtonBuy from '../ButtonBuy'
 import PriceOutput from './PriceOutput'
 import { useAsset } from '@context/Asset'
-import content from '../../../../../content/pages/startComputeDataset.json'
+import contentEn from '../../../../../content/pages/startComputeDataset.json'
+import contentJa from '../../../../../content/pages/startComputeDataset.ja.json'
+import useLocaleContent from '../../../../i18n/useLocaleContent'
 import { Asset, ComputeEnvironment, ZERO_ADDRESS } from '@oceanprotocol/lib'
 import { getAccessDetails } from '@utils/accessDetailsAndPricing'
 import { getApprovedTokenBalanceFromSymbol } from '@utils/wallet'
@@ -91,6 +93,7 @@ export default function FormStartCompute({
   retry: boolean
   license: string
 }): ReactElement {
+  const content = useLocaleContent(contentEn, contentJa)
   const { address: accountId, isConnected } = useAccount()
   const { balance } = useBalance()
   const {

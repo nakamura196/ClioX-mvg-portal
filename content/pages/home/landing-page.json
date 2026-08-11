@@ -131,7 +131,16 @@
       "submitButton": "Send Message",
       "loadingText": "Sending...",
       "successMessage": "Thank you! Your message has been sent successfully.",
-      "errorMessage": "There was an error sending your message. Please try again."
+      "errorMessage": "There was an error sending your message. Please try again.",
+      "heading": "Send us a message",
+      "placeholders": {
+        "name": "Your name",
+        "email": "your@email.com",
+        "message": "How can we help?"
+      },
+      "privacyAgreementPrefix": "I agree to the storage and processing of my information in accordance with the",
+      "privacyPolicyLink": "privacy policy",
+      "errorFallback": "Failed to send message. Please try contacting us directly at info@cliox.org"
     }
   }
 }

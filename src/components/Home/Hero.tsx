@@ -4,7 +4,7 @@ import Button from '../Home/common/Button'
 import SearchBar from '../Header/SearchBar'
 import styles from '../Header/SearchBar.module.css'
 import { useEffect, useState } from 'react'
-import { getLandingPageContent } from '@utils/landingPageContent'
+import { useLandingPageContent } from '@utils/landingPageContent'
 
 const scrollToElement = (e: React.MouseEvent, selector: string): void => {
   e.preventDefault()
@@ -15,7 +15,7 @@ const scrollToElement = (e: React.MouseEvent, selector: string): void => {
 
 export default function Hero() {
   const [headerHeight, setHeaderHeight] = useState(0)
-  const content = getLandingPageContent()
+  const content = useLandingPageContent()
 
   // Measure header height and update on window resize
   useEffect(() => {

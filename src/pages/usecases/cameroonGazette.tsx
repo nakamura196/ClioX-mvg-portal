@@ -1,11 +1,14 @@
 import { ReactElement, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import Page from '@shared/Page'
-import content from '../../../content/pages/cameroonGazette.json'
+import contentEn from '../../../content/pages/cameroonGazette.json'
+import contentJa from '../../../content/pages/cameroonGazette.ja.json'
+import useLocaleContent from '../../i18n/useLocaleContent'
 import CameroonGazette from '../../components/CameroonGazette'
 import { useUseCases } from '../../@context/UseCases'
 
 export default function CameroonGazettePage(): ReactElement {
+  const content = useLocaleContent(contentEn, contentJa)
   const router = useRouter()
   const { clearCameroonGazette } = useUseCases()
 

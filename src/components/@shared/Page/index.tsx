@@ -5,6 +5,7 @@ import Container from '@shared/atoms/Container'
 import SearchBar from '@components/Header/SearchBar'
 import { useUserPreferences } from '@context/UserPreferences'
 import ExternalContentWarning from '../ExternalContentWarning'
+import { useTranslation } from 'react-i18next'
 
 export interface PageProps {
   children: ReactNode
@@ -28,6 +29,7 @@ export default function Page({
   wideContainer
 }: PageProps): ReactElement {
   const { allowExternalContent } = useUserPreferences()
+  const { t } = useTranslation('common')
 
   const isHome = uri === '/'
   const isSearchPage = uri.startsWith('/search')
@@ -41,7 +43,7 @@ export default function Page({
       {/* SearchBar is only shown on non-home pages */}
       {!isHome && (
         <SearchBar
-          placeholder="Search for service offerings"
+          placeholder={t('search.placeholder')}
           isSearchPage={isSearchPage}
         />
       )}

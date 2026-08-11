@@ -7,10 +7,13 @@ import EditComputeDataset from './EditComputeDataset'
 import Page from '@shared/Page'
 import Loader from '@shared/atoms/Loader'
 import Alert from '@shared/atoms/Alert'
-import contentPage from '../../../../content/pages/edit.json'
+import contentPageEn from '../../../../content/pages/edit.json'
+import contentPageJa from '../../../../content/pages/edit.ja.json'
+import useLocaleContent from '../../../i18n/useLocaleContent'
 import Container from '@shared/atoms/Container'
 
 export default function Edit({ uri }: { uri: string }): ReactElement {
+  const contentPage = useLocaleContent(contentPageEn, contentPageJa)
   const { asset, error, isInPurgatory, title, isOwner } = useAsset()
   const [isCompute, setIsCompute] = useState(false)
   const [pageTitle, setPageTitle] = useState<string>('')

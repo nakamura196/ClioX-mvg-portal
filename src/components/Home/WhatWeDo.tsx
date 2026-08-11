@@ -1,10 +1,10 @@
 import Image from 'next/image'
 import Container from '@components/@shared/atoms/Container'
 import PartnerCarousel from './PartnerCarousel'
-import { getLandingPageContent } from '@utils/landingPageContent'
+import { useLandingPageContent } from '@utils/landingPageContent'
 
 export default function WhatWeDo() {
-  const content = getLandingPageContent()
+  const content = useLandingPageContent()
   const { whatWeDo } = content
 
   const partners = [

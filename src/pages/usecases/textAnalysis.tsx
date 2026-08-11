@@ -1,11 +1,14 @@
 import { ReactElement, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import Page from '@shared/Page'
-import content from '../../../content/pages/textAnalysis.json'
+import contentEn from '../../../content/pages/textAnalysis.json'
+import contentJa from '../../../content/pages/textAnalysis.ja.json'
+import useLocaleContent from '../../i18n/useLocaleContent'
 import TextAnalysis from '../../components/TextAnalysis'
 import { useUseCases } from '../../@context/UseCases'
 
 export default function TextAnalysisPage(): ReactElement {
+  const content = useLocaleContent(contentEn, contentJa)
   const router = useRouter()
   const { clearTextAnalysis } = useUseCases()
 

@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { motion } from 'motion/react'
 import Button from '../Home/common/Button'
 import Container from '@components/@shared/atoms/Container'
-import { getLandingPageContent } from '@utils/landingPageContent'
+import { useLandingPageContent } from '@utils/landingPageContent'
 
 // Add scroll helper function
 const scrollToElement = (e: React.MouseEvent, selector: string): void => {
@@ -29,7 +29,7 @@ type Role = {
 export default function ChooseRole() {
   const [hoveredRole, setHoveredRole] = useState<number | null>(null)
   const [selectedRole, setSelectedRole] = useState<number | null>(null)
-  const content = getLandingPageContent()
+  const content = useLandingPageContent()
   const { chooseRole } = content
 
   const handleMouseEnter = (index: number) => {

@@ -1,0 +1,104 @@
+{
+  "form": {
+    "success": "🎉 更新しました。🎉\n\n資産ページへの反映には時間がかかる場合があります。しばらく待ってからブラウザで資産詳細ページを再読み込みしてください。",
+    "error": "DDO の更新に失敗しました。",
+    "stateError": "資産の状態の更新に失敗しました。",
+    "data": [
+      {
+        "label": "新しいタイトル",
+        "help": "簡潔なタイトルを入力してください。",
+        "placeholder": "例: ある製造工程の生産データ"
+      },
+      {
+        "label": "新しい説明",
+        "help": "できるだけ詳しい説明を記載してください。[Markdown](https://daringfireball.net/projects/markdown/basics) が使えます。"
+      },
+      {
+        "label": "新しい価格",
+        "help": "新しい価格を入力してください。"
+      },
+      {
+        "label": "ファイル"
+      },
+      {
+        "label": "サンプルファイル"
+      },
+      {
+        "label": "アクセス可能期間",
+        "help": "購入者が最初の購入後にどれくらいの期間、データセットを再ダウンロードできるかを設定します。"
+      },
+      {
+        "label": "サービスクレデンシャル",
+        "help": "有効なサービスクレデンシャルの URL を入力し、「ADD FILE」を押して検証してください。この URL とその内容は公開後に一般公開されます",
+        "placeholder": "例: https://file.com/service-credential.json"
+      },
+      {
+        "label": "新しいタグ",
+        "placeholder": "例: 物流"
+      },
+      {
+        "label": "アルゴリズムのカスタムパラメータ",
+        "help": "カスタムパラメータは、Compute-to-Data 環境でアルゴリズムを実行する前に利用者へ入力を求める項目を定義します。",
+        "options": ["この資産はアルゴリズムのカスタムパラメータを使用します"]
+      },
+      {
+        "label": "許可する ETH アドレス",
+        "help": "ETH アドレスを入力し ADD ボタンでリストに追加します。許可リストにあるアドレスだけがこの資産を利用できます。リストが空の場合は誰でも利用できます。",
+        "placeholder": "例: 0xe328aB96B7CbB55A6E1c1054678137bA09780acA"
+      },
+      {
+        "label": "拒否する ETH アドレス",
+        "help": "ETH アドレスを入力し ADD ボタンでリストに追加します。拒否リストにあるアドレスからのダウンロード/コンピュートは拒否されます。",
+        "placeholder": "例: 0xe328aB96B7CbB55A6E1c1054678137bA09780acA"
+      },
+      {
+        "label": "収益の受取アドレス",
+        "help": "すべての販売による収益がこのアドレスに支払われます。詳細は [ドキュメント](https://docs.oceanprotocol.com/) を参照してください。",
+        "placeholder": "例: 0X123ABC..."
+      },
+      {
+        "label": "資産の状態",
+        "help": "この資産は他の利用者から見えなくなり、購入もできなくなります。"
+      },
+      {
+        "label": "利用者定義パラメータ",
+        "help": "利用者定義パラメータは、公開した資産を絞り込んだり問い合わせたりするために使います。",
+        "options": ["この資産は利用者定義パラメータを使用します"]
+      },
+      {
+        "label": "ライセンス",
+        "help": "このサービスに適用されるライセンスの SPDX 識別子。",
+        "placeholder": "例: MIT"
+      },
+      {
+        "label": "利用規約",
+        "help": "このサービスを利用する際の規約です。規約文書への解決可能なリンクを指定してください。",
+        "placeholder": "例: https://file.com/tandc.md"
+      },
+      {
+        "label": "個人識別情報 (PII)",
+        "options": ["提供するデータセットには PII が含まれます"]
+      },
+      {
+        "label": "データ管理者",
+        "help": "GDPR で定義されるデータ管理者 (data controller)。"
+      },
+      {
+        "label": "法的根拠",
+        "help": "PII を処理する法的根拠。GDPR で定義されるもの。",
+        "placeholder": "例: GDPR2016:6.1.a"
+      },
+      {
+        "label": "利用目的",
+        "help": "含まれる PII を処理する目的。[確立された語彙](https://w3c.github.io/dpv/dpv/#vocab-purpose) の利用を推奨します。",
+        "placeholder": "例: ServiceOptimization, UserInterfacePersonalization"
+      },
+      {
+        "label": "データ保護に関する連絡先"
+      },
+      {
+        "label": "同意撤回の連絡先"
+      }
+    ]
+  }
+}

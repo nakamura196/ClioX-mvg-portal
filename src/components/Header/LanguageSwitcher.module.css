@@ -1,0 +1,36 @@
+.switcher {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.button {
+  cursor: pointer;
+  background: var(--background-content);
+  border: none;
+  box-shadow: none;
+  padding: 0 calc(var(--spacer) / 4);
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--spacer) / 8);
+  color: var(--menu-icon-fill-color);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-bold);
+  line-height: 1;
+  text-transform: uppercase;
+  transition: 0.2s ease-out;
+}
+
+.button:hover,
+.button:focus {
+  color: var(--font-color-text);
+}
+
+.icon {
+  fill: currentColor;
+  width: var(--font-size-base);
+  height: var(--font-size-base);
+  display: block;
+}

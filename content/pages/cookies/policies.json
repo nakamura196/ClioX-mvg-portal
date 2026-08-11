@@ -10,6 +10,17 @@
         "updated": "Last updated on",
         "dateFormat": "MMMM dd, yyyy."
       }
+    },
+    {
+      "policyLangTag": "ja",
+      "language": "日本語",
+      "date": "2025-06-03",
+      "params": {
+        "languageLabel": "言語",
+        "languageHelp": "Cookie ポリシーの言語",
+        "updated": "最終更新日",
+        "dateFormat": "yyyy年M月d日"
+      }
     }
   ],
   "slug": "/cookies"
