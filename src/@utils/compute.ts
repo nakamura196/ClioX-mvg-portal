@@ -21,6 +21,7 @@ import {
 } from './aquarius'
 import { fetchDataForMultipleChains } from './subgraph'
 import { getServiceById, getServiceByName } from './ddo'
+import { recallJobAlgorithm } from './jobAlgorithmMemory'
 import { SortTermOptions } from '../@types/aquarius/SearchQuery'
 import { AssetSelectionAsset } from '@shared/FormInput/InputElement/AssetSelection'
 import { transformAssetToAssetSelection } from './assetConvertor'
@@ -285,6 +286,9 @@ async function getJobs(
         if (asset) {
           const compJob: ComputeJobMetaData = {
             ...job,
+            // ノードが algoDID を返さないと詳細画面が「(名称不明)」になる。
+            // 投入時にポータル側で控えた値で補う（もう一方の組み立て箇所と対）。
+            algoDID: job.algoDID ?? recallJobAlgorithm(job.jobId),
             assetName: asset.metadata?.name,
             assetDtSymbol: asset.datatokens?.[0]?.symbol,
             networkId: asset.chainId
@@ -367,6 +371,9 @@ export async function getComputeJobs(
         // 画面側（Results）はこれを使ってデータセットの Provider を引くので、
         // 無いまま渡すと job.inputDID[0] で落ちる。今見ている資産で補う。
         inputDID: job.inputDID?.length ? job.inputDID : [asset?.id],
+        // ノードが algoDID を返さないと、詳細画面はアルゴリズム名を解決できず
+        // 「(名称不明)」になる。投入時にポータル側で控えた値で補う。
+        algoDID: job.algoDID ?? recallJobAlgorithm(job.jobId),
         assetName: asset?.metadata?.name,
         assetDtSymbol: asset?.datatokens?.[0]?.symbol,
         networkId: asset?.chainId,

@@ -68,6 +68,7 @@ import { useAccount } from 'wagmi'
 import { useMarketMetadata } from '@context/MarketMetadata'
 import { safeErrorMessage } from '../../../../@utils/safeError'
 import { startFreeCompute, isFreeAsset } from '../../../../@utils/freeCompute'
+import { rememberJobAlgorithm } from '../../../../@utils/jobAlgorithmMemory'
 
 const refreshInterval = 10000 // 10 sec.
 
@@ -488,6 +489,10 @@ export default function Compute({
         )
         if (!freeResponse) throw new Error('Error starting compute job.')
         LoggerInstance.log('[compute] freeStartCompute の応答:', freeResponse)
+        // ノードはジョブ状態に algoDID を含めないことがある。選択時には判っている
+        // ので、ここで控えておき、あとで一覧・詳細の表示に使う（表示の補助であって
+        // 証拠ではない。詳細は jobAlgorithmMemory.ts の注記を参照）。
+        rememberJobAlgorithm(freeResponse, selectedAlgorithmAsset?.id)
         setIsOrdered(true)
         setRefetchJobs(!refetchJobs)
         return
@@ -559,6 +564,7 @@ export default function Compute({
       if (!response) throw new Error('Error starting compute job.')
 
       LoggerInstance.log('[compute] Starting compute job response: ', response)
+      rememberJobAlgorithm(response, selectedAlgorithmAsset?.id)
       setIsOrdered(true)
       setRefetchJobs(!refetchJobs)
       initPriceAndFees()
