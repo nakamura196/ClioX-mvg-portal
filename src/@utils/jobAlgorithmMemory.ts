@@ -58,8 +58,45 @@ function write(memory: Memory): void {
 }
 
 /**
+ * 応答のどこにあるか分からない jobId を、入れ子を辿って全部拾う。
+ *
+ * 無償経路と有償経路で応答の形が違ううえ、ノードのバージョンでも変わりうる。
+ * 形を決め打ちすると「警告だけ出て何も記録されない」という静かな失敗になるので、
+ * 構造を仮定せずに走査する。
+ */
+function collectJobIds(value: unknown, depth = 0): string[] {
+  if (depth > 6 || value === null || typeof value !== 'object') return []
+  if (Array.isArray(value)) {
+    return value.flatMap((item) => collectJobIds(item, depth + 1))
+  }
+  const found: string[] = []
+  Object.entries(value as Record<string, unknown>).forEach(([key, val]) => {
+    if (key === 'jobId' && typeof val === 'string' && val) {
+      found.push(val)
+    } else if (val && typeof val === 'object') {
+      found.push(...collectJobIds(val, depth + 1))
+    }
+  })
+  return found
+}
+
+/**
+ * ジョブ ID の表記ゆれを吸収する。
+ *
+ * 同じノードが、同じジョブに対して 2 つの形を返す（実測）:
+ *   投入時の応答 : "<clusterHash>-<jobId>"  例 0xff1004…935-f5dd7f3a…191
+ *   一覧の応答   : "<jobId>"                例 f25145d7…46a
+ * 素の側に寄せて突き合わせる。clusterHash 側にハイフンは含まれないため、
+ * 最後のハイフン以降を取れば素の ID になる。
+ */
+function bareJobId(jobId: string): string {
+  const i = jobId.lastIndexOf('-')
+  return i >= 0 ? jobId.slice(i + 1) : jobId
+}
+
+/**
  * ジョブ投入に成功した直後に呼ぶ。
- * 応答の形は経路（無償 / 有償）によって違うので、配列も単体も受ける。
+ * 応答の形は経路（無償 / 有償）によって違うので、構造を仮定せずに jobId を探す。
  */
 export function rememberJobAlgorithm(
   response: unknown,
@@ -67,14 +104,14 @@ export function rememberJobAlgorithm(
 ): void {
   if (!algorithmDid) return
 
-  const jobs = Array.isArray(response) ? response : [response]
+  const jobIds = [...new Set(collectJobIds(response))]
   const memory = read()
   let stored = 0
 
-  jobs.forEach((job) => {
-    const jobId = (job as { jobId?: string })?.jobId
-    if (!jobId) return
+  jobIds.forEach((jobId) => {
+    // 投入時と一覧で表記が違うため、両方の形で引けるようにしておく
     memory[jobId] = algorithmDid
+    memory[bareJobId(jobId)] = algorithmDid
     stored += 1
   })
 
@@ -90,5 +127,6 @@ export function rememberJobAlgorithm(
 /** ノードが algoDID を返さなかったときの控え。無ければ undefined。 */
 export function recallJobAlgorithm(jobId: string): string | undefined {
   if (!jobId) return undefined
-  return read()[jobId]
+  const memory = read()
+  return memory[jobId] ?? memory[bareJobId(jobId)]
 }
