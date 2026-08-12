@@ -165,7 +165,13 @@ export default function JobList(props: {
       // Show an info toast while uploading knowledge; update it on success/error
       uploadToastId = showUploadingToast('Uploading knowledge…')
 
-      const datasetDDO = await getAsset(job.inputDID[0], newCancelToken())
+      // Ocean Node 3.2.0 のジョブには inputDID が無い（null で返る）。
+      // 無防備に [0] を引くと TypeError で画面ごと落ちるため、
+      // CameroonGazette/JobList と同じく理由を出して止める。
+      const datasetDid = job.inputDID?.[0]
+      if (!datasetDid)
+        throw new Error('ジョブにデータセットの DID がありません')
+      const datasetDDO = await getAsset(datasetDid, newCancelToken())
       const signerToUse =
         job.owner.toLowerCase() === autoWallet?.address.toLowerCase()
           ? autoWallet
