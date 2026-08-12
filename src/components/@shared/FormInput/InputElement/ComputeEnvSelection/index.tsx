@@ -52,12 +52,13 @@ export default function ComputeEnvSelection({
               />
               <label
                 className={assetSelectionStyles.label}
-                htmlFor={slugify(env.desc || env.id)}
-                title={env.desc || env.id}
+                htmlFor={slugify(env.description || env.desc || env.id)}
+                title={env.description || env.desc || env.id}
               >
+                {/* 3.2.0 は description、3.1.3 は desc。両方見ないと id(ハッシュ)が出る。 */}
                 <h3 className={assetSelectionStyles.title}>
                   <Dotdotdot clamp={1} tagName="span">
-                    {env.desc || env.id}
+                    {env.description || env.desc || env.id}
                   </Dotdotdot>
                   <Tooltip content={<ComputeEnvDetails computeEnv={env} />} />
                 </h3>

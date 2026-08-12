@@ -40,5 +40,8 @@ declare global {
 
   interface ComputeEnvironmentExtended extends ComputeEnvironment {
     feeToken: string
+    // Ocean Node 3.2.0 は説明を `description` で返すが、ocean.js 3.1.3 の型は
+    // `desc` しか持たない。表示側が desc だけを見ると id(ハッシュ)にフォールバックする。
+    description?: string
   }
 }
