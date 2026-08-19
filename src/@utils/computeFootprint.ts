@@ -268,11 +268,11 @@ const ENV_LOCATIONS: { match: string; location: ComputeLocation }[] = [
   },
   {
     /**
-     * Clio-X のモックアップ(2026-08-11)に出てくる事業者。
-     * ここを登録してあるのは、モックが「Canadian sovereign compute = Verified」と
-     * 「1.21 PUE」を並べる一方で**系統排出係数を出していない**ため、
-     * 「カナダだから低炭素」という誤読を生む点を、実データで示すため。
-     * Alberta は 335 gCO2e/kWh で、Quebec (34.5) の約10倍、BC (14) の約24倍。
+     * カナダ国内の計算提供者。PUE と水効率は事業者申告で、検証経路は無い。
+     *
+     * 登録してあるのは、**同じ「カナダ」でも系統排出係数が一桁違う**ことを
+     * 実データで示せるようにするため。Alberta は 335 gCO2e/kWh、Quebec は 34.5、
+     * BC は年次で 9.7〜22.8(2025年は 22.8)。国名だけでは炭素の多寡は決まらない。
      */
     match: 'agrifoodtef',
     location: {
@@ -327,8 +327,14 @@ export function resolveLocation(
 /**
  * 完了済みジョブから所在地を解決する。
  *
- * 注意: ComputeJob には実行環境への参照が無い(id も desc も持たない)。
- * 唯一の手がかりは providerUrl だが、**ネットワークアドレスは物理的な所在地ではない**。
+ * 注意(2026-08-19 訂正): 当初「ComputeJob には実行環境への参照が無い」と書いていたが、
+ * これは誤りだった。**ocean-node は environment を送っている** —— 上流の ComputeJob 型には
+ * `environment?: string` があり、omitDBComputeFieldsFromComputeJob の削除リストにも
+ * 含まれていない。落としているのは **ocean.js 側の型定義**で、3.1.3 にも main にも
+ * ComputeJob.environment が無いため、クライアントが読めていない。
+ *
+ * したがって本来は job.environment から実行環境を引くべきで、この providerUrl からの
+ * 解決は暫定の回避策である。**ネットワークアドレスは物理的な所在地ではない**ため、
  * ここでの解決は「URL からの推測」でしかなく、その旨を呼び出し側で明示すること。
  */
 export function resolveLocationFromJob(job: { providerUrl?: string }): {
