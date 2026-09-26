@@ -23,6 +23,7 @@ import ServiceCredentialVisualizer from '@components/@shared/ServiceCredentialVi
 import Web3Feedback from '@components/@shared/Web3Feedback'
 import { useAccount } from 'wagmi'
 import DDODownloadButton from '@components/@shared/DDODownloadButton'
+import useFindingAid from '@components/FindingAid/useFindingAid'
 
 export default function AssetContent({
   asset
@@ -41,6 +42,7 @@ export default function AssetContent({
   const [receipts, setReceipts] = useState([])
   const [nftPublisher, setNftPublisher] = useState<string>()
   const [serviceCredential, setServiceCredential] = useState<string>()
+  const findingAid = useFindingAid()
 
   useEffect(() => {
     if (!receipts.length) return
@@ -119,6 +121,13 @@ export default function AssetContent({
               <EditHistory receipts={receipts} setReceipts={setReceipts} />
               <DDODownloadButton asset={asset} />
             </div>
+            <Button
+              style="text"
+              size="small"
+              to={`/asset/${asset?.id}/finding-aid`}
+            >
+              {findingAid.openLink} →
+            </Button>
             {debug === true && <DebugOutput title="DDO" output={asset} />}
           </div>
         </div>

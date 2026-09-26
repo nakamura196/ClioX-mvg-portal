@@ -1,0 +1,118 @@
+{
+  "kicker": "Finding aid view",
+  "openLink": "View as a finding aid (ISAD(G))",
+  "backToRecord": "Back to the dataset page",
+  "print": "Print",
+  "intro": [
+    "This page shows the record of one dataset laid out in the areas of ISAD(G), the general standard for archival description. Nothing here is new information: it is the same record as the dataset page, rearranged.",
+    "Next to every value is where it comes from. That matters more here than in a catalogue: some values were witnessed and fixed by the network, others are simply what the publisher typed in, and nobody has checked them."
+  ],
+  "tally": "Of {total} entries: {chain} recorded on the chain, {publisher} stated by the publisher, {absent} not recorded.",
+  "sources": {
+    "chain": {
+      "label": "Recorded on the chain",
+      "explain": "Written by the network when it happened. Nobody can change it afterwards, including the publisher. The ↗ link opens the entry in the public ledger so you can check it yourself."
+    },
+    "publisher": {
+      "label": "Stated by the publisher",
+      "explain": "Typed in by whoever published the dataset. The chain keeps exactly what they sent, so it cannot be altered quietly later — but nobody checks that it is true."
+    },
+    "absent": {
+      "label": "Not recorded",
+      "explain": "ISAD(G) asks for this, but the record does not have it. Often the Clio-X description form has no field for it."
+    }
+  },
+  "sourcesTitle": "Where each value comes from",
+  "areas": {
+    "identity": "3.1 Identity statement area",
+    "context": "3.2 Context area",
+    "content": "3.3 Content and structure area",
+    "access": "3.4 Conditions of access and use area",
+    "allied": "3.5 Allied materials area",
+    "notes": "3.6 Notes area",
+    "control": "3.7 Description control area"
+  },
+  "fields": {
+    "referenceCode": "3.1.1 Reference code",
+    "title": "3.1.2 Title",
+    "dates": "3.1.3 Dates",
+    "level": "3.1.4 Level of description",
+    "extent": "3.1.5 Extent and medium",
+    "creator": "3.2.1 Name of creator",
+    "custodialHistory": "3.2.3 Archival history",
+    "acquisition": "3.2.4 Immediate source of acquisition",
+    "scope": "3.3.1 Scope and content",
+    "appraisal": "3.3.2 Appraisal, destruction and scheduling",
+    "access": "3.4.1 Conditions governing access",
+    "use": "Record of use",
+    "reproduction": "3.4.2 Conditions governing reproduction",
+    "language": "3.4.3 Language of material",
+    "technical": "3.4.4 Technical requirements",
+    "related": "3.5.3 Related units of description",
+    "notes": "3.6.1 Note (keywords)",
+    "rules": "3.7.2 Rules or conventions",
+    "descriptionDates": "3.7.3 Date(s) of description",
+    "archivistNote": "3.7.1 Archivist's note"
+  },
+  "values": {
+    "did": "Persistent identifier (DID)",
+    "registerAddress": "Register entry (token contract)",
+    "declaredCreated": "Created (as stated)",
+    "declaredUpdated": "Last updated (as stated)",
+    "registeredOn": "Registered on the chain",
+    "lastChangedOn": "Last change on the chain",
+    "levelItem": "Item — one {type}",
+    "typeDataset": "dataset",
+    "typeAlgorithm": "analysis tool (algorithm)",
+    "extentHidden": "Not disclosed. The list of files is encrypted; only the service that holds them can read it. The public record says how the material can be used, not how much of it there is.",
+    "currentCustodian": "Current custodian",
+    "noEvents": "No change events found yet. The event index may still be catching up.",
+    "loadingEvents": "Reading the change events…",
+    "acquisitionFrom": "Registered by account {account} in transaction",
+    "state": {
+      "0": "Active — available for use",
+      "1": "End of life — kept, no longer offered",
+      "2": "Superseded by another record",
+      "3": "Withdrawn by the publisher",
+      "4": "Requests temporarily paused",
+      "5": "Unlisted — kept, hidden from search"
+    },
+    "stateNote": "The publisher can change this status. Every change is itself recorded on the chain (see 3.2.3).",
+    "serviceCompute": "Analyse in place. The data stays with the service that holds it. Approved analyses run there and only their results come out.",
+    "serviceAccess": "Copy on request. Once a request is granted, the files can be downloaded.",
+    "heldBy": "Held by",
+    "timeoutNone": "A granted request does not expire.",
+    "timeoutSeconds": "A granted request is valid for {duration}.",
+    "priceFree": "No charge (a small network fee may apply).",
+    "pricePaid": "Charge per request: {price} {symbol}.",
+    "rawAlgorithmNo": "Visitors cannot send their own code; only registered analysis tools run.",
+    "rawAlgorithmYes": "Visitors may send their own code to run on the data.",
+    "networkNo": "Analyses cannot reach the internet while running.",
+    "networkYes": "Analyses may reach the internet while running.",
+    "trustedNone": "The publisher has not listed specific analysis tools.",
+    "trustedCount": "Analysis tools approved by the publisher: {count}.",
+    "trustedAny": "No list of approved analysis tools in the record.",
+    "allowAll": "Anyone with an account may make a request.",
+    "allowList": "Only listed accounts may make a request ({count}).",
+    "denyList": "Accounts refused: {count}.",
+    "enforced": "These conditions are stated by the publisher and enforced by the service that holds the data.",
+    "useCount": "Granted requests on the chain: {count}.",
+    "useNone": "No granted requests on the chain yet.",
+    "useBy": "granted to {account}",
+    "noLanguageField": "The Clio-X description form has no field for language.",
+    "noTechnicalField": "No technical requirements recorded for this dataset.",
+    "container": "Runs in container image",
+    "rules": "Ocean Protocol DDO, version {version}",
+    "rulesNote": "The machine-readable schema Clio-X uses for every record. It is not an archival standard; this page maps it onto ISAD(G).",
+    "dateMismatch": "The description says it was last updated {declared}. The chain shows a later change on {recorded}. The stated date is typed by the publisher and is not checked; the chain date is.",
+    "archivistNote": "Generated by Clio-X from the published record on {today}. No archivist has written or reviewed this description."
+  },
+  "events": {
+    "METADATA_CREATED": "Description registered",
+    "METADATA_UPDATED": "Description changed",
+    "STATE_UPDATED": "Status changed",
+    "TOKENURI_UPDATED": "Display card changed",
+    "minted": "Register entry created; custody with {account}",
+    "transfer": "Custody passed from {from} to {to}"
+  }
+}
