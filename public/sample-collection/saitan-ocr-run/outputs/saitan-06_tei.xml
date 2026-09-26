@@ -1,0 +1,46 @@
+<?xml version='1.0' encoding='utf-8'?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>Title</title>
+        <respStmt>
+          <resp>Automated Transcription</resp>
+          <name ref="https://github.com/ndl-lab/ndlkotenocr-lite">NDL古典籍OCR-Liteアプリケーション</name>
+        </respStmt>
+        <respStmt>
+          <resp>Conversion to TEI encoding</resp>
+          <name>Kiyonori Nagasaki</name>
+        </respStmt>
+      </titleStmt>
+      <publicationStmt>
+        <p>Publication Information</p>
+      </publicationStmt>
+      <sourceDesc>
+        <p>Information about the source</p>
+      </sourceDesc>
+    </fileDesc>
+  </teiHeader>
+  <facsimile>
+    <surface>
+      <graphic url="/data/inputs/saitan-06.jpg" width="1600px" height="747px" />
+      <zone xml:id="L0000_000" ulx="1384" uly="396" lrx="1412" lry="512" />
+      <zone xml:id="L0000_001" ulx="1354" uly="76" lrx="1404" lry="526" />
+      <zone xml:id="L0000_002" ulx="1302" uly="82" lrx="1352" lry="519" />
+      <zone xml:id="L0000_003" ulx="1257" uly="84" lrx="1299" lry="522" />
+      <zone xml:id="L0000_004" ulx="1202" uly="88" lrx="1247" lry="524" />
+      <zone xml:id="L0000_005" ulx="1153" uly="88" lrx="1201" lry="520" />
+      <zone xml:id="L0000_006" ulx="1105" uly="93" lrx="1148" lry="526" />
+      <zone xml:id="L0000_007" ulx="1038" uly="90" lrx="1086" lry="535" />
+      <zone xml:id="L0000_008" ulx="850" uly="79" lrx="896" lry="526" />
+      <zone xml:id="L0000_009" ulx="793" uly="84" lrx="840" lry="533" />
+    </surface>
+  </facsimile>
+  <text>
+    <body>
+      <p>
+        <pb n="saitan-06.jpg" facs="#saitan-06.jpg" />
+        <lb n="0" facs="#L0000_000" />一目茅崎柳<lb n="1" facs="#L0000_001" />一御白丸三枝の礼有囲の春是製<lb n="2" facs="#L0000_002" />千世まても帯とゝ時や江戸の辻久<lb n="3" facs="#L0000_003" />一小石川や岩ほと成有御代の春一友<lb n="4" facs="#L0000_004" />天地和合してそよけれ姫初行賀<lb n="5" facs="#L0000_005" />天和みなひ人もよかれや二世の春一包<lb n="6" facs="#L0000_006" />上々春と無筆も詣けり門の松の御直定<lb n="7" facs="#L0000_007" />人間の独福を乞蓬莱昨日今日案物<lb n="8" facs="#L0000_008" />ねはいぬの身はいの初祝ひ哉亀園<lb n="9" facs="#L0000_009" />春ほらけ一花ひらくれは板木哉坂本</p>
+    </body>
+  </text>
+</TEI>

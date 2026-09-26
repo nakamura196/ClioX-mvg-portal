@@ -1,0 +1,142 @@
+{
+  "contents": [
+    [
+      {
+        "boundingBox": [
+          [1384, 396],
+          [1384, 512],
+          [1412, 396],
+          [1412, 512]
+        ],
+        "id": 0,
+        "isVertical": "true",
+        "text": "一目茅崎柳",
+        "isTextline": "true",
+        "confidence": 0.325
+      },
+      {
+        "boundingBox": [
+          [1354, 76],
+          [1354, 526],
+          [1404, 76],
+          [1404, 526]
+        ],
+        "id": 1,
+        "isVertical": "true",
+        "text": "一御白丸三枝の礼有囲の春是製",
+        "isTextline": "true",
+        "confidence": 0.775
+      },
+      {
+        "boundingBox": [
+          [1302, 82],
+          [1302, 519],
+          [1352, 82],
+          [1352, 519]
+        ],
+        "id": 2,
+        "isVertical": "true",
+        "text": "千世まても帯とゝ時や江戸の辻久",
+        "isTextline": "true",
+        "confidence": 0.836
+      },
+      {
+        "boundingBox": [
+          [1257, 84],
+          [1257, 522],
+          [1299, 84],
+          [1299, 522]
+        ],
+        "id": 3,
+        "isVertical": "true",
+        "text": "一小石川や岩ほと成有御代の春一友",
+        "isTextline": "true",
+        "confidence": 0.814
+      },
+      {
+        "boundingBox": [
+          [1202, 88],
+          [1202, 524],
+          [1247, 88],
+          [1247, 524]
+        ],
+        "id": 4,
+        "isVertical": "true",
+        "text": "天地和合してそよけれ姫初行賀",
+        "isTextline": "true",
+        "confidence": 0.812
+      },
+      {
+        "boundingBox": [
+          [1153, 88],
+          [1153, 520],
+          [1201, 88],
+          [1201, 520]
+        ],
+        "id": 5,
+        "isVertical": "true",
+        "text": "天和みなひ人もよかれや二世の春一包",
+        "isTextline": "true",
+        "confidence": 0.795
+      },
+      {
+        "boundingBox": [
+          [1105, 93],
+          [1105, 526],
+          [1148, 93],
+          [1148, 526]
+        ],
+        "id": 6,
+        "isVertical": "true",
+        "text": "上々春と無筆も詣けり門の松の御直定",
+        "isTextline": "true",
+        "confidence": 0.828
+      },
+      {
+        "boundingBox": [
+          [1038, 90],
+          [1038, 535],
+          [1086, 90],
+          [1086, 535]
+        ],
+        "id": 7,
+        "isVertical": "true",
+        "text": "人間の独福を乞蓬莱昨日今日案物",
+        "isTextline": "true",
+        "confidence": 0.775
+      },
+      {
+        "boundingBox": [
+          [850, 79],
+          [850, 526],
+          [896, 79],
+          [896, 526]
+        ],
+        "id": 8,
+        "isVertical": "true",
+        "text": "ねはいぬの身はいの初祝ひ哉亀園",
+        "isTextline": "true",
+        "confidence": 0.796
+      },
+      {
+        "boundingBox": [
+          [793, 84],
+          [793, 533],
+          [840, 84],
+          [840, 533]
+        ],
+        "id": 9,
+        "isVertical": "true",
+        "text": "春ほらけ一花ひらくれは板木哉坂本",
+        "isTextline": "true",
+        "confidence": 0.782
+      }
+    ]
+  ],
+  "imginfo": {
+    "img_width": 1600,
+    "img_height": 747,
+    "img_path": "/data/inputs/saitan-06.jpg",
+    "img_name": "saitan-06.jpg"
+  }
+}
