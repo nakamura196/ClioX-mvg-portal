@@ -3,8 +3,42 @@
 
 const chains = [
   {
-    chainId: 32456,
+    // Sepolia trial network: our own Ocean Node and subgraph on mdx
+    // (deploy/ocean-node, docs/self-hosting.md). Pontus-X stays below.
+    chainId: 11155111,
     isDefault: true,
+    isCustom: true,
+    network: 'sepolia',
+    oceanTokenSymbol: 'OCEAN',
+    oceanTokenAddress: '0x1B083D8584dd3e6Ff37d04a6e7e82b5F622f3985',
+    nftFactoryAddress: '0xEF62FB495266C72a5212A11Dce8baa79Ec0ABeB1',
+    fixedRateExchangeAddress: '0x80E63f73cAc60c1662f27D2DFd2EA834acddBaa8',
+    dispenserAddress: '0x2720d405ef7cDC8a2E2e5AeBC8883C99611d893C',
+    opfCommunityFeeCollector: '0x69B6E54Ad2b3c2801d11d8Ad56ea1d892555b776',
+    startBlock: 11459550,
+    transactionBlockTimeout: 50,
+    transactionConfirmationBlocks: 1,
+    transactionPollingTimeout: 750,
+    gasFeeMultiplier: 1.1,
+    providerUri: 'https://cliox-node.ldas.jp',
+    providerAddress: '0x8937149121566d44e8f0a321397B1baa114033f6',
+    providers: [
+      // Same key as the former AWS node, so files of assets published there
+      // still decrypt here.
+      {
+        name: 'mdx Kashiwa CPU (University of Tokyo)',
+        url: 'https://cliox-node.ldas.jp',
+        address: '0x8937149121566d44e8f0a321397B1baa114033f6'
+      }
+    ],
+    metadataCacheUri: 'https://cliox-node.ldas.jp',
+    nodeUri: 'https://ethereum-sepolia-rpc.publicnode.com',
+    subgraphUri: 'https://cliox-subgraph.ldas.jp',
+    explorerUri: 'https://sepolia.etherscan.io'
+  },
+  {
+    chainId: 32456,
+    isDefault: false,
     isCustom: true,
     network: 'pontusx-devnet',
     oceanTokenSymbol: 'OCEAN',
