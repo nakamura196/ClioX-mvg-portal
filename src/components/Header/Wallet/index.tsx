@@ -2,6 +2,7 @@ import { ReactElement } from 'react'
 import Account from './Account'
 import Details from './Details'
 import Tooltip from '@shared/atoms/Tooltip'
+import ArchivistTerm from '@shared/ArchivistTerm'
 import styles from './index.module.css'
 import { useAccount } from 'wagmi'
 import { hideMetaMaskLogin } from 'app.config'
@@ -20,6 +21,11 @@ export default function Wallet(): ReactElement {
         >
           <Account />
         </Tooltip>
+        {!accountId && (
+          <span className={styles.hint}>
+            <ArchivistTerm id="wallet" />
+          </span>
+        )}
       </div>
     )
   )

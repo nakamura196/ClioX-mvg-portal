@@ -5,7 +5,7 @@ export default function MetaItem({
   title,
   content
 }: {
-  title: string
+  title: ReactNode
   content: ReactNode
 }): ReactElement {
   return (
