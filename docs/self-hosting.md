@@ -12,9 +12,8 @@ independent of the Pontus-X network and its membership. It has three parts:
 Everything on the VM runs in Docker. The files are in
 [`deploy/ocean-node/`](../deploy/ocean-node/).
 
-> Status (2026-09-26): steps 1–4 are verified on an mdx VM (University of
-> Tokyo, Ubuntu 24.04, 6 vCPU / 8.8 GiB / 99 GB). Steps 5–7 are written as
-> they are done.
+> Status (2026-09-26): all steps are done on an mdx VM (University of
+> Tokyo, Ubuntu 24.04, 6 vCPU / 8.8 GiB / 99 GB) and Vercel.
 
 ## What is official, and what this setup adds
 
@@ -169,12 +168,29 @@ hostnames answer with Cloudflare error 1033. The compose file therefore runs
 
 ## 6. Portal
 
-_To be written._ Point the Sepolia entry in `chains.config.js` to the two
-hostnames (`providerUri`, `providers`, `metadataCacheUri`, `subgraphUri`) and
-deploy to Vercel.
+The Sepolia entry in `chains.config.js` points to the two hostnames
+(`providerUri`, `providers`, `metadataCacheUri`, `subgraphUri`). Its provider
+address must be the node's (`GET /` on the node returns `providerAddress`).
+
+On Vercel (Hobby plan):
+
+1. Import the repository (your fork). Framework: Next.js, detected.
+2. Node.js version **22.x**. The app declares `"engines": {"node": "22"}`;
+   newer versions break server-side rendering.
+3. Environment variable `NEXT_PUBLIC_METADATACACHE_URI` = the node URL. The
+   catalogue search reads it before `chains.config.js`, and its default is
+   the Pontus-X catalogue.
+4. Leave Vercel Authentication (Deployment Protection) on while the site is
+   not meant to be public. Only members of the Vercel account can open it.
+   On the Hobby plan it does **not** cover the production domain
+   (`<project>.vercel.app`), which stays open to everyone. Remove that domain
+   under Settings → Domains until you want the site public.
 
 ## 7. Processing location for the carbon estimate
 
-_To be written._ The portal derives the processing location from the compute
-environment's description. The mdx node's description contains `mdx-kashiwa`,
-which needs a matching entry in `src/@utils/computeFootprint.ts`.
+The portal derives the processing location from the compute environment's
+description text; Ocean Node publishes environment ids as hashes, so the id
+cannot be used. `src/@utils/computeFootprint.ts` already maps any description
+containing `mdx` to "mdx, Kashiwa II campus, Japan". No carbon figure is shown
+for it yet: that needs the VM's measured power draw, and we only enter
+measured or clearly labelled values.
