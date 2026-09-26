@@ -37,6 +37,10 @@ export interface InputProps {
     | AssetSelectionAsset[]
     | BoxSelectionOption[]
     | ComputeEnvironment[]
+  // Display text for a `select`'s `options`, index-aligned. Lets a locale
+  // override translate what the user reads while `options` keeps the English
+  // values the rest of the app switches on. Omit for English.
+  optionLabels?: string[]
   sortOptions?: boolean
   fields?: FieldInputProps<any>[]
   methods?: boolean

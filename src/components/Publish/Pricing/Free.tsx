@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { ReactElement, useEffect } from 'react'
 import { useFormikContext } from 'formik'
 import { FormPublishData } from '../_types'
@@ -8,6 +9,7 @@ import styles from './index.module.css'
 export default function Free({ content }: { content: any }): ReactElement {
   // connect with Form state, use for conditional field rendering
   const { values, setFieldValue } = useFormikContext<FormPublishData>()
+  const { t } = useTranslation('common')
 
   useEffect(() => {
     // if the user has agreed, then set pricing to continue
@@ -24,7 +26,7 @@ export default function Free({ content }: { content: any }): ReactElement {
   return (
     <>
       <FormHelp>{content.info}</FormHelp>
-      <h4 className={styles.title}>Price</h4>
+      <h4 className={styles.title}>{t('publish.priceTitle')}</h4>
       <Price content={content} />
     </>
   )

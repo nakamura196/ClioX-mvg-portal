@@ -6,6 +6,11 @@ export interface TabsItem {
   title: string
   content: ReactNode
   disabled?: boolean
+  // Locale-independent identifier handed to `handleTabChange` instead of the
+  // visible `title`. Set this whenever the callback stores or switches on what
+  // it receives: `title` is translated, so on `/ja` a title-based callback gets
+  // e.g. `有料` where it expected `Priced`.
+  value?: string
 }
 
 export interface TabsProps {
@@ -38,7 +43,9 @@ export default function Tabs({
               className={styles.tab}
               key={index}
               onClick={
-                handleTabChange ? () => handleTabChange(item.title) : null
+                handleTabChange
+                  ? () => handleTabChange(item.value ?? item.title)
+                  : null
               }
               disabled={item.disabled}
             >

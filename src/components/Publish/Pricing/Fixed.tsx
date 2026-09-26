@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { ReactElement } from 'react'
 import FormHelp from '@shared/FormInput/Help'
 import Price from './Price'
@@ -15,11 +16,12 @@ export default function Fixed({
   content: any
 }): ReactElement {
   const { values } = useFormikContext<FormPublishData>()
+  const { t } = useTranslation('common')
   return (
     <>
       <FormHelp>{content.info}</FormHelp>
 
-      <h4 className={stylesIndex.title}>Price</h4>
+      <h4 className={stylesIndex.title}>{t('publish.priceTitle')}</h4>
 
       <Price approvedBaseTokens={approvedBaseTokens} />
       <Fees tooltips={content.tooltips} assetPrice={values.pricing.price} />

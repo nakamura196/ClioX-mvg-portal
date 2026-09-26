@@ -1,6 +1,6 @@
 import { ReactElement, useEffect } from 'react'
 import { useFormikContext } from 'formik'
-import { wizardSteps, initialPublishFeedback } from './_constants'
+import { usePublishWizardSteps, useInitialPublishFeedback } from './_hooks'
 import { FormPublishData, PublishFeedback } from './_types'
 import { getOceanConfig } from '@utils/ocean'
 import { useAccount, useNetwork } from 'wagmi'
@@ -13,6 +13,8 @@ export function Steps({
 }): ReactElement {
   const { address: accountId } = useAccount()
   const { chain } = useNetwork()
+  const wizardSteps = usePublishWizardSteps()
+  const initialPublishFeedback = useInitialPublishFeedback()
   const { approvedBaseTokens } = useMarketMetadata()
   const { values, setFieldValue, touched, setTouched } =
     useFormikContext<FormPublishData>()
@@ -42,7 +44,7 @@ export function Steps({
         description: initialPublishFeedback['1'].description
       }
     })
-  }, [values.pricing.type, feedback, setFieldValue])
+  }, [values.pricing.type, feedback, initialPublishFeedback, setFieldValue])
 
   // Auto-change default providerUrl on user network change
   useEffect(() => {

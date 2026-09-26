@@ -15,8 +15,10 @@ import { checkJson } from '@utils/codemirror'
 import { isGoogleUrl } from '@utils/url/index'
 import isUrl from 'is-url-superb'
 import MethodInput from '../MethodInput'
+import { useTranslation } from 'react-i18next'
 
 export default function FilesInput(props: InputProps): ReactElement {
+  const { t } = useTranslation('common')
   const [field, meta, helpers] = useField(props.name)
   const [isLoading, setIsLoading] = useState(false)
   const [disabledButton, setDisabledButton] = useState(true)
@@ -140,7 +142,7 @@ export default function FilesInput(props: InputProps): ReactElement {
             />
           ) : (
             <UrlInput
-              submitText="Validate"
+              submitText={t('publish.validate')}
               {...props}
               name={`${field.name}[0].url`}
               isLoading={isLoading}

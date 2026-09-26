@@ -1,6 +1,7 @@
 import { ReactElement, useState, useRef, useEffect } from 'react'
 import { Form, Formik } from 'formik'
-import { initialPublishFeedback, initialValues } from './_constants'
+import { initialValues } from './_constants'
+import { useInitialPublishFeedback, usePublishValidationSchema } from './_hooks'
 import { useAccountPurgatory } from '@hooks/useAccountPurgatory'
 import { createTokensAndPricing, transformPublishFormToDdo } from './_utils'
 import PageHeader from '@shared/Page/PageHeader'
@@ -20,7 +21,6 @@ import {
   getErrorMessage
 } from '@oceanprotocol/lib'
 import { getOceanConfig } from '@utils/ocean'
-import { validationSchema } from './_validation'
 import { useAbortController } from '@hooks/useAbortController'
 import { setNFTMetadataAndTokenURI } from '@utils/nft'
 import { customProviderUrl } from '../../../app.config'
@@ -44,7 +44,28 @@ export default function PublishPage({
 
   // This `feedback` state is auto-synced into Formik context under `values.feedback`
   // for use in other components. Syncing defined in ./Steps.tsx child component.
+  const initialPublishFeedback = useInitialPublishFeedback()
+  const validationSchema = usePublishValidationSchema()
   const [feedback, setFeedback] = useState(initialPublishFeedback)
+
+  // `useState` only reads its argument on first render, so switching locale via
+  // the header would otherwise leave the step 6 list in the previous language.
+  // Re-apply the localized `name`/`description` while preserving live publish
+  // progress (`status`, `txHash`, `errorMessage`) so this is safe to run at any
+  // point during a publish.
+  useEffect(() => {
+    setFeedback((prevState) => {
+      const next = { ...prevState }
+      for (const key of Object.keys(initialPublishFeedback)) {
+        next[key] = {
+          ...prevState[key],
+          name: initialPublishFeedback[key].name,
+          description: initialPublishFeedback[key].description
+        }
+      }
+      return next
+    })
+  }, [initialPublishFeedback])
 
   // Collecting output of each publish step, enabling retry of failed steps
   const [erc721Address, setErc721Address] = useState<string>()

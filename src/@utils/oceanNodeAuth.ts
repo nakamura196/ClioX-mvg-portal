@@ -1,5 +1,6 @@
 import { ethers } from 'ethers'
 import { LoggerInstance } from '@oceanprotocol/lib'
+import { chains } from '../../chains.config'
 
 /**
  * Ocean Node 3.2.0 の認証付きエンドポイントを、ブラウザのウォレットで直接叩く。
@@ -204,7 +205,43 @@ export async function downloadUrlAsFile(
   URL.revokeObjectURL(objectUrl)
 }
 
-/** 手元に建てた Ocean Node かどうか（認証必須の新しい API かの判定に使う） */
+/**
+ * 自分たちが運用する Ocean Node かどうか（認証必須の新しい API かの判定、
+ * および無償ジョブ一覧をノードへ直接問い合わせてよいかの判定に使う）。
+ *
+ * 【重要】以前は localhost / 127.0.0.1 の決め打ちだった。
+ * 自前ノードをクラウド（AWS eu-north-1 など）へ出した途端、
+ * 判定が false になり、無償ジョブの一覧補完（fetchComputeJobsViaOceanNode）が
+ * 働かなくなる。無償ジョブはオンチェーンの注文を作らないため、
+ * 「ジョブは実行できているのに画面の一覧が空」という形で現れ、
+ * 原因に辿り着きにくい（2026-08-12 に実際に踏んだ）。
+ *
+ * 判定基準を「ローカルかどうか」ではなく
+ * 「chains.config.js に自分で登録した provider かどうか」に変える。
+ */
 export function isLocalOceanNode(providerUrl: string): boolean {
-  return /localhost|127\.0\.0\.1/.test(providerUrl || '')
+  if (!providerUrl) return false
+  if (/localhost|127\.0\.0\.1/.test(providerUrl)) return true
+
+  const normalize = (u: string) => {
+    try {
+      const { host } = new URL(u)
+      return host.toLowerCase()
+    } catch {
+      return ''
+    }
+  }
+  const target = normalize(providerUrl)
+  if (!target) return false
+
+  // isCustom を立てているチェーン（＝自分で建てた構成）の provider だけを対象にする。
+  // 公開ネットワークの provider を巻き込まないため。
+  return (chains as any[])
+    .filter((c) => c?.isCustom)
+    .flatMap((c) => [
+      c?.providerUri,
+      ...((c?.providers || []).map((p: any) => p?.url) || [])
+    ])
+    .filter(Boolean)
+    .some((u: string) => normalize(u) === target)
 }

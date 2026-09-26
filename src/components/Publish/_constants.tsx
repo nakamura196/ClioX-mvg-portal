@@ -21,38 +21,51 @@ import { ServiceComputeOptions } from '@oceanprotocol/lib'
 import contentFeedback from '../../../content/publish/feedback.json'
 import PoliciesFields from './Policies'
 
-export const wizardSteps: StepContent[] = [
-  {
-    step: 1,
-    title: content.metadata.title,
-    component: <MetadataFields />
-  },
-  {
-    step: 2,
-    title: content.services.title,
-    component: <ServicesFields />
-  },
-  {
-    step: 3,
-    title: content.policies.title,
-    component: <PoliciesFields />
-  },
-  {
-    step: 4,
-    title: content.pricing.title,
-    component: <PricingFields />
-  },
-  {
-    step: 5,
-    title: content.preview.title,
-    component: <Preview />
-  },
-  {
-    step: 6,
-    title: content.submission.title,
-    component: <Submission />
-  }
+/**
+ * The wizard's *structure*: step number and the component to render.
+ *
+ * Deliberately title-free. Titles are the only locale-dependent part of a step,
+ * and a module-level constant is evaluated once at import time — long before
+ * any React component knows which locale is active — so baking titles in here
+ * is what used to pin the whole wizard to English.
+ *
+ * Read titles through `usePublishWizardSteps()` (see ./_hooks) instead, which
+ * layers the active locale's `content/publish/form*.json` on top of this.
+ */
+export const wizardStepComponents: Omit<StepContent, 'title'>[] = [
+  { step: 1, component: <MetadataFields /> },
+  { step: 2, component: <ServicesFields /> },
+  { step: 3, component: <PoliciesFields /> },
+  { step: 4, component: <PricingFields /> },
+  { step: 5, component: <Preview /> },
+  { step: 6, component: <Submission /> }
 ]
+
+/**
+ * Pulls the six step titles out of a `content/publish/form.json`-shaped object,
+ * in wizard order. Works on both the English content and a locale-merged copy.
+ */
+export function getWizardStepTitles(form: typeof content): string[] {
+  return [
+    form.metadata.title,
+    form.services.title,
+    form.policies.title,
+    form.pricing.title,
+    form.preview.title,
+    form.submission.title
+  ]
+}
+
+/**
+ * English wizard steps.
+ *
+ * Kept as a module constant so non-localized callers (and anything that only
+ * needs `.length` or the component for a step) keep working unchanged. Anything
+ * that *renders* a title should use `usePublishWizardSteps()`.
+ */
+export const wizardSteps: StepContent[] = wizardStepComponents.map(
+  (step, index) => ({ ...step, title: getWizardStepTitles(content)[index] })
+)
 
 const computeOptions: ServiceComputeOptions = {
   allowRawAlgorithm: false,

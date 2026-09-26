@@ -6,6 +6,7 @@ import styles from './index.module.css'
 import Loader from '../atoms/Loader'
 import Time from '../atoms/Time'
 import Tooltip from '../atoms/Tooltip'
+import { useTranslation } from 'react-i18next'
 
 const cx = classNames.bind(styles)
 
@@ -63,6 +64,7 @@ export default function VerifiedBadge({
   apiVersion?: string
   timestamp?: boolean
 }): ReactElement {
+  const { t } = useTranslation('common')
   const styleClasses = cx({
     verifiedBadge: true,
     [className]: className
@@ -74,24 +76,28 @@ export default function VerifiedBadge({
   return (
     <div className={styles.container}>
       {isLoading ? (
-        <Loader message="Verifying Service Credential" />
+        <Loader message={t('verify.verifying')} />
       ) : (
         <div className={styleClasses}>
-          <Badge isValid={isValid} verifiedService="Service Credential" />
+          <Badge
+            isValid={isValid}
+            verifiedService={t('verify.serviceCredential')}
+          />
           <Badge
             isValid={idMatch}
             isIdMatchVerifiable={isIdMatchVerifiable}
-            verifiedService="Credential ID match"
+            verifiedService={t('verify.credentialIdMatch')}
           />
           <div className={styles.details}>
             {apiVersion && (
               <span className={styles.apiVersion}>
-                version: {formattedApiVersion}
+                {t('verify.version')} {formattedApiVersion}
               </span>
             )}
             {timestamp && (
               <span className={styles.lastVerified}>
-                last check: <Time date={new Date().toString()} relative />
+                {t('verify.lastCheck')}{' '}
+                <Time date={new Date().toString()} relative />
               </span>
             )}
           </div>

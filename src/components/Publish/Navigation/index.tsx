@@ -2,26 +2,12 @@ import { FormikContextType, useFormikContext } from 'formik'
 import { ReactElement, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { FormPublishData } from '../_types'
-import { wizardSteps } from '../_constants'
 import styles from './index.module.css'
-import formEn from '../../../../content/publish/form.json'
-import formJa from '../../../../content/publish/form.ja.json'
-import useLocaleContent from '../../../i18n/useLocaleContent'
+import { usePublishWizardSteps } from '../_hooks'
 
 export default function Navigation(): ReactElement {
   const router = useRouter()
-  const form = useLocaleContent(formEn, formJa)
-
-  // `wizardSteps` is a module-level constant, so its titles are always English.
-  // Look the localized ones up by step number instead.
-  const stepTitles = [
-    form.metadata.title,
-    form.services.title,
-    form.policies.title,
-    form.pricing.title,
-    form.preview.title,
-    form.submission.title
-  ]
+  const wizardSteps = usePublishWizardSteps()
   const {
     values,
     errors,
@@ -77,7 +63,7 @@ export default function Navigation(): ReactElement {
               values.user.stepCurrent === step.step ? styles.current : null
             } ${getSuccessClass(step.step)}`}
           >
-            {stepTitles[step.step - 1] || step.title}
+            {step.title}
           </li>
         ))}
       </ol>

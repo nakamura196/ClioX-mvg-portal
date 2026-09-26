@@ -52,6 +52,7 @@ const InputElement = forwardRef(
   (
     {
       options,
+      optionLabels,
       sortOptions,
       size,
       field,
@@ -81,12 +82,24 @@ const InputElement = forwardRef(
 
     switch (props.type) {
       case 'select': {
+        // Pair each option value with the text to show for it, so the two stay
+        // together through sorting. `optionLabels` is how a locale translates
+        // the visible text without touching the values: several options double
+        // as identifiers the app switches on (`mapTimeoutStringToSeconds` keys
+        // off the literal 'Forever' / '1 hour' / ...), so translating `options`
+        // itself would silently change what gets published.
+        const optionPairs = ((options as string[]) || []).map(
+          (option: string, index: number) => ({
+            value: option,
+            label: optionLabels?.[index] ?? option,
+            prefix: prefixes?.[index],
+            postfix: postfixes?.[index]
+          })
+        )
         const sortedOptions =
           !sortOptions && sortOptions === false
-            ? options
-            : (options as string[]).sort((a: string, b: string) =>
-                a.localeCompare(b)
-              )
+            ? optionPairs
+            : [...optionPairs].sort((a, b) => a.label.localeCompare(b.label))
         return (
           <select
             id={props.name}
@@ -95,18 +108,15 @@ const InputElement = forwardRef(
             multiple={multiple}
           >
             {field !== undefined && field.value === '' && <option value="" />}
-            {sortedOptions &&
-              (sortedOptions as string[]).map(
-                (option: string, index: number) => (
-                  <option key={index} value={option}>
-                    <Option
-                      option={option}
-                      prefix={prefixes?.[index]}
-                      postfix={postfixes?.[index]}
-                    />
-                  </option>
-                )
-              )}
+            {sortedOptions.map((option, index: number) => (
+              <option key={index} value={option.value}>
+                <Option
+                  option={option.label}
+                  prefix={option.prefix}
+                  postfix={option.postfix}
+                />
+              </option>
+            ))}
           </select>
         )
       }

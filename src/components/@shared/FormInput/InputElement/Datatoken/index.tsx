@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useField, useFormikContext } from 'formik'
 import { ReactElement, useEffect, useState, useRef } from 'react'
 import { InputProps } from '@shared/FormInput'
@@ -20,6 +21,7 @@ export default function Datatoken({
   const { values } = useFormikContext<FormPublishData>()
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const { t } = useTranslation('common')
 
   async function generateName() {
     const datatokenOptions = randomize
@@ -73,7 +75,7 @@ export default function Datatoken({
         <Key />
       </figure>
       <div className={styles.tokenWrapper}>
-        <span className={styles.label}>Access Token</span>
+        <span className={styles.label}>{t('publish.accessToken')}</span>
 
         <div className={styles.selectorWrapper} ref={dropdownRef}>
           <button

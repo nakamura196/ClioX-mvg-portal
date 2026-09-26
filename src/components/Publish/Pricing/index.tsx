@@ -46,10 +46,13 @@ export default function PricingFields(): ReactElement {
     values.pricing.baseToken
   ])
 
-  // Switch type value upon tab change
-  function handleTabChange(tabName: string) {
-    const type =
-      tabName.toLowerCase() === 'priced' ? 'fixed' : tabName.toLowerCase()
+  // Switch type value upon tab change.
+  // `tabValue` is the tab's locale-independent `value` ('fixed' | 'free'), not
+  // its visible title: the titles are translated, so keying off them used to
+  // store `有料` / `無料` in `pricing.type` on /ja and fail the
+  // `matches(/fixed|free/)` check in _validation.ts.
+  function handleTabChange(tabValue: string) {
+    const type = tabValue
     setFieldValue('pricing.type', type)
     setFieldValue('pricing.price', 0)
     setFieldValue('pricing.freeAgreement', false)
@@ -62,6 +65,7 @@ export default function PricingFields(): ReactElement {
       allowFixedPricing === 'true'
         ? {
             title: content.create.fixed.title,
+            value: 'fixed',
             content: (
               <Fixed
                 approvedBaseTokens={approvedBaseTokens}
@@ -74,6 +78,7 @@ export default function PricingFields(): ReactElement {
       allowFreePricing === 'true'
         ? {
             title: content.create.free.title,
+            value: 'free',
             content: <Free content={content.create.free} />
           }
         : undefined

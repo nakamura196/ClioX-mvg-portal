@@ -3,6 +3,7 @@ import { prettySize } from './utils'
 import cleanupContentType from '@utils/cleanupContentType'
 import styles from './Info.module.css'
 import { FileInfo as FileInfoData } from '@oceanprotocol/lib'
+import { useTranslation } from 'react-i18next'
 
 export default function FileInfo({
   file,
@@ -11,6 +12,7 @@ export default function FileInfo({
   file: FileInfoData
   handleClose(): void
 }): ReactElement {
+  const { t } = useTranslation('common')
   const contentTypeCleaned = file.contentType
     ? cleanupContentType(file.contentType)
     : null
@@ -23,7 +25,7 @@ export default function FileInfo({
         {hideUrl ? 'https://delta-dao/the-future-is-now' : file.url}
       </h3>
       <ul>
-        <li className={styles.success}>✓ File confirmed</li>
+        <li className={styles.success}>{t('publish.fileConfirmed')}</li>
         {file.contentLength && <li>{prettySize(+file.contentLength)}</li>}
         {contentTypeCleaned && <li>{contentTypeCleaned}</li>}
       </ul>

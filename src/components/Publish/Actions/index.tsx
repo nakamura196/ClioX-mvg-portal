@@ -70,10 +70,10 @@ export default function Actions({
     <footer className={styles.actions}>
       {did ? (
         <SuccessConfetti
-          success="Successfully published!"
+          success={t('publish.successfullyPublished')}
           action={
             <Button style="primary" to={`/asset/${did}`}>
-              View Asset
+              {t('publish.viewAsset')}
             </Button>
           }
         />

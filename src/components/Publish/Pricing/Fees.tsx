@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { ReactElement, useEffect, useState } from 'react'
 import Tooltip from '@shared/atoms/Tooltip'
 import styles from './Fees.module.css'
@@ -43,6 +44,7 @@ export default function Fees({
 }): ReactElement {
   const [oceanCommunitySwapFee, setOceanCommunitySwapFee] = useState<string>('')
   const { chain } = useNetwork()
+  const { t } = useTranslation('common')
   const { appConfig } = useMarketMetadata()
 
   useEffect(() => {
@@ -66,21 +68,21 @@ export default function Fees({
     <>
       <div className={styles.fees}>
         <Default
-          title="Pontus-X Community Fee"
+          title={t('publish.fees.community')}
           name="communityFee"
           tooltip={tooltips.communityFee}
           value={oceanCommunitySwapFee}
         />
 
         <Default
-          title="Marketplace Fee"
+          title={t('publish.fees.marketplace')}
           name="marketplaceFee"
           tooltip={tooltips.marketplaceFee}
           value={appConfig?.publisherMarketFixedSwapFee}
         />
 
         <Default
-          title="Earnings after fees"
+          title={t('publish.fees.earnings')}
           name="earningsAfterFees"
           tooltip={tooltips.earningsAfterFees}
           value={earningsAfterFees.toString()}

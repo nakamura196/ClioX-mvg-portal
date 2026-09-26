@@ -70,6 +70,26 @@ import { safeErrorMessage } from '../../../../@utils/safeError'
 import { startFreeCompute, isFreeAsset } from '../../../../@utils/freeCompute'
 import { rememberJobAlgorithm } from '../../../../@utils/jobAlgorithmMemory'
 
+/**
+ * 実行環境が提供している資源を、そのまま要求量に変換する。
+ *
+ * Ocean Node 3.2.0 の環境は resources: [{id, max, total}] を返す。
+ * 画面には資源量を選ばせる UI が無いため、free 枠の上限（無ければ max）を
+ * そのまま要求する。**特に gpu を要求しないと GPU がコンテナに渡らない。**
+ */
+function buildResourceRequest(
+  env: any
+): { id: string; amount: number }[] | undefined {
+  const list = env?.free?.resources?.length
+    ? env.free.resources
+    : env?.resources
+  if (!Array.isArray(list) || !list.length) return undefined
+  const req = list
+    .map((r: any) => ({ id: r?.id, amount: Number(r?.max ?? r?.total ?? 0) }))
+    .filter((r: any) => r.id && Number.isFinite(r.amount) && r.amount > 0)
+  return req.length ? req : undefined
+}
+
 const refreshInterval = 10000 // 10 sec.
 
 export default function Compute({
@@ -480,7 +500,14 @@ export default function Compute({
                 serviceId: asset.services[0].id,
                 userdata: userCustomParameters?.dataServiceParams
               }
-            ]
+            ],
+            // 【重要】resources を渡さないと、その環境が GPU を持っていても
+            // ノードは GPU 要求なしと判断し、HostConfig.DeviceRequests を
+            // 組み立てない。結果、コンテナに GPU が渡らず、
+            // アルゴリズムが nvidia-smi を使えない
+            // （成果物が {"error":"nvidia-smi unavailable"} になる。2026-08-12 実測）。
+            // 画面に資源量の入力欄が無いので、環境が提供する上限をそのまま要求する。
+            resources: buildResourceRequest(selectedComputeEnv)
             // output は渡さない。ノードの validateOutput は「ECIES で暗号化した
             // JSON の hex 文字列」を期待しており（外部ストレージへのアップロード指定）、
             // オブジェクトを渡すと 400 になる。省略すれば成果物はノード内に残り、

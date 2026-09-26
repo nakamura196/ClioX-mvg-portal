@@ -25,6 +25,7 @@ import {
 } from '@components/Publish/_utils'
 import { useAccount, useNetwork } from 'wagmi'
 import { useAutomation } from './Automation/AutomationProvider'
+import { useTranslation } from 'react-i18next'
 
 export interface AssetProviderValue {
   isInPurgatory: boolean
@@ -57,6 +58,7 @@ function AssetProvider({
   children: ReactNode
 }): ReactElement {
   const { appConfig } = useMarketMetadata()
+  const { t } = useTranslation('common')
   const { address: accountId } = useAccount()
   const { autoWallet, isAutomationEnabled } = useAutomation()
   const { chain } = useNetwork()
@@ -106,7 +108,7 @@ function AssetProvider({
       const isDid = isValidDid(did)
 
       if (!isDid) {
-        setError(`The url is not for a valid DID`)
+        setError(t('verify.invalidDid'))
         LoggerInstance.error(`[asset] Not a valid DID`)
         return
       }
@@ -122,16 +124,13 @@ function AssetProvider({
         const isWhitelisted = isDDOWhitelisted(asset)
 
         if (!asset) {
-          setError(
-            did +
-              '\n\nWe could not find an asset for this DID in the cache. If you just published a new asset, wait some seconds and refresh this page.'
-          )
+          setError(did + '\n\n' + t('verify.notInCache'))
           LoggerInstance.error(`[asset] Failed getting asset for ${did}`, asset)
           return
         }
 
         if (!isWhitelisted) {
-          setError(did + '\n\nThis DID can not be retrieved on this portal.')
+          setError(did + '\n\n' + t('verify.notRetrievable'))
           LoggerInstance.error(`[asset] Failed getting asset for ${did}`, asset)
           return
         }
@@ -139,11 +138,13 @@ function AssetProvider({
         // nft が無い文書では state を判定できないので、この分岐は素通しにする。
         if (asset.nft?.state === (1 | 2 | 3)) {
           setTitle(
-            `This asset has been set as "${assetStateToString(
-              asset.nft?.state
-            )}" by the publisher`
+            t('verify.assetStateSetBy', {
+              state: assetStateToString(asset.nft?.state)
+            })
           )
-          setError(did + `\n\nPublisher Address: ${asset.nft?.owner}`)
+          setError(
+            did + `\n\n${t('verify.publisherAddress')} ${asset.nft?.owner}`
+          )
           LoggerInstance.error(`[asset] Failed getting asset for ${did}`, asset)
           return
         }
@@ -160,13 +161,15 @@ function AssetProvider({
         setAssetState(assetStateToString(asset.nft?.state))
         LoggerInstance.log('[asset] Got asset', asset)
       } catch (err) {
-        setError(did + `\n\n${err?.message || 'Failed getting asset.'}`)
+        setError(did + `\n\n${err?.message || t('verify.failedGettingAsset')}`)
         LoggerInstance.error(`[asset] Failed getting asset for ${did}`, err)
       } finally {
         setLoading(false)
       }
     },
-    [did, accountId]
+    // `t` is in here so the error strings above get re-resolved on a locale
+    // switch rather than sticking to whichever language was active on mount.
+    [did, accountId, t]
   )
 
   // -----------------------------------

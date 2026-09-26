@@ -15,6 +15,7 @@ import contentEn from '../../../content/pages/verify.json'
 import contentJa from '../../../content/pages/verify.ja.json'
 import useLocaleContent from '../../i18n/useLocaleContent'
 import { useAsset } from '@context/Asset'
+import { useTranslation } from 'react-i18next'
 import Alert from '@components/@shared/atoms/Alert'
 
 interface Content {
@@ -33,6 +34,7 @@ export default function VerifyPage({
   didQueryString?: string
 }): ReactElement {
   const router = useRouter()
+  const { t } = useTranslation('common')
   const {
     asset,
     error,
@@ -134,7 +136,11 @@ export default function VerifyPage({
       </form>
       {!isLoading && !isVerifyingServiceCredential && error ? (
         <div className={styles.errorContainer}>
-          <Alert title="Asset unavailable" text={error} state="error" />
+          <Alert
+            title={t('verify.assetUnavailable')}
+            text={error}
+            state="error"
+          />
         </div>
       ) : !isLoading &&
         !isVerifyingServiceCredential &&
@@ -142,8 +148,8 @@ export default function VerifyPage({
         !serviceCredential ? (
         <div className={styles.errorContainer}>
           <Alert
-            title="Service Credential unavailable"
-            text="This asset does not include a Service Credential."
+            title={t('verify.credentialUnavailable')}
+            text={t('verify.credentialUnavailableText')}
             state="error"
           />
         </div>
@@ -154,7 +160,7 @@ export default function VerifyPage({
           <div className={styles.sdContainer}>
             <ServiceCredentialVisualizer
               text={getFormattedCodeString(serviceCredential) || ''}
-              title="Service Credential"
+              title={t('verify.serviceCredential')}
               isValid={isServiceCredentialVerified}
               idMatch={serviceCredentialIdMatch}
               displayBadge

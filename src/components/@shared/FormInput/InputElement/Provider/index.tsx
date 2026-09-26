@@ -18,8 +18,10 @@ import { useCancelToken } from '@hooks/useCancelToken'
 import { useNetwork } from 'wagmi'
 import { ChevronDownIcon } from '@heroicons/react/24/outline'
 import { safeErrorMessage } from '../../../../../@utils/safeError'
+import { useTranslation } from 'react-i18next'
 
 export default function CustomProvider(props: InputProps): ReactElement {
+  const { t } = useTranslation('common')
   const { chain } = useNetwork()
   const newCancelToken = useCancelToken()
   const { initialValues, setFieldError } = useFormikContext<FormPublishData>()
@@ -60,7 +62,7 @@ export default function CustomProvider(props: InputProps): ReactElement {
       if (!isValid) {
         setFieldError(
           `${field.name}.url`,
-          '✗ No valid provider detected. Check your network, your URL and try again.'
+          t('publish.provider.noValidProvider')
         )
         LoggerInstance.error(
           '[Custom Provider]:',
@@ -81,10 +83,7 @@ export default function CustomProvider(props: InputProps): ReactElement {
           : !!(providerChain.length > 0 && providerChain.includes(chainId))
 
       if (!isCompatible) {
-        setFieldError(
-          `${field.name}.url`,
-          '✗ This provider is incompatible with the network your wallet is connected to.'
-        )
+        setFieldError(`${field.name}.url`, t('publish.provider.incompatible'))
         LoggerInstance.error(
           '[Custom Provider]:',
           '✗ Provider incompatible with current network.'
@@ -153,7 +152,7 @@ export default function CustomProvider(props: InputProps): ReactElement {
     return (
       <>
         <UrlInput
-          submitText="Validate"
+          submitText={t('publish.validate')}
           {...props}
           name={`${field.name}.url`}
           isLoading={isLoading}
@@ -165,7 +164,7 @@ export default function CustomProvider(props: InputProps): ReactElement {
           onClick={handleDefault}
           className={styles.default}
         >
-          Use Default Provider
+          {t('publish.provider.useDefault')}
         </Button>
       </>
     )
@@ -176,12 +175,12 @@ export default function CustomProvider(props: InputProps): ReactElement {
   const activeUrl = pendingSelection || field?.value?.url
   const matchedProvider = providers.find((p) => p.url === activeUrl)
   const displayLabel = isCustomMode
-    ? 'Custom'
+    ? t('publish.provider.custom')
     : matchedProvider?.name || providers[0]?.name
 
   const allOptions = [
     ...providers.map((p) => ({ value: p.url, label: p.name })),
-    { value: '__custom__', label: 'Custom' }
+    { value: '__custom__', label: t('publish.provider.custom') }
   ]
 
   const currentValue = isCustomMode
@@ -243,9 +242,9 @@ export default function CustomProvider(props: InputProps): ReactElement {
           }
         >
           {isLoading
-            ? 'Validating provider...'
+            ? t('publish.provider.validating')
             : matchedProvider && field?.value?.valid
-            ? `✓ Connected to ${matchedProvider.name}`
+            ? t('publish.provider.connectedTo', { name: matchedProvider.name })
             : null}
         </p>
       )}
@@ -260,7 +259,7 @@ export default function CustomProvider(props: InputProps): ReactElement {
             />
           ) : (
             <UrlInput
-              submitText="Validate"
+              submitText={t('publish.validate')}
               {...props}
               name={`${field.name}.url`}
               isLoading={isLoading}

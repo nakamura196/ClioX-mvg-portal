@@ -241,6 +241,39 @@
       "saas": "SaaS",
       "download": "ダウンロード",
       "compute": "コンピュート"
+    },
+    "accessToken": "アクセストークン",
+    "priceTitle": "価格",
+    "fees": {
+      "community": "Pontus-X コミュニティ手数料",
+      "marketplace": "マーケットプレイス手数料",
+      "earnings": "手数料差引後の受取額"
+    },
+    "validation": {
+      "required": "必須です",
+      "titleMin": "タイトルは {{min}} 文字以上で入力してください",
+      "descriptionMin": "説明は {{min}} 文字以上で入力してください",
+      "descriptionMax": "説明は {{max}} 文字以内で入力してください",
+      "agreeTerms": "利用規約に同意してください。",
+      "fileMustBeValid": "ファイルが有効である必要があります。",
+      "atLeastOneFile": "ファイルを 1 つ以上指定してください。",
+      "enterValidUrlAddFile": "有効な URL を入力し、ADD FILE を押してください。",
+      "mustBeValidUrl": "有効な URL を入力してください。",
+      "validProviderRequired": "有効なプロバイダが必要です。",
+      "priceMin": "{{min}} 以上の値を入力してください",
+      "priceMax": "{{max}} 以下の値を入力してください",
+      "maxDecimals": "小数点以下は {{max}} 桁までです"
+    },
+    "successfullyPublished": "公開が完了しました",
+    "viewAsset": "資産を見る",
+    "fileConfirmed": "✓ ファイルを確認しました",
+    "provider": {
+      "validating": "プロバイダを検証しています…",
+      "connectedTo": "✓ {{name}} に接続しました",
+      "custom": "カスタム",
+      "useDefault": "既定のプロバイダを使う",
+      "noValidProvider": "✗ 有効なプロバイダが見つかりません。ネットワークと URL を確認して、もう一度お試しください。",
+      "incompatible": "✗ このプロバイダは、ウォレットが接続しているネットワークに対応していません。"
     }
   },
   "profile": {
@@ -278,5 +311,21 @@
     "outOfSyncTitle": "データが同期されていません",
     "outOfSyncMessage": "このネットワークのデータは Ethereum ブロック {{blockGraph}} まで（全 {{blockHead}} 中）しか同期されていません。トランザクションが失敗する可能性があります。しばらくしてから再度お試しください。",
     "genericTitle": "問題が発生しました。"
+  },
+  "verify": {
+    "assetUnavailable": "資産を取得できません",
+    "credentialUnavailable": "サービスクレデンシャルがありません",
+    "credentialUnavailableText": "この資産にはサービスクレデンシャルが含まれていません。",
+    "serviceCredential": "サービスクレデンシャル",
+    "credentialIdMatch": "クレデンシャル ID の一致",
+    "verifying": "サービスクレデンシャルを検証しています",
+    "version": "バージョン:",
+    "lastCheck": "最終確認:",
+    "invalidDid": "この URL は有効な DID ではありません",
+    "notInCache": "この DID に対応する資産がキャッシュに見つかりませんでした。公開した直後の場合は、数秒待ってからページを再読み込みしてください。",
+    "notRetrievable": "この DID は本ポータルでは取得できません。",
+    "failedGettingAsset": "資産の取得に失敗しました。",
+    "publisherAddress": "公開者アドレス:",
+    "assetStateSetBy": "この資産は公開者によって「{{state}}」に設定されています"
   }
 }

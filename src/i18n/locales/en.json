@@ -244,6 +244,39 @@
       "saas": "SaaS",
       "download": "Download",
       "compute": "Compute"
+    },
+    "accessToken": "Access Token",
+    "priceTitle": "Price",
+    "fees": {
+      "community": "Pontus-X Community Fee",
+      "marketplace": "Marketplace Fee",
+      "earnings": "Earnings after fees"
+    },
+    "validation": {
+      "required": "Required",
+      "titleMin": "Title must be at least {{min}} characters",
+      "descriptionMin": "Description must be at least {{min}} characters",
+      "descriptionMax": "Description must have maximum {{max}} characters",
+      "agreeTerms": "Please agree to the Terms and Conditions.",
+      "fileMustBeValid": "File must be valid.",
+      "atLeastOneFile": "At least one file is required.",
+      "enterValidUrlAddFile": "Enter a valid URL and click ADD FILE.",
+      "mustBeValidUrl": "Must be a valid URL.",
+      "validProviderRequired": "Valid Provider is required.",
+      "priceMin": "Must be more or equal to {{min}}",
+      "priceMax": "Must be less than or equal to {{max}}",
+      "maxDecimals": "Must have maximum {{max}} decimal digits"
+    },
+    "successfullyPublished": "Successfully published!",
+    "viewAsset": "View Asset",
+    "fileConfirmed": "✓ File confirmed",
+    "provider": {
+      "validating": "Validating provider...",
+      "connectedTo": "✓ Connected to {{name}}",
+      "custom": "Custom",
+      "useDefault": "Use Default Provider",
+      "noValidProvider": "✗ No valid provider detected. Check your network, your URL and try again.",
+      "incompatible": "✗ This provider is incompatible with the network your wallet is connected to."
     }
   },
   "profile": {
@@ -282,5 +315,21 @@
     "outOfSyncTitle": "Data out of sync",
     "outOfSyncMessage": "The data for this network has only synced to Ethereum block {{blockGraph}} (out of {{blockHead}}). Transactions may fail! Please check back soon.",
     "genericTitle": "Something went wrong."
+  },
+  "verify": {
+    "assetUnavailable": "Asset unavailable",
+    "credentialUnavailable": "Service Credential unavailable",
+    "credentialUnavailableText": "This asset does not include a Service Credential.",
+    "serviceCredential": "Service Credential",
+    "credentialIdMatch": "Credential ID match",
+    "verifying": "Verifying Service Credential",
+    "version": "version:",
+    "lastCheck": "last check:",
+    "invalidDid": "The url is not for a valid DID",
+    "notInCache": "We could not find an asset for this DID in the cache. If you just published a new asset, wait some seconds and refresh this page.",
+    "notRetrievable": "This DID can not be retrieved on this portal.",
+    "failedGettingAsset": "Failed getting asset.",
+    "publisherAddress": "Publisher Address:",
+    "assetStateSetBy": "This asset has been set as \"{{state}}\" by the publisher"
   }
 }
