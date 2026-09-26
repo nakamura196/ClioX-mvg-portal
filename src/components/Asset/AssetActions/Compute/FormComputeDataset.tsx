@@ -9,7 +9,7 @@ import PriceOutput from './PriceOutput'
 import { useAsset } from '@context/Asset'
 import contentEn from '../../../../../content/pages/startComputeDataset.json'
 import contentJa from '../../../../../content/pages/startComputeDataset.ja.json'
-import useLocaleContent from '../../../../i18n/useLocaleContent'
+import { useArchivistContent } from '@context/ArchivistMode'
 import { Asset, ComputeEnvironment, ZERO_ADDRESS } from '@oceanprotocol/lib'
 import { getAccessDetails } from '@utils/accessDetailsAndPricing'
 import { getApprovedTokenBalanceFromSymbol } from '@utils/wallet'
@@ -93,7 +93,11 @@ export default function FormStartCompute({
   retry: boolean
   license: string
 }): ReactElement {
-  const content = useLocaleContent(contentEn, contentJa)
+  const content = useArchivistContent(
+    contentEn,
+    contentJa,
+    'startComputeDataset'
+  )
   const { address: accountId, isConnected } = useAccount()
   const { balance } = useBalance()
   const {

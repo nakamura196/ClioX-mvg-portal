@@ -11,6 +11,7 @@ import Tooltip from '@components/@shared/atoms/Tooltip'
 import { useTranslation } from 'react-i18next'
 import useDateFnsLocale from '../../../../../i18n/useDateFnsLocale'
 import ComputeEnvDetails from './ComputeEnvDetails'
+import { useArchivistMode } from '@context/ArchivistMode'
 
 export default function ComputeEnvSelection({
   computeEnvs,
@@ -24,6 +25,7 @@ export default function ComputeEnvSelection({
 }): JSX.Element {
   const { t } = useTranslation('common')
   const dateFnsLocale = useDateFnsLocale()
+  const { archivistMode } = useArchivistMode()
   const {
     approvedBaseTokens,
     appConfig: { defaultTokenSymbol }
@@ -74,22 +76,28 @@ export default function ComputeEnvSelection({
                     { locale: dateFnsLocale }
                   )}
                 </Dotdotdot>
-                <PriceUnit
-                  price={env.priceMin}
-                  size="small"
-                  className={assetSelectionStyles.price}
-                  symbol={`${
-                    // [local patch] 無償のみの実行環境（fees 未設定）では feeToken が
-                    // 存在せず、toLowerCase() で全体がクラッシュする。既定シンボルに退避する。
-                    (env.feeToken &&
-                      approvedBaseTokens?.find(
-                        (token) =>
-                          token.address?.toLowerCase() ===
-                          env.feeToken.toLowerCase()
-                      )?.symbol) ||
-                    defaultTokenSymbol
-                  }${t('compute.perMinute')}`}
-                />
+                {archivistMode && !(Number(env.priceMin) > 0) ? (
+                  <span className={assetSelectionStyles.price}>
+                    {t('price.free')}
+                  </span>
+                ) : (
+                  <PriceUnit
+                    price={env.priceMin}
+                    size="small"
+                    className={assetSelectionStyles.price}
+                    symbol={`${
+                      // [local patch] 無償のみの実行環境（fees 未設定）では feeToken が
+                      // 存在せず、toLowerCase() で全体がクラッシュする。既定シンボルに退避する。
+                      (env.feeToken &&
+                        approvedBaseTokens?.find(
+                          (token) =>
+                            token.address?.toLowerCase() ===
+                            env.feeToken.toLowerCase()
+                        )?.symbol) ||
+                      defaultTokenSymbol
+                    }${t('compute.perMinute')}`}
+                  />
+                )}
               </label>
             </div>
           ))

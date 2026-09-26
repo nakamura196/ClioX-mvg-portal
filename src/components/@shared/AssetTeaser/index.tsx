@@ -50,7 +50,7 @@ export default function AssetTeaser({
               asset?.metadata?.additionalInformation?.saas ? 'saas' : accessType
             }
           />
-          <span className={styles.typeLabel}>
+          <span className={styles.typeLabel} data-jargon>
             {datatokens[0]?.symbol?.substring(0, 9)}
           </span>
         </aside>
@@ -79,7 +79,7 @@ export default function AssetTeaser({
         <footer className={styles.footer}>
           <div className={styles.stats}>
             {allocated && allocated > 0 ? (
-              <span className={styles.typeLabel}>
+              <span className={styles.typeLabel} data-jargon>
                 {allocated < 0 ? (
                   ''
                 ) : (
@@ -114,10 +114,12 @@ export default function AssetTeaser({
               </span>
             ) : null}
           </div>
-          <NetworkName
-            networkId={asset.chainId}
-            className={styles.networkName}
-          />
+          <span data-jargon>
+            <NetworkName
+              networkId={asset.chainId}
+              className={styles.networkName}
+            />
+          </span>
         </footer>
       </Link>
     </article>

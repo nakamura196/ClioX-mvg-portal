@@ -39,7 +39,7 @@ export default function MetaInfo({
           <Time date={asset?.metadata.created} relative />
           {(verifiedServiceProviderName ||
             (nftPublisher && nftPublisher !== nftOwner)) && (
-            <span className={styles.publisher}>
+            <span className={styles.publisher} data-jargon>
               {` ${t('asset.publishedBy')} `}{' '}
               <Publisher
                 account={nftPublisher}
