@@ -42,7 +42,7 @@ export default function MetaFull({ ddo }: { ddo: Asset }): ReactElement {
   }
 
   return ddo ? (
-    <div className={styles.metaFull}>
+    <div className={styles.metaFull} data-tour="asset-identifiers">
       {!isInPurgatory && (
         <MetaItem
           title={t('asset.dataAuthor')}

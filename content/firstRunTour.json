@@ -1,0 +1,72 @@
+{
+  "launcher": "Guide",
+  "launcherTitle": "Take the 5-minute guided tour",
+  "progress": "{current} / {total}",
+  "next": "Next",
+  "back": "Back",
+  "start": "Start the tour",
+  "notNow": "Not now",
+  "stop": "Stop the tour",
+  "finish": "Finish",
+  "restart": "Start again",
+  "lostTitle": "This part of the page is not showing yet",
+  "lostBody": "It may still be loading, or you may have moved to another page. You can go back to where the tour was, or skip this step.",
+  "goBack": "Return to this step",
+  "skip": "Skip this step",
+  "steps": {
+    "welcome": {
+      "title": "One task, about 5 minutes",
+      "body": "We will look at one real archival dataset — the InterPARES terminology — and see how Clio-X lets someone analyse records without the records ever leaving the archive that holds them.",
+      "safe": "Nothing in this tour spends money, publishes anything or changes any data. You do not need a wallet. While the tour is running, clicks on the page are paused, so nothing can happen by accident. You can stop at any time and come back later."
+    },
+    "catalogue": {
+      "title": "The catalogue is a guide to holdings",
+      "body": "Everything published on Clio-X is listed under Catalogue, much like a repository's guide to its holdings. Each entry describes a dataset or a tool. The records themselves stay with whoever holds them."
+    },
+    "search": {
+      "title": "Search as you would in a catalogue",
+      "body": "Type a title, subject or creator here. When you try it later, “InterPARES” is a good first search. For this tour we will go straight to one entry."
+    },
+    "record": {
+      "title": "One page describes one dataset",
+      "body": "This page works like a file-level description in a finding aid: a title, a scope note, subject terms and who made it. You can read all of it without signing in."
+    },
+    "custody": {
+      "title": "Who holds it",
+      "body": "The box at the top names the organisation that published this dataset — think of it as the custodian. The data creator is recorded separately below, just as creator and custodian are kept apart in archival description."
+    },
+    "identifiers": {
+      "title": "A reference code that never changes",
+      "body": "The DID is a permanent identifier, like a reference code. It points to this description wherever it is cited. “Owner” here is a technical address, not a person's name; the organisation's name is in the box above.",
+      "safe": "Long strings of letters and numbers like these are labels, not passwords. It is safe to copy and share them."
+    },
+    "access": {
+      "title": "The records do not leave",
+      "body": "This dataset is marked “Compute”, so it cannot be downloaded. Instead, you send an approved analysis to the data and only the results come back. Think of a reading room where the files stay on the table and you leave with your notes."
+    },
+    "environment": {
+      "title": "Choose the room where the work happens",
+      "body": "These are the computers where an analysis could run. Each one lists its limits — the kind of processor and the maximum running time — and its price per minute. In this example every room costs 0."
+    },
+    "algorithm": {
+      "title": "Choose the question you bring",
+      "body": "An algorithm is a packaged analysis — for example, counting terms or reading text from page images. Only analyses the holder has approved can be chosen here. If the list is empty, none has been approved for this dataset yet; that is the holder's decision, not an error."
+    },
+    "startJob": {
+      "title": "The only step that needs a wallet",
+      "body": "Starting a job records an agreement on the blockchain, a bit like signing the reading-room register. That is why this button needs a wallet and why the terms must be accepted first. Even for free datasets a very small network fee may apply.",
+      "safe": "The tour stops here. Nothing has been started."
+    },
+    "wallet": {
+      "title": "Your reader's card",
+      "body": "“Connect Wallet” is where you would sign in when you are ready to run a job. You can browse, search and read every description without it."
+    },
+    "finish": {
+      "title": "That is the whole task",
+      "body": "You found a dataset, read its description, saw who holds it and how an analysis would reach it without the records leaving. The only step that needs a wallet is the last one.",
+      "linksHeading": "Where to go next",
+      "glossaryLink": "InterPARES Trust AI terminology",
+      "restartNote": "You can open this tour again from “Guide” at the top of every page."
+    }
+  }
+}

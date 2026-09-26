@@ -12,7 +12,7 @@ export default function Wallet(): ReactElement {
   return (
     // hide MetaMask login button, but show address when connected via json wallet
     (hideMetaMaskLogin !== 'true' || accountId) && (
-      <div className={styles.wallet}>
+      <div className={styles.wallet} data-tour="wallet">
         <Tooltip
           content={<Details />}
           trigger="click focus mouseenter"
