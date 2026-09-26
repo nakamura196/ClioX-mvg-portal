@@ -1,0 +1,10 @@
+# Ingress for the Cloudflare Tunnel (the `cloudflared` service).
+# The tunnel is created with the cloudflared CLI (scripts/setup-tunnel.zsh), so
+# its routing lives here rather than in the dashboard. Change the hostnames to
+# your own zone. The graph-node admin port (8020) is deliberately not exposed.
+ingress:
+  - hostname: cliox-node.ldas.jp
+    service: http://ocean-node:8001
+  - hostname: cliox-subgraph.ldas.jp
+    service: http://graph-node:8000
+  - service: http_status:404

@@ -1,0 +1,51 @@
+diff --git a/src/mappings/utils/tokenUtils.ts b/src/mappings/utils/tokenUtils.ts
+index aa02390..1981dac 100644
+--- a/src/mappings/utils/tokenUtils.ts
++++ b/src/mappings/utils/tokenUtils.ts
+@@ -8,6 +8,8 @@ import {
+ } from '../../@types/schema'
+ import { ERC20 } from '../../@types/templates/ERC20Template/ERC20'
+ import { ERC721Template } from '../../@types/templates'
++import { ERC20Template } from '../../@types/templates/ERC20Template/ERC20Template'
++import { ERC721Template as ERC721TemplateContract } from '../../@types/templates/ERC721Template/ERC721Template'
+ import { addNft } from './globalUtils'
+ import { ZERO_ADDRESS } from './constants'
+ 
+@@ -114,11 +116,26 @@ export function getUSDValue(
+   return BigDecimal.zero()
+ }
+ 
++// Local change: keep templateId correct when startBlock is truncated.
++//
++// Erc721Template / Erc20Template entities are only created by the
++// Template721Added / Template20Added events emitted right after the Ocean
++// contracts were deployed. If startBlock is moved close to our own publishes,
++// load() returns null and templateId is stored as 0. The portal branches on
++// this value (order() returns undefined unless templateId is 1 or 2), so
++// neither buying nor compute can start.
++//
++// Template contracts expose getId(), which can be read at any time, so fall
++// back to asking the chain when the registration event was missed.
+ export function getErc721TemplateId(address: Address): BigInt {
+   const template = Erc721Template.load(address.toHexString())
+   if (template) {
+     return template.templateId
+   }
++  const onChain = ERC721TemplateContract.bind(address).try_getId()
++  if (!onChain.reverted) {
++    return BigInt.fromI32(onChain.value)
++  }
+   return BigInt.zero()
+ }
+ 
+@@ -127,6 +144,10 @@ export function getErc20TemplateId(address: Address): BigInt {
+   if (template) {
+     return template.templateId
+   }
++  const onChain = ERC20Template.bind(address).try_getId()
++  if (!onChain.reverted) {
++    return BigInt.fromI32(onChain.value)
++  }
+   return BigInt.zero()
+ }
+ 
