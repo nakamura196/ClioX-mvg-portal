@@ -1,0 +1,384 @@
+{
+  "status": "Draft prototype text written for the Clio-X project. Not yet reviewed by the Clio-X team.",
+  "entries": [
+    {
+      "id": "start",
+      "question": "I am an archivist, not a technologist. Where do I start?",
+      "keywords": [
+        "start",
+        "begin",
+        "beginner",
+        "first",
+        "new",
+        "not technical",
+        "no IT",
+        "afraid",
+        "scared",
+        "nervous",
+        "overwhelmed",
+        "where"
+      ],
+      "answer": "Start by looking. Open the catalogue, search for a subject you know, and read one asset page from top to bottom. None of that needs a wallet, and none of it changes anything.\n\nMost of the vocabulary describes things archives already do: registering an item, describing it, setting access conditions and keeping a record of who used it. When a word is unfamiliar, ask about it here.",
+      "related": ["break", "wallet-needed", "what-is-asset"],
+      "interpares": []
+    },
+    {
+      "id": "break",
+      "question": "Can I break something by clicking around?",
+      "keywords": [
+        "break",
+        "damage",
+        "mistake",
+        "wrong",
+        "click",
+        "accident",
+        "undo",
+        "harm",
+        "safe",
+        "risk"
+      ],
+      "answer": "No. Browsing, searching and reading asset pages are read-only.\n\nThe only actions that change anything are the ones that write to the shared ledger: publishing, editing a description, obtaining access and starting a compute job. Every one of them first opens a confirmation window in your wallet, and you can press **Reject**. Rejecting costs nothing.",
+      "related": ["wallet-needed", "what-is-transaction", "cost"],
+      "interpares": []
+    },
+    {
+      "id": "wallet-needed",
+      "question": "Do I need a wallet? What happens when I press Connect Wallet?",
+      "keywords": [
+        "wallet",
+        "connect",
+        "metamask",
+        "account",
+        "login",
+        "sign in",
+        "address",
+        "need"
+      ],
+      "answer": "You need a wallet only to publish, to obtain access or to run a compute job. You do not need one to browse.\n\nConnecting a wallet tells the site your account address and nothing more. It does not move money and does not sign anything. Think of it as showing your reader's card at the desk; each request you make afterwards still needs its own signature.\n\nOne rule matters above all: never type your wallet's recovery phrase into a website. Anyone who learns it becomes you, and no one can reissue it.",
+      "related": ["break", "cost", "who-sees"],
+      "interpares": ["wallet"]
+    },
+    {
+      "id": "cost",
+      "question": "Does it cost money?",
+      "keywords": [
+        "cost",
+        "money",
+        "pay",
+        "price",
+        "fee",
+        "gas",
+        "expensive",
+        "free",
+        "buy",
+        "cryptocurrency",
+        "euro"
+      ],
+      "answer": "Browsing is free. Actions that write to the ledger may carry a small network fee, and some assets may set a price, which is shown before you confirm. Many datatokens are free.\n\nTest networks such as Sepolia work the same way, but their tokens have no monetary value. That makes a test network the right place to practise.",
+      "related": ["crypto", "what-is-network", "what-is-datatoken"],
+      "interpares": []
+    },
+    {
+      "id": "crypto",
+      "question": "Is this cryptocurrency? I do not want to be involved in speculation.",
+      "keywords": [
+        "crypto",
+        "cryptocurrency",
+        "bitcoin",
+        "speculation",
+        "investment",
+        "nft",
+        "token",
+        "web3",
+        "blockchain",
+        "ethical"
+      ],
+      "answer": "Clio-X uses the same kind of technology as cryptocurrencies, but for a different purpose: keeping a shared register of what was published, how it was described and who was given access.\n\nThe tokens you meet on Clio-X are access tickets for particular assets, not investments. You do not need to buy or hold cryptocurrency to browse.",
+      "related": ["what-is-blockchain", "what-is-datatoken", "cost"],
+      "interpares": ["blockchain", "cryptocurrency"]
+    },
+    {
+      "id": "what-is-blockchain",
+      "question": "What is a blockchain, in archival terms?",
+      "keywords": [
+        "blockchain",
+        "ledger",
+        "chain",
+        "register",
+        "distributed",
+        "immutable",
+        "on-chain"
+      ],
+      "answer": "A register kept in many copies at once, by many parties who check each new entry before accepting it. Old entries cannot be changed quietly.\n\nThe comparison with a register has one important limit: a blockchain shows that an entry was made and has not been altered since. It cannot show that what was entered was true. Assessing that remains the archivist's work.",
+      "related": ["authenticity", "what-is-transaction", "crypto"],
+      "interpares": ["blockchain", "integrity"]
+    },
+    {
+      "id": "authenticity",
+      "question": "Does the blockchain make a record authentic?",
+      "keywords": [
+        "authentic",
+        "authenticity",
+        "trust",
+        "trustworthy",
+        "reliable",
+        "reliability",
+        "integrity",
+        "tamper",
+        "proof",
+        "evidence",
+        "verify"
+      ],
+      "answer": "Not by itself. The ledger can show that a description or a file fingerprint has not changed since a certain date, and who registered it. That supports integrity and gives part of the provenance.\n\nIt does not establish that the record is what it claims to be, or that the description is accurate. Those judgements still rest on archival method.",
+      "related": ["what-is-blockchain", "what-is-history", "who-owns"],
+      "interpares": ["authenticity", "integrity", "provenance"]
+    },
+    {
+      "id": "what-is-asset",
+      "question": "What is an \"asset\"?",
+      "keywords": [
+        "asset",
+        "dataset",
+        "item",
+        "catalogue",
+        "catalog",
+        "entry",
+        "description",
+        "published",
+        "unit"
+      ],
+      "answer": "Anything published in the Clio-X catalogue: a dataset, an algorithm or a service. It is closest to a described unit in a finding aid, together with its access conditions.\n\nThe description is public. The files stay with the publisher. The word comes from finance, but on Clio-X it says nothing about value or ownership of the content.",
+      "related": ["what-is-did", "who-owns", "leave-institution"],
+      "interpares": ["record", "metadata"]
+    },
+    {
+      "id": "what-is-did",
+      "question": "What is a DID? Is it like a reference code?",
+      "keywords": [
+        "did",
+        "identifier",
+        "reference",
+        "code",
+        "pid",
+        "persistent",
+        "doi",
+        "ark",
+        "cite",
+        "citation",
+        "did:op"
+      ],
+      "answer": "Yes, close to that. A DID (Decentralized Identifier) is the permanent identifier of an asset. On Clio-X it looks like `did:op:` followed by a long string, and it never changes after publication, so citations can rely on it.\n\nUnlike an ARK or a DOI, no agency assigns it. It is calculated from the network and the asset's registration, so there is no registrar to contact if something goes wrong.",
+      "related": ["what-is-asset", "what-is-history"],
+      "interpares": ["identifier"]
+    },
+    {
+      "id": "who-owns",
+      "question": "What does \"Owner\" mean on an asset page?",
+      "keywords": [
+        "owner",
+        "owned",
+        "custodian",
+        "custody",
+        "creator",
+        "author",
+        "data author",
+        "publisher",
+        "control"
+      ],
+      "answer": "The owner is the account that controls the asset's description and access rules. It is closer to the custodian than to the creator.\n\n\"Data Author\" is a separate field. It is simply the name the publisher typed in, and is nearer to the creator in a provenance statement. Control belongs to whoever holds the account, not automatically to an institution.",
+      "related": ["what-is-history", "authenticity"],
+      "interpares": ["provenance", "chain-of-custody"]
+    },
+    {
+      "id": "leave-institution",
+      "question": "If I publish on Clio-X, do my records leave my institution?",
+      "keywords": [
+        "publish",
+        "files",
+        "upload",
+        "leave",
+        "institution",
+        "repository",
+        "storage",
+        "host",
+        "server",
+        "copy",
+        "where"
+      ],
+      "answer": "No. What is published is a description and the conditions for using the item. The files themselves stay on storage the publisher controls.\n\nWith Compute-to-Data, a user can even analyse a dataset without receiving it: the analysis runs on the publisher's side and only the results are released.",
+      "related": ["what-is-c2d", "personal-data", "delete"],
+      "interpares": ["access", "preservation"]
+    },
+    {
+      "id": "what-is-c2d",
+      "question": "What is Compute-to-Data?",
+      "keywords": [
+        "compute",
+        "compute-to-data",
+        "c2d",
+        "analysis",
+        "algorithm",
+        "job",
+        "restricted",
+        "closed",
+        "mediated",
+        "privacy",
+        "run",
+        "analyse",
+        "analyze",
+        "without",
+        "receiving"
+      ],
+      "answer": "Running an analysis where the data lives, so that only results leave. You choose an approved algorithm and a dataset; the analysis runs on the publisher's side; you receive output files, not the dataset.\n\nIt resembles mediated access to closed records, where an archivist consults the file for you and releases an approved extract. The difference is that the mediator is a program. It applies no judgement beyond the publisher's advance decision about which algorithms may run.",
+      "related": ["leave-institution", "personal-data", "carbon"],
+      "interpares": ["access", "cloud-computing"]
+    },
+    {
+      "id": "what-is-datatoken",
+      "question": "What is a datatoken?",
+      "keywords": [
+        "datatoken",
+        "token",
+        "ticket",
+        "access",
+        "order",
+        "buy",
+        "request",
+        "slip"
+      ],
+      "answer": "The access ticket for one asset. To download or compute on an asset, your wallet obtains one of its datatokens, often free, and hands it in. The handover is recorded as proof that access was granted.\n\nIt resembles a reading-room request slip. Unlike a slip, it can be passed to another account before use, and every issue and handover is publicly recorded.",
+      "related": ["who-sees", "cost"],
+      "interpares": ["access"]
+    },
+    {
+      "id": "what-is-transaction",
+      "question": "What is a transaction?",
+      "keywords": [
+        "transaction",
+        "sign",
+        "signature",
+        "confirm",
+        "entry",
+        "receipt",
+        "tx",
+        "hash"
+      ],
+      "answer": "A signed entry written permanently into the ledger. Publishing, editing a description, obtaining access and starting a compute job are all transactions.\n\nIt resembles a signed entry in an accession or loans register, with a receipt number anyone can look up. An entry cannot be erased or corrected in place: a mistake is fixed by writing a new entry, and both remain visible.",
+      "related": ["delete", "break"],
+      "interpares": ["transaction"]
+    },
+    {
+      "id": "what-is-history",
+      "question": "What is \"Metadata History\"?",
+      "keywords": [
+        "history",
+        "metadata",
+        "version",
+        "edit",
+        "change",
+        "audit",
+        "trail",
+        "log",
+        "update"
+      ],
+      "answer": "Every published version of an asset's description, with dates. Each edit is written as a new transaction, so anyone can see what changed and when.\n\nIt works like an audit trail, or the chain of custody of the description itself. It records that the description changed, not why; any explanation has to be written into the description.",
+      "related": ["authenticity", "delete"],
+      "interpares": ["chain-of-custody", "metadata"]
+    },
+    {
+      "id": "delete",
+      "question": "Can I delete or correct something I published?",
+      "keywords": [
+        "delete",
+        "remove",
+        "correct",
+        "fix",
+        "withdraw",
+        "retract",
+        "erase",
+        "undo",
+        "mistake",
+        "revoke",
+        "deprecate"
+      ],
+      "answer": "You can correct a description by editing it, and you can change an asset's state, for example to deprecated or revoked, so that it can no longer be used. Because the files stay on your own storage, you can also stop serving them.\n\nWhat you cannot do is erase the ledger's record. Earlier versions of the description and the fact that the asset was published remain visible. This is why personal or sensitive information should never go into a description.",
+      "related": ["personal-data", "what-is-history", "what-is-transaction"],
+      "interpares": []
+    },
+    {
+      "id": "personal-data",
+      "question": "What must I never put into a description?",
+      "keywords": [
+        "personal",
+        "privacy",
+        "sensitive",
+        "gdpr",
+        "confidential",
+        "name",
+        "private",
+        "restricted",
+        "never",
+        "public"
+      ],
+      "answer": "Anything you might need to withdraw later: personal information, restricted details, internal notes. Descriptions are public and their earlier versions cannot be erased.\n\nIf a dataset itself contains personal or restricted information, keep it out of public download. Compute-to-Data lets others analyse such a dataset without receiving the files.",
+      "related": ["delete", "what-is-c2d"],
+      "interpares": []
+    },
+    {
+      "id": "who-sees",
+      "question": "Can other people see what I accessed?",
+      "keywords": [
+        "see",
+        "visible",
+        "public",
+        "track",
+        "privacy",
+        "anonymous",
+        "who",
+        "record",
+        "log",
+        "order"
+      ],
+      "answer": "Yes, to a degree. When a datatoken is handed in, the ledger records it together with the account address. Anyone can look that up.\n\nThe address is a string of characters, not your name. But if the address has been linked to you anywhere, for example because you published under your own name with it, others can connect the two.",
+      "related": ["what-is-datatoken", "wallet-needed"],
+      "interpares": []
+    },
+    {
+      "id": "what-is-network",
+      "question": "What are Pontus-X and Sepolia?",
+      "keywords": [
+        "network",
+        "pontus-x",
+        "pontus",
+        "sepolia",
+        "testnet",
+        "test",
+        "chain",
+        "gaia-x",
+        "switch"
+      ],
+      "answer": "They are networks: which shared ledger the site reads from and writes to. Clio-X runs on Pontus-X, a network operated for the Gaia-X data-space community. Sepolia is a public test network whose tokens have no monetary value.\n\nRegisters on different networks do not see each other. An asset published on a test network does not exist on Pontus-X.",
+      "related": ["cost", "break"],
+      "interpares": []
+    },
+    {
+      "id": "carbon",
+      "question": "Why does Clio-X talk about energy and carbon?",
+      "keywords": [
+        "carbon",
+        "energy",
+        "sustainability",
+        "environment",
+        "footprint",
+        "co2",
+        "emissions",
+        "power",
+        "green",
+        "climate"
+      ],
+      "answer": "Running analyses uses electricity, and the carbon cost depends heavily on where the computer is. Clio-X is working on showing an estimate before a compute job starts, so that the choice of environment becomes a documented decision.\n\nSuch figures are planning estimates, not measurements. Where a value is unknown it should be shown as unknown, not as zero.",
+      "related": ["what-is-c2d"],
+      "interpares": []
+    }
+  ]
+}
