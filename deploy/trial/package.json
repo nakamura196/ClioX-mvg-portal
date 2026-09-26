@@ -1,0 +1,8 @@
+{
+  "name": "cliox-sepolia-trial",
+  "private": true,
+  "description": "Publish the Clio-X sample assets and run a free compute job with the official Ocean CLI",
+  "dependencies": {
+    "@oceanprotocol/cli": "2.1.0"
+  }
+}
