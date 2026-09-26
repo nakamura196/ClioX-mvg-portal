@@ -13,6 +13,21 @@ module.exports = {
   metadataCacheUri:
     process.env.NEXT_PUBLIC_METADATACACHE_URI || 'https://aquarius.pontus-x.eu',
 
+  // [local patch] Whether metadataCacheUri is an Ocean Node (Typesense) rather
+  // than an Aquarius (Elasticsearch). Ocean Node drops term/terms filters and
+  // `_index`, so queries are sent unfiltered and the filters are applied here.
+  // Set NEXT_PUBLIC_METADATACACHE_OCEAN_NODE=true|false to force it; otherwise
+  // any host without "aquarius" in its name (localhost, cliox-node.ldas.jp) is
+  // treated as an Ocean Node. Until 2026-09-26 only localhost was, so the
+  // hosted trial showed "0 results".
+  metadataCacheIsOceanNode:
+    process.env.NEXT_PUBLIC_METADATACACHE_OCEAN_NODE !== undefined
+      ? process.env.NEXT_PUBLIC_METADATACACHE_OCEAN_NODE === 'true'
+      : !(
+          process.env.NEXT_PUBLIC_METADATACACHE_URI ||
+          'https://aquarius.pontus-x.eu'
+        ).includes('aquarius'),
+
   complianceUri:
     process.env.NEXT_PUBLIC_COMPLIANCE_URI ||
     'https://www.delta-dao.com/compliance',

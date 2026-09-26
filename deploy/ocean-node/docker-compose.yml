@@ -86,6 +86,20 @@ services:
       - node-sqlite:/usr/src/app/databases
     networks: [cliox]
     depends_on: [typesense]
+    # Wait for typesense before starting. The node creates its collections
+    # (indexer, op_ddo_*) only when a lookup answers 404; if typesense is still
+    # starting, the lookup fails some other way, creation is skipped, and the
+    # indexer restarts from startBlock every ~90 s without ever saving its
+    # position (seen 2026-09-26: search 500, portal "0 results").
+    # The typesense image has no curl/wget, so the check runs here instead of
+    # as a healthcheck there. Gives up after 2 minutes; Docker then restarts.
+    # The exec line is the image's own CMD, unchanged.
+    command:
+      - sh
+      - -c
+      - |
+        node -e 'const u=process.env.DB_URL.split("?")[0]+"health";(async()=>{for(let i=0;i<60;i++){try{if((await fetch(u)).ok)process.exit(0)}catch{}await new Promise(r=>setTimeout(r,2000))}console.error("typesense not ready after 120 s");process.exit(1)})()' || exit 1
+        exec node --import ./dist/telemetry/otel.js --max-old-space-size=28784 --trace-warnings --experimental-specifier-resolution=node dist/index.js
 
   typesense:
     image: typesense/typesense:26.0

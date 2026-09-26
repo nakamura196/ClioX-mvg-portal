@@ -143,6 +143,25 @@ from the Ocean deployment block (3,722,802) takes days on free RPCs. Starting at
 **Hostnames with two levels (`a.b.example.org`) get no certificate** on
 Cloudflare's free Universal SSL. Use one level below the zone.
 
+**The node must start after Typesense is ready.** The node creates its
+collections (`indexer`, `op_ddo_*`) only when a lookup answers "not found". If
+Typesense is still starting, the lookup fails in another way and nothing is
+created. The indexer then cannot save its position and starts again from
+`startBlock` every ~90 seconds; search answers 500 and the portal shows
+"0 results". The log says `Error updating last indexed block ... Not Found`.
+The compose file now waits for Typesense's `/health` before starting the node.
+If you see this on an older setup, restart only the node:
+`docker compose restart ocean-node`.
+
+**Assets published through another node cannot be moved to yours.** When the
+indexer meets an encrypted asset, it asks the node recorded on chain at publish
+time (a URL) to decrypt it. It never tries its own key, even if the key is the
+same. If that node is gone, the asset is never indexed, and its
+`serviceEndpoint` still points at the old node, so orders and compute jobs
+would fail anyway. Publish the assets again through the new node. Each dead
+URL also costs the indexer about 20 seconds of time-outs per event while it
+catches up.
+
 ## 5. Public endpoints (Cloudflare Tunnel)
 
 The VM opens no inbound port besides SSH. `cloudflared` dials out to
@@ -180,6 +199,10 @@ On Vercel (Hobby plan):
 3. Environment variable `NEXT_PUBLIC_METADATACACHE_URI` = the node URL. The
    catalogue search reads it before `chains.config.js`, and its default is
    the Pontus-X catalogue.
+   The portal treats any URL without "aquarius" in it as an Ocean Node and
+   applies the search filters itself, because Ocean Node answers an empty list
+   to Elasticsearch `term`/`terms` filters. Set
+   `NEXT_PUBLIC_METADATACACHE_OCEAN_NODE=true` or `false` to override.
 4. Leave Vercel Authentication (Deployment Protection) on while the site is
    not meant to be public. Only members of the Vercel account can open it.
    On the Hobby plan it does **not** cover the production domain

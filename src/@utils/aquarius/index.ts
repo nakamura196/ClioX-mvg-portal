@@ -2,7 +2,11 @@ import { Asset, LoggerInstance } from '@oceanprotocol/lib'
 import { AssetSelectionAsset } from '@shared/FormInput/InputElement/AssetSelection'
 import axios, { CancelToken, AxiosResponse } from 'axios'
 import { OrdersData_orders as OrdersData } from '../../@types/subgraph/OrdersData'
-import { metadataCacheUri, allowDynamicPricing } from '../../../app.config'
+import {
+  metadataCacheUri,
+  metadataCacheIsOceanNode,
+  allowDynamicPricing
+} from '../../../app.config'
 import {
   FilterByTypeOptions,
   SortDirectionOptions,
@@ -143,7 +147,7 @@ export function generateBaseQuery(
           // [local patch] `_index` は Elasticsearch 固有のフィルタ。Ocean Node は
           // Typesense で `op_ddo_v<DDOのversion>` というコレクションに分けて持つため、
           // 'v510' で絞ると常に 0 件になる。Ocean Node 構成では外す。
-          ...(metadataCacheUri.includes('localhost')
+          ...(metadataCacheIsOceanNode
             ? []
             : [
                 getFilterTerm(
@@ -345,12 +349,21 @@ export function transformQueryResult(
  * 全件取得したうえでここで同じ条件を適用する。対応するのはポータルが実際に使う
  * 範囲（term / terms / match / bool の filter・must・should・must_not）に限る。
  */
-function esFieldValue(asset: any, field: string): any {
+function esFieldValues(asset: any, field: string): any[] {
   // 'metadata.type' のようなドット記法をたどる。'_id' は DID を指す。
-  if (field === '_id' || field === 'id') return asset?.id
-  return field
-    .split('.')
-    .reduce((o: any, k: string) => (o == null ? o : o[k]), asset)
+  // Elasticsearch と同じく、途中に配列があれば全要素をたどり、値を平らに集める
+  // （'services.type' は services[] のどれか 1 つが一致すればよい）。
+  // 'metadata.tags.keyword' の '.keyword' は ES の索引の種類なので外す。
+  if (field === '_id' || field === 'id') return [asset?.id]
+  const keys = field.replace(/\.keyword$/, '').split('.')
+  let values: any[] = [asset]
+  for (const k of keys) {
+    values = values
+      .flatMap((o) => (Array.isArray(o) ? o : [o]))
+      .map((o) => (o == null ? undefined : o[k]))
+      .filter((v) => v != null)
+  }
+  return values.flatMap((v) => (Array.isArray(v) ? v : [v]))
 }
 
 function esClauseMatches(asset: any, clause: any): boolean {
@@ -383,7 +396,7 @@ function esClauseMatches(asset: any, clause: any): boolean {
     if (clause[kind]) {
       const [field, raw] = Object.entries(clause[kind])[0] as [string, any]
       const want = raw?.value ?? raw?.query ?? raw
-      return cmp(esFieldValue(asset, field), want)
+      return esFieldValues(asset, field).some((v) => cmp(v, want))
     }
   }
   if (clause.terms) {
@@ -391,11 +404,11 @@ function esClauseMatches(asset: any, clause: any): boolean {
     const list = Array.isArray(raw) ? raw : [raw]
     // terms が空 = 条件なし（絞り込まない）
     if (list.length === 0) return true
-    const v = esFieldValue(asset, field)
-    return list.some((w) => cmp(v, w))
+    const values = esFieldValues(asset, field)
+    return values.some((v) => list.some((w) => cmp(v, w)))
   }
   if (clause.exists?.field) {
-    return esFieldValue(asset, clause.exists.field) != null
+    return esFieldValues(asset, clause.exists.field).length > 0
   }
   // 未対応の節（range / query_string 等）は素通しにする。
   // 落として全件消すより、多めに返して表示側で弾く方が安全。
@@ -419,7 +432,7 @@ export async function queryMetadata(
     // 【重要】ここで chainId だけしか適用しないと、「このデータセットが信頼する
     // アルゴリズム一覧」のような問い合わせまで全件返ってしまい、アルゴリズムの
     // 選択欄にデータセットが並ぶ（実際に踏んだ）。落とした条件は必ず手元で戻すこと。
-    const isLocalNode = metadataCacheUri.includes('localhost')
+    const isLocalNode = metadataCacheIsOceanNode
 
     const response: AxiosResponse<SearchResponse> = await axios.post(
       `${metadataCacheUri}/api/aquarius/assets/metadata/query`,
@@ -776,7 +789,7 @@ export async function getTagsList(
   cancelToken: CancelToken
 ): Promise<string[]> {
   // 集計に頼れないローカル構成では、件数 0 だと手元で集めるものが無くなる。
-  const isLocalNode = metadataCacheUri.includes('localhost')
+  const isLocalNode = metadataCacheIsOceanNode
   const baseQueryParams = {
     chainIds,
     esPaginationOptions: { from: 0, size: isLocalNode ? 1000 : 0 }
