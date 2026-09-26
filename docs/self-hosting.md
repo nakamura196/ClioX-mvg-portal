@@ -161,6 +161,9 @@ same. If that node is gone, the asset is never indexed, and its
 would fail anyway. Publish the assets again through the new node. Each dead
 URL also costs the indexer about 20 seconds of time-outs per event while it
 catches up.
+Publish under a hostname you control (not an IP address), so a replacement
+node with the same key can take over. For archivists, the same point is
+explained in [for-archivists/when-a-node-closes.md](for-archivists/when-a-node-closes.md).
 
 ## 5. Public endpoints (Cloudflare Tunnel)
 
