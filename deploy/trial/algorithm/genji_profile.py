@@ -5,16 +5,20 @@ A Compute-to-Data example for the Clio-X trial: the 54 TEI files stay on the
 node; only this per-chapter summary is returned.
 
 Inside the job container (Ocean Node):
-  /data/inputs/<did>/<n>   the dataset files (n = 0, 1, ... in the order of the asset)
+  /data/inputs/...         the dataset file(s): TEI files, or a .tar.gz / .zip of them
+                           (Ocean Node 4.2 hands a job only the first file of each
+                           asset, so the 54 chapters are published as one archive)
   /data/outputs/           whatever is written here is returned to the requester
 Standard library only, so any python image works.
 """
 import csv
 import json
 import os
+import tarfile
 import xml.etree.ElementTree as ET
 from collections import Counter
-from pathlib import Path
+import zipfile
+from pathlib import Path, PurePosixPath
 
 INPUTS = Path("/data/inputs")
 OUTPUTS = Path("/data/outputs")
@@ -24,8 +28,8 @@ TEI = "{http://www.tei-c.org/ns/1.0}"
 SKIP = set("〱〲ゝゞ々・、。「」 \t\r\n")
 
 
-def profile(path: Path) -> dict:
-    root = ET.parse(path).getroot()
+def profile(name: str, data: bytes) -> dict:
+    root = ET.fromstring(data)
     titles = root.findall(f"{TEI}teiHeader/{TEI}fileDesc/{TEI}titleStmt/{TEI}title")
     title = next((t.text for t in titles if t.get("type") is None), "")
     alt = next((t.text for t in titles if t.get("type") == "alt"), "")
@@ -34,7 +38,7 @@ def profile(path: Path) -> dict:
     chars = Counter(c for line in lines for c in line if c not in SKIP)
     pages = [pb.get("n") for pb in body.iter(f"{TEI}pb")]
     return {
-        "file": str(path.relative_to(INPUTS)),
+        "file": name,
         "title": title,
         "title_alt": alt,
         "pages": len(pages),
@@ -46,18 +50,35 @@ def profile(path: Path) -> dict:
     }
 
 
-def order(path: Path):
-    return (str(path.parent), int(path.name) if path.name.isdigit() else path.name)
+def tei_files():
+    """Yield (name, bytes) for every XML file, opening archives as needed."""
+    for path in sorted(p for p in INPUTS.rglob("*") if p.is_file()):
+        rel = str(path.relative_to(INPUTS))
+        if path.name == "algoCustomData.json":
+            continue
+        if tarfile.is_tarfile(path):
+            with tarfile.open(path) as tar:
+                for m in tar.getmembers():
+                    if m.isfile() and m.name.endswith(".xml"):
+                        yield f"{rel}!{m.name}", tar.extractfile(m).read()
+        elif zipfile.is_zipfile(path):
+            with zipfile.ZipFile(path) as z:
+                for n in z.namelist():
+                    if n.endswith(".xml"):
+                        yield f"{rel}!{n}", z.read(n)
+        else:
+            yield rel, path.read_bytes()
+
+
+def order(item):
+    stem = PurePosixPath(item[0].split("!")[-1]).stem
+    return (int(stem) if stem.isdigit() else 10**6, item[0])
 
 
 def main() -> None:
-    files = sorted(
-        (p for p in INPUTS.rglob("*") if p.is_file() and p.name != "algoCustomData.json"),
-        key=order,
-    )
-    chapters = [profile(p) for p in files]
+    chapters = [profile(name, data) for name, data in sorted(tei_files(), key=order)]
     result = {
-        "algorithm": "genji_profile 1.0 (Clio-X trial)",
+        "algorithm": "genji_profile 1.1 (Clio-X trial)",
         "datasets": json.loads(os.environ.get("DIDS", "[]") or "[]"),
         "totals": {
             "chapters": len(chapters),
