@@ -23,6 +23,7 @@ import { UseCasesProvider } from '../@context/UseCases'
 import { Analytics } from '@vercel/analytics/react'
 import Script from 'next/script'
 import { plausibleDataDomain } from 'app.config'
+import '@utils/oceanNodeEndpoints'
 
 function MyApp({ Component, pageProps }: AppProps): ReactElement {
   Decimal.set({ rounding: 1 })
