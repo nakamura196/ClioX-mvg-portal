@@ -12,6 +12,10 @@ independent of the Pontus-X network and its membership. It has three parts:
 Everything on the VM runs in Docker. The files are in
 [`deploy/ocean-node/`](../deploy/ocean-node/).
 
+The HTTP and GraphQL calls Clio-X makes against the node and the subgraph are
+described in [`api/cliox-sepolia.openapi.yaml`](api/cliox-sepolia.openapi.yaml)
+(OpenAPI 3.1, with examples from the first trial run).
+
 > Status (2026-09-26): all steps are done on an mdx VM (University of
 > Tokyo, Ubuntu 24.04, 6 vCPU / 8.8 GiB / 99 GB) and Vercel.
 

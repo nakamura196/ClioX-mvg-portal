@@ -1,0 +1,1358 @@
+openapi: 3.1.0
+info:
+  title: Clio-X Sepolia trial — node and subgraph API (the part Clio-X uses)
+  version: '2026-09-26'
+  summary: HTTP calls that the Clio-X portal and the Ocean CLI make against the self-hosted Sepolia trial.
+  description: |
+    This is **not** the full Ocean Node API. It lists only the calls that Clio-X
+    actually makes on the Sepolia trial, as found in the portal source
+    (`src/@utils/aquarius/index.ts`, `src/@utils/oceanNodeAuth.ts`,
+    `src/@utils/freeCompute.ts`, ocean.js 3.1.3 `ProviderInstance`) and in the
+    official CLI pinned by `deploy/trial` (`@oceanprotocol/cli` 2.1.0, ocean.js 9.2.1).
+    Parameters and responses were checked against the Ocean Node 4.2.0 route
+    handlers running on the trial VM and against live requests on 2026-09-26.
+    Examples use the first real trial run recorded in `deploy/trial/README.md`.
+
+    ## Two servers
+
+    | Server | What it is |
+    |---|---|
+    | `https://cliox-node.ldas.jp` | Ocean Node 4.2.0: provider (encrypt, download, compute) and the metadata cache (the old Aquarius API, backed by Typesense) |
+    | `https://cliox-subgraph.ldas.jp` | graph-node v0.45.0 serving the Ocean subgraph for Sepolia (read-only GraphQL; the admin port is not exposed) |
+
+    ## Signed requests
+
+    Calls that act for a wallet carry `consumerAddress`, `nonce` and `signature`.
+    The node checks them like this (`validateNonceAndSignature` in Ocean Node):
+
+    ```
+    message   = consumerAddress + nonce + command        # plain string concatenation
+    hash      = solidityPackedKeccak256(['bytes'], [hexlify(toUtf8Bytes(message))])
+    signature = personal_sign(arrayify(hash))            # EIP-191 over the 32 hash bytes
+    ```
+
+    `command` is the node's command name, which is **not** the URL path:
+
+    | Endpoint | `command` in the signed message |
+    |---|---|
+    | `POST /api/services/encrypt` | `encrypt` |
+    | `GET /api/services/download` | `download` |
+    | `POST /api/services/freeCompute` | `freeStartCompute` |
+    | `POST /api/services/compute` | `startCompute` |
+    | `GET /api/services/computeResult` | `getComputeResult` |
+    | `POST /api/aquarius/assets/ddo/validate` | `validateDDO` |
+
+    The nonce must be **larger than the last nonce the node stored** for that
+    address; it does not have to be the next integer. The portal uses
+    `Date.now()`. Do not use "GET /nonce, then +1": once any path has stored a
+    millisecond timestamp, +1 is always behind and every call fails with
+    401 `consumer address and nonce signature mismatch`.
+
+    ocean.js 3.1.3 (used by the portal) signs the old way (`did + nonce`) and
+    sends no signature to `encrypt`. The portal therefore calls `encrypt`,
+    `download`, `freeCompute` and `computeResult` itself. See
+    `src/@utils/oceanNodeAuth.ts`.
+
+    Instead of a signature, a bearer token from `POST /api/services/auth/token`
+    can be sent in `Authorization`. Clio-X does not use tokens yet.
+
+    ## Known gaps on this trial (2026-09-26)
+
+    - `POST /api/aquarius/assets/names` is called by the portal but does not
+      exist in Ocean Node 4.2.0 (404). Asset names in some lists stay empty.
+    - The search endpoint understands only `term` / `terms` filters in
+      `query.bool.filter` and `query.bool.must_not`. Nested `bool`, `match`,
+      `exists` and `aggs` are ignored. The portal therefore fetches everything
+      and filters in the browser when `NEXT_PUBLIC_METADATACACHE_OCEAN_NODE` is on.
+    - The subgraph starts at block 11,459,549, so contract settings from before
+      that block are missing: `opc` is `null` and `veOCEAN*` lists are empty.
+    - The subgraph was ~94,000 blocks behind the chain head at 17:30 UTC (it
+      catches up at roughly 750 blocks per minute). Orders and tokens of the
+      trial assets appear only after it catches up. Check `_meta.block.number`.
+    - The trial compute environment is **free only** (`fees: null`), and only
+      allowlisted wallets may start jobs (`free.access.addresses`).
+    - Any server that is not a browser may be challenged by Cloudflare bot
+      protection on `*.ldas.jp` (403, `cf-mitigated: challenge`). The node VM
+      itself is allowed by a WAF skip rule.
+  contact:
+    name: Satoru Nakamura
+  license:
+    name: Same as the Clio-X portal repository
+servers:
+  - url: https://cliox-node.ldas.jp
+    description: Ocean Node 4.2.0 on mdx (Kashiwa, Japan), Sepolia only
+tags:
+  - name: node
+    description: Who the node is, and the nonce counter used for signing
+  - name: catalogue
+    description: Read asset descriptions (DDOs). Old Aquarius API, served by the node
+  - name: publish
+    description: Calls made while publishing an asset
+  - name: access
+    description: Checking and downloading files of a download-type asset
+  - name: compute
+    description: Compute-to-Data — run an algorithm where the data is, get only the results back
+  - name: node-to-node
+    description: Calls the node makes to itself or to other nodes, listed because they explain failures
+  - name: subgraph
+    description: On-chain history (orders, edits, totals) from the Ocean subgraph
+
+paths:
+  /:
+    get:
+      tags: [node]
+      operationId: getNodeInfo
+      summary: Node identity
+      description: |
+        ocean.js `isValidProvider` reads `providerAddress` from here.
+        Ocean Node 4.x does not list `serviceEndpoints` here (the old Provider
+        did), so ocean.js 3.1.3 cannot discover endpoint paths — one more reason
+        the portal builds several URLs itself.
+      responses:
+        '200':
+          description: Node identity
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/NodeInfo' }
+              example:
+                nodeId: 16Uiu2HAmDs6wqXmmG4jetSRSqxDyCW2BQvoRqo1eESJsTQ2oEGkW
+                chainIds: ['11155111']
+                providerAddress: '0x8937149121566d44e8f0a321397B1baa114033f6'
+                software: Ocean-Node
+                version: 0.0.1
+
+  /api/services/nonce:
+    get:
+      tags: [node]
+      operationId: getNonce
+      summary: Last nonce the node stored for an address
+      description: Use only to check. For signing, send any larger number (the portal sends `Date.now()`).
+      parameters:
+        - name: userAddress
+          in: query
+          required: true
+          schema: { $ref: '#/components/schemas/Address' }
+          example: '0xedAa08237554bBafC218f0EaA86704e1aDe9262E'
+      responses:
+        '200':
+          description: Last stored nonce, as a string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  nonce: { type: string }
+              example: { nonce: '17' }
+
+  /api/aquarius/assets/ddo/{did}:
+    get:
+      tags: [catalogue]
+      operationId: getDdo
+      summary: One asset description (DDO)
+      description: |
+        Used by every asset page. Returns 404 until the node's indexer has
+        decrypted and stored the asset. If an asset never appears, ask
+        `GET /api/aquarius/state/ddo` why.
+      parameters:
+        - $ref: '#/components/parameters/DidPath'
+      responses:
+        '200':
+          description: The DDO (version 4.1.0 on this trial)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Ddo' }
+        '400': { $ref: '#/components/responses/PlainTextError' }
+        '404':
+          description: Not indexed (yet, or never — see state/ddo)
+          content:
+            text/plain:
+              example: DDO not found
+
+  /api/aquarius/assets/metadata/query:
+    post:
+      tags: [catalogue]
+      operationId: queryMetadata
+      summary: Search asset descriptions
+      description: |
+        Accepts either an Elasticsearch-style body (what the portal sends) or
+        a native Typesense query (any body with `filter_by`).
+
+        From an Elasticsearch-style body the node translates **only**:
+        `from` → `start`, `size` → `num_hits`, `sort`, and `term` / `terms` inside
+        `query.bool.filter` (→ `field:=value`) and `query.bool.must_not`
+        (→ `field:!=value`). Everything else is dropped. Field names must be the
+        Typesense ones (`metadata.type`, not `metadata.type.keyword`).
+
+        The response is **not** Elasticsearch-shaped: it is an array with one
+        Typesense result per DDO collection (`op_ddo_v4.1.0` etc.). Documents are
+        in `[i].hits[j].document`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/EsStyleQuery'
+                - $ref: '#/components/schemas/TypesenseQuery'
+            examples:
+              portalAll:
+                summary: What the portal sends in Ocean Node mode (fetch all, filter in the browser)
+                value: { query: { bool: { filter: [] } } }
+              computeDatasets:
+                summary: Datasets on Sepolia (term filters are translated)
+                value:
+                  from: 0
+                  size: 20
+                  query:
+                    bool:
+                      filter:
+                        - term: { chainId: 11155111 }
+                        - term: { metadata.type: dataset }
+              typesense:
+                summary: Native Typesense query
+                value:
+                  {
+                    q: '*',
+                    filter_by: 'metadata.type:=algorithm',
+                    per_page: 20
+                  }
+      responses:
+        '200':
+          description: One Typesense result per DDO collection
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/TypesenseResult' }
+        '500': { $ref: '#/components/responses/PlainTextError' }
+
+  /api/aquarius/state/ddo:
+    get:
+      tags: [catalogue]
+      operationId: getDdoState
+      summary: Why an asset is (or is not) in the catalogue
+      description: |
+        Not called by the portal. It is the quickest way to see why an asset
+        page says "Could not retrieve asset": `valid: false` with the indexer's
+        error. `did` matches by **prefix**, so a shortened DID works.
+        Give exactly one of `did`, `nft`, `txId`.
+      parameters:
+        - name: did
+          in: query
+          schema: { type: string }
+          example: did:op:1b7475e5
+        - name: nft
+          in: query
+          schema: { $ref: '#/components/schemas/Address' }
+        - name: txId
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: Indexer state for the first match
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DdoState' }
+              examples:
+                indexed:
+                  value:
+                    chainId: 11155111
+                    did: did:op:04f79245ba012ab323600b60bb537c865560ca18867025a3d31b38f4560b9787
+                    nft: '0x59c8397CA8829C65F9D1D0C23a81a5ADd548FFF8'
+                    valid: true
+                    error: ' '
+                    txId: ' '
+                rejected:
+                  summary: Published with ocean-cli --encrypt false (known CLI bug)
+                  value:
+                    chainId: 11155111
+                    did: did:op:1b7475e59a20bd6f616c1300517f1dfbe943c0773624744c7b19da612b9f4bf6
+                    nft: '0xEa51130Ba40C37C5D08f38cDd32bcD80647D798b'
+                    txId: '0xaa2e531417bff75d1c2cbaed2e9b9c97c6e461cc426ad4ed4b4136b9e9653f51'
+                    valid: false
+                    error: Unencrypted DDO hash does not match metadata hash.
+        '400':
+          description: None of did / nft / txId given
+          content:
+            text/plain:
+              example: 'Missing or invalid required parameters, you need to specify one of: "did", "txId", "nft"'
+        '404':
+          description: Never seen by the indexer (for example, the event is older than the node's start block)
+
+  /api/aquarius/assets/ddo/validate:
+    post:
+      tags: [publish]
+      operationId: validateDdo
+      summary: Check a DDO and get the node's validation signature
+      description: |
+        Called by the Ocean CLI before it writes the description on chain.
+        Without publisher signature fields the node only checks the DDO and
+        returns an empty 200. With them it also returns its own signature over
+        the DDO.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ddo]
+              properties:
+                ddo: { $ref: '#/components/schemas/Ddo' }
+                publisherAddress: { $ref: '#/components/schemas/Address' }
+                nonce: { type: string }
+                signature:
+                  type: string
+                  description: Signed message is `publisherAddress + nonce + "validateDDO"`
+      responses:
+        '200':
+          description: Valid. Body is the node's validation signature when signature fields were sent, otherwise empty
+          content:
+            application/json:
+              schema: { type: object }
+        '400':
+          description: Validation error
+          content:
+            text/plain:
+              example: 'Validation error: ...'
+        '401': { $ref: '#/components/responses/AuthError' }
+
+  /api/services/encrypt:
+    post:
+      tags: [publish]
+      operationId: encrypt
+      summary: Encrypt data with the node's key (file lists, and the DDO itself)
+      description: |
+        Used twice when publishing: once for the file list (so the file URL is
+        never public), once for the whole DDO (unless it is published
+        unencrypted). Only this node can decrypt the result, which is why an
+        asset depends on the node that encrypted it staying reachable at the
+        same URL.
+
+        Body is the plain data as bytes. The response is a `0x`-prefixed hex
+        string.
+      parameters:
+        - $ref: '#/components/parameters/ConsumerAddressQuery'
+        - $ref: '#/components/parameters/NonceQuery'
+        - $ref: '#/components/parameters/SignatureQuery'
+      requestBody:
+        required: true
+        content:
+          application/octet-stream:
+            schema: { type: string, format: binary }
+            example: '[{"type":"url","url":"https://raw.githubusercontent.com/.../declaration-of-independence.txt","method":"GET"}]'
+      responses:
+        '200':
+          description: Encrypted data (hex)
+          content:
+            application/octet-stream:
+              schema: { type: string, pattern: '^0x[0-9a-f]+$' }
+        '400':
+          description: Empty body
+          content:
+            text/plain:
+              example: Missing required body
+        '401': { $ref: '#/components/responses/AuthError' }
+
+  /api/services/fileInfo:
+    post:
+      tags: [access, publish]
+      operationId: fileInfo
+      summary: Check that a file is reachable, without revealing its URL
+      description: |
+        The publish form sends a file object to check a URL before sealing it.
+        Asset pages send `did` + `serviceId` to check the sealed file.
+
+        Note for archivists: for a published asset **anyone** can ask this, and
+        the answer includes size, type, file name and SHA-256 of the hidden file,
+        even for compute-only datasets. The URL itself is never returned.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - type: object
+                  title: Published asset
+                  required: [did, serviceId]
+                  properties:
+                    did: { type: string }
+                    serviceId: { type: string }
+                    consumerAddress: { $ref: '#/components/schemas/Address' }
+                - type: object
+                  title: File object (before publishing)
+                  required: [type]
+                  properties:
+                    type: { type: string, example: url }
+                    url: { type: string }
+                    method: { type: string }
+                  additionalProperties: true
+            examples:
+              asset:
+                value:
+                  did: did:op:04f79245ba012ab323600b60bb537c865560ca18867025a3d31b38f4560b9787
+                  serviceId: a946aa73aeee3b6b2f50f7818deeeec0786f4c58cc75b1cb3aa4b025a2f45f7e
+      responses:
+        '200':
+          description: One entry per file
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/FileInfo' }
+              example:
+                - valid: true
+                  contentLength: '8375'
+                  contentType: text/plain; charset=utf-8
+                  checksum: bf57a4f567abdfb70b9db30c98c80e39ffce207f74d55ed3cb6c5758c98798d1
+                  name: declaration-of-independence.txt
+                  type: url
+        '400':
+          description: Neither `type` nor `did` given
+          content:
+            text/plain:
+              example: Invalid request parameters
+
+  /api/services/initialize:
+    get:
+      tags: [access]
+      operationId: initializeAccess
+      summary: Provider fee for ordering access to a download-type asset
+      description: Step 1 of a download. Step 2 is an on-chain order (the wallet pays gas); step 3 is `GET /api/services/download` with the order's transaction id.
+      parameters:
+        - $ref: '#/components/parameters/DocumentIdQuery'
+        - $ref: '#/components/parameters/ServiceIdQuery'
+        - $ref: '#/components/parameters/ConsumerAddressQuery'
+        - name: fileIndex
+          in: query
+          description: Sent by ocean.js, ignored by the node
+          schema: { type: integer }
+        - name: validUntil
+          in: query
+          schema: { type: integer, description: Unix time }
+        - name: userdata
+          in: query
+          description: Sent by ocean.js, ignored by this node route
+          schema: { type: string }
+      responses:
+        '200':
+          description: Provider fee to include in the order transaction
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Contains `providerFee` (fee address, token, amount, validUntil and the node's signature over them) and the datatoken to order
+        '400': { $ref: '#/components/responses/PlainTextError' }
+
+  /api/services/download:
+    get:
+      tags: [access]
+      operationId: download
+      summary: Download a file of an ordered asset
+      description: |
+        The body is the file itself. On an auth error the node sends the error
+        text with status 401; a browser that follows this URL directly would
+        save that text as the "file". The portal fetches first and checks the
+        status (see `buildDownloadUrlViaOceanNode`).
+      parameters:
+        - $ref: '#/components/parameters/DocumentIdQuery'
+        - $ref: '#/components/parameters/ServiceIdQuery'
+        - name: transferTxId
+          in: query
+          required: true
+          description: Transaction hash of the on-chain order
+          schema: { type: string }
+        - name: fileIndex
+          in: query
+          schema: { type: integer, default: 0 }
+        - $ref: '#/components/parameters/ConsumerAddressQuery'
+        - $ref: '#/components/parameters/NonceQuery'
+        - $ref: '#/components/parameters/SignatureQuery'
+        - name: userdata
+          in: query
+          description: JSON string of user parameters, if the asset defines any
+          schema: { type: string }
+      responses:
+        '200':
+          description: The file
+          content:
+            application/octet-stream:
+              schema: { type: string, format: binary }
+        '401': { $ref: '#/components/responses/AuthError' }
+
+  /api/services/computeEnvironments:
+    get:
+      tags: [compute]
+      operationId: getComputeEnvironments
+      summary: Where jobs can run, with limits and who may use the free tier
+      description: |
+        The trial has one environment. `id` is `<cluster hash>-<environment hash>`;
+        the cluster hash is needed again for `computeResult`.
+        `description` feeds the portal's processing-location / carbon estimate.
+      parameters:
+        - name: chainId
+          in: query
+          schema: { type: integer }
+          example: 11155111
+      responses:
+        '200':
+          description: Environments
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/ComputeEnvironment' }
+              example:
+                - id: 0xff1004b67de08fc505fbf0a2089010d0f23015338c7def8557697513c4a39935-0x8505cbd89f1af27ae83a806dfaef9e585bf5e60b51a2eb0ab0bd3767682c1376
+                  description: mdx (University of Tokyo, Kashiwa, Japan) mdx-kashiwa / CPU only
+                  consumerAddress: '0x8937149121566d44e8f0a321397B1baa114033f6'
+                  fees: null
+                  enableNetwork: false
+                  runningJobs: 0
+                  free:
+                    access:
+                      addresses:
+                        - '0xa60ef4e6e8f821f3bd5d42f8067bd5d4a96e0cef'
+                        - '0xedAa08237554bBafC218f0EaA86704e1aDe9262E'
+                        - '0x6E43f56B211d537C6B19Dc89414FE9506f5532C3'
+                      accessLists: []
+                    minJobDuration: 10
+                    maxJobDuration: 600
+                    maxJobs: 3
+                    resources:
+                      - {
+                          id: cpu,
+                          type: cpu,
+                          kind: fungible,
+                          total: 6,
+                          max: 2,
+                          min: 1,
+                          inUse: 0
+                        }
+                      - {
+                          id: ram,
+                          type: ram,
+                          kind: fungible,
+                          total: 8,
+                          max: 2,
+                          min: 1,
+                          inUse: 0
+                        }
+                      - {
+                          id: disk,
+                          type: disk,
+                          kind: fungible,
+                          total: 98,
+                          max: 10,
+                          min: 0,
+                          inUse: 0
+                        }
+
+  /api/services/freeCompute:
+    post:
+      tags: [compute]
+      operationId: startFreeCompute
+      summary: Start a free compute job (the only kind this trial offers)
+      description: |
+        No order and no payment. Allowed only for addresses in the
+        environment's `free.access`. Signed message:
+        `consumerAddress + nonce + "freeStartCompute"`.
+
+        Errors may come back as a JSON string or plain text, not an object.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/FreeComputeRequest' }
+            example:
+              consumerAddress: '0xedAa08237554bBafC218f0EaA86704e1aDe9262E'
+              nonce: '1790475829000'
+              signature: '0x…'
+              environment: 0xff1004b67de08fc505fbf0a2089010d0f23015338c7def8557697513c4a39935-0x8505cbd89f1af27ae83a806dfaef9e585bf5e60b51a2eb0ab0bd3767682c1376
+              datasets:
+                - documentId: did:op:04f79245ba012ab323600b60bb537c865560ca18867025a3d31b38f4560b9787
+                  serviceId: a946aa73aeee3b6b2f50f7818deeeec0786f4c58cc75b1cb3aa4b025a2f45f7e
+              algorithm:
+                documentId: did:op:fdefde90da7983f083b54c0939b719cb69dac21bff6e5cc4a343d2f6a033daa4
+                serviceId: '<service id of the algorithm>'
+              resources:
+                - { id: cpu, amount: 1 }
+                - { id: ram, amount: 1 }
+      responses:
+        '200':
+          description: The started job(s)
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/ComputeJob' }
+        '400': { $ref: '#/components/responses/JsonOrTextError' }
+        '401': { $ref: '#/components/responses/AuthError' }
+        '403': { $ref: '#/components/responses/JsonOrTextError' }
+
+  /api/services/compute:
+    get:
+      tags: [compute]
+      operationId: getComputeStatus
+      summary: Jobs of a wallet, with status and result file list
+      description: |
+        **No signature needed** (only `includeMetrics=true` asks for one).
+        Anyone who knows a wallet address can list its jobs, their environments
+        and result file names — worth knowing before telling archivists what is
+        private.
+
+        `jobId` in this list is the short form. `computeResult` wants
+        `<cluster hash>-<jobId>`; take the cluster hash from `environment`
+        (the part before the first `-`).
+
+        On this trial a finished free job stays at status 71 "Job settling";
+        results are already downloadable. The Ocean CLI prints this response as
+        a JavaScript object, not JSON.
+      parameters:
+        - name: consumerAddress
+          in: query
+          required: true
+          schema: { $ref: '#/components/schemas/Address' }
+          example: '0xedAa08237554bBafC218f0EaA86704e1aDe9262E'
+        - name: jobId
+          in: query
+          schema: { type: string }
+        - name: agreementId
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: Jobs
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/ComputeJob' }
+              example:
+                - owner: '0xedAa08237554bBafC218f0EaA86704e1aDe9262E'
+                  jobId: 219862498a3d307db6ba5896fc6eab862161790bab41c62cdeb56d703e0e1ade
+                  dateCreated: '1790475830.367'
+                  dateFinished: '1790475846.795'
+                  status: 71
+                  statusText: Job settling
+                  isFree: true
+                  environment: 0xff1004b67de08fc505fbf0a2089010d0f23015338c7def8557697513c4a39935-0x8505cbd89f1af27ae83a806dfaef9e585bf5e60b51a2eb0ab0bd3767682c1376
+                  resources:
+                    [
+                      { id: cpu, amount: 1 },
+                      { id: ram, amount: 1 },
+                      { id: disk, amount: 0 }
+                    ]
+                  maxJobDuration: 600
+                  terminationDetails: { exitCode: 0, OOMKilled: false }
+                  results:
+                    - {
+                        filename: image.log,
+                        filesize: 932,
+                        type: imageLog,
+                        index: 0
+                      }
+                    - {
+                        filename: configuration.log,
+                        filesize: 543,
+                        type: configurationLog,
+                        index: 1
+                      }
+                    - {
+                        filename: algorithm.log,
+                        filesize: 473,
+                        type: algorithmLog,
+                        index: 2
+                      }
+                    - {
+                        filename: outputs.tar,
+                        filesize: 3584,
+                        type: output,
+                        index: 3
+                      }
+    post:
+      tags: [compute]
+      operationId: startPaidCompute
+      summary: Start a paid job (portal code path for priced assets; not available on this trial)
+      description: |
+        The portal reaches this through ocean.js `computeStart` after
+        `initializeCompute` and an on-chain order. The trial environment has no
+        fees (`fees: null`), so use `/api/services/freeCompute` instead.
+        Signed message: `consumerAddress + nonce + "startCompute"`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/FreeComputeRequest'
+                - type: object
+                  required: [payment]
+                  properties:
+                    payment:
+                      type: object
+                      properties:
+                        chainId: { type: integer }
+                        token: { $ref: '#/components/schemas/Address' }
+      responses:
+        '200':
+          description: The started job(s)
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/ComputeJob' }
+        '400': { $ref: '#/components/responses/JsonOrTextError' }
+        '401': { $ref: '#/components/responses/AuthError' }
+
+  /api/services/initializeCompute:
+    post:
+      tags: [compute]
+      operationId: initializeCompute
+      summary: Fees and order details before a paid job (not available on this trial)
+      description: |
+        Ocean Node 4.x requires `payment: { chainId, token }` here, even for
+        free assets, and answers 400 in plain text without it. ocean.js 3.1.3
+        does not send it and then fails parsing the text. That is why the
+        portal sends free assets to `/api/services/freeCompute` instead.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [algorithm, environment, payment]
+              properties:
+                datasets:
+                  type: array
+                  items: { $ref: '#/components/schemas/ComputeAssetRef' }
+                algorithm: { $ref: '#/components/schemas/ComputeAssetRef' }
+                environment: { type: string }
+                payment:
+                  type: object
+                  properties:
+                    chainId: { type: integer }
+                    token: { $ref: '#/components/schemas/Address' }
+                consumerAddress: { $ref: '#/components/schemas/Address' }
+                maxJobDuration: { type: integer }
+                resources:
+                  type: array
+                  items: { $ref: '#/components/schemas/ResourceRequest' }
+      responses:
+        '200':
+          description: Fees and provider fee per asset
+          content:
+            application/json:
+              schema: { type: object }
+        '400': { $ref: '#/components/responses/PlainTextError' }
+
+  /api/services/computeResult:
+    get:
+      tags: [compute]
+      operationId: getComputeResult
+      summary: Download one result file of a job
+      description: |
+        Signed message: `consumerAddress + nonce + "getComputeResult"`.
+        `index` is the position in `results` of the job status
+        (`outputs.tar` was index 3 on the trial run).
+
+        The node sends no `Content-Disposition` and labels even `outputs.tar`
+        as `text/plain`; save it under `results[i].filename`.
+      parameters:
+        - $ref: '#/components/parameters/ConsumerAddressQuery'
+        - name: jobId
+          in: query
+          required: true
+          description: '`<cluster hash>-<jobId>`. The short jobId alone gives 500 "Invalid C2D Environment"'
+          schema: { type: string }
+          example: 0xff1004b67de08fc505fbf0a2089010d0f23015338c7def8557697513c4a39935-219862498a3d307db6ba5896fc6eab862161790bab41c62cdeb56d703e0e1ade
+        - name: index
+          in: query
+          required: true
+          schema: { type: integer }
+          example: 3
+        - $ref: '#/components/parameters/NonceQuery'
+        - $ref: '#/components/parameters/SignatureQuery'
+      responses:
+        '200':
+          description: The result file
+          content:
+            application/octet-stream:
+              schema: { type: string, format: binary }
+        '401': { $ref: '#/components/responses/AuthError' }
+        '500': { $ref: '#/components/responses/PlainTextError' }
+
+  /api/services/decrypt:
+    post:
+      tags: [node-to-node]
+      operationId: decryptDdo
+      summary: Decrypt an encrypted DDO (called by indexers, including this node's own)
+      description: |
+        When a node indexes an encrypted asset, it calls this endpoint at the
+        **decryptor URL recorded on chain** — even when that URL is the node
+        itself. It never tries its own key directly. Consequences seen on the
+        trial:
+
+        - Assets whose recorded decryptor no longer answers (the closed EC2 node
+          `http://16.192.66.21:8001`, or `localhost`) are never indexed, even
+          with the same key.
+        - Cloudflare bot protection returned 403 to the node's call to its own
+          public URL until the VM's addresses were allowed. Encrypted assets
+          stayed out of the catalogue until then.
+
+        The caller signs as `decrypterAddress`. If the node has a list of
+        authorized decrypters, only those addresses and the node itself are
+        accepted (403 `Decrypt DDO: Decrypter not authorized`).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [decrypterAddress, chainId, nonce, signature]
+              properties:
+                decrypterAddress: { $ref: '#/components/schemas/Address' }
+                chainId: { type: integer }
+                transactionId: { type: string }
+                dataNftAddress: { $ref: '#/components/schemas/Address' }
+                encryptedDocument: { type: string }
+                flags: { type: integer }
+                documentHash: { type: string }
+                nonce: { type: string }
+                signature: { type: string }
+      responses:
+        '200':
+          description: The decrypted DDO as text
+          content:
+            text/plain:
+              schema: { type: string }
+        '400': { $ref: '#/components/responses/PlainTextError' }
+        '403': { $ref: '#/components/responses/PlainTextError' }
+
+  /subgraphs/name/oceanprotocol/ocean-subgraph:
+    servers:
+      - url: https://cliox-subgraph.ldas.jp
+        description: graph-node v0.45.0, Ocean subgraph for Sepolia (start block 11,459,549)
+    post:
+      tags: [subgraph]
+      operationId: querySubgraph
+      summary: GraphQL query against the Ocean subgraph
+      description: |
+        Read-only GraphQL. Addresses in `where` must be **lower-case**.
+        The examples are the queries the portal sends (names as in the source).
+        Before trusting an empty answer, check how far the subgraph has synced
+        (`_meta`); `_meta.block` moves only on blocks that contain Ocean events,
+        so it can look stalled while it is fine.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/GraphQLRequest' }
+            examples:
+              meta:
+                summary: Sync position (check this first)
+                value:
+                  query: '{ _meta { block { number } hasIndexingErrors deployment } }'
+              FooterStatsValues:
+                summary: Totals shown in the footer
+                value:
+                  query: '{ globalStatistics { nftCount datatokenCount orderCount } }'
+              NftUpdate:
+                summary: Edit history of an asset (asset page)
+                value:
+                  query: 'query NftUpdate($address: String!) { nftUpdates(where: { nft: $address }, orderBy: timestamp, orderDirection: desc) { id nft { address owner { id } } tx timestamp type } }'
+                  variables:
+                    { address: '0x59c8397ca8829c65f9d1d0c23a81a5add548fff8' }
+              TokenPriceQuery:
+                summary: Pricing and the user's past orders for a datatoken (asset page)
+                value:
+                  query: 'query TokenPriceQuery($datatokenId: ID!, $account: String) { token(id: $datatokenId) { id symbol name templateId publishMarketFeeAddress publishMarketFeeToken publishMarketFeeAmount orders(where: { payer: $account }, orderBy: createdTimestamp, orderDirection: desc) { tx serviceIndex createdTimestamp providerFee reuses(orderBy: createdTimestamp, orderDirection: desc) { id caller createdTimestamp tx block } } dispensers { id active isMinter maxBalance token { id name symbol } } fixedRateExchanges { id exchangeId price publishMarketSwapFee baseToken { symbol name address decimals } datatoken { symbol name address } active } } }'
+                  variables:
+                    datatokenId: '0xcfb12ad7f5eb746a94a976f942527a3d844602b7'
+                    account: '0xedaa08237554bbafc218f0eaa86704e1ade9262e'
+              OrdersData:
+                summary: Orders made by a wallet (profile / history)
+                value:
+                  query: 'query OrdersData($user: String!) { orders(orderBy: createdTimestamp, orderDirection: desc, where: { consumer: $user }) { consumer { id } datatoken { id address symbol } consumerMarketToken { address symbol } createdTimestamp tx } }'
+                  variables:
+                    { user: '0xedaa08237554bbafc218f0eaa86704e1ade9262e' }
+              ComputeOrders:
+                summary: Compute orders paid by a wallet (paid jobs only; free jobs create no order)
+                value:
+                  query: 'query ComputeOrders($user: String!) { orders(orderBy: createdTimestamp, orderDirection: desc, where: { payer: $user }) { id serviceIndex datatoken { address } tx createdTimestamp } }'
+                  variables:
+                    { user: '0xedaa08237554bbafc218f0eaa86704e1ade9262e' }
+              OpcQuery:
+                summary: Market fee settings — returns null on this trial (set before the start block)
+                value:
+                  query: '{ opc(id: 1) { swapOceanFee swapNonOceanFee approvedTokens { address: id symbol name decimals } id } }'
+      responses:
+        '200':
+          description: GraphQL response (errors also come back with 200, in `errors`)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GraphQLResponse' }
+              examples:
+                meta:
+                  value:
+                    data:
+                      _meta:
+                        block: { number: 11696313 }
+                        hasIndexingErrors: false
+                        deployment: QmR86ay2HF9AVb7cAJRgeDibESySDJPY9wnQiaJVM75JRg
+                FooterStatsValues:
+                  value:
+                    data:
+                      globalStatistics:
+                        [{ nftCount: 142, datatokenCount: 164, orderCount: 90 }]
+                OpcQuery:
+                  value: { data: { opc: null } }
+
+components:
+  parameters:
+    DidPath:
+      name: did
+      in: path
+      required: true
+      schema: { type: string, pattern: '^did:op:[0-9a-f]{64}$' }
+      example: did:op:04f79245ba012ab323600b60bb537c865560ca18867025a3d31b38f4560b9787
+    DocumentIdQuery:
+      name: documentId
+      in: query
+      required: true
+      description: Asset DID
+      schema: { type: string }
+    ServiceIdQuery:
+      name: serviceId
+      in: query
+      required: true
+      schema: { type: string }
+    ConsumerAddressQuery:
+      name: consumerAddress
+      in: query
+      required: true
+      schema: { $ref: '#/components/schemas/Address' }
+    NonceQuery:
+      name: nonce
+      in: query
+      required: true
+      description: Any integer larger than the last one the node stored for this address (portal uses `Date.now()`)
+      schema: { type: string, pattern: '^[0-9]+$' }
+    SignatureQuery:
+      name: signature
+      in: query
+      required: true
+      description: See "Signed requests" in the description. The command name differs per endpoint
+      schema: { type: string }
+
+  responses:
+    AuthError:
+      description: Missing or wrong signature, or nonce not larger than the stored one
+      content:
+        text/plain:
+          examples:
+            missing:
+              value: Invalid authentication, you need to provide either a token or an address, signature, message and nonce
+            mismatch:
+              value: consumer address and nonce signature mismatch
+    PlainTextError:
+      description: Error as plain text
+      content:
+        text/plain:
+          schema: { type: string }
+    JsonOrTextError:
+      description: 'Error, sent as a JSON string (for example `"Error: ..."`) or plain text'
+      content:
+        application/json:
+          schema: { type: string }
+
+  schemas:
+    Address:
+      type: string
+      pattern: '^0x[0-9a-fA-F]{40}$'
+    NodeInfo:
+      type: object
+      properties:
+        nodeId: { type: string, description: libp2p peer id }
+        chainIds: { type: array, items: { type: string } }
+        providerAddress: { $ref: '#/components/schemas/Address' }
+        nodePublicKey:
+          {
+            type: object,
+            description: Compressed public key as an index→byte map
+          }
+        software: { type: string }
+        version: { type: string }
+    Ddo:
+      type: object
+      description: Asset description, DDO version 4.1.0 (see Ocean's DDO specification). Only the fields Clio-X reads are listed.
+      required: [id, version, chainId, nftAddress, metadata, services]
+      properties:
+        '@context': { type: array, items: { type: string } }
+        id: { type: string }
+        version: { type: string, example: 4.1.0 }
+        chainId: { type: integer, example: 11155111 }
+        nftAddress: { $ref: '#/components/schemas/Address' }
+        metadata:
+          type: object
+          properties:
+            type: { type: string, enum: [dataset, algorithm] }
+            name: { type: string }
+            description: { type: string }
+            author: { type: string }
+            license: { type: string }
+            tags: { type: array, items: { type: string } }
+            created: { type: string, format: date-time }
+            updated: { type: string, format: date-time }
+            algorithm:
+              type: object
+              description: Only for algorithms — the container to run
+              properties:
+                language: { type: string }
+                container:
+                  type: object
+                  properties:
+                    entrypoint: { type: string }
+                    image: { type: string }
+                    tag: { type: string }
+                    checksum: { type: string }
+          additionalProperties: true
+        services:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: string }
+              type: { type: string, enum: [access, compute] }
+              files:
+                {
+                  type: string,
+                  description: File list encrypted by the node (the URL is never public)
+                }
+              datatokenAddress: { $ref: '#/components/schemas/Address' }
+              serviceEndpoint:
+                {
+                  type: string,
+                  description: 'The node that serves this asset, e.g. https://cliox-node.ldas.jp'
+                }
+              timeout: { type: integer }
+              compute:
+                type: object
+                properties:
+                  allowRawAlgorithm: { type: boolean }
+                  allowNetworkAccess: { type: boolean }
+                  publisherTrustedAlgorithms:
+                    { type: array, items: { type: object } }
+                  publisherTrustedAlgorithmPublishers:
+                    { type: array, items: { type: string } }
+            additionalProperties: true
+        datatokens:
+          type: array
+          items:
+            type: object
+            properties:
+              address: { $ref: '#/components/schemas/Address' }
+              name: { type: string }
+              symbol: { type: string }
+              serviceId: { type: string }
+        indexedMetadata:
+          type: object
+          description: Added by the indexer (not part of what the publisher signs)
+          properties:
+            event:
+              type: object
+              properties:
+                block: { type: integer }
+                contract: { type: string }
+                tx: { type: string }
+                datetime: { type: string }
+            nft:
+              type: object
+              properties:
+                address: { type: string }
+                name: { type: string }
+                symbol: { type: string }
+                owner: { type: string }
+                state:
+                  {
+                    type: integer,
+                    description: '0 active, 1 end-of-life, 2 deprecated, 3 revoked, 4 ordering disabled, 5 unlisted (the portal hides 5)'
+                  }
+                created: { type: string }
+            purgatory: { type: object }
+            stats: { type: array, items: { type: object } }
+      additionalProperties: true
+    DdoState:
+      type: object
+      properties:
+        chainId: { type: integer }
+        did: { type: string }
+        id: { type: string }
+        nft: { $ref: '#/components/schemas/Address' }
+        txId: { type: string }
+        valid: { type: boolean }
+        error:
+          {
+            type: string,
+            description: Why indexing failed; a single space when there is no error
+          }
+    EsStyleQuery:
+      type: object
+      properties:
+        from: { type: integer }
+        size: { type: integer }
+        sort:
+          {
+            type: object,
+            additionalProperties: { type: string, enum: [asc, desc] }
+          }
+        query:
+          type: object
+          properties:
+            bool:
+              type: object
+              properties:
+                filter:
+                  {
+                    type: array,
+                    items: { $ref: '#/components/schemas/TermFilter' }
+                  }
+                must_not:
+                  {
+                    type: array,
+                    items: { $ref: '#/components/schemas/TermFilter' }
+                  }
+    TermFilter:
+      type: object
+      description: Only these two forms are translated; anything else is ignored
+      oneOf:
+        - required: [term]
+          properties:
+            term: { type: object, minProperties: 1, maxProperties: 1 }
+        - required: [terms]
+          properties:
+            terms: { type: object, minProperties: 1, maxProperties: 1 }
+    TypesenseQuery:
+      type: object
+      required: [filter_by]
+      properties:
+        q: { type: string, default: '*' }
+        query_by: { type: string }
+        filter_by: { type: string }
+        sort_by: { type: string }
+        per_page: { type: integer }
+        page: { type: integer }
+      additionalProperties: true
+    TypesenseResult:
+      type: object
+      properties:
+        found: { type: integer }
+        out_of: { type: integer }
+        page: { type: integer }
+        search_time_ms: { type: integer }
+        request_params:
+          type: object
+          properties:
+            collection_name: { type: string, example: op_ddo_v4.1.0 }
+            per_page: { type: integer }
+        hits:
+          type: array
+          items:
+            type: object
+            properties:
+              document: { $ref: '#/components/schemas/Ddo' }
+    FileInfo:
+      type: object
+      properties:
+        valid: { type: boolean }
+        contentLength: { type: string }
+        contentType: { type: string }
+        checksum: { type: string, description: SHA-256 of the file }
+        name: { type: string }
+        type: { type: string }
+    ComputeEnvironment:
+      type: object
+      properties:
+        id: { type: string, description: '`<cluster hash>-<environment hash>`' }
+        description: { type: string }
+        consumerAddress: { $ref: '#/components/schemas/Address' }
+        runningJobs: { type: integer }
+        runningfreeJobs: { type: integer }
+        queuedJobs: { type: integer }
+        queuedFreeJobs: { type: integer }
+        enableNetwork:
+          { type: boolean, description: false = jobs have no network access }
+        fees: { type: ['object', 'null'], description: null = no paid jobs }
+        access: { $ref: '#/components/schemas/AccessRule' }
+        resources:
+          { type: array, items: { $ref: '#/components/schemas/Resource' } }
+        minJobDuration: { type: integer, description: seconds }
+        maxJobDuration: { type: integer, description: seconds }
+        storageExpiry: { type: integer, description: seconds results are kept }
+        free:
+          type: object
+          properties:
+            access: { $ref: '#/components/schemas/AccessRule' }
+            minJobDuration: { type: integer }
+            maxJobDuration: { type: integer }
+            maxJobs: { type: integer }
+            resources:
+              { type: array, items: { $ref: '#/components/schemas/Resource' } }
+      additionalProperties: true
+    AccessRule:
+      type: object
+      description: Who may use the environment. Empty `addresses` and no lists = anyone
+      properties:
+        addresses:
+          { type: array, items: { $ref: '#/components/schemas/Address' } }
+        accessLists: { type: ['array', 'null'], items: { type: object } }
+    Resource:
+      type: object
+      properties:
+        id: { type: string, enum: [cpu, ram, disk, gpu] }
+        type: { type: string }
+        kind: { type: string }
+        total: { type: number }
+        max: { type: number }
+        min: { type: number }
+        inUse: { type: number }
+    ResourceRequest:
+      type: object
+      required: [id, amount]
+      properties:
+        id: { type: string }
+        amount: { type: number, description: CPUs, or GiB for ram/disk }
+    ComputeAssetRef:
+      type: object
+      required: [documentId, serviceId]
+      properties:
+        documentId: { type: string, description: DID }
+        serviceId: { type: string }
+        userdata: { type: object }
+        algocustomdata: { type: object, description: Algorithm only }
+    FreeComputeRequest:
+      type: object
+      required:
+        [consumerAddress, nonce, signature, environment, algorithm, datasets]
+      properties:
+        consumerAddress: { $ref: '#/components/schemas/Address' }
+        nonce: { type: string }
+        signature: { type: string }
+        environment: { type: string }
+        algorithm: { $ref: '#/components/schemas/ComputeAssetRef' }
+        datasets:
+          {
+            type: array,
+            items: { $ref: '#/components/schemas/ComputeAssetRef' }
+          }
+        resources:
+          {
+            type: array,
+            items: { $ref: '#/components/schemas/ResourceRequest' }
+          }
+        maxJobDuration: { type: integer, description: seconds }
+        output: { type: object }
+        metadata: { type: object }
+        additionalViewers:
+          { type: array, items: { $ref: '#/components/schemas/Address' } }
+    ComputeJob:
+      type: object
+      properties:
+        owner: { $ref: '#/components/schemas/Address' }
+        jobId:
+          {
+            type: string,
+            description: Short form; computeResult needs `<cluster hash>-<jobId>`
+          }
+        did: { type: ['string', 'null'] }
+        environment: { type: string }
+        dateCreated:
+          {
+            type: string,
+            description: Unix time with milliseconds,
+            as a string
+          }
+        dateFinished: { type: ['string', 'null'] }
+        algoStartTimestamp: { type: string }
+        algoStopTimestamp: { type: string }
+        status: { $ref: '#/components/schemas/JobStatus' }
+        statusText: { type: string }
+        isFree: { type: boolean }
+        maxJobDuration: { type: integer }
+        resources:
+          {
+            type: array,
+            items: { $ref: '#/components/schemas/ResourceRequest' }
+          }
+        terminationDetails:
+          type: object
+          properties:
+            exitCode: { type: integer }
+            OOMKilled: { type: boolean }
+        results:
+          type: array
+          items:
+            type: object
+            properties:
+              filename: { type: string }
+              filesize: { type: integer }
+              type:
+                {
+                  type: string,
+                  enum: [imageLog, configurationLog, algorithmLog, output]
+                }
+              index: { type: integer }
+      additionalProperties: true
+    JobStatus:
+      type: integer
+      description: |
+        0 started · 1 queued · 2 expired in queue · 10 pulling image · 11 pull failed ·
+        12 building image · 13 build failed · 14 vulnerable image · 20 configuring volumes ·
+        21 volume creation failed · 22 container creation failed · 30 provisioning data ·
+        31 data provisioning failed · 32 algorithm provisioning failed · 33 data upload failed ·
+        40 running · 41 algorithm failed · 42 disk quota exceeded · 50 filtering results ·
+        60 publishing results · 61 results fetch failed · 62 results upload failed ·
+        70 finished · 71 settling (after finish; results are available)
+      enum:
+        [
+          0,
+          1,
+          2,
+          10,
+          11,
+          12,
+          13,
+          14,
+          20,
+          21,
+          22,
+          30,
+          31,
+          32,
+          33,
+          40,
+          41,
+          42,
+          50,
+          60,
+          61,
+          62,
+          70,
+          71
+        ]
+    GraphQLRequest:
+      type: object
+      required: [query]
+      properties:
+        query: { type: string }
+        variables: { type: object }
+        operationName: { type: string }
+    GraphQLResponse:
+      type: object
+      properties:
+        data: { type: ['object', 'null'] }
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              message: { type: string }
