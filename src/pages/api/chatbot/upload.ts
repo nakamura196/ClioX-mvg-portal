@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import crypto from 'crypto'
+import { chatbotAuthHeaders } from '../../../@utils/chatbot/upstreamAuth'
 
 interface UploadResponse {
   success: boolean
@@ -76,6 +77,7 @@ export default async function handler(
       {
         method: 'POST',
         headers: {
+          ...chatbotAuthHeaders(),
           'Content-Type': 'application/json',
           'X-Session-ID': sessionId
         },

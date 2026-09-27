@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { Readable } from 'stream'
+import { chatbotAuthHeaders } from '../../../@utils/chatbot/upstreamAuth'
 
 export const config = {
   api: {
@@ -40,6 +41,7 @@ export default async function handler(
       {
         method: 'POST',
         headers: {
+          ...chatbotAuthHeaders(),
           'Content-Type': 'application/json',
           'X-Session-ID': sessionId,
           Accept: 'text/event-stream',

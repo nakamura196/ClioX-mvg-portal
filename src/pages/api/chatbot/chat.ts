@@ -1,4 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
+import { chatbotAuthHeaders } from '../../../@utils/chatbot/upstreamAuth'
 
 interface ChatResponse {
   success: boolean
@@ -39,6 +40,7 @@ export default async function handler(
     const response = await fetch(`${chatbotApiUrl}/api/v1/session/chat`, {
       method: 'POST',
       headers: {
+        ...chatbotAuthHeaders(),
         'Content-Type': 'application/json',
         'X-Session-ID': sessionId,
         'Cache-Control': 'no-cache, no-store, must-revalidate',
