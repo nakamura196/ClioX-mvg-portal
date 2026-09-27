@@ -68,7 +68,7 @@ The worked example is in [CLI: publish and free compute](./trial-run#second-exam
 
 ## The subgraph stops on a dispenser it never saw
 
-**Where:** Ocean subgraph (upstream commit `2f322ee`) with a truncated `startBlock`. **Status:** patch written (`deploy/hosting` commit `667637f4`); redeploy with graft pending.
+**Where:** Ocean subgraph (upstream commit `2f322ee`) with a truncated `startBlock`. **Status:** patch written (`deploy/hosting` commit `667637f4`); redeployed with a graft on 27 September; caught up at 07:05 UTC.
 
 From 26 September 23:18 UTC the subgraph stayed at block 11,696,316 while Sepolia moved on (95,000 blocks behind on 27 September).
 graph-node logged, once an hour: _missing value for non-nullable field `contract`_ in `handleTokensDispensed`, block 11,701,495.
@@ -88,6 +88,14 @@ zsh deploy/ocean-node/scripts/deploy.zsh mdx-clio subgraph QmR86ay2HF9AVb7cAJRge
 The graft block must be one **before** the last indexed block when the base failed: graph-node refuses the failed block itself (_not healthy … graft it starting at block 11696315 backwards_).
 
 The same class of problem as the missing `templateId` (fixed earlier by `template-id-fallback.patch`): anything created before `startBlock` is unknown to the subgraph.
+
+## "Allow all algorithms" (`*`) matched nothing
+
+**Where:** the portal. **Status:** fixed in the portal (commit `3b8fdaae`).
+
+`ocean-cli` publishes "any algorithm may run on this dataset" as `publisherTrustedAlgorithms: [{ "did": "*", … }]` and `publisherTrustedAlgorithmPublishers: ["*"]`.
+The portal searched for an asset whose id is literally `*`, so the algorithm page showed **“No matching assets”** under “Datasets this algorithm can run on”, and the dataset page offered no algorithm.
+The portal now treats `*` as "no restriction" in both lookups.
 
 ## Ocean Node 4.x no longer lists its service endpoints
 

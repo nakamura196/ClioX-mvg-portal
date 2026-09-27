@@ -67,7 +67,7 @@ Ocean Node と Typesense を同時に起動すると、索引の保存先を作�
 
 ## サブグラフが、知らない Dispenser で止まる
 
-**原因:** Ocean のサブグラフ（上流のコミット `2f322ee`）と、読み始め位置（`startBlock`）を後ろにずらしたこと。**状態:** 修正を用意済み（`deploy/hosting` のコミット `667637f4`）。接ぎ木での配り直しが未実施。
+**原因:** Ocean のサブグラフ（上流のコミット `2f322ee`）と、読み始め位置（`startBlock`）を後ろにずらしたこと。**状態:** 修正を用意済み（`deploy/hosting` のコミット `667637f4`）。9 月 27 日に接ぎ木で配り直し、07:05（UTC）に台帳に追いついた。
 
 9 月 26 日 23:18（UTC）から、サブグラフは 11,696,316 番のブロックで止まっていました。9 月 27 日の時点で、台帳より約 9 万 5 千ブロック遅れていました。
 graph-node のログには、1 時間ごとに次の失敗が出ていました。11,701,495 番のブロックの `handleTokensDispensed` で、_missing value for non-nullable field `contract`_（必須の欄 `contract` が空）。
@@ -87,6 +87,14 @@ zsh deploy/ocean-node/scripts/deploy.zsh mdx-clio subgraph QmR86ay2HF9AVb7cAJRge
 引き継ぎ元が失敗で止まっている場合、接ぎ木の番号は最後に読んだブロックの **1 つ前** にします。止まったブロックそのものは「健全でない」として拒まれます（_not healthy … graft it starting at block 11696315 backwards_）。
 
 以前の `templateId` が 0 になる問題（`template-id-fallback.patch` で修正済み）と同じ種類です。読み始め位置より前に作られたものを、サブグラフは知りません。
+
+## 「すべてのアルゴリズムを許可」（`*`）が 1 件も当たらない
+
+**原因:** ポータル。**状態:** ポータル側で修正済み（コミット `3b8fdaae`）。
+
+`ocean-cli` は「このデータセットではどのアルゴリズムも動かしてよい」を、`publisherTrustedAlgorithms: [{ "did": "*", … }]` と `publisherTrustedAlgorithmPublishers: ["*"]` で書きます。
+ポータルは ID が文字どおり `*` の資料を探していました。そのため、アルゴリズムのページの「このアルゴリズムを実行できるデータセット」は **「該当する資産がありません」** になり、データセットのページでもアルゴリズムを選べませんでした。
+いまは両方の検索で `*` を「絞り込まない」と読みます。
 
 ## Ocean Node 4.x が窓口の一覧を返さない
 
