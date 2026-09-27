@@ -7,14 +7,12 @@ import { useAsset } from '@context/Asset'
 import {
   getFileDidInfo,
   getFileInfo,
-  InvalidProviderUrlError
+  InvalidProviderUrlError,
+  isLocalProviderUrl
 } from '@utils/provider'
 import Alert from '@shared/atoms/Alert'
 import { useTranslation } from 'react-i18next'
 
-// 本文が IPFS に直接置かれた資産（Provider を使わない公開）を開くための公開ゲートウェイ。
-// 校異源氏物語 54 件は Filebase に固定されているので、ここを既定にする。
-const IPFS_GATEWAY = 'https://ipfs.filebase.io/ipfs/'
 import { getOceanConfig } from '@utils/ocean'
 import { useCancelToken } from '@hooks/useCancelToken'
 import { useIsMounted } from '@hooks/useIsMounted'
@@ -28,6 +26,10 @@ import { useAccount, useProvider, useNetwork, useSigner } from 'wagmi'
 import useBalance from '@hooks/useBalance'
 import { useAutomation } from '../../../@context/Automation/AutomationProvider'
 import { Signer } from 'ethers'
+
+// 本文が IPFS に直接置かれた資産（Provider を使わない公開）を開くための公開ゲートウェイ。
+// 校異源氏物語 54 件は Filebase に固定されているので、ここを既定にする。
+const IPFS_GATEWAY = 'https://ipfs.filebase.io/ipfs/'
 
 export default function AssetActions({
   asset
@@ -214,6 +216,8 @@ export default function AssetActions({
                 ? t('asset.ipfsServiceEndpoint', {
                     url: `${IPFS_GATEWAY}${invalidProviderUrl.slice(7)}`
                   })
+                : isLocalProviderUrl(invalidProviderUrl)
+                ? t('asset.localServiceEndpoint', { url: invalidProviderUrl })
                 : t('asset.invalidProviderUrl')
             }
             state="info"

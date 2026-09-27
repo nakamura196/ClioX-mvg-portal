@@ -98,11 +98,32 @@ export async function getEncryptedFiles(
   }
 }
 
-// [local patch] 提供サーバ（serviceEndpoint）には本来 https:// の Node の住所が入る。
-// 2026-08 に Sepolia へ登録された「校異源氏物語」54 件などは、ここにファイルの置き場所
-// （ipfs://…）が入っていて、ブラウザからは問い合わせられない。問い合わせる前にはじく。
-export function isHttpProviderUrl(url?: string): boolean {
-  return /^https?:\/\//i.test(url || '')
+// [local patch] 提供サーバ（serviceEndpoint）には本来、誰からでも届く https:// の Node の住所が入る。
+// 試用チェーンには、そうでない資産がある。問い合わせる前にはじく。
+//  - ipfs:// … Provider を使わず本文を IPFS に直接置いた資産（校異源氏物語 54 件など）
+//  - http://127.0.0.1:8001 など … 登録した人が自分のパソコンで動かした Node。ほかの人からは
+//    届かないうえ、ブラウザが「ローカルネットワークへのアクセス」を求めてしまう
+// ポータル自体を手元（localhost）で動かしているときは、手元の Node を使えるように通す。
+const LOCAL_HOST =
+  /^(localhost|.*\.localhost|.*\.local|127(\.\d+){3}|0\.0\.0\.0|\[::1?\]|10(\.\d+){3}|192\.168(\.\d+){2}|172\.(1[6-9]|2\d|3[01])(\.\d+){2}|169\.254(\.\d+){2})$/i
+
+export function isLocalProviderUrl(url?: string): boolean {
+  try {
+    return LOCAL_HOST.test(new URL(url).hostname)
+  } catch {
+    return false
+  }
+}
+
+function portalRunsLocally(): boolean {
+  return (
+    typeof window !== 'undefined' && LOCAL_HOST.test(window.location.hostname)
+  )
+}
+
+export function isUsableProviderUrl(url?: string): boolean {
+  if (!/^https?:\/\//i.test(url || '')) return false
+  return !isLocalProviderUrl(url) || portalRunsLocally()
 }
 
 export class InvalidProviderUrlError extends Error {
@@ -119,7 +140,7 @@ export async function getFileDidInfo(
   withChecksum = false
 ): Promise<FileInfo[]> {
   // 住所が壊れている資料は、エラー通知を出さずに呼び出し元へ知らせる
-  if (!customProviderUrl && !isHttpProviderUrl(providerUrl))
+  if (!customProviderUrl && !isUsableProviderUrl(providerUrl))
     throw new InvalidProviderUrlError(providerUrl)
   try {
     const response = await ProviderInstance.checkDidFiles(
@@ -311,6 +332,7 @@ export async function getComputeEnvironments(
   providerUrl: string,
   chainId: number
 ): Promise<ComputeEnvironment[]> {
+  if (!isUsableProviderUrl(providerUrl)) return []
   try {
     const response = await ProviderInstance.getComputeEnvironments(providerUrl)
     const computeEnvs = Array.isArray(response) ? response : response[chainId]

@@ -26,7 +26,7 @@ import { SortTermOptions } from '../@types/aquarius/SearchQuery'
 import { AssetSelectionAsset } from '@shared/FormInput/InputElement/AssetSelection'
 import { transformAssetToAssetSelection } from './assetConvertor'
 import { ComputeEditForm } from '../components/Asset/Edit/_types'
-import { getFileDidInfo } from './provider'
+import { getFileDidInfo, isUsableProviderUrl } from './provider'
 import { toast } from 'react-toastify'
 import { safeErrorMessage } from './safeError'
 import { fetchComputeJobsViaOceanNode, isLocalOceanNode } from './oceanNodeAuth'
@@ -143,6 +143,8 @@ export async function getComputeEnvironment(
   asset: Asset
 ): Promise<ComputeEnvironment> {
   if (asset?.services[0]?.type !== 'compute') return null
+  // [local patch] 届かない提供サーバ（ipfs:// や登録者の手元の Node）には問い合わせない
+  if (!isUsableProviderUrl(asset.services[0].serviceEndpoint)) return null
   try {
     const computeEnvs = await ProviderInstance.getComputeEnvironments(
       asset.services[0].serviceEndpoint

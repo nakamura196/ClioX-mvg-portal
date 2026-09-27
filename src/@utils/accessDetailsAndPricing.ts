@@ -22,6 +22,7 @@ import {
 import { Signer } from 'ethers'
 import { toast } from 'react-toastify'
 import { safeErrorMessage } from './safeError'
+import { isUsableProviderUrl } from './provider'
 
 const tokenPriceQuery = gql`
   query TokenPriceQuery($datatokenId: ID!, $account: String) {
@@ -183,6 +184,13 @@ export async function getOrderPriceAndFees(
     opcFee: '0'
   } as OrderPriceAndFees
   // fetch provider fee
+  // [local patch] 届かない提供サーバ（ipfs:// や登録者の手元の Node）には問い合わせない
+  if (
+    !providerFees &&
+    !customProviderUrl &&
+    !isUsableProviderUrl(asset?.services[0].serviceEndpoint)
+  )
+    return orderPriceAndFee
   let initializeData
   try {
     initializeData =
