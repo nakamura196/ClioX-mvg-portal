@@ -17,11 +17,13 @@ import {
   queryMetadata,
   getFilterTerm,
   generateBaseQuery,
-  getAssetsFromDids
+  getAssetsFromDids,
+  getAsset
 } from './aquarius'
 import { fetchDataForMultipleChains } from './subgraph'
 import { getServiceById, getServiceByName } from './ddo'
-import { recallJobAlgorithm } from './jobAlgorithmMemory'
+import { recallJobAlgorithm, recallJobDataset } from './jobAlgorithmMemory'
+import { chains } from '../../chains.config'
 import { SortTermOptions } from '../@types/aquarius/SearchQuery'
 import { AssetSelectionAsset } from '@shared/FormInput/InputElement/AssetSelection'
 import { transformAssetToAssetSelection } from './assetConvertor'
@@ -331,6 +333,57 @@ export function filterForUniqueJobs(
   })
 }
 
+/**
+ * 自分で建てたノード（chains.config.js の isCustom）から、利用者の無償ジョブを集める。
+ *
+ * 無償ジョブはオンチェーンの注文を作らないので、注文から組み立てる本来の経路では
+ * 1 件も出ない。さらに Ocean Node 4.2.0 は無償ジョブの inputDID / algoDID を null で
+ * 返すため、投入時にブラウザで控えた値で補う（jobAlgorithmMemory.ts）。控えが無い
+ * ジョブ（CLI や別のブラウザで流したもの）は DID が分からないまま返る。
+ */
+async function getJobsFromOwnNodes(
+  chainIds: number[],
+  accountId: string,
+  cancelToken?: CancelToken
+): Promise<ComputeJobMetaData[]> {
+  const nodes = (chains as any[]).filter(
+    (c) =>
+      c?.isCustom &&
+      chainIds.includes(c.chainId) &&
+      c.providerUri &&
+      isLocalOceanNode(c.providerUri)
+  )
+  const jobs: ComputeJobMetaData[] = []
+  const names = new Map<string, string>()
+  for (const node of nodes) {
+    const found = await fetchComputeJobsViaOceanNode(
+      node.providerUri,
+      accountId
+    )
+    for (const job of found) {
+      const datasetDid = job.inputDID?.[0] ?? recallJobDataset(job.jobId)
+      if (datasetDid && !names.has(datasetDid)) {
+        const ddo = await getAsset(datasetDid, cancelToken).catch(() => null)
+        names.set(datasetDid, ddo?.metadata?.name ?? '')
+      }
+      jobs.push({
+        ...job,
+        inputDID: job.inputDID?.length
+          ? job.inputDID
+          : datasetDid
+          ? [datasetDid]
+          : [],
+        algoDID: job.algoDID ?? recallJobAlgorithm(job.jobId),
+        assetName: datasetDid ? names.get(datasetDid) : '',
+        assetDtSymbol: '',
+        networkId: node.chainId,
+        providerUrl: node.providerUri
+      })
+    }
+  }
+  return jobs.sort((a, b) => (a.dateCreated > b.dateCreated ? -1 : 1))
+}
+
 export async function getComputeJobs(
   chainIds: number[],
   accountId: string,
@@ -370,7 +423,15 @@ export async function getComputeJobs(
     // 一切作らないため、ここで打ち切ると実行済みのジョブが画面に出ない。
     // 手元のノードには直接問い合わせて補う。
     const endpoint = asset?.services?.[0]?.serviceEndpoint
-    if (endpoint && isLocalOceanNode(endpoint)) {
+    if (!asset) {
+      // 資産を指定しない呼び出し（可視化・チャットボットのページ）。
+      // 選んでいるネットワークのうち、自分で建てたノードに直接たずねる。
+      computeResult.computeJobs = await getJobsFromOwnNodes(
+        chainIds,
+        accountId,
+        cancelToken
+      )
+    } else if (endpoint && isLocalOceanNode(endpoint)) {
       const jobs = await fetchComputeJobsViaOceanNode(endpoint, accountId)
       computeResult.computeJobs = jobs.map((job) => ({
         ...job,
@@ -413,6 +474,15 @@ export async function getComputeJobs(
 
   const allProviderJobs = await getJobs(providerUrls, accountId, assets)
   computeResult.computeJobs = filterForUniqueJobs(allProviderJobs, assets)
+  if (!asset) {
+    // 注文がある利用者でも、無償ジョブは注文に結び付かないので上では漏れる
+    // （データセットの DID が分からず getJobs で落ちる）。自前ノードの分を足す。
+    const seen = new Set(computeResult.computeJobs.map((j) => j.jobId))
+    const own = await getJobsFromOwnNodes(chainIds, accountId, cancelToken)
+    computeResult.computeJobs = computeResult.computeJobs.concat(
+      own.filter((j) => !seen.has(j.jobId))
+    )
+  }
 
   computeResult.isLoaded = true
 

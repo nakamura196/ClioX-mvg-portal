@@ -139,7 +139,7 @@ export default function JobList(props: {
 
   useEffect(() => {
     fetchJobs()
-  }, [refetchJobs, chainIds]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [refetchJobs, chainIds, accountId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const addJobToView = async (job: ComputeJobMetaData) => {
     // If there's already an active job, remove it first

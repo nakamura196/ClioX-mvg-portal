@@ -1,5 +1,9 @@
 import { ComputeResult, ProviderInstance } from '@oceanprotocol/lib'
 import { Signer } from 'ethers'
+import {
+  buildComputeResultUrlViaOceanNode,
+  isLocalOceanNode
+} from './oceanNodeAuth'
 
 // Ocean Node 4.x に移ってから、アルゴリズムの成果物（/data/outputs）は
 // 1 つの outputs.tar にまとめて返される（compute_engine_docker.js が
@@ -94,12 +98,23 @@ export async function fetchComputeResultFiles(
       // 署名の nonce がぶつからないよう間を空ける（元の実装と同じ）
       await new Promise((resolve) => setTimeout(resolve, 200))
     }
-    const url = await ProviderInstance.getComputeResultUrl(
-      serviceEndpoint,
-      signer,
-      job.jobId,
-      results[i]?.index ?? i
-    )
+    // 自前の Ocean Node は新しい署名方式を求める（ocean.js の
+    // getComputeResultUrl は旧方式で、弾かれる）。Results.tsx と同じ分け方。
+    const index = results[i]?.index ?? i
+    const url = isLocalOceanNode(serviceEndpoint)
+      ? await buildComputeResultUrlViaOceanNode(
+          signer,
+          serviceEndpoint,
+          job.jobId,
+          index,
+          (job as { environment?: string }).environment
+        )
+      : await ProviderInstance.getComputeResultUrl(
+          serviceEndpoint,
+          signer,
+          job.jobId,
+          index
+        )
     const response = await fetch(url)
     if (!response.ok) {
       throw new Error(

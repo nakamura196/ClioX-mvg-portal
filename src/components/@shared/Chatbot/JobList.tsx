@@ -143,7 +143,7 @@ export default function JobList(props: {
 
   useEffect(() => {
     fetchJobs()
-  }, [refetchJobs, chainIds])
+  }, [refetchJobs, chainIds, accountId])
 
   const addComputeResultToUseCaseDB = async (job: ComputeJobMetaData) => {
     // Namespace-scoped existing rows

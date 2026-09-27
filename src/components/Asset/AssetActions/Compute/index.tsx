@@ -68,7 +68,10 @@ import { useAccount } from 'wagmi'
 import { useMarketMetadata } from '@context/MarketMetadata'
 import { safeErrorMessage } from '../../../../@utils/safeError'
 import { startFreeCompute, isFreeAsset } from '../../../../@utils/freeCompute'
-import { rememberJobAlgorithm } from '../../../../@utils/jobAlgorithmMemory'
+import {
+  rememberJobAlgorithm,
+  rememberJobDataset
+} from '../../../../@utils/jobAlgorithmMemory'
 
 /**
  * 実行環境が提供している資源を、そのまま要求量に変換する。
@@ -520,6 +523,7 @@ export default function Compute({
         // ので、ここで控えておき、あとで一覧・詳細の表示に使う（表示の補助であって
         // 証拠ではない。詳細は jobAlgorithmMemory.ts の注記を参照）。
         rememberJobAlgorithm(freeResponse, selectedAlgorithmAsset?.id)
+        rememberJobDataset(freeResponse, asset?.id)
         setIsOrdered(true)
         setRefetchJobs(!refetchJobs)
         return
@@ -592,6 +596,7 @@ export default function Compute({
 
       LoggerInstance.log('[compute] Starting compute job response: ', response)
       rememberJobAlgorithm(response, selectedAlgorithmAsset?.id)
+      rememberJobDataset(response, asset?.id)
       setIsOrdered(true)
       setRefetchJobs(!refetchJobs)
       initPriceAndFees()

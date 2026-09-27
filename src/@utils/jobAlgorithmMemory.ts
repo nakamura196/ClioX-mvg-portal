@@ -21,14 +21,17 @@ import { LoggerInstance } from '@oceanprotocol/lib'
  */
 
 const STORAGE_KEY = 'clioX_jobAlgorithmMemory'
+// データセットの DID も同じ理由で控える（Ocean Node 4.2.0 は無償ジョブの
+// inputDID も null で返す。可視化・チャットボットのページはこれで絞り込む）。
+const DATASET_KEY = 'clioX_jobDatasetMemory'
 const MAX_ENTRIES = 200
 
 type Memory = Record<string, string>
 
-function read(): Memory {
+function read(key = STORAGE_KEY): Memory {
   if (typeof window === 'undefined') return {}
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY)
+    const raw = window.localStorage.getItem(key)
     if (!raw) return {}
     const parsed = JSON.parse(raw)
     // 壊れた値・別形式が入っていても画面を落とさない
@@ -39,7 +42,7 @@ function read(): Memory {
   }
 }
 
-function write(memory: Memory): void {
+function write(memory: Memory, key = STORAGE_KEY): void {
   if (typeof window === 'undefined') return
   try {
     const keys = Object.keys(memory)
@@ -51,7 +54,7 @@ function write(memory: Memory): void {
             return acc
           }, {})
         : memory
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(trimmed))
+    window.localStorage.setItem(key, JSON.stringify(trimmed))
   } catch (error) {
     LoggerInstance.warn('[jobAlgorithmMemory] 保存に失敗しました', error)
   }
@@ -102,31 +105,50 @@ export function rememberJobAlgorithm(
   response: unknown,
   algorithmDid: string | undefined
 ): void {
-  if (!algorithmDid) return
+  remember(response, algorithmDid, STORAGE_KEY)
+}
+
+/** rememberJobAlgorithm と同じく、ジョブを流したデータセットの DID を控える。 */
+export function rememberJobDataset(
+  response: unknown,
+  datasetDid: string | undefined
+): void {
+  remember(response, datasetDid, DATASET_KEY)
+}
+
+function remember(response: unknown, did: string | undefined, key: string) {
+  if (!did) return
 
   const jobIds = [...new Set(collectJobIds(response))]
-  const memory = read()
+  const memory = read(key)
   let stored = 0
 
   jobIds.forEach((jobId) => {
     // 投入時と一覧で表記が違うため、両方の形で引けるようにしておく
-    memory[jobId] = algorithmDid
-    memory[bareJobId(jobId)] = algorithmDid
+    memory[jobId] = did
+    memory[bareJobId(jobId)] = did
     stored += 1
   })
 
   if (stored === 0) {
     LoggerInstance.warn(
-      '[jobAlgorithmMemory] 応答に jobId が無く、アルゴリズムを記録できませんでした'
+      '[jobAlgorithmMemory] 応答に jobId が無く、DID を記録できませんでした'
     )
     return
   }
-  write(memory)
+  write(memory, key)
 }
 
 /** ノードが algoDID を返さなかったときの控え。無ければ undefined。 */
 export function recallJobAlgorithm(jobId: string): string | undefined {
   if (!jobId) return undefined
   const memory = read()
+  return memory[jobId] ?? memory[bareJobId(jobId)]
+}
+
+/** ノードが inputDID を返さなかったときの控え。無ければ undefined。 */
+export function recallJobDataset(jobId: string): string | undefined {
+  if (!jobId) return undefined
+  const memory = read(DATASET_KEY)
   return memory[jobId] ?? memory[bareJobId(jobId)]
 }
