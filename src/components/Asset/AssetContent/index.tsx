@@ -24,6 +24,11 @@ import Web3Feedback from '@components/@shared/Web3Feedback'
 import { useAccount } from 'wagmi'
 import DDODownloadButton from '@components/@shared/DDODownloadButton'
 
+// Gaia-X Service Credentials only mean something on networks that belong to
+// the Gaia-X ecosystem (Pontus-X devnet/testnet, the old Gaia-X testnet).
+// On Sepolia nobody would verify them, so the button is hidden there.
+const gaiaXChainIds = [32456, 32457, 2021000]
+
 export default function AssetContent({
   asset
 }: {
@@ -117,7 +122,9 @@ export default function AssetContent({
               }}
             >
               <EditHistory receipts={receipts} setReceipts={setReceipts} />
-              <DDODownloadButton asset={asset} />
+              {gaiaXChainIds.includes(asset?.chainId) && (
+                <DDODownloadButton asset={asset} />
+              )}
             </div>
             {debug === true && <DebugOutput title="DDO" output={asset} />}
           </div>
