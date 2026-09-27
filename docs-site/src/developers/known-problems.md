@@ -82,8 +82,10 @@ What users saw: new assets were missing from the subgraph, so the asset page cou
 Redeploy with a graft so indexing continues from the last good block instead of starting over:
 
 ```sh
-zsh deploy/ocean-node/scripts/deploy.zsh mdx-clio subgraph QmR86ay2HF9AVb7cAJRgeDibESySDJPY9wnQiaJVM75JRg 11696316
+zsh deploy/ocean-node/scripts/deploy.zsh mdx-clio subgraph QmR86ay2HF9AVb7cAJRgeDibESySDJPY9wnQiaJVM75JRg 11696315
 ```
+
+The graft block must be one **before** the last indexed block when the base failed: graph-node refuses the failed block itself (_not healthy … graft it starting at block 11696315 backwards_).
 
 The same class of problem as the missing `templateId` (fixed earlier by `template-id-fallback.patch`): anything created before `startBlock` is unknown to the subgraph.
 

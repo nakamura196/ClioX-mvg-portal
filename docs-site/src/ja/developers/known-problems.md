@@ -81,8 +81,10 @@ graph-node はこれを「一時的な失敗」とみなし、同じブロック
 最初から読み直さないよう、止まる前の最後のブロックから接ぎ木（graft）して配り直します。
 
 ```sh
-zsh deploy/ocean-node/scripts/deploy.zsh mdx-clio subgraph QmR86ay2HF9AVb7cAJRgeDibESySDJPY9wnQiaJVM75JRg 11696316
+zsh deploy/ocean-node/scripts/deploy.zsh mdx-clio subgraph QmR86ay2HF9AVb7cAJRgeDibESySDJPY9wnQiaJVM75JRg 11696315
 ```
+
+引き継ぎ元が失敗で止まっている場合、接ぎ木の番号は最後に読んだブロックの **1 つ前** にします。止まったブロックそのものは「健全でない」として拒まれます（_not healthy … graft it starting at block 11696315 backwards_）。
 
 以前の `templateId` が 0 になる問題（`template-id-fallback.patch` で修正済み）と同じ種類です。読み始め位置より前に作られたものを、サブグラフは知りません。
 
