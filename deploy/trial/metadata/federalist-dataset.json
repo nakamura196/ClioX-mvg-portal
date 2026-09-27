@@ -1,0 +1,87 @@
+{
+  "@context": ["https://w3id.org/did/v1"],
+  "id": "did:op",
+  "nftAddress": "",
+  "version": "4.1.0",
+  "chainId": 11155111,
+  "metadata": {
+    "created": "2026-09-27T00:00:00Z",
+    "updated": "2026-09-27T00:00:00Z",
+    "type": "dataset",
+    "name": "The Federalist Papers (1787-1788), 85 essays - dated sample",
+    "description": "The 85 essays of The Federalist (Hamilton, Madison, Jay), one text file per essay with a small header giving title, author, newspaper and publication date. From Project Gutenberg eBook #1404 (public domain in the USA), body only. A sample for the Clio-X trial pages Visualizations and Chatbot: the dates let the text analysis draw a publication timeline. The texts stay on the custodian node; only the results of an approved analysis are returned. Built with deploy/trial/sample/build_federalist.py (archive sha256 5bf1b484...). One correction to the source: No. 26 is dated 22 December 1787 (the Gutenberg text says 1788, which does not match the weekday given).",
+    "tags": [
+      "clio-x-trial",
+      "public-domain",
+      "sample",
+      "correspondence",
+      "compute"
+    ],
+    "author": "Alexander Hamilton, James Madison, John Jay",
+    "license": "Public Domain",
+    "additionalInformation": {
+      "termsAndConditions": true,
+      "source": "https://www.gutenberg.org/ebooks/1404",
+      "documents": 85,
+      "archiveSha256": "5bf1b48471b8540ea6d4e12536a5620d20a8f81c1941c2c14af85ec07b73dcd6"
+    }
+  },
+  "services": [
+    {
+      "id": "d8d38041c34475d15eb212d923dec3c6c2cb16774894e5378c81986627e9ef42",
+      "type": "compute",
+      "files": {
+        "datatokenAddress": "0x0",
+        "nftAddress": "0x0",
+        "files": [
+          {
+            "type": "url",
+            "url": "https://raw.githubusercontent.com/nakamura196/ClioX-mvg-portal/dcf9388882cc321ad036758e3b0ac9001550bb14/deploy/trial/sample/federalist-papers.tar.gz",
+            "method": "GET"
+          }
+        ]
+      },
+      "datatokenAddress": "",
+      "serviceEndpoint": "https://cliox-node.ldas.jp",
+      "timeout": 86400,
+      "compute": {
+        "allowRawAlgorithm": false,
+        "allowNetworkAccess": false,
+        "publisherTrustedAlgorithmPublishers": ["*"],
+        "publisherTrustedAlgorithms": [
+          {
+            "did": "*",
+            "filesChecksum": "*",
+            "containerSectionChecksum": "*"
+          }
+        ]
+      }
+    }
+  ],
+  "indexedMetadata": {
+    "event": {},
+    "nft": {
+      "address": "",
+      "name": "Clio-X trial: Genji TEI",
+      "symbol": "CLIOX-TRIAL",
+      "state": 5,
+      "tokenURI": "",
+      "owner": "",
+      "created": ""
+    },
+    "purgatory": {
+      "state": false
+    },
+    "stats": [
+      {
+        "orders": 0,
+        "prices": [
+          {
+            "price": "0"
+          }
+        ]
+      }
+    ],
+    "datatokens": []
+  }
+}
