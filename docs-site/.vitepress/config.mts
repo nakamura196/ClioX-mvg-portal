@@ -35,7 +35,11 @@ function sidebarEn(): DefaultTheme.Sidebar {
             text: 'CLI: publish and free compute',
             link: '/developers/trial-run'
           },
-          { text: 'Known problems', link: '/developers/known-problems' }
+          { text: 'Known problems', link: '/developers/known-problems' },
+          {
+            text: 'The Gaia-X Service Credential button',
+            link: '/developers/gaia-x-credential'
+          }
         ]
       }
     ],
@@ -89,6 +93,10 @@ function sidebarJa(): DefaultTheme.Sidebar {
           { text: 'API（OpenAPI）', link: '/ja/developers/api' },
           { text: 'CLI で登録と無償の計算', link: '/ja/developers/trial-run' },
           { text: '分かっている問題', link: '/ja/developers/known-problems' },
+          {
+            text: 'Gaia-X サービスクレデンシャル',
+            link: '/ja/developers/gaia-x-credential'
+          },
           { text: '自分で建てる（英語）', link: '/developers/self-hosting' }
         ]
       }

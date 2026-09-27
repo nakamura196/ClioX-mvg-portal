@@ -66,6 +66,16 @@ The node's `configuration.log` for that job says `Downloading asset 0` and fetch
 **Workaround:** pack a multi-file collection into one `.tar.gz` and let the algorithm open it.
 The worked example is in [CLI: publish and free compute](./trial-run#second-example-koi-genji-monogatari-tei).
 
+## Assets published with the CLI show a broken thumbnail
+
+**Where:** `@oceanprotocol/lib` 9.2.1 (used by `ocean-cli` 2.1.0) and the portal. **Status:** fixed in the portal (commit `f0307b02` on `deploy/hosting`).
+
+`createAsset()` in ocean.js mints the data NFT with the fixed `tokenURI` `"aaa"`.
+The portal treated any non-`data:` tokenURI as an image address, so it rendered `<img src="aaa">`.
+The image failed, and the NFT name (the alt text) spilled out of the 60 px box at the top of the asset page.
+The portal now uses only values that start with `data:image/`, `http(s)://` or `/`, and falls back to the Clio-X logo when the image fails to load.
+The on-chain value stays `"aaa"`; it cannot be changed without a transaction from the NFT owner.
+
 ## Smaller things
 
 - Sepolia showed as “Unknown network” on asset cards: a custom chain was not added back to the network metadata. Fixed.

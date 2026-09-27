@@ -21,7 +21,9 @@ From [When the publishing service closes](/archivists/when-a-node-closes):
 
 8. **Who may run analyses?** Ocean Node offers three official ways: an address list (used on the trial now), an on-chain access list shared by several nodes, or a policy server checking credentials (the Pontus-X model). An on-chain list for participating institutions looks like a good fit.
 
+9. **Gaia-X.** The portal can draft Gaia-X Service Credentials, but only on Pontus-X, and the template follows an old Trust Framework (22.10). Do Clio-X institutions want to take part in Gaia-X? See [The Gaia-X Service Credential button](/developers/gaia-x-credential).
+
 ## Vocabulary
 
-9. InterPARES Trust AI has “definition not yet developed” for _wallet_, _transaction_ and _smart contract_. Could the project contribute definitions?
-10. The Japanese names of the ISAD(G) elements in the finding-aid prototype are our own rendering. They should be checked against the published Japanese translation.
+10. InterPARES Trust AI has “definition not yet developed” for _wallet_, _transaction_ and _smart contract_. Could the project contribute definitions?
+11. The Japanese names of the ISAD(G) elements in the finding-aid prototype are our own rendering. They should be checked against the published Japanese translation.
