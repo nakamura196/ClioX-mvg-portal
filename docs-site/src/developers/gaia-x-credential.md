@@ -55,3 +55,5 @@ The **Service Credential** field in the publish and edit forms is still there on
 
 Whether Clio-X institutions want to take part in Gaia-X at all is a decision for the project, not a technical one.
 If they do, the template should be updated to the current Trust Framework before anyone relies on it.
+
+To check a credential that is already attached to an asset, use the portal's [Verify page](/developers/verify).

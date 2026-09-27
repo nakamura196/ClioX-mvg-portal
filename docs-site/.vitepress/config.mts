@@ -39,7 +39,8 @@ function sidebarEn(): DefaultTheme.Sidebar {
           {
             text: 'The Gaia-X Service Credential button',
             link: '/developers/gaia-x-credential'
-          }
+          },
+          { text: 'The Verify page', link: '/developers/verify' }
         ]
       }
     ],
@@ -97,6 +98,7 @@ function sidebarJa(): DefaultTheme.Sidebar {
             text: 'Gaia-X サービスクレデンシャル',
             link: '/ja/developers/gaia-x-credential'
           },
+          { text: '「検証」ページ', link: '/ja/developers/verify' },
           { text: '自分で建てる（英語）', link: '/developers/self-hosting' }
         ]
       }
