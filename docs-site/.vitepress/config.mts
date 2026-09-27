@@ -14,6 +14,10 @@ function sidebarEn(): DefaultTheme.Sidebar {
           { text: 'Try the trial site', link: '/archivists/try' },
           { text: 'Questions and answers', link: '/archivists/faq' },
           {
+            text: 'What is kept where (on-chain / off-chain)',
+            link: '/archivists/on-and-off-chain'
+          },
+          {
             text: 'When the publishing service closes',
             link: '/archivists/when-a-node-closes'
           }
@@ -66,6 +70,10 @@ function sidebarJa(): DefaultTheme.Sidebar {
           { text: 'はじめて見る方へ（動画）', link: '/ja/archivists/video' },
           { text: '試用サイトを見てみる', link: '/ja/archivists/try' },
           { text: 'よくある質問', link: '/ja/archivists/faq' },
+          {
+            text: 'どこに何が記録されるか（チェーンの上と外）',
+            link: '/ja/archivists/on-and-off-chain'
+          },
           {
             text: '登録に使ったサービスが無くなったとき',
             link: '/ja/archivists/when-a-node-closes'
