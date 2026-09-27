@@ -1,0 +1,176 @@
+[
+  {
+    "letter": "a",
+    "topic": "glossary",
+    "branch": "proto/glossary",
+    "commit": "40217c35",
+    "image": {
+      "en": "glossary-en-datatoken.png",
+      "ja": "glossary-ja-top.png"
+    },
+    "title": {
+      "en": "Archival-terms glossary",
+      "ja": "用語をアーカイブズの言葉で"
+    },
+    "line": {
+      "en": "Technical words on Clio-X screens get a dotted underline or a “?” that explains them in archival terms, with a full page of 13 terms linked to the InterPARES Trust AI terminology.",
+      "ja": "画面の専門用語に点線や「?」を付け、アーカイブズの言葉で説明します。13 語の一覧ページは InterPARES Trust AI の用語集につないでいます。"
+    },
+    "open": {
+      "en": "InterPARES has “definition not yet developed” for wallet, transaction and smart contract — a possible contribution.",
+      "ja": "InterPARES ではウォレット・トランザクション・スマートコントラクトが「定義未作成」。こちらから寄与できるかもしれません。"
+    }
+  },
+  {
+    "letter": "b",
+    "topic": "tour",
+    "branch": "proto/tour",
+    "commit": "da8a7595",
+    "image": {
+      "en": "record-en.png",
+      "ja": "welcome-ja.png"
+    },
+    "title": {
+      "en": "First-run guided tour",
+      "ja": "はじめての案内ツアー"
+    },
+    "line": {
+      "en": "A 12-step, about 5-minute tour through one whole task, with the page dimmed and clicks paused so nothing can happen by accident.",
+      "ja": "1 つの作業を最初から最後まで 12 段階・約 5 分で案内します。画面を暗くしてクリックを止めるので、うっかり何かが起きることはありません。"
+    },
+    "open": null
+  },
+  {
+    "letter": "c",
+    "topic": "demo-video",
+    "branch": "proto/demo-video",
+    "commit": "02034638",
+    "image": {
+      "en": "title.png",
+      "ja": "title.png"
+    },
+    "title": {
+      "en": "A first look (98 s video)",
+      "ja": "はじめて見る方への動画（98 秒）"
+    },
+    "line": {
+      "en": "A silent video with English captions that walks through one dataset page, framing each thing the caption talks about.",
+      "ja": "音声なし・英語字幕の動画です。資料のページを 1 つ、字幕が話している場所を枠で囲みながら見ていきます。"
+    },
+    "open": {
+      "en": "The captions' analogies (catalogue entry, reference code, audit trail) need an archivist's check.",
+      "ja": "字幕のたとえ（目録記述・参照コード・監査証跡）はアーキビストの確認が必要。"
+    },
+    "video": "/media/clio-x-first-look.mp4"
+  },
+  {
+    "letter": "d",
+    "topic": "archivist-mode",
+    "branch": "proto/archivist-mode",
+    "commit": "0a817eb4",
+    "image": {
+      "en": "record-en.png",
+      "ja": "record-ja.png"
+    },
+    "title": {
+      "en": "Archivist view",
+      "ja": "アーキビスト表示"
+    },
+    "line": {
+      "en": "A header switch that shows the same site in archival terms (custodian, persistent identifier, “analyse in place”) and hides wallet addresses, token and network names.",
+      "ja": "ヘッダーの切り替えで、同じサイトをアーカイブズの言葉（保管者・永続識別子・持ち出さずに分析）で表示し、ウォレットの番号やトークン名を隠します。"
+    },
+    "open": {
+      "en": "The home page says “Web3” five times — Clio-X's own message, left as is.",
+      "ja": "トップページに「Web3」が 5 回出てくる。Clio-X 自身のメッセージなので、そのままにしています。"
+    }
+  },
+  {
+    "letter": "e",
+    "topic": "provenance",
+    "branch": "proto/provenance",
+    "commit": "674d71d8",
+    "image": {
+      "en": "access-en.png",
+      "ja": "finding-aid-top-ja.png"
+    },
+    "title": {
+      "en": "Provenance as a finding aid",
+      "ja": "来歴を目録（ISAD(G)）の形で"
+    },
+    "line": {
+      "en": "Each dataset gets a page laid out in the ISAD(G) areas, with every value marked “recorded on the chain”, “stated by the publisher” or “not recorded”.",
+      "ja": "資料ごとに ISAD(G) の項目で並べたページを作り、各項目に「台帳の記録」「登録者の申告」「記録なし」の印を付けます。"
+    },
+    "open": {
+      "en": "Example: the InterPARES dataset states it was updated 2025-10-17, but the chain shows 4 edits on 2025-10-20. Japanese ISAD(G) element names need checking against the published translation.",
+      "ja": "例: InterPARES のデータセットは更新日を 2025-10-17 と申告していますが、台帳には 2025-10-20 の変更が 4 回あります。ISAD(G) の日本語の項目名は公刊の訳との照合が必要です。"
+    }
+  },
+  {
+    "letter": "f",
+    "topic": "carbon-report",
+    "branch": "proto/carbon-report",
+    "commit": "5bb4d5b6",
+    "image": {
+      "en": "report-en-compare.png",
+      "ja": "print-ja-page1.png"
+    },
+    "title": {
+      "en": "Carbon and cost report",
+      "ja": "炭素量と費用の報告書"
+    },
+    "line": {
+      "en": "Estimate an analysis's energy, CO2 and cost for several places before running it, and keep the estimate as a report (PDF, CSV, JSON) with a SHA-256.",
+      "ja": "分析を動かす前に、場所ごとの電力・CO2・費用を見積もり、報告書（PDF・CSV・JSON）として残します。SHA-256 で後から照合できます。"
+    },
+    "open": {
+      "en": "Same OCR workload: Stockholm 14.0 g vs Calgary 2.84 kg CO2e (≈203×). The figures assume the same run time on different machines.",
+      "ja": "同じ OCR の作業で、ストックホルム 14.0 g・カルガリー 2.84 kg（約 203 倍）。機械が違っても実行時間は同じと仮定しています。"
+    }
+  },
+  {
+    "letter": "g",
+    "topic": "archivist-qa",
+    "branch": "proto/archivist-qa",
+    "commit": "42078730",
+    "image": {
+      "en": "en-interpares-terms.png",
+      "ja": "ja-start.png"
+    },
+    "title": {
+      "en": "Archivist Q&A",
+      "ja": "アーキビストの質問箱"
+    },
+    "line": {
+      "en": "Archivists ask in their own words and get one of 20 prepared answers with its source shown. Nothing is generated, so nothing can be made up.",
+      "ja": "自分の言葉で質問すると、用意した 20 の答えから 1 つを出典つきで返します。文章を生成しないので、作り話は出ません。"
+    },
+    "open": {
+      "en": "The 20 answers are drafts by Claude and need review by the Clio-X team.",
+      "ja": "20 の答えは Claude の下書きで、Clio-X チームの確認が必要です。"
+    }
+  },
+  {
+    "letter": "h",
+    "topic": "sample-collection",
+    "branch": "proto/sample-collection",
+    "commit": "4a211623",
+    "image": {
+      "en": "fixity-en.png",
+      "ja": "page-ja.png"
+    },
+    "title": {
+      "en": "Sample collection to try an analysis",
+      "ja": "分析を試せる見本の資料"
+    },
+    "line": {
+      "en": "Eight public-domain page images from the National Diet Library: check their fixity in the browser and follow one real OCR run, including the page where it fails.",
+      "ja": "国立国会図書館のパブリックドメインの画像 8 枚。ブラウザでファイルの同一性を確かめ、実際の OCR 1 回分の記録を、失敗したページも含めてたどれます。"
+    },
+    "open": {
+      "en": "Next step could be to publish the same images and OCR as a compute asset on the trial node.",
+      "ja": "次は、同じ画像と OCR を試用ノードに計算用の資料として登録できます。"
+    }
+  }
+]
