@@ -6,7 +6,8 @@ import {
   escapeEsReservedCharacters,
   getFilterTerm,
   generateBaseQuery,
-  getWhitelistShould
+  getWhitelistShould,
+  queryStringMatches
 } from '.'
 
 const defaultBaseQueryReturn: SearchQuery = {
@@ -91,5 +92,33 @@ describe('@utils/aquarius', () => {
         'nft.created': 'asc'
       }
     })
+  })
+})
+
+describe('queryStringMatches (search on Ocean Node)', () => {
+  const asset = {
+    id: 'did:op:8e23',
+    metadata: {
+      name: '校異源氏物語 きりつぼ（第1帖）',
+      description: 'The Kōi Genji monogatari TEI/XML',
+      tags: ['genji', 'tei']
+    }
+  }
+  const fields = ['metadata.name^10', 'metadata.description', 'metadata.tags']
+  const hit = (query: string) => queryStringMatches(asset, { query, fields })
+
+  test('Japanese substring matches', () => {
+    expect(hit('*きりつぼ*')).toBe(true)
+    expect(hit('キリツボ')).toBe(true)
+    expect(hit('源氏物語')).toBe(true)
+  })
+  test('all words must match, OR-joined or not', () => {
+    expect(hit('genji OR tei')).toBe(true)
+    expect(hit('genji OR cameroon')).toBe(false)
+    expect(hit('*はしひめ*')).toBe(false)
+  })
+  test('escaped and wildcard-only queries', () => {
+    expect(hit('TEI\\/XML*')).toBe(true)
+    expect(hit('**')).toBe(true)
   })
 })
