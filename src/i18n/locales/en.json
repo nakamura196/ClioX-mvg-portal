@@ -108,7 +108,8 @@
       "updated": "updated",
       "stateUpdated": "state updated",
       "nftMetadataUpdated": "NFT metadata updated"
-    }
+    },
+    "invalidProviderUrl": "This asset cannot be downloaded or used for compute: its provider address is not a valid server URL (it may point to a file location such as ipfs:// instead). Only the publisher can fix this by editing the asset."
   },
   "assetType": {
     "dataset": "dataset",

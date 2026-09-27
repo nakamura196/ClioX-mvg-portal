@@ -105,7 +105,8 @@
       "updated": "更新",
       "stateUpdated": "状態を変更",
       "nftMetadataUpdated": "NFT メタデータを更新"
-    }
+    },
+    "invalidProviderUrl": "この資産はダウンロードも計算もできません。提供サーバの住所が正しいサーバの URL になっていません（ipfs:// のようなファイルの置き場所が入っている可能性があります）。直せるのは公開者だけです（資産の編集から）。"
   },
   "assetType": {
     "dataset": "データセット",

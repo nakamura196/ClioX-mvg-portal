@@ -98,12 +98,29 @@ export async function getEncryptedFiles(
   }
 }
 
+// [local patch] 提供サーバ（serviceEndpoint）には本来 https:// の Node の住所が入る。
+// 2026-08 に Sepolia へ登録された「校異源氏物語」54 件などは、ここにファイルの置き場所
+// （ipfs://…）が入っていて、ブラウザからは問い合わせられない。問い合わせる前にはじく。
+export function isHttpProviderUrl(url?: string): boolean {
+  return /^https?:\/\//i.test(url || '')
+}
+
+export class InvalidProviderUrlError extends Error {
+  constructor(providerUrl?: string) {
+    super(`Invalid provider URL: ${providerUrl || '(empty)'}`)
+    this.name = 'InvalidProviderUrlError'
+  }
+}
+
 export async function getFileDidInfo(
   did: string,
   serviceId: string,
   providerUrl: string,
   withChecksum = false
 ): Promise<FileInfo[]> {
+  // 住所が壊れている資料は、エラー通知を出さずに呼び出し元へ知らせる
+  if (!customProviderUrl && !isHttpProviderUrl(providerUrl))
+    throw new InvalidProviderUrlError(providerUrl)
   try {
     const response = await ProviderInstance.checkDidFiles(
       did,
