@@ -11,6 +11,10 @@ import {
 } from '@utils/provider'
 import Alert from '@shared/atoms/Alert'
 import { useTranslation } from 'react-i18next'
+
+// 本文が IPFS に直接置かれた資産（Provider を使わない公開）を開くための公開ゲートウェイ。
+// 校異源氏物語 54 件は Filebase に固定されているので、ここを既定にする。
+const IPFS_GATEWAY = 'https://ipfs.filebase.io/ipfs/'
 import { getOceanConfig } from '@utils/ocean'
 import { useCancelToken } from '@hooks/useCancelToken'
 import { useIsMounted } from '@hooks/useIsMounted'
@@ -55,7 +59,7 @@ export default function AssetActions({
   const [dtBalance, setDtBalance] = useState<string>()
   const [fileMetadata, setFileMetadata] = useState<FileInfo>()
   const [fileIsLoading, setFileIsLoading] = useState<boolean>(false)
-  const [providerUrlInvalid, setProviderUrlInvalid] = useState(false)
+  const [invalidProviderUrl, setInvalidProviderUrl] = useState<string>()
   const [isAccountIdWhitelisted, setIsAccountIdWhitelisted] =
     useState<boolean>()
   const [signerToUse, setSignerToUse] = useState<Signer>(signer)
@@ -77,7 +81,7 @@ export default function AssetActions({
 
     async function initFileInfo() {
       setFileIsLoading(true)
-      setProviderUrlInvalid(false)
+      setInvalidProviderUrl(undefined)
       const providerUrl =
         formikState?.values?.services[0].providerUrl.url ||
         asset?.services[0]?.serviceEndpoint
@@ -128,7 +132,7 @@ export default function AssetActions({
       } catch (error) {
         setFileIsLoading(false)
         if (error instanceof InvalidProviderUrlError) {
-          setProviderUrlInvalid(true)
+          setInvalidProviderUrl(providerUrl || '')
           LoggerInstance.warn(error.message)
           return
         }
@@ -202,9 +206,18 @@ export default function AssetActions({
 
   return (
     <div className={styles.actions}>
-      {providerUrlInvalid && (
+      {invalidProviderUrl !== undefined && (
         <div className={styles.providerAlert}>
-          <Alert text={t('asset.invalidProviderUrl')} state="warning" />
+          <Alert
+            text={
+              /^ipfs:\/\/\S+$/i.test(invalidProviderUrl)
+                ? t('asset.ipfsServiceEndpoint', {
+                    url: `${IPFS_GATEWAY}${invalidProviderUrl.slice(7)}`
+                  })
+                : t('asset.invalidProviderUrl')
+            }
+            state="info"
+          />
         </div>
       )}
       {isCompute ? (

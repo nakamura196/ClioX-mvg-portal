@@ -109,7 +109,8 @@
       "stateUpdated": "state updated",
       "nftMetadataUpdated": "NFT metadata updated"
     },
-    "invalidProviderUrl": "This asset cannot be downloaded or used for compute: its provider address is not a valid server URL (it may point to a file location such as ipfs:// instead). Only the publisher can fix this by editing the asset."
+    "invalidProviderUrl": "This asset cannot be downloaded or used for compute here: its provider address is not a server URL the portal can contact.",
+    "ipfsServiceEndpoint": "This asset is not served through a provider (the server that normally hands out files). Its content is published directly on IPFS, so the portal cannot download it or use it for compute. You can open the content here: [{{url}}]({{url}})"
   },
   "assetType": {
     "dataset": "dataset",
