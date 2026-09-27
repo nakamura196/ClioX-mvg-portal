@@ -4,5 +4,6 @@
   "installCommand": "npm ci",
   "buildCommand": "npm run build",
   "outputDirectory": ".vitepress/dist",
-  "ignoreCommand": "[ \"$VERCEL_GIT_COMMIT_REF\" != \"docs/site\" ]"
+  "ignoreCommand": "[ \"$VERCEL_GIT_COMMIT_REF\" != \"docs/site\" ]",
+  "cleanUrls": true
 }
