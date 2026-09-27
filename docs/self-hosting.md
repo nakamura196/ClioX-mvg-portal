@@ -143,6 +143,22 @@ from the Ocean deployment block (3,722,802) takes days on free RPCs. Starting at
 **Hostnames with two levels (`a.b.example.org`) get no certificate** on
 Cloudflare's free Universal SSL. Use one level below the zone.
 
+**The node must be able to reach its own public URL.** To index an encrypted
+asset, the node calls the decryptor URL recorded on chain, which is its own
+public URL. That request leaves the VM and comes back through Cloudflare. Bot
+protection (Super Bot Fight Mode) treated the VM's data-centre addresses as
+bots and answered with a challenge (403, `cf-mitigated: challenge`), so newly
+published encrypted assets were never indexed. The node log only says
+"Provider validation failed: Forbidden". Test from the VM with
+`curl -s -o /dev/null -w "%{http_code}" https://<node hostname>/` (expect 200).
+Super Bot Fight Mode cannot be turned off per hostname, but a WAF custom rule
+with the action "Skip" for the VM's addresses can skip it:
+`scripts/cloudflare-allow-node.zsh`. Other servers calling the node API (other
+nodes, serverless functions) are likely challenged in the same way.
+
+**`--encrypt false` in ocean-cli 2.1.0 is rejected by Ocean Node 4.2.0** (hash
+mismatch caused by `indexedMetadata`). See `deploy/trial/README.md`.
+
 **The node must start after Typesense is ready.** The node creates its
 collections (`indexer`, `op_ddo_*`) only when a lookup answers "not found". If
 Typesense is still starting, the lookup fails in another way and nothing is
