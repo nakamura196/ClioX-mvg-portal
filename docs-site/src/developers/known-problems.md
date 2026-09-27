@@ -55,6 +55,17 @@ If Ocean Node starts together with Typesense, it can fail to create its collecti
 (_“Error updating last indexed block: Not Found”_).
 Restarting the node fixes it. Our compose file now waits for Typesense `/health` (up to 120 s) before starting the node.
 
+## A job receives only the first file of an asset
+
+**Where:** Ocean Node 4.2.0. **Status:** worked around by publishing one archive.
+
+The Kōi Genji monogatari TEI was first published as one asset with 54 file URLs.
+The free job finished, but the result covered only chapter 1.
+The node's `configuration.log` for that job says `Downloading asset 0` and fetches only `01.xml`.
+
+**Workaround:** pack a multi-file collection into one `.tar.gz` and let the algorithm open it.
+The worked example is in [CLI: publish and free compute](./trial-run#second-example-koi-genji-monogatari-tei).
+
 ## Smaller things
 
 - Sepolia showed as “Unknown network” on asset cards: a custom chain was not added back to the network metadata. Fixed.
