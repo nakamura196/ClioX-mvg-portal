@@ -20,6 +20,10 @@ function sidebarEn(): DefaultTheme.Sidebar {
           {
             text: 'When the publishing service closes',
             link: '/archivists/when-a-node-closes'
+          },
+          {
+            text: 'The Visualizations and Chatbot pages',
+            link: '/archivists/usecases'
           }
         ]
       }
@@ -40,7 +44,11 @@ function sidebarEn(): DefaultTheme.Sidebar {
             text: 'The Gaia-X Service Credential button',
             link: '/developers/gaia-x-credential'
           },
-          { text: 'The Verify page', link: '/developers/verify' }
+          { text: 'The Verify page', link: '/developers/verify' },
+          {
+            text: 'Visualizations and Chatbot',
+            link: '/developers/usecases'
+          }
         ]
       }
     ],
@@ -82,6 +90,10 @@ function sidebarJa(): DefaultTheme.Sidebar {
           {
             text: '登録に使ったサービスが無くなったとき',
             link: '/ja/archivists/when-a-node-closes'
+          },
+          {
+            text: '「可視化」と「チャットボット」のページ',
+            link: '/ja/archivists/usecases'
           }
         ]
       }
@@ -99,6 +111,10 @@ function sidebarJa(): DefaultTheme.Sidebar {
             link: '/ja/developers/gaia-x-credential'
           },
           { text: '「検証」ページ', link: '/ja/developers/verify' },
+          {
+            text: '「可視化」と「チャットボット」',
+            link: '/ja/developers/usecases'
+          },
           { text: '自分で建てる（英語）', link: '/developers/self-hosting' }
         ]
       }

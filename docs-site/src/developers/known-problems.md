@@ -142,6 +142,20 @@ The image failed, and the NFT name (the alt text) spilled out of the 60 px box a
 The portal now uses only values that start with `data:image/`, `http(s)://` or `/`, and falls back to the Clio-X logo when the image fails to load.
 The on-chain value stays `"aaa"`; it cannot be changed without a transaction from the NFT owner.
 
+## Visualizations and Chatbot find no results on Ocean Node 4.x
+
+**Where:** Clio-X portal (written for the separate result files of Pontus-X). **Status:** fixed on `deploy/hosting` (`39bd5c29`).
+
+Ocean Node 4.x returns a job's outputs as one `outputs.tar` (plus three logs); the two use-case pages look for files such as `wordcloud.json` or `final_output.json` by name, so they showed nothing.
+The portal now opens the tar in the browser. Details: [Visualizations and Chatbot](/developers/usecases).
+
+## Upstream's public chatbot backend no longer fits the portal
+
+**Where:** Clio-X (`ciferresearch/Cliox-rag-chatbot-backend`, last commit 2025-07-17). **Status:** replaced on the trial by our own small service.
+
+The portal reads the answer as a stream of server-sent events and deletes sessions with `DELETE /knowledge/session`; the public backend answers with one JSON body and has no delete. It also has no licence file.
+The trial runs `deploy/ocean-node/chatbot/server.py` instead. Details: [Visualizations and Chatbot](/developers/usecases).
+
 ## Smaller things
 
 - The profile sales counter showed the raw key `profile.sales`: before the count loads there is no number, so the translation could not be chosen. Fixed in 02abf67c.

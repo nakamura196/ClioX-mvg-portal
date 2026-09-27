@@ -27,3 +27,7 @@ From [When the publishing service closes](/archivists/when-a-node-closes):
 
 10. InterPARES Trust AI has “definition not yet developed” for _wallet_, _transaction_ and _smart contract_. Could the project contribute definitions?
 11. The Japanese names of the ISAD(G) elements in the finding-aid prototype are our own rendering. They should be checked against the published Japanese translation.
+
+## Visualizations and Chatbot
+
+12. **Which chat service should the Chatbot use?** Upstream's public service (`ciferresearch/Cliox-rag-chatbot-backend`, last updated 2025-07-17) no longer matches the portal and has no licence; the service upstream runs today is not published. The trial uses a small service we wrote. Could upstream publish theirs, or should ours be offered upstream? Also: preparing the Chatbot sends passages of the text out of the institution, so the project needs a rule on which records it may be used for. See [Visualizations and Chatbot](/developers/usecases).

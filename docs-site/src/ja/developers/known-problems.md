@@ -141,6 +141,20 @@ ocean.js の `createAsset()` は、データ NFT を作るときに `tokenURI` �
 いまは `data:image/`・`http(s)://`・`/` で始まる値だけを画像として使い、読み込みに失敗したときは Clio-X のロゴを出します。
 台帳上の値は `"aaa"` のままです。書き換えるには NFT の持ち主による取引が要ります。
 
+## Ocean Node 4.x では「可視化」「チャットボット」に結果が出ない
+
+**原因の場所:** Clio-X のポータル（Pontus-X の、結果が 1 ファイルずつ返る形を前提に書かれている）。**状況:** `deploy/hosting` で直しました（`39bd5c29`）。
+
+Ocean Node 4.x はジョブの成果物を `outputs.tar` 1 つ（とログ 3 つ）で返します。2 つのページは `wordcloud.json` や `final_output.json` のような名前でファイルを探すため、何も出ませんでした。
+ポータルが tar をブラウザで開くようにしました。詳しくは [「可視化」と「チャットボット」](/ja/developers/usecases)。
+
+## 本家の公開チャットボットのサービスが、ポータルに合わなくなっている
+
+**原因の場所:** Clio-X（`ciferresearch/Cliox-rag-chatbot-backend`、最終コミット 2025-07-17）。**状況:** 試用環境では自前の小さなサービスに置き換えました。
+
+ポータルは答えを少しずつ届く形（server-sent events）で読み、セッションを `DELETE /knowledge/session` で消します。公開版は JSON を 1 つ返すだけで、消す窓口もありません。ライセンスの記載もありません。
+試用環境では代わりに `deploy/ocean-node/chatbot/server.py` を動かしています。詳しくは [「可視化」と「チャットボット」](/ja/developers/usecases)。
+
 ## 小さなこと
 
 - プロフィールの販売数の欄に `profile.sales` がそのまま出ていました。件数を読み込む前は数が無く、訳語を引けなかったためです。02abf67c で修正済み。
