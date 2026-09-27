@@ -201,7 +201,12 @@ export default function AssetActions({
 
   // check for if user is whitelisted or blacklisted
   useEffect(() => {
-    if (!asset || !accountIdToUse) return
+    if (!asset) return
+    // 未接続は「分からない」（undefined）。false にするとファイル情報まで隠れる
+    if (!accountIdToUse) {
+      setIsAccountIdWhitelisted(undefined)
+      return
+    }
 
     setIsAccountIdWhitelisted(isAddressWhitelisted(asset, accountIdToUse))
   }, [accountIdToUse, asset])

@@ -1,6 +1,6 @@
 import testRender from '../../../../.jest/testRender'
 import { FileInfo } from '@oceanprotocol/lib'
-import { render } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import FileIcon from './index'
 
 describe('@shared/FileIcon', () => {
@@ -32,5 +32,14 @@ describe('@shared/FileIcon', () => {
       contentLength: '0'
     }
     render(<FileIcon file={file} isAccountWhitelisted />)
+  })
+  it('shows file info when no wallet is connected', () => {
+    render(<FileIcon file={file} isAccountWhitelisted={undefined} />)
+    expect(screen.getByText('url')).toBeInTheDocument()
+  })
+
+  it('hides file info for a denied account', () => {
+    render(<FileIcon file={file} isAccountWhitelisted={false} />)
+    expect(screen.queryByText('url')).not.toBeInTheDocument()
   })
 })
