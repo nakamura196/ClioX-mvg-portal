@@ -223,6 +223,8 @@ class Handler(BaseHTTPRequestHandler):
         given = self.headers.get("X-Chatbot-Key", "")
         if API_KEY and hmac.compare_digest(given, API_KEY):
             return True
+        # Say which case it was, never the value.
+        print(f"401: key {'missing' if not given else f'wrong (length {len(given)})'}", flush=True)
         self.send_json(401, {"error": "unauthorised"})
         return False
 

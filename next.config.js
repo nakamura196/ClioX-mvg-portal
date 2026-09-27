@@ -18,7 +18,9 @@ module.exports = (phase, { defaultConfig }) => {
     serverRuntimeConfig: {
       RESEND_API_KEY: process.env.RESEND_API_KEY,
       RESEND_FROM_EMAIL: process.env.RESEND_FROM_EMAIL,
-      CONTACT_EMAIL: process.env.CONTACT_EMAIL
+      CONTACT_EMAIL: process.env.CONTACT_EMAIL,
+      // /api/chatbot/* → チャットボットへの共有鍵（src/@utils/chatbot/upstreamAuth.ts）
+      CHATBOT_API_KEY: process.env.CHATBOT_API_KEY
     },
     webpack: (config, options) => {
       config.module.rules.push(

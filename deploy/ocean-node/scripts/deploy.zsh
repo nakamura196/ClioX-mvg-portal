@@ -85,6 +85,8 @@ remote "docker compose $profiles pull -q && docker compose $profiles up -d --rem
 # recreate it when only the mounted file changed (a new hostname stayed 404).
 if [[ "$profiles" == *tunnel* ]]; then remote "docker compose $profiles restart cloudflared >/dev/null"; fi
 if $chatbot; then
+  # server.py is mounted, so a new version needs a restart (like cloudflared).
+  remote "docker compose $profiles restart chatbot >/dev/null"
   # The model is downloaded once into the ollama-data volume (~1 GB).
   print "▶ Chatbot model"
   remote 'm=$(grep "^CHATBOT_MODEL=" .env | cut -d= -f2); docker compose exec -T ollama ollama pull "${m:-qwen2.5:1.5b}" 2>&1 | tail -1'
