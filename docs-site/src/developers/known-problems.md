@@ -175,6 +175,22 @@ The variable was set for the deployment, but the chat service logged every call 
 Reading it through `serverRuntimeConfig` in `next.config.js` (as `src/pages/api/contact-resend.ts` already does for its key) fixed it.
 The same service also had to learn chunked request bodies: Vercel sends the 1.5 MB upload that way (`d1fa37fb`).
 
+## A finished job stays at "Job settling" for up to an hour and is not listed
+
+**Where:** Ocean Node 4.2.0 configuration. **Status:** not fixed (the fix is known).
+
+On 2026-09-27 a free job started from the trial portal finished in 13 seconds and then sat at "Job settling" (status 71).
+After a job ends the node marks it as settling, and settles payments (`claimPayments`) **once an hour**; only then does the job become "Job finished" (status 70). A free job has nothing to settle but still waits for that run.
+The Visualizations and Chatbot pages list only status 70 (`src/components/TextAnalysis/JobList.tsx`), so the job is missing until then.
+The interval is `paymentClaimInterval` (seconds, default 3600, minimum 60) on each cluster in `DOCKER_COMPUTE_ENVIRONMENTS` (`deploy/ocean-node/docker-compose.yml`). Check it against the claim deadline for paid jobs (`claimDurationTimeout`) before changing it.
+
+## The Visualizations and Chatbot pages are not translated into Japanese
+
+**Where:** Clio-X portal (these pages do not use the string dictionary). **Status:** not fixed.
+
+With the portal switched to Japanese (`/ja/…`, or "EN / 日本語" at the top right), these two pages still show "Compute Jobs", "No visualization data available", "Clear Data" and so on in English.
+The text in `src/components/TextAnalysis/`, `ChatbotUnified/` and `ChatbotTrial/` does not go through `src/i18n/locales/{en,ja}.json`. The asset page (including job status) is translated.
+
 ## Smaller things
 
 - The profile sales counter showed the raw key `profile.sales`: before the count loads there is no number, so the translation could not be chosen. Fixed in 02abf67c.

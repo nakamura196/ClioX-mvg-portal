@@ -174,6 +174,22 @@ Ocean Node 4.x はジョブの成果物を `outputs.tar` 1 つ（とログ 3 つ
 `next.config.js` の `serverRuntimeConfig` 経由で読むようにして直りました（`src/pages/api/contact-resend.ts` が自分の鍵ですでにしている方法です）。
 あわせて、会話用サービスが分割送信（chunked）の本文を読めるようにしました。Vercel は 1.5 MB のアップロードをこの形で送ります（`d1fa37fb`）。
 
+## 終わったジョブが、最長 1 時間「ジョブを精算中」のまま一覧に出ない
+
+**原因の場所:** Ocean Node 4.2.0 の設定。**状況:** 未対応（直し方は分かっています）。
+
+2026-09-27、試用サイトの画面から始めた無償ジョブは 13 秒で終わりましたが、その後「ジョブを精算中」（`Job settling`、状態 71）で止まって見えました。
+ノードは、終わったジョブを「精算中」にしたあと、料金の精算（`claimPayments`）を**1 時間に 1 回**まとめて行い、そこで「完了」（状態 70）にします。無償ジョブは精算することがありませんが、この回を待つのは同じです。
+可視化とチャットボットのページは状態 70 のジョブだけを並べるため（`src/components/TextAnalysis/JobList.tsx`）、その間は一覧に出ません。
+間隔は `DOCKER_COMPUTE_ENVIRONMENTS` の各クラスタに `paymentClaimInterval`（秒、既定 3600、最小 60）を書けば縮められます（`deploy/ocean-node/docker-compose.yml`）。有償ジョブの精算期限（`claimDurationTimeout`）との兼ね合いを確かめてから変えます。
+
+## 「可視化」「チャットボット」の画面が日本語にならない
+
+**原因の場所:** Clio-X のポータル（このページ群は訳語の辞書を使っていない）。**状況:** 未対応。
+
+ポータルの日本語表示（`/ja/…`、右上の「EN / 日本語」）に切り替えても、この 2 ページの「Compute Jobs」「No visualization data available」「Clear Data」などは英語のまま出ます。
+`src/components/TextAnalysis/` と `ChatbotUnified/`・`ChatbotTrial/` の文言が、`src/i18n/locales/{en,ja}.json` を通っていないためです。資料のページ（計算ジョブの状態など）は訳されています。
+
 ## 小さなこと
 
 - プロフィールの販売数の欄に `profile.sales` がそのまま出ていました。件数を読み込む前は数が無く、訳語を引けなかったためです。02abf67c で修正済み。

@@ -127,11 +127,15 @@ Published on 2026-09-27 with the trial wallet (`0xedAa…262E`):
 
 One free job with each algorithm finished with exit code 0; the node's `outputs.tar` held the same five files (and the same 1.49 MB `final_output.json`) as the local runs.
 
-What was checked on screen: on the Visualizations page the finished job appears with **Add** (local `next dev` against the live node, the trial wallet's address, 2026-09-27). The step after that — the signed download of `outputs.tar` and the charts — still has to be checked with the wallet's key in a browser.
+What was checked on screen: on the Visualizations page the finished job appears with **Add** (local `next dev` against the live node, the trial wallet's address, 2026-09-27).
+On the live portal (`cliox.ldas.jp`) a free job was started from MetaMask in a browser (an allowed address other than the trial wallet, 2026-09-27 20:38 UTC). It finished in 13 seconds and then waited at "Job settling" for the node's hourly settlement ([known problem](/developers/known-problems)).
+The step after that — the signed download of `outputs.tar` and the charts — has not been checked yet.
 
 ## Limits
 
 - The pages show only **your own** jobs (the wallet you connected), and on the trial only jobs **started from the portal in the same browser**. Ocean Node 4.2.0 returns `inputDID` and `algoDID` as `null` for free jobs, so the portal remembers both when you start the job (browser storage, `src/@utils/jobAlgorithmMemory.ts`). Jobs started with the CLI, in another browser, or before this change are not listed.
 - The Visualizations page keeps upstream's project name _Email Text_ and chart titles ("Email Count Over Time"); the Federalist essays appear there.
 - The _Cameroon Gazette_ visualization and the Cameroon / InterPARES / UdL chatbots still exist only on Pontus-X.
+- A job appears up to an hour after it ends: it stays at "Job settling" until the node's hourly settlement, and the pages list only finished jobs.
+- These two pages stay in English when the portal is switched to Japanese.
 - The chat service runs on the same VM as the node (3 CPUs, 2.5 GiB for Ollama). One answer at a time; a second request while two are running gets "busy".
