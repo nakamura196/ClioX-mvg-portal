@@ -1,0 +1,87 @@
+{
+  "@context": ["https://w3id.org/did/v1"],
+  "id": "did:op",
+  "nftAddress": "",
+  "version": "4.1.0",
+  "chainId": 11155111,
+  "metadata": {
+    "created": "2026-09-26T00:00:00Z",
+    "updated": "2026-09-26T00:00:00Z",
+    "type": "dataset",
+    "name": "校異源氏物語 全54帖 (TEI/XML) - Compute 用",
+    "description": "池田亀鑑『校異源氏物語』（中央公論社）を底本とする源氏物語本文の TEI/XML、全 54 帖（デジタル源氏物語、CC0）。Compute-to-Data の試用のための記録で、ファイルは提供者のノードから外に出ず、承認された分析の結果だけが返る。54 帖は kouigenjimonogatari.github.io のコミット f695a1af の xml/master を 1 つの tar.gz（sha256 b2df393a…）にまとめたもの。\n\nThe Kōi Genji monogatari TEI/XML, all 54 chapters (Digital Genji, CC0), based on Ikeda Kikan's edition. A trial record for Compute-to-Data: the files stay on the custodian's node and only the results of an approved analysis are returned. The 54 files are one tar.gz of xml/master at commit f695a1af (sha256 b2df393a…).",
+    "tags": ["clio-x-trial", "tei", "genji", "japanese-classics", "compute"],
+    "author": "デジタル源氏物語 / Digital Genji (kouigenjimonogatari)",
+    "license": "CC0-1.0",
+    "additionalInformation": {
+      "termsAndConditions": true,
+      "source": "https://kouigenjimonogatari.github.io/",
+      "sourceCommit": "f695a1affd4dc0581763ab0f4652fe016a695d50",
+      "chapters": 54,
+      "sourceEdition": {
+        "author": "池田亀鑑",
+        "title": "校異源氏物語",
+        "publisher": "中央公論社"
+      },
+      "archiveSha256": "b2df393a0b264aef857d49aeaa1641051ec43e716a7367703758fdf4d44d6ca5"
+    }
+  },
+  "services": [
+    {
+      "id": "def0ad4bb76f1330fbb7bb48a92f1083a747224e1f038db8ea36e0af822fb1d1",
+      "type": "compute",
+      "files": {
+        "datatokenAddress": "0x0",
+        "nftAddress": "0x0",
+        "files": [
+          {
+            "type": "url",
+            "url": "https://raw.githubusercontent.com/nakamura196/ClioX-mvg-portal/e57d67a4ec9fa2b0e43fd9387f9957024c9c054d/deploy/trial/sample/kouigenji-tei-f695a1af.tar.gz",
+            "method": "GET"
+          }
+        ]
+      },
+      "datatokenAddress": "",
+      "serviceEndpoint": "https://cliox-node.ldas.jp",
+      "timeout": 86400,
+      "compute": {
+        "allowRawAlgorithm": false,
+        "allowNetworkAccess": false,
+        "publisherTrustedAlgorithmPublishers": ["*"],
+        "publisherTrustedAlgorithms": [
+          {
+            "did": "*",
+            "filesChecksum": "*",
+            "containerSectionChecksum": "*"
+          }
+        ]
+      }
+    }
+  ],
+  "indexedMetadata": {
+    "event": {},
+    "nft": {
+      "address": "",
+      "name": "Clio-X trial: Genji TEI",
+      "symbol": "CLIOX-TRIAL",
+      "state": 5,
+      "tokenURI": "",
+      "owner": "",
+      "created": ""
+    },
+    "purgatory": {
+      "state": false
+    },
+    "stats": [
+      {
+        "orders": 0,
+        "prices": [
+          {
+            "price": "0"
+          }
+        ]
+      }
+    ],
+    "datatokens": []
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "@context": ["https://w3id.org/did/v1"],
+  "id": "did:op",
+  "nftAddress": "",
+  "version": "4.1.0",
+  "chainId": 11155111,
+  "metadata": {
+    "created": "2026-09-26T00:00:00Z",
+    "updated": "2026-09-26T00:00:00Z",
+    "type": "algorithm",
+    "name": "Genji chapter profile - sample analysis",
+    "description": "For each TEI chapter of the Kōi Genji monogatari: title, pages, lines, characters and the 10 most frequent characters; returns JSON and CSV only. Reads TEI files directly or from a .tar.gz / .zip. Python standard library only; the source is public so anyone can check what runs on the data.\n\n校異源氏物語の各帖について、題・頁数・行数・文字数・頻出文字 10 位を数え、その集計（JSON と CSV）だけを返す分析。",
+    "tags": ["clio-x-trial", "sample", "tei", "genji"],
+    "author": "Clio-X trial (UBC / University of Tokyo)",
+    "license": "MIT",
+    "additionalInformation": {
+      "termsAndConditions": true
+    },
+    "algorithm": {
+      "language": "python",
+      "format": "docker-image",
+      "version": "1.1",
+      "container": {
+        "entrypoint": "python $ALGO",
+        "image": "python",
+        "tag": "3.12-slim",
+        "checksum": "sha256:f77ac9e44ae96ef2c90b8053ea08c31f8be030f824196b0ae4db6d462c84e51f"
+      }
+    }
+  },
+  "services": [
+    {
+      "id": "a65c450a585ca867c3a75be7d83933be8b38cd6947205be7a13f5a4a9b92504b",
+      "type": "access",
+      "files": {
+        "datatokenAddress": "0x0",
+        "nftAddress": "0x0",
+        "files": [
+          {
+            "type": "url",
+            "url": "https://raw.githubusercontent.com/nakamura196/ClioX-mvg-portal/e57d67a4ec9fa2b0e43fd9387f9957024c9c054d/deploy/trial/algorithm/genji_profile.py",
+            "method": "GET"
+          }
+        ]
+      },
+      "timeout": 86400,
+      "serviceEndpoint": "https://cliox-node.ldas.jp"
+    }
+  ],
+  "indexedMetadata": {
+    "event": {},
+    "nft": {
+      "address": "",
+      "name": "Clio-X trial",
+      "symbol": "CLIOX-TRIAL",
+      "state": 5,
+      "tokenURI": "",
+      "owner": "",
+      "created": ""
+    },
+    "purgatory": {
+      "state": false
+    },
+    "stats": [
+      {
+        "orders": 0,
+        "prices": [
+          {
+            "price": "0"
+          }
+        ]
+      }
+    ],
+    "datatokens": []
+  }
+}
