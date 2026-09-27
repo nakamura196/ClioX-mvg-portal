@@ -227,6 +227,13 @@ On Vercel (Hobby plan):
    On the Hobby plan it does **not** cover the production domain
    (`<project>.vercel.app`), which stays open to everyone. Remove that domain
    under Settings → Domains until you want the site public.
+5. To give the trial a stable name while it stays private, assign a custom
+   domain to the **branch**, not to production: `POST /v10/projects/<id>/domains`
+   with `{"name": "cliox.ldas.jp", "gitBranch": "deploy/hosting"}` (the CLI's
+   `vercel api` can send it). A branch domain counts as a preview, so Vercel
+   Authentication still applies (checked: an anonymous request is redirected to
+   the Vercel login). In Cloudflare, add the CNAME Vercel recommends with the
+   proxy **off** (DNS only), so Cloudflare's bot protection is not in the path.
 
 ## 7. Processing location for the carbon estimate
 
