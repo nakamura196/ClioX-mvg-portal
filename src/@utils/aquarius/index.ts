@@ -366,6 +366,34 @@ function esFieldValues(asset: any, field: string): any[] {
   return values.flatMap((v) => (Array.isArray(v) ? v : [v]))
 }
 
+// 全角・半角、大文字・小文字、カタカナ・ひらがなの違いを無視して比べる
+export function normalizeForSearch(s: string): string {
+  return s
+    .normalize('NFKC')
+    .toLowerCase()
+    .replace(/[ァ-ヶ]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0x60))
+}
+
+// query_string を「語がすべて、どれかの欄に含まれる」で判定する。
+// 語は空白と OR で区切る。日本語は分かち書きしないので部分一致にする。
+export function queryStringMatches(
+  asset: any,
+  qs: { query: string; fields?: string[] }
+): boolean {
+  const words = String(qs.query)
+    .replace(/\\(.)/g, '$1')
+    .split(/\s+OR\s+|\s+/)
+    .map((w) => normalizeForSearch(w.replace(/\*/g, '')))
+    .filter((w) => w !== '')
+  if (words.length === 0) return true
+  const fields = (qs.fields || []).map((f) => f.replace(/\^.*$/, ''))
+  const haystack = fields
+    .flatMap((f) => esFieldValues(asset, f))
+    .map((v) => normalizeForSearch(String(v)))
+    .join('\n')
+  return words.every((w) => haystack.includes(w))
+}
+
 function esClauseMatches(asset: any, clause: any): boolean {
   if (!clause || typeof clause !== 'object') return true
 
@@ -410,7 +438,12 @@ function esClauseMatches(asset: any, clause: any): boolean {
   if (clause.exists?.field) {
     return esFieldValues(asset, clause.exists.field).length > 0
   }
-  // 未対応の節（range / query_string 等）は素通しにする。
+  // 検索語。Ocean Node は日本語を含め全文検索を正しく扱えないので、
+  // 以前はここも素通しになっていて、何を入れても全件が出ていた。
+  if (clause.query_string?.query !== undefined) {
+    return queryStringMatches(asset, clause.query_string)
+  }
+  // 未対応の節（range 等）は素通しにする。
   // 落として全件消すより、多めに返して表示側で弾く方が安全。
   return true
 }
@@ -451,6 +484,9 @@ export async function queryMetadata(
         matchesEsQuery(a, (query as any)?.query)
       )
       transformed.totalResults = transformed.results.length
+      // 絞り込んだ後の件数でページ数を数え直す（全件のままだと空のページが出る）
+      const size = query.size || 21
+      transformed.totalPages = Math.ceil(transformed.totalResults / size)
     }
     return transformed
   } catch (error) {
