@@ -8,6 +8,7 @@
 # (the `cloudflared` service). Its routing is in cloudflared/config.yml:
 #     <node hostname>      -> http://ocean-node:8001
 #     <subgraph hostname>  -> http://graph-node:8000
+#     <chatbot hostname>   -> http://chatbot:8001   (profile chatbot, optional)
 #
 # Secrets live only in ./.env on the server (mode 600). See .env.example.
 #
@@ -173,6 +174,47 @@ services:
     depends_on: [graph-node, ipfs]
     networks: [cliox]
 
+  # --- Chatbot for /usecases/chatbot (optional) --------------------------------
+  # Started only when CHATBOT_API_KEY is set in .env (deploy.zsh adds the
+  # profile). The portal's API routes call it at the chatbot hostname in
+  # cloudflared/config.yml with header X-Chatbot-Key. Knowledge is held in
+  # memory; nothing is written to disk except the model files.
+  # Memory: the model (qwen2.5:1.5b, ~1 GB) needs ~1.5 GiB while answering.
+  chatbot:
+    image: python:3.12-slim@sha256:f77ac9e44ae96ef2c90b8053ea08c31f8be030f824196b0ae4db6d462c84e51f
+    container_name: cliox-chatbot
+    restart: unless-stopped
+    profiles: [chatbot]
+    command: ['python', '/app/server.py']
+    volumes:
+      - ./chatbot/server.py:/app/server.py:ro
+    environment:
+      API_KEY: '${CHATBOT_API_KEY:-}'
+      OLLAMA_URL: http://ollama:11434
+      MODEL: '${CHATBOT_MODEL:-qwen2.5:1.5b}'
+      PYTHONUNBUFFERED: '1'
+    ports:
+      - '127.0.0.1:8011:8001'
+    mem_limit: 256m
+    depends_on: [ollama]
+    networks: [cliox]
+
+  ollama:
+    image: ollama/ollama:0.34.2@sha256:da6e0dc5651df159e45686fd663c4dbe1624a52c44d7280eeac1551d8f865532
+    container_name: cliox-ollama
+    restart: unless-stopped
+    profiles: [chatbot]
+    environment:
+      OLLAMA_KEEP_ALIVE: 30m
+      OLLAMA_NUM_PARALLEL: '1'
+      OLLAMA_MAX_LOADED_MODELS: '1'
+    volumes:
+      - ollama-data:/root/.ollama
+    # Leave CPU for compute jobs (the C2D environment uses up to 2 CPUs).
+    cpus: 3
+    mem_limit: 2560m
+    networks: [cliox]
+
   # --- Public endpoints -------------------------------------------------------
   cloudflared:
     image: cloudflare/cloudflared:2026.9.3
@@ -204,6 +246,7 @@ volumes:
   node-sqlite:
   ipfs-data:
   postgres-data:
+  ollama-data:
 
 networks:
   cliox:

@@ -18,7 +18,8 @@
 #   2. Creates /opt/cliox-node/.env (mode 600) if missing and generates the
 #      internal passwords on the VM. They are never printed or copied back.
 #   3. Refuses to start until PRIVATE_KEY and C2D_ALLOWED_ADDRESSES are set.
-#   4. Pulls pinned images and starts the stack (plus the tunnel if a token is set).
+#   4. Pulls pinned images and starts the stack (plus the tunnel if a token is set,
+#      and the chatbot + its model if CHATBOT_API_KEY is set; see setup-chatbot.zsh).
 set -euo pipefail
 
 HOST="${1:?usage: deploy.zsh <ssh-host> [subgraph|status]}"
@@ -74,8 +75,16 @@ remote '
 
 profiles=""
 if remote 'grep -q "^CLOUDFLARE_TUNNEL_TOKEN=." .env'; then profiles="--profile tunnel"; fi
+# Chatbot for /usecases/chatbot: on once setup-chatbot.zsh has written the key.
+chatbot=false
+if remote 'grep -q "^CHATBOT_API_KEY=." .env'; then profiles="$profiles --profile chatbot"; chatbot=true; fi
 
 print "▶ Starting ($profiles)"
 remote "docker compose $profiles pull -q && docker compose $profiles up -d --remove-orphans"
+if $chatbot; then
+  # The model is downloaded once into the ollama-data volume (~1 GB).
+  print "▶ Chatbot model"
+  remote 'm=$(grep "^CHATBOT_MODEL=" .env | cut -d= -f2); docker compose exec -T ollama ollama pull "${m:-qwen2.5:1.5b}" 2>&1 | tail -1'
+fi
 sleep 15
 status
