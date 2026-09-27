@@ -18,7 +18,7 @@
 | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | 試用ノードの資産                    | 公開済み、索引にも載っている（下の表）                                                                                                                             |
 | 2 つのアルゴリズムでの試しのジョブ  | まだ流れていない。試用ウォレットのジョブ一覧に、どちらのアルゴリズムのジョブも無い                                                                                 |
-| ポータルのコードの DID              | 仮の値（`did:op:TRIAL_…`）のまま。`feat/usecases-sepolia` で未コミット                                                                                             |
+| ポータルのコードの DID              | Sepolia の実際の DID（下の表）を登録済み。`feat/usecases-sepolia` の `fb777a6d`。ブランチは未マージ                                                                |
 | 会話用サービス `cliox-chat.ldas.jp` | 動いている。外から `GET /api/health` → `{"status": "healthy", "ollama_connected": true, "model": "qwen2.5:1.5b"}`                                                  |
 | ポータル（Vercel）→ 会話用サービス  | 未確認。Vercel の関数はデータセンターのアドレスから呼ぶ。`ldas.jp` の自動アクセス対策は、以前これを止めたことがある（[既知の問題](/ja/developers/known-problems)） |
 
@@ -61,7 +61,7 @@
 | 可視化用・知識用のアルゴリズムと、ザ・フェデラリストの標本                                  | `deploy/trial/algorithm/`、`deploy/trial/sample/`                                              | `dcf93888` |
 | 小さな会話用サービスと Ollama。鍵を置いたときだけ起動                                       | `deploy/ocean-node/chatbot/server.py`、`docker-compose.yml`（profile `chatbot`）               | `412841d5` |
 | 3 つの資産を公開し、試しのジョブを 2 つ流すスクリプト                                       | `deploy/trial/usecases.zsh`、`deploy/trial/metadata/*`                                         | `7808ea0c` |
-| Sepolia の DID。チャットボットに「Trial samples (Sepolia)」を足し、Sepolia では先頭に並べる | `src/components/TextAnalysis/_constants.ts`、`src/components/ChatbotTrial/`、`ChatbotUnified/` | 未コミット |
+| Sepolia の DID。チャットボットに「Trial samples (Sepolia)」を足し、Sepolia では先頭に並べる | `src/components/TextAnalysis/_constants.ts`、`src/components/ChatbotTrial/`、`ChatbotUnified/` | `fb777a6d` |
 
 ### アルゴリズム
 

@@ -18,7 +18,7 @@ The portal changes below are on branch `feat/usecases-sepolia` and have not been
 | ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Assets on the trial node           | Published and indexed (table below)                                                                                                                                         |
 | Trial jobs with the two algorithms | Not run yet: the trial wallet's job list has no job for either algorithm                                                                                                    |
-| DIDs in the portal code            | Still placeholders (`did:op:TRIAL_…`), uncommitted on `feat/usecases-sepolia`                                                                                               |
+| DIDs in the portal code            | Real Sepolia DIDs (table below), committed as `fb777a6d` on `feat/usecases-sepolia`; branch not merged                                                                      |
 | Chat service `cliox-chat.ldas.jp`  | Running: `GET /api/health` → `{"status": "healthy", "ollama_connected": true, "model": "qwen2.5:1.5b"}` from outside                                                        |
 | Portal (Vercel) → chat service     | Not tested. Vercel functions run from data-centre addresses, which the `ldas.jp` zone's bot protection challenged before (see [Known problems](/developers/known-problems)) |
 
@@ -54,14 +54,14 @@ Checked by reading the code on `deploy/hosting` (`a3e93a55`) and the Ocean Node 
 
 ## What was added
 
-| What                                                                               | Where                                                                                          | Commit            |
-| ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | ----------------- |
-| Open `outputs.tar` in the browser, pass its files on by name                       | `src/@utils/computeResultFiles.ts`, both `JobList.tsx`                                         | `39bd5c29`        |
-| Send a shared key to the chat service (only if `CHATBOT_API_KEY` is set)           | `src/@utils/chatbot/upstreamAuth.ts`, `src/pages/api/chatbot/*.ts`                             | `f4914b6f`        |
-| Text-analysis and knowledge-passage algorithms, Federalist Papers sample           | `deploy/trial/algorithm/`, `deploy/trial/sample/`                                              | `dcf93888`        |
-| A small chat service + Ollama, started only when a key is set                      | `deploy/ocean-node/chatbot/server.py`, `docker-compose.yml` (profile `chatbot`)                | `412841d5`        |
-| Publish script for the three assets and two test jobs                              | `deploy/trial/usecases.zsh`, `deploy/trial/metadata/*`                                         | `7808ea0c`        |
-| Sepolia DIDs; a "Trial samples (Sepolia)" chatbot project, listed first on Sepolia | `src/components/TextAnalysis/_constants.ts`, `src/components/ChatbotTrial/`, `ChatbotUnified/` | not committed yet |
+| What                                                                               | Where                                                                                          | Commit     |
+| ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | ---------- |
+| Open `outputs.tar` in the browser, pass its files on by name                       | `src/@utils/computeResultFiles.ts`, both `JobList.tsx`                                         | `39bd5c29` |
+| Send a shared key to the chat service (only if `CHATBOT_API_KEY` is set)           | `src/@utils/chatbot/upstreamAuth.ts`, `src/pages/api/chatbot/*.ts`                             | `f4914b6f` |
+| Text-analysis and knowledge-passage algorithms, Federalist Papers sample           | `deploy/trial/algorithm/`, `deploy/trial/sample/`                                              | `dcf93888` |
+| A small chat service + Ollama, started only when a key is set                      | `deploy/ocean-node/chatbot/server.py`, `docker-compose.yml` (profile `chatbot`)                | `412841d5` |
+| Publish script for the three assets and two test jobs                              | `deploy/trial/usecases.zsh`, `deploy/trial/metadata/*`                                         | `7808ea0c` |
+| Sepolia DIDs; a "Trial samples (Sepolia)" chatbot project, listed first on Sepolia | `src/components/TextAnalysis/_constants.ts`, `src/components/ChatbotTrial/`, `ChatbotUnified/` | `fb777a6d` |
 
 ### The algorithms
 
