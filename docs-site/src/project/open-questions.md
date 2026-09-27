@@ -23,11 +23,11 @@ From [When the publishing service closes](/archivists/when-a-node-closes):
 
 9. **Gaia-X.** The portal can draft Gaia-X Service Credentials, but only on Pontus-X, and the template follows an old Trust Framework (22.10). Do Clio-X institutions want to take part in Gaia-X? See [The Gaia-X Service Credential button](/developers/gaia-x-credential).
 
-## Use cases
-
-10. **The chatbot's service.** Upstream's public chatbot backend no longer matches the portal, and the one upstream runs is not public (see [Visualizations and Chatbot](/developers/usecases)). The trial runs its own small service with a local model on the trial VM. Could upstream publish the current service (with a licence), so that institutions running their own portal use the same one? And is a local model on the node's VM acceptable for a trial, or should answers come from an external model service?
-
 ## Vocabulary
 
-11. InterPARES Trust AI has “definition not yet developed” for _wallet_, _transaction_ and _smart contract_. Could the project contribute definitions?
-12. The Japanese names of the ISAD(G) elements in the finding-aid prototype are our own rendering. They should be checked against the published Japanese translation.
+10. InterPARES Trust AI has “definition not yet developed” for _wallet_, _transaction_ and _smart contract_. Could the project contribute definitions?
+11. The Japanese names of the ISAD(G) elements in the finding-aid prototype are our own rendering. They should be checked against the published Japanese translation.
+
+## Visualizations and Chatbot
+
+12. **Which chat service should the Chatbot use?** Upstream's public service (`ciferresearch/Cliox-rag-chatbot-backend`, last updated 2025-07-17) no longer matches the portal and has no licence; the service upstream runs today is not published. The trial uses a small service we wrote. Could upstream publish theirs, or should ours be offered upstream? Also: preparing the Chatbot sends passages of the text out of the institution, so the project needs a rule on which records it may be used for. And is a local model on the node's own VM acceptable for the trial (it answers in 15–26 s), or should answers come from an external model service? See [Visualizations and Chatbot](/developers/usecases).

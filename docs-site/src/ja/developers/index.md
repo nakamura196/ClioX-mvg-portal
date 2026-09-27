@@ -14,7 +14,7 @@ Pontus-X の加盟が無くても動き、すべて無料枠で運用してい�
 
 ## 構築手順の要点
 
-詳しい手順は英語の **[Self-hosting on Sepolia](/developers/self-hosting)** にあります。要点は次のとおりです。
+詳しい手順は **[Sepolia で Clio-X を自分で建てる](./self-hosting)** にあります。要点は次のとおりです。
 
 - **公式のまま使うもの。** Ocean Node 4.2.0 の設定はすべて公式の項目です。Sepolia の Ocean のコントラクトは公式の配備で、アドレスの一覧もイメージに同梱のもの（`@oceanprotocol/contracts` 2.9.0）を使います。
 - **この構成で足したもの。** ポータルへの Sepolia の追加、自前の Ocean Node と subgraph、ブロック 11,459,550 から始める subgraph（公式の配備ブロックからでは無料の RPC で数日かかるため、パッチ 2 つで短縮）、計算は無償のみ・許可リスト・ネットワーク無し・2 CPU / 2 GiB。
@@ -24,6 +24,7 @@ Pontus-X の加盟が無くても動き、すべて無料枠で運用してい�
 ## ページ
 
 - **[API（OpenAPI）](./api)** — Clio-X がノードと subgraph に送る呼び出しの一覧。
+- **[Sepolia で Clio-X を自分で建てる](./self-hosting)** — 仮想マシン、秘密情報、ノードと subgraph、Cloudflare Tunnel、ポータルの手順。
 - **[CLI で登録と無償の計算](./trial-run)** — 公式 CLI で見本を登録し、無償の計算ジョブを動かす手順。
 - **[分かっている問題](./known-problems)** — 原因と回避策。
 
