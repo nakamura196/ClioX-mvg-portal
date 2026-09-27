@@ -202,7 +202,10 @@ def ollama_connected():
 
 
 class Handler(BaseHTTPRequestHandler):
-    protocol_version = "HTTP/1.1"
+    # One request per connection. Keeping connections open gains nothing
+    # behind the tunnel, and a request whose body was not read in full would
+    # otherwise be misread as the next request (seen 2026-09-27).
+    protocol_version = "HTTP/1.0"
     server_version = "cliox-trial-chatbot"
 
     def log_message(self, fmt, *args):  # no request bodies or session ids in logs
@@ -223,11 +226,30 @@ class Handler(BaseHTTPRequestHandler):
         self.send_json(401, {"error": "unauthorised"})
         return False
 
-    def read_json(self):
+    def read_body(self):
+        """Read the whole body, also when it is sent in chunks (the portal's
+        server functions on Vercel send large uploads that way). Always called
+        before answering, so no unread bytes are left on the connection."""
+        if "chunked" in self.headers.get("Transfer-Encoding", "").lower():
+            parts, total = [], 0
+            while True:
+                size = int(self.rfile.readline().split(b";")[0].strip() or b"0", 16)
+                if size == 0:
+                    self.rfile.readline()  # blank line after the last chunk
+                    break
+                total += size
+                if total > MAX_BODY:
+                    raise ValueError("request too large")
+                parts.append(self.rfile.read(size))
+                self.rfile.readline()  # CRLF after each chunk
+            return b"".join(parts)
         length = int(self.headers.get("Content-Length") or 0)
         if length > MAX_BODY:
             raise ValueError("request too large")
-        return json.loads(self.rfile.read(length) or b"{}")
+        return self.rfile.read(length)
+
+    def read_json(self):
+        return json.loads(self.body or b"{}")
 
     def session_id(self, body=None):
         sid = (body or {}).get("session_id") or self.headers.get("X-Session-ID") or ""
@@ -267,6 +289,10 @@ class Handler(BaseHTTPRequestHandler):
         self.send_json(200, {"success": True, "session_id": sid, "message": "Session deleted"})
 
     def do_POST(self):
+        try:
+            self.body = self.read_body()
+        except ValueError as e:
+            return self.send_json(413, {"error": str(e)})
         if not self.authorised():
             return
         path = self.path.split("?")[0]
@@ -344,9 +370,7 @@ class Handler(BaseHTTPRequestHandler):
             self.send_response(200)
             self.send_header("Content-Type", "text/event-stream")
             self.send_header("Cache-Control", "no-cache")
-            self.send_header("Connection", "close")
             self.end_headers()
-            self.close_connection = True
 
             def event(obj):
                 self.wfile.write(f"data: {json.dumps(obj, ensure_ascii=False)}\n\n".encode())
