@@ -97,25 +97,6 @@ function bareJobId(jobId: string): string {
   return i >= 0 ? jobId.slice(i + 1) : jobId
 }
 
-/**
- * ジョブ投入に成功した直後に呼ぶ。
- * 応答の形は経路（無償 / 有償）によって違うので、構造を仮定せずに jobId を探す。
- */
-export function rememberJobAlgorithm(
-  response: unknown,
-  algorithmDid: string | undefined
-): void {
-  remember(response, algorithmDid, STORAGE_KEY)
-}
-
-/** rememberJobAlgorithm と同じく、ジョブを流したデータセットの DID を控える。 */
-export function rememberJobDataset(
-  response: unknown,
-  datasetDid: string | undefined
-): void {
-  remember(response, datasetDid, DATASET_KEY)
-}
-
 function remember(response: unknown, did: string | undefined, key: string) {
   if (!did) return
 
@@ -137,6 +118,25 @@ function remember(response: unknown, did: string | undefined, key: string) {
     return
   }
   write(memory, key)
+}
+
+/**
+ * ジョブ投入に成功した直後に呼ぶ。
+ * 応答の形は経路（無償 / 有償）によって違うので、構造を仮定せずに jobId を探す。
+ */
+export function rememberJobAlgorithm(
+  response: unknown,
+  algorithmDid: string | undefined
+): void {
+  remember(response, algorithmDid, STORAGE_KEY)
+}
+
+/** rememberJobAlgorithm と同じく、ジョブを流したデータセットの DID を控える。 */
+export function rememberJobDataset(
+  response: unknown,
+  datasetDid: string | undefined
+): void {
+  remember(response, datasetDid, DATASET_KEY)
 }
 
 /** ノードが algoDID を返さなかったときの控え。無ければ undefined。 */
