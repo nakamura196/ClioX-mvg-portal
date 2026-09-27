@@ -66,6 +66,37 @@ The node's `configuration.log` for that job says `Downloading asset 0` and fetch
 **Workaround:** pack a multi-file collection into one `.tar.gz` and let the algorithm open it.
 The worked example is in [CLI: publish and free compute](./trial-run#second-example-koi-genji-monogatari-tei).
 
+## The subgraph stops on a dispenser it never saw
+
+**Where:** Ocean subgraph (upstream commit `2f322ee`) with a truncated `startBlock`. **Status:** patch written (`deploy/hosting` commit `667637f4`); redeploy with graft pending.
+
+From 26 September 23:18 UTC the subgraph stayed at block 11,696,316 while Sepolia moved on (95,000 blocks behind on 27 September).
+graph-node logged, once an hour: _missing value for non-nullable field `contract`_ in `handleTokensDispensed`, block 11,701,495.
+The Dispenser and FixedRateExchange contracts are singletons shared by every datatoken.
+Starting at block 11,459,550 we still receive their events for dispensers created earlier; the mapping then creates an empty entity that cannot be saved.
+graph-node treats this as non-deterministic and retries the same block for ever.
+
+What users saw: new assets were missing from the subgraph, so the asset page could not read the price (`Cannot read properties of null (reading 'templateId')`), and **“Datasets this algorithm can run on”** and the algorithm picker kept spinning.
+
+**Fix:** `skip-unknown-singletons.patch` makes every Dispenser and FixedRateExchange handler return when the entity was never created.
+Redeploy with a graft so indexing continues from the last good block instead of starting over:
+
+```sh
+zsh deploy/ocean-node/scripts/deploy.zsh mdx-clio subgraph QmR86ay2HF9AVb7cAJRgeDibESySDJPY9wnQiaJVM75JRg 11696316
+```
+
+The same class of problem as the missing `templateId` (fixed earlier by `template-id-fallback.patch`): anything created before `startBlock` is unknown to the subgraph.
+
+## Ocean Node 4.x no longer lists its service endpoints
+
+**Where:** Ocean Node 4.2.0 vs the portal's `@oceanprotocol/lib` 3.1.3. **Status:** fixed in the portal (commit `616ce890`).
+
+ocean.js 3.1.3 reads `serviceEndpoints` (name → `[method, path]`) from the node's root (`GET /`) to find the URL of every provider call.
+Ocean Node 3.2.0 returned it; 4.2.0 does not (the routes themselves still exist at the same paths).
+Without the list, ocean.js silently returns `null`: the asset page said **“No compute environments available”** and **“No file information”**, and compute could not start.
+The portal now adds the 3.2.0 list when the node reports `software: "Ocean-Node"` without `serviceEndpoints` (`src/@utils/oceanNodeEndpoints.ts`).
+Note that ocean.js asks for `fileinfo` while the node names it `fileInfo`; both are provided.
+
 ## Assets published with the CLI show a broken thumbnail
 
 **Where:** `@oceanprotocol/lib` 9.2.1 (used by `ocean-cli` 2.1.0) and the portal. **Status:** fixed in the portal (commit `f0307b02` on `deploy/hosting`).

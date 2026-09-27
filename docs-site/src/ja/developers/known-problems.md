@@ -65,6 +65,37 @@ Ocean Node と Typesense を同時に起動すると、索引の保存先を作�
 **回避策:** 複数のファイルは 1 つの `.tar.gz` にまとめて登録し、分析の側で開きます。
 実例は [CLI で登録と無償の計算](./trial-run#校異源氏物語の-tei-を-compute-用に登録する) にあります。
 
+## サブグラフが、知らない Dispenser で止まる
+
+**原因:** Ocean のサブグラフ（上流のコミット `2f322ee`）と、読み始め位置（`startBlock`）を後ろにずらしたこと。**状態:** 修正を用意済み（`deploy/hosting` のコミット `667637f4`）。接ぎ木での配り直しが未実施。
+
+9 月 26 日 23:18（UTC）から、サブグラフは 11,696,316 番のブロックで止まっていました。9 月 27 日の時点で、台帳より約 9 万 5 千ブロック遅れていました。
+graph-node のログには、1 時間ごとに次の失敗が出ていました。11,701,495 番のブロックの `handleTokensDispensed` で、_missing value for non-nullable field `contract`_（必須の欄 `contract` が空）。
+Dispenser（無償配布）と FixedRateExchange（固定価格の販売）は、すべてのデータトークンで共有する 1 つの契約です。
+11,459,550 番から読み始めても、それより前に作られた配布の出来事は届きます。サブグラフは中身の空の記録を作ろうとして、保存に失敗します。
+graph-node はこれを「一時的な失敗」とみなし、同じブロックを永久に再試行します。
+
+利用者から見えたこと: 新しい資料がサブグラフに無いので、資料ページが価格を読めません（`Cannot read properties of null (reading 'templateId')`）。**「このアルゴリズムを実行できるデータセット」** とアルゴリズムの選択欄が、読み込み中のまま止まりました。
+
+**直し方:** `skip-unknown-singletons.patch` で、作成の出来事を見ていない Dispenser と固定価格は読み飛ばします。
+最初から読み直さないよう、止まる前の最後のブロックから接ぎ木（graft）して配り直します。
+
+```sh
+zsh deploy/ocean-node/scripts/deploy.zsh mdx-clio subgraph QmR86ay2HF9AVb7cAJRgeDibESySDJPY9wnQiaJVM75JRg 11696316
+```
+
+以前の `templateId` が 0 になる問題（`template-id-fallback.patch` で修正済み）と同じ種類です。読み始め位置より前に作られたものを、サブグラフは知りません。
+
+## Ocean Node 4.x が窓口の一覧を返さない
+
+**原因:** Ocean Node 4.2.0 と、ポータルの `@oceanprotocol/lib` 3.1.3 の食い違い。**状態:** ポータル側で修正済み（コミット `616ce890`）。
+
+ocean.js 3.1.3 は、ノードの入口（`GET /`）が返す `serviceEndpoints`（窓口の名前 → `[メソッド, パス]`）を見て、ノードに頼む処理の URL を決めます。
+Ocean Node 3.2.0 はこれを返していましたが、4.2.0 は返しません（窓口そのものは同じパスに残っています）。
+一覧が無いと、ocean.js は黙って `null` を返します。資料ページには **「利用できるコンピュート環境がありません」** と **「ファイル情報がありません」** が出て、計算も始められませんでした。
+いまはポータルが、ノードが `software: "Ocean-Node"` を名乗り一覧を返さないときに、3.2.0 の一覧を補います（`src/@utils/oceanNodeEndpoints.ts`）。
+なお ocean.js は `fileinfo` という名前で探し、ノード側の名前は `fileInfo` です。両方を入れています。
+
 ## CLI で登録した資料のサムネイルが切れる
 
 **原因:** `@oceanprotocol/lib` 9.2.1（`ocean-cli` 2.1.0 が使用）とポータル。**状態:** ポータル側で修正済み（`deploy/hosting` のコミット `f0307b02`）。
