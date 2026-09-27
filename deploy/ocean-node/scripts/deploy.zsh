@@ -7,6 +7,10 @@
 # Usage (from the repository root):
 #   zsh deploy/ocean-node/scripts/deploy.zsh <ssh-host>            # sync + start
 #   zsh deploy/ocean-node/scripts/deploy.zsh <ssh-host> subgraph   # (re)deploy subgraph
+#   zsh deploy/ocean-node/scripts/deploy.zsh <ssh-host> subgraph <base-deployment> <block>
+#       # redeploy, continuing from an existing deployment (graft) instead of
+#       # re-indexing from startBlock. Use the current deployment id (Qm…) and
+#       # its last indexed block (status shows both).
 #   zsh deploy/ocean-node/scripts/deploy.zsh <ssh-host> status
 #
 # What it does:
@@ -29,13 +33,19 @@ status() {
   print -- "--- node"
   remote 'curl -fsS -m 5 http://127.0.0.1:8001/ | head -c 300; echo'
   print -- "--- subgraph"
-  remote "curl -fsS -m 5 -H 'content-type: application/json' --data '{\"query\":\"{_meta{block{number} hasIndexingErrors}}\"}' http://127.0.0.1:8000/subgraphs/name/oceanprotocol/ocean-subgraph; echo"
+  remote "curl -fsS -m 5 -H 'content-type: application/json' --data '{\"query\":\"{_meta{deployment block{number} hasIndexingErrors}}\"}' http://127.0.0.1:8000/subgraphs/name/oceanprotocol/ocean-subgraph; echo"
 }
 
 case "$ACTION" in
   status) status; exit 0 ;;
   subgraph)
-    remote 'docker compose --profile deploy-subgraph build subgraph-deployer && docker compose --profile deploy-subgraph run --rm subgraph-deployer'
+    GRAFT_ARGS=""
+    if [[ -n "${3:-}" ]]; then
+      [[ "${3}" == Qm* && "${4:-}" == <-> ]] || { print "usage: deploy.zsh <host> subgraph [<Qm… base> <block>]"; exit 1 }
+      GRAFT_ARGS="--build-arg GRAFT_BASE=$3 --build-arg GRAFT_BLOCK=$4"
+    fi
+    rsync -a --delete "$SRC_DIR/subgraph/" "$HOST:$REMOTE_DIR/subgraph/"
+    remote "docker compose --profile deploy-subgraph build $GRAFT_ARGS subgraph-deployer && docker compose --profile deploy-subgraph run --rm subgraph-deployer"
     exit 0 ;;
   up) ;;
   *) print "unknown action: $ACTION"; exit 1 ;;

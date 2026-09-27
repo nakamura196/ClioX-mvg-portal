@@ -1,0 +1,145 @@
+diff --git a/src/mappings/dispenser.ts b/src/mappings/dispenser.ts
+index 555ee74..85536e3 100644
+--- a/src/mappings/dispenser.ts
++++ b/src/mappings/dispenser.ts
+@@ -19,6 +19,18 @@ import { getToken } from './utils/tokenUtils'
+ import { getUser } from './utils/userUtils'
+ import { BigDecimal } from '@graphprotocol/graph-ts'
+ 
++// Local change: skip events of dispensers created before startBlock.
++//
++// The Dispenser contract is one singleton for all datatokens, so with a
++// truncated startBlock we still receive TokensDispensed / Activated / ... for
++// dispensers whose DispenserCreated event we never saw. getDispenser() then
++// creates an empty entity, and saving it fails on the non-nullable `contract`
++// field. graph-node treats that as a non-deterministic error and retries the
++// same block forever, so the whole subgraph stops (Sepolia block 11701495).
++function isUnknownDispenser(dispenserID: string): boolean {
++  return Dispenser.load(dispenserID) === null
++}
++
+ export function handleNewDispenser(event: DispenserCreated): void {
+   const dispenserID = getDispenserGraphID(
+     event.address,
+@@ -56,6 +68,7 @@ export function handleActivate(event: DispenserActivated): void {
+     event.address,
+     event.params.datatokenAddress
+   )
++  if (isUnknownDispenser(dispenserID)) return
+   const dispenser = getDispenser(dispenserID)
+   dispenser.active = true
+   dispenser.eventIndex = event.logIndex.toI32()
+@@ -67,6 +80,7 @@ export function handleDeactivate(event: DispenserDeactivated): void {
+     event.address,
+     event.params.datatokenAddress
+   )
++  if (isUnknownDispenser(dispenserID)) return
+   const dispenser = getDispenser(dispenserID)
+   dispenser.active = false
+   dispenser.eventIndex = event.logIndex.toI32()
+@@ -77,6 +91,7 @@ export function handleAllowedSwapperChanged(
+   event: DispenserAllowedSwapperChanged
+ ): void {
+   const dispenserID = getDispenserGraphID(event.address, event.params.datatoken)
++  if (isUnknownDispenser(dispenserID)) return
+   const dispenser = getDispenser(dispenserID)
+   dispenser.allowedSwapper = event.params.newAllowedSwapper.toHex()
+   dispenser.eventIndex = event.logIndex.toI32()
+@@ -92,6 +107,7 @@ export function handleTokensDispensed(event: TokensDispensed): void {
+   const id = `${event.transaction.hash.toHexString()}-${dispenserID}-${eventIndex}`
+ 
+   const dispenserTransaction = new DispenserTransaction(id)
++  if (isUnknownDispenser(dispenserID)) return
+   const dispenser = getDispenser(dispenserID)
+   updateDispenserDetails(event.address, event.params.datatokenAddress)
+   dispenserTransaction.dispenser = dispenser.id
+@@ -112,6 +128,7 @@ export function handleTokensDispensed(event: TokensDispensed): void {
+ 
+ export function handleOwnerWinthdraw(event: OwnerWithdrawed): void {
+   const dispenserID = getDispenserGraphID(event.address, event.params.datatoken)
++  if (isUnknownDispenser(dispenserID)) return
+   const dispenser = getDispenser(dispenserID)
+   dispenser.balance = decimal.ZERO
+   dispenser.eventIndex = event.logIndex.toI32()
+diff --git a/src/mappings/fixedRateExchange.ts b/src/mappings/fixedRateExchange.ts
+index 969cf1e..e227898 100644
+--- a/src/mappings/fixedRateExchange.ts
++++ b/src/mappings/fixedRateExchange.ts
+@@ -26,6 +26,13 @@ import { addFixedRateExchange, addFixedSwap } from './utils/globalUtils'
+ import { getToken } from './utils/tokenUtils'
+ import { getUser } from './utils/userUtils'
+ 
++// Local change: skip events of exchanges created before startBlock.
++// Same reason as isUnknownDispenser() in dispenser.ts: FixedRateExchange is a
++// singleton, and an empty entity cannot be saved (non-nullable fields).
++function isUnknownFixedRate(fixedRateId: string): boolean {
++  return FixedRateExchange.load(fixedRateId) === null
++}
++
+ export function handleExchangeCreated(event: ExchangeCreated): void {
+   const fixedRateId = getFixedRateGraphID(
+     event.params.exchangeId.toHexString(),
+@@ -63,6 +70,7 @@ export function handleRateChange(event: ExchangeRateChanged): void {
+     event.params.exchangeId.toHexString(),
+     event.address
+   )
++  if (isUnknownFixedRate(fixedRateId)) return
+   const fixedRateExchange = getFixedRateExchange(fixedRateId)
+   const eventIndex: number = event.logIndex.toI32()
+   const newExchangeUpdate = new FixedRateExchangeUpdate(
+@@ -90,6 +98,7 @@ export function handleMintStateChanged(event: ExchangeMintStateChanged): void {
+     event.params.exchangeId.toHexString(),
+     event.address
+   )
++  if (isUnknownFixedRate(fixedRateId)) return
+   const fixedRateExchange = getFixedRateExchange(fixedRateId)
+   fixedRateExchange.withMint = event.params.withMint
+   fixedRateExchange.eventIndex = event.logIndex.toI32()
+@@ -101,6 +110,7 @@ export function handleActivated(event: ExchangeActivated): void {
+     event.params.exchangeId.toHexString(),
+     event.address
+   )
++  if (isUnknownFixedRate(fixedRateId)) return
+   const fixedRateExchange = getFixedRateExchange(fixedRateId)
+   const eventIndex: number = event.logIndex.toI32()
+   const newExchangeUpdate = new FixedRateExchangeUpdate(
+@@ -125,6 +135,7 @@ export function handleDeactivated(event: ExchangeDeactivated): void {
+     event.params.exchangeId.toHexString(),
+     event.address
+   )
++  if (isUnknownFixedRate(fixedRateId)) return
+   const fixedRateExchange = getFixedRateExchange(fixedRateId)
+   const eventIndex: number = event.logIndex.toI32()
+   const newExchangeUpdate = new FixedRateExchangeUpdate(
+@@ -151,6 +162,7 @@ export function handleAllowedSwapperChanged(
+     event.params.exchangeId.toHexString(),
+     event.address
+   )
++  if (isUnknownFixedRate(fixedRateId)) return
+   const fixedRateExchange = getFixedRateExchange(fixedRateId)
+   const eventIndex: number = event.logIndex.toI32()
+   const newExchangeUpdate = new FixedRateExchangeUpdate(
+@@ -174,6 +186,7 @@ export function handleSwap(event: Swapped): void {
+     event.params.exchangeId.toHexString(),
+     event.address
+   )
++  if (isUnknownFixedRate(fixedRateId)) return
+   const fixedRateExchange = getFixedRateExchange(fixedRateId)
+   const eventIndex: number = event.logIndex.toI32()
+   const swap = new FixedRateExchangeSwap(
+@@ -247,6 +260,7 @@ export function handlePublishMarketFeeChanged(
+     event.params.exchangeId.toHexString(),
+     event.address
+   )
++  if (isUnknownFixedRate(fixedRateId)) return
+   const fixedRateExchange = getFixedRateExchange(fixedRateId)
+   if (fixedRateExchange) {
+     fixedRateExchange.publishMarketFeeAddress =
+@@ -265,6 +279,7 @@ export function handleTokenCollected(event: TokenCollected): void {
+     event.params.exchangeId.toHexString(),
+     event.address
+   )
++  if (isUnknownFixedRate(fixedRateId)) return
+   const fixedRateExchange = getFixedRateExchange(fixedRateId)
+ 
+   if (event.params.token.toHexString() == fixedRateExchange.baseToken) {
