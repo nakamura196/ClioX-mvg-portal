@@ -14,7 +14,7 @@ set -euo pipefail
 cd "${0:A:h}"
 
 export NODE_URL="${NODE_URL:-https://cliox-node.ldas.jp}"
-export RPC="${RPC:-https://sepolia.gateway.tenderly.co}"
+export RPC="${RPC:-https://ethereum-sepolia-rpc.publicnode.com}"  # Tenderly answered 429 and hung publishes
 export AVOID_LOOP_RUN=true   # one command per run
 export DISABLE_P2P=true      # HTTP node only; do not dial public bootstrap peers
 export PRIVATE_KEY="op://${OP_VAULT:-Personal}/Clio-X Sepolia trial wallet/private_key"

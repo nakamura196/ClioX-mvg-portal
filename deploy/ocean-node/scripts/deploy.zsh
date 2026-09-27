@@ -81,6 +81,9 @@ if remote 'grep -q "^CHATBOT_API_KEY=." .env'; then profiles="$profiles --profil
 
 print "▶ Starting ($profiles)"
 remote "docker compose $profiles pull -q && docker compose $profiles up -d --remove-orphans"
+# cloudflared reads its routing file only at start, and compose does not
+# recreate it when only the mounted file changed (a new hostname stayed 404).
+if [[ "$profiles" == *tunnel* ]]; then remote "docker compose $profiles restart cloudflared >/dev/null"; fi
 if $chatbot; then
   # The model is downloaded once into the ollama-data volume (~1 GB).
   print "▶ Chatbot model"

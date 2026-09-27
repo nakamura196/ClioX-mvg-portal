@@ -16,6 +16,12 @@ import {
   CHATBOT_NAMESPACE as UDL_NAMESPACE
 } from '../ChatbotUdL/_constants'
 
+import {
+  TRIAL_CHATBOT_ALGO_DIDS,
+  TRIAL_CHATBOT_DATASET_DIDS,
+  CHATBOT_NAMESPACE as TRIAL_NAMESPACE
+} from '../ChatbotTrial/_constants'
+
 export interface ChatbotProject {
   id: string
   name: string
@@ -45,5 +51,12 @@ export const CHATBOT_PROJECTS: ChatbotProject[] = [
     namespace: UDL_NAMESPACE,
     algoDidsByChain: UDL_CHATBOT_ALGO_DIDS,
     datasetDidsByChain: UDL_CHATBOT_DATASET_DIDS
+  },
+  {
+    id: 'trial',
+    name: 'Trial samples (Sepolia)',
+    namespace: TRIAL_NAMESPACE,
+    algoDidsByChain: TRIAL_CHATBOT_ALGO_DIDS,
+    datasetDidsByChain: TRIAL_CHATBOT_DATASET_DIDS
   }
 ]
