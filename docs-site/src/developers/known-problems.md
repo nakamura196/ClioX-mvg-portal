@@ -47,6 +47,31 @@ We added `NEXT_PUBLIC_METADATACACHE_OCEAN_NODE` (default: host name does not con
 After the fix, compute 4 / download 9 / datasets 4 / algorithms 5 — equal to counts taken directly from the node.
 This will also affect upstream Clio-X once Pontus-X replaces Aquarius with Ocean Node.
 
+## Every search returns all assets
+
+**Where:** Clio-X portal (the fallback above). **Status:** fixed on `deploy/hosting` in 1715d358.
+
+The fallback fetches everything from the node and re-applies the conditions in the browser. It passed the search-term condition (`query_string`) through as "no condition".
+So "きりつぼ" and "genji" both returned all 77 assets. This was not specific to Japanese.
+Now the term is split on spaces, and an asset matches when every word appears in its name, description, tags, author, DID and similar fields.
+Japanese has no spaces between words, so the match is a substring match. Full-width and half-width, upper and lower case, and katakana and hiragana are treated as equal.
+Counts checked on a local portal: "きりつぼ" 2, "キリツボ" 2, "genji" 60, "declaration" 1, "zzzz" 0.
+There is no relevance ranking (results keep the chosen sort order).
+
+## Downloading with MetaMask saves an error (file.json)
+
+**Where:** Ocean Node 4.2.0, partly the portal. **Status:** not fixed; workaround available.
+
+On 2026-09-27 downloading an algorithm saved `file.json` instead of the file. It contains `CALL_EXCEPTION` for `getERC721Address()`.
+With a MetaMask smart account, the order transaction goes through MetaMask's delegation contract (`0xdb9B1e94…` on Sepolia, function `redeemDelegations`).
+The node checks an order by treating the transaction's recipient as the datatoken (`erc20Address = txReceiptMined.to` in `dist/components/core/utils/validateOrders.js`). The recipient is the delegation contract, so the call fails.
+The order itself succeeded: transaction `0xe7d8721a…` carries the datatoken's `OrderStarted` event.
+The same asset downloaded correctly from a wallet that sends transactions directly (checked with Playwright).
+The portal saves the node's error response as a file instead of showing it.
+
+Workaround: turn off MetaMask's smart account for the account you use on Sepolia (not yet tested).
+Proposed fix: the node should take the datatoken from the contract that emitted `OrderStarted`, not from the recipient. The portal should show an error response instead of saving it.
+
 ## The indexer restarts from the first block every 90 seconds
 
 **Where:** Ocean Node. **Status:** worked around in our compose file.
@@ -119,6 +144,7 @@ The on-chain value stays `"aaa"`; it cannot be changed without a transaction fro
 
 ## Smaller things
 
+- The profile sales counter showed the raw key `profile.sales`: before the count loads there is no number, so the translation could not be chosen. Fixed in 02abf67c.
 - Sepolia showed as “Unknown network” on asset cards: a custom chain was not added back to the network metadata. Fixed.
 - Subgraph `_meta.block` only moves on blocks with events, so it can look stalled. Read the graph-node logs instead.
 - Tenderly's public RPC answered 429 to the CLI; `https://ethereum-sepolia-rpc.publicnode.com` worked.
