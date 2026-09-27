@@ -318,8 +318,16 @@ class Handler(BaseHTTPRequestHandler):
             return self.send_json(503, {"error": "busy, try again in a moment"})
         try:
             if not hits:
-                pieces = iter(["The documents loaded for this chat do not mention that. "
-                               "Try other words, or add a compute job with more documents."])
+                # Search is by words, so a Japanese question finds nothing in
+                # English documents (and the other way round).
+                japanese = re.search(r"[\u3040-\u30ff\u4e00-\u9fff]", message)
+                pieces = iter([
+                    "読み込んだ資料には、この質問の語が見つかりませんでした。"
+                    "資料と同じ言語で、別の言葉で聞いてみてください。"
+                    if japanese else
+                    "The documents loaded for this chat do not mention that. "
+                    "Try other words, in the language of the documents."
+                ])
             else:
                 pieces = ollama_chat(build_messages(message, hits), config)
 

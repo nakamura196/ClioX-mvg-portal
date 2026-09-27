@@ -9,7 +9,8 @@
 #   zsh deploy/trial/genji.zsh                      # publish + test job
 #   zsh deploy/trial/genji.zsh --deprecate <did>... # also mark older versions as deprecated
 set -euo pipefail
-cd "${0:A:h}"
+SELF="${0:A}"   # resolve before cd; a relative $0 would break the re-run under op
+cd "${SELF:h}"
 
 export NODE_URL="${NODE_URL:-https://cliox-node.ldas.jp}"
 export RPC="${RPC:-https://ethereum-sepolia-rpc.publicnode.com}"
@@ -18,7 +19,7 @@ export DISABLE_P2P=true
 
 if [[ -z "${PRIVATE_KEY:-}" ]]; then
   export PRIVATE_KEY="op://${OP_VAULT:-Personal}/Clio-X Sepolia trial wallet/private_key"
-  exec op run -- zsh "${0:A}" "$@"
+  exec op run -- zsh "$SELF" "$@"
 fi
 
 ocean() { npx --no-install ocean-cli "$@" 2>&1 }
