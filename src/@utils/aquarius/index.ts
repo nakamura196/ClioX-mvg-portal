@@ -548,10 +548,15 @@ export async function getAlgorithmDatasetsForCompute(
     nestedQuery: {
       must: [
         {
-          match_phrase: {
-            'services.compute.publisherTrustedAlgorithms.did': {
-              query: algorithmId
-            }
+          // A dataset that trusts "*" accepts every algorithm (see getQueryString)
+          bool: {
+            should: [algorithmId, '*'].map((did) => ({
+              match_phrase: {
+                'services.compute.publisherTrustedAlgorithms.did': {
+                  query: did
+                }
+              }
+            }))
           }
         }
       ]

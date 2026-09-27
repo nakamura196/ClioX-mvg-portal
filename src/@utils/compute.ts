@@ -180,9 +180,14 @@ export function getQueryString(
       size: 3000
     }
   } as BaseQueryParams
+  // "*" means "any": ocean-cli and Ocean Node 4.x write
+  // publisherTrustedAlgorithms [{ did: '*' }] and publisherTrustedAlgorithmPublishers
+  // ['*'] for "allow all". Searching for the literal id "*" found nothing.
   algorithmDidList?.length > 0 &&
+    !algorithmDidList.includes('*') &&
     baseParams.filters.push(getFilterTerm('_id', algorithmDidList))
   trustedPublishersList?.length > 0 &&
+    !trustedPublishersList.includes('*') &&
     baseParams.filters.push(
       getFilterTerm(
         'nft.owner',
