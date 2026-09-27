@@ -2,7 +2,8 @@
 // build, so that each text has one place where it is edited:
 //
 //   docs/self-hosting.md, docs/for-archivists/*, deploy/trial/README.md,
-//   docs/api/*.yaml, docs/prototypes/<topic>/
+//   docs/api/*.yaml, docs/prototypes/<topic>/ (README.md, and README.ja.md
+//   for the Japanese page)
 //
 // Relative links in those files are rewritten: a link to another synced file
 // becomes a link to its page on this site, anything else becomes a link to the
@@ -36,6 +37,8 @@ const topics = fs
   .sort()
 for (const t of topics) {
   pages[`docs/prototypes/${t}/README.md`] = `project/prototypes/${t}`
+  if (fs.existsSync(path.join(repo, `docs/prototypes/${t}/README.ja.md`)))
+    pages[`docs/prototypes/${t}/README.ja.md`] = `ja/project/prototypes/${t}`
 }
 
 const banner = (from) =>
@@ -61,7 +64,7 @@ function rewriteLinks(text, from, route) {
   })
 }
 
-function gallery(topic) {
+function gallery(topic, ja) {
   const dir = path.join(repo, 'docs/prototypes', topic)
   const images = fs
     .readdirSync(dir)
@@ -71,7 +74,7 @@ function gallery(topic) {
   const items = images
     .map((f) => `![${f}](/prototypes/${topic}/${f})\n\n<small>\`${f}\`</small>`)
     .join('\n\n')
-  return `\n\n## Screenshots\n\n${items}\n`
+  return `\n\n## ${ja ? '画面' : 'Screenshots'}\n\n${items}\n`
 }
 
 for (const [from, route] of Object.entries(pages)) {
@@ -79,11 +82,14 @@ for (const [from, route] of Object.entries(pages)) {
   text = rewriteLinks(text, from, route)
   const topic = from.match(/^docs\/prototypes\/([^/]+)\//)?.[1]
   if (topic) {
-    text += `\n\nSource: [\`docs/prototypes/${topic}/\`](${GITHUB.replace(
+    const ja = route.startsWith('ja/')
+    text += `\n\n${
+      ja ? '元のファイル' : 'Source'
+    }: [\`docs/prototypes/${topic}/\`](${GITHUB.replace(
       '/blob/',
       '/tree/'
     )}docs/prototypes/${topic})\n`
-    text += gallery(topic)
+    text += gallery(topic, ja)
   }
   const out = path.join(src, `${route}.md`)
   fs.mkdirSync(path.dirname(out), { recursive: true })

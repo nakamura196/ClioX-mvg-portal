@@ -8,5 +8,7 @@ src/archivists/when-a-node-closes.md
 src/ja/archivists/when-a-node-closes.md
 src/project/prototypes/*.md
 !src/project/prototypes/index.md
+src/ja/project/prototypes/*.md
+!src/ja/project/prototypes/index.md
 src/public/prototypes/
 src/public/api/*.yaml

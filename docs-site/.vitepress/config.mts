@@ -115,7 +115,7 @@ function sidebarJa(): DefaultTheme.Sidebar {
             text: '「可視化」と「チャットボット」',
             link: '/ja/developers/usecases'
           },
-          { text: '自分で建てる（英語）', link: '/developers/self-hosting' }
+          { text: '自分で建てる', link: '/ja/developers/self-hosting' }
         ]
       }
     ],
@@ -128,7 +128,7 @@ function sidebarJa(): DefaultTheme.Sidebar {
             text: '試用環境の点検（2026-09-26）',
             link: '/ja/project/check-2026-09-26'
           },
-          { text: '試作の一覧', link: '/ja/project/prototypes' },
+          { text: '試作の一覧', link: '/ja/project/prototypes/' },
           { text: '相談したいこと', link: '/ja/project/open-questions' }
         ]
       }

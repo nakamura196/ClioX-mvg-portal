@@ -107,7 +107,7 @@ Mac（CPU、Docker）でザ・フェデラリストの 930 個の抜粋を読ま
 
 ## 別の場所で建てる手順
 
-[Self-hosting on Sepolia](/developers/self-hosting)（英語）のノードと Cloudflare Tunnel があり、ポータルは Vercel にある前提です。
+[Sepolia で Clio-X を自分で建てる](./self-hosting)のノードと Cloudflare Tunnel があり、ポータルは Vercel にある前提です。
 
 1. **アルゴリズムとデータセットを公開する。** `zsh deploy/trial/usecases.zsh` が、試用ウォレットでザ・フェデラリストと 2 つのアルゴリズムを公開し、索引に載るのを待って、それぞれのアルゴリズムで無償のジョブを 1 つずつ流します。自分のファイルを使うなら、先に `metadata/*.json` を直します（ファイルの URL は固定したコミットを指すこと）。
 2. **DID をポータルに書く。** 表示された DID を、`src/components/TextAnalysis/_constants.ts`（アルゴリズムとデータセット）と `src/components/ChatbotTrial/_constants.ts` の `11155111` の下に足します。データセット側がそのアルゴリズムを信頼している必要があります。標本は「すべて可」（`"*"`）にしてあります。
