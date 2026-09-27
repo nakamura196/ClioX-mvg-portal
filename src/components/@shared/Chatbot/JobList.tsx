@@ -1,4 +1,4 @@
-import { LoggerInstance, ProviderInstance } from '@oceanprotocol/lib'
+import { LoggerInstance } from '@oceanprotocol/lib'
 import { ReactElement, useCallback, useEffect, useState } from 'react'
 import { toast, Id } from 'react-toastify'
 import {
@@ -22,6 +22,7 @@ import { chatbotApi, ChatbotUseCaseData } from '../../../@utils/chatbot'
 
 import { getAsset } from '../../../@utils/aquarius'
 import { getComputeJobs } from '../../../@utils/compute'
+import { fetchComputeResultFiles } from '../../../@utils/computeResultFiles'
 
 export type AssistantState =
   | 'connecting'
@@ -200,20 +201,20 @@ export default function JobList(props: {
         }
       }
 
-      const url = await ProviderInstance.getComputeResultUrl(
+      // Ocean Node 4.x では成果物が outputs.tar 1 つにまとまる。
+      // 開いて final_output を含むファイル（無ければ最初の .json）を使う。
+      const files = await fetchComputeResultFiles(
+        job,
         datasetDDO.services[0].serviceEndpoint,
         signerToUse,
-        job.jobId,
-        resultIndex
+        (_result, i) => i === resultIndex
       )
-
-      const response = await fetch(url)
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-
-      const fileContent = await response.text()
+      const file =
+        files.find((f) => f.filename.toLowerCase().includes('final_output')) ??
+        files.find((f) => f.filename.toLowerCase().endsWith('.json')) ??
+        files[0]
+      if (!file) throw new Error('ジョブの結果にファイルがありません')
+      const fileContent = file.content
 
       // Check if the content looks like a traceback or error message
       if (

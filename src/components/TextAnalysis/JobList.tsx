@@ -1,4 +1,4 @@
-import { LoggerInstance, ProviderInstance } from '@oceanprotocol/lib'
+import { LoggerInstance } from '@oceanprotocol/lib'
 import { ReactElement, useCallback, useEffect, useState } from 'react'
 import {
   showUploadingToast,
@@ -13,6 +13,7 @@ import { useUserPreferences } from '../../@context/UserPreferences'
 import { useCancelToken } from '../../@hooks/useCancelToken'
 import { getAsset } from '../../@utils/aquarius'
 import { getComputeJobs } from '../../@utils/compute'
+import { fetchComputeResultFiles } from '../../@utils/computeResultFiles'
 import Accordion from '../@shared/Accordion'
 import Button from '../@shared/atoms/Button'
 import ComputeJobs, { GetCustomActions } from '../Profile/History/ComputeJobs'
@@ -162,37 +163,20 @@ export default function JobList(props: {
           ? autoWallet
           : signer
 
-      // 成果物が未生成のジョブでは results が無い
-      const resultFiles = job.results?.slice(0, 5) ?? []
-      const results = []
-
-      for (let i = 0; i < resultFiles.length; i++) {
-        const url = await ProviderInstance.getComputeResultUrl(
-          datasetDDO.services[0].serviceEndpoint,
-          signerToUse,
-          job.jobId,
-          i
-        )
-
-        const response = await fetch(url)
-        const content = await response.text()
-
-        results.push({
-          filename: resultFiles[i].filename,
-          url,
-          content
-        })
-
-        // add time delay to avoid nonce collision
-        if (i < resultFiles.length - 1) {
-          await new Promise((resolve) => setTimeout(resolve, 200)) // time delay
-        }
-      }
+      // 成果物が未生成のジョブでは results が無い。Ocean Node 4.x では
+      // 成果物が outputs.tar 1 つにまとまるので、開いて中のファイルを使う。
+      // ログ（*.log）は読まない。
+      const results = await fetchComputeResultFiles(
+        job,
+        datasetDDO.services[0].serviceEndpoint,
+        signerToUse,
+        (result, i) => i < 5 && !/\.log$/i.test(result?.filename ?? '')
+      )
 
       const textAnalysisResults: TextAnalysisResult[] = results.map((file) => {
         const { filename, content: fileContent } = file
         const filenameLower = filename.toLowerCase()
-        let content = fileContent
+        let content: any = fileContent
 
         if (filenameLower.endsWith('.json')) {
           try {
