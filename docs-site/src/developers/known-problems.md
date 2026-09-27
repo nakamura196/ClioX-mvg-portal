@@ -142,6 +142,39 @@ The image failed, and the NFT name (the alt text) spilled out of the 60 px box a
 The portal now uses only values that start with `data:image/`, `http(s)://` or `/`, and falls back to the Clio-X logo when the image fails to load.
 The on-chain value stays `"aaa"`; it cannot be changed without a transaction from the NFT owner.
 
+## Visualizations and Chatbot find no results on Ocean Node 4.x
+
+**Where:** Clio-X portal (written for the separate result files of Pontus-X). **Status:** fixed on `deploy/hosting` (`39bd5c29`).
+
+Ocean Node 4.x returns a job's outputs as one `outputs.tar` (plus three logs); the two use-case pages look for files such as `wordcloud.json` or `final_output.json` by name, so they showed nothing.
+The portal now opens the tar in the browser. Details: [Visualizations and Chatbot](/developers/usecases).
+
+## Upstream's public chatbot backend no longer fits the portal
+
+**Where:** Clio-X (`ciferresearch/Cliox-rag-chatbot-backend`, last commit 2025-07-17). **Status:** replaced on the trial by our own small service.
+
+The portal reads the answer as a stream of server-sent events and deletes sessions with `DELETE /knowledge/session`; the public backend answers with one JSON body and has no delete. It also has no licence file.
+The trial runs `deploy/ocean-node/chatbot/server.py` instead. Details: [Visualizations and Chatbot](/developers/usecases).
+
+## Free jobs do not appear on Visualizations and Chatbot
+
+**Where:** Ocean Node 4.2.0 and the Clio-X portal. **Status:** fixed on `deploy/hosting` (`a64cb256`), with a limit.
+
+Three things together, all measured on 2026-09-27:
+the pages build the job list from on-chain orders, and free jobs make none;
+for free jobs the node returns `inputDID` and `algoDID` as `null`, so the pages cannot tell which algorithm ran on which dataset;
+and the result download was signed the old ocean.js way, which our node refuses.
+The portal now asks our own node for the jobs, remembers the algorithm and dataset in the browser when a job is started, and signs downloads like the Profile page does.
+**Limit:** jobs started with the CLI or in another browser still cannot be matched.
+
+## Server functions on Vercel do not see `CHATBOT_API_KEY`
+
+**Where:** Clio-X portal on Vercel. **Status:** fixed (`2357e5ee`).
+
+The variable was set for the deployment, but the chat service logged every call from the portal as "key missing".
+Reading it through `serverRuntimeConfig` in `next.config.js` (as `src/pages/api/contact-resend.ts` already does for its key) fixed it.
+The same service also had to learn chunked request bodies: Vercel sends the 1.5 MB upload that way (`d1fa37fb`).
+
 ## Smaller things
 
 - The profile sales counter showed the raw key `profile.sales`: before the count loads there is no number, so the translation could not be chosen. Fixed in 02abf67c.
