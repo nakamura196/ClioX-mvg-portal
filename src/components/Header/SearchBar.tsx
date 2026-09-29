@@ -102,7 +102,11 @@ export default function SearchBar({
   })
 
   return (
-    <form className={styles.search} autoComplete={!value ? 'off' : 'on'}>
+    <form
+      className={styles.search}
+      data-tour="search"
+      autoComplete={!value ? 'off' : 'on'}
+    >
       <animated.div style={springStile} className={styles.springContainer}>
         <InputElement
           ref={searchBarRef}

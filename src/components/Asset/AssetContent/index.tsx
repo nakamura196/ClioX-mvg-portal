@@ -80,7 +80,7 @@ export default function AssetContent({
 
       <article className={styles.grid}>
         <div>
-          <div className={styles.content}>
+          <div className={styles.content} data-tour="asset-record">
             <MetaMain asset={asset} nftPublisher={nftPublisher} />
             {asset?.accessDetails?.datatoken !== null && (
               <Bookmark did={asset?.id} />

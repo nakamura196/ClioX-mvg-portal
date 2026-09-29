@@ -23,7 +23,7 @@ export default function MetaMain({
   } = useAsset()
 
   return (
-    <aside className={styles.meta}>
+    <aside className={styles.meta} data-tour="asset-custody">
       <header className={styles.asset}>
         <Nft />
         <MetaAsset asset={asset} />
