@@ -48,6 +48,8 @@ export interface GridIntensity {
   label: string
   asOf: string
   source: string
+  /** source の英語版。画面が英語のときに使う */
+  sourceEn?: string
 }
 
 export interface PowerProfile {
@@ -55,6 +57,8 @@ export interface PowerProfile {
   watts: number
   quality: DataQuality
   source: string
+  /** source の英語版。画面が英語のときに使う */
+  sourceEn?: string
 }
 
 export interface ComputeLocation {
@@ -75,6 +79,8 @@ export interface ComputeLocation {
   reportedWaterLPerKWh?: number
   /** 上記申告値の測定期間・レビュー日 */
   reportedAsOf?: string
+  /** label / processingLocation が日本語のときの英語版 */
+  en?: { label: string; processingLocation: string }
 }
 
 export interface Footprint {
@@ -110,42 +116,54 @@ const GRID: Record<string, GridIntensity> = {
     label: 'Sweden (Stockholm)',
     asOf: '2025',
     source:
-      'Electricity Maps, Grid in Review 2025 — flow-traced(消費ベース、輸入込み)。同ページの production-based は 19.0。LCA ベース'
+      'Electricity Maps, Grid in Review 2025 — flow-traced(消費ベース、輸入込み)。同ページの production-based は 19.0。LCA ベース',
+    sourceEn:
+      'Electricity Maps, Grid in Review 2025 — flow-traced (consumption-based, imports included). Production-based on the same page: 19.0. Life-cycle (LCA) basis'
   },
   'ca-central-1': {
     gCO2ePerKWh: 34.5,
     label: 'Canada, Quebec (Montreal)',
     asOf: '年次記載なし / no vintage stated',
     source:
-      'Hydro-Québec 公表値。発電・送電・配電のライフサイクル(LCA)ベース。同社ページに年次の記載が無い'
+      'Hydro-Québec 公表値。発電・送電・配電のライフサイクル(LCA)ベース。同社ページに年次の記載が無い',
+    sourceEn:
+      'Hydro-Québec published value. Life-cycle (LCA) basis covering generation, transmission and distribution. No year is stated on the page'
   },
   'us-west-2': {
     gCO2ePerKWh: 166,
     label: 'US, Oregon',
     asOf: '2023',
     source:
-      'EPA eGRID2023 State Output Emission Rates (CO2e 365.0 lb/MWh)。発電時の直接排出ベース'
+      'EPA eGRID2023 State Output Emission Rates (CO2e 365.0 lb/MWh)。発電時の直接排出ベース',
+    sourceEn:
+      'EPA eGRID2023 State Output Emission Rates (CO2e 365.0 lb/MWh). Direct emissions at generation'
   },
   'ap-northeast-1': {
     gCO2ePerKWh: 429,
     label: 'Japan (national substitute factor)',
     asOf: 'R5年度実績 / FY2023',
     source:
-      '環境省・経産省「電気事業者別排出係数」の代替値 0.000429 t-CO2/kWh。発電時の直接排出ベース。IEA ベースの日本の発電炭素強度(2023)は約 485'
+      '環境省・経産省「電気事業者別排出係数」の代替値 0.000429 t-CO2/kWh。発電時の直接排出ベース。IEA ベースの日本の発電炭素強度(2023)は約 485',
+    sourceEn:
+      'Japan Ministry of the Environment / METI substitute factor for electricity suppliers, 0.000429 t-CO2/kWh. Direct emissions at generation. The IEA-based carbon intensity of Japanese generation (2023) is about 485'
   },
   'ca-alberta': {
     gCO2ePerKWh: 335,
     label: 'Canada, Alberta (Calgary)',
     asOf: '2024',
     source:
-      'Alberta 州政府。発電時の直接排出ベース。2005年 907 → 2019年 629 → 2024年 335'
+      'Alberta 州政府。発電時の直接排出ベース。2005年 907 → 2019年 629 → 2024年 335',
+    sourceEn:
+      'Government of Alberta. Direct emissions at generation. 2005: 907 → 2019: 629 → 2024: 335'
   },
   'jp-national': {
     gCO2ePerKWh: 429,
     label: 'Japan (national substitute factor)',
     asOf: 'R5年度実績 / FY2023',
     source:
-      '環境省・経産省の代替値 0.000429 t-CO2/kWh。特定サイトの電力契約の実係数ではない'
+      '環境省・経産省の代替値 0.000429 t-CO2/kWh。特定サイトの電力契約の実係数ではない',
+    sourceEn:
+      "Japan Ministry of the Environment / METI substitute factor, 0.000429 t-CO2/kWh. Not the actual factor of any specific site's electricity contract"
   }
   // 参考(AWS リージョン外): British Columbia は BC 州政府の Integrated Grid で
   //   2021: 9.7 / 2022: 11.5 / 2023: 11.3 / 2024: 9.9 / 2025: 22.8 gCO2e/kWh。
@@ -162,7 +180,9 @@ const POWER: Record<string, PowerProfile> = {
     watts: 27.7,
     quality: 'measured',
     source:
-      'EC2 g4dn.xlarge / Tesla T4 / nvidia-smi power.draw 実測 (2026-08-12). アイドル時。上限 70W'
+      'EC2 g4dn.xlarge / Tesla T4 / nvidia-smi power.draw 実測 (2026-08-12). アイドル時。上限 70W',
+    sourceEn:
+      'EC2 g4dn.xlarge / Tesla T4 / nvidia-smi power.draw measured (2026-08-12). Idle. Limit 70 W'
   },
   // 実機で採取した値。アイドル 27.7W / 負荷時ピーク 33.4W(2026-08-12, eu-north-1)。
   // 平均を採ると 30W 前後だが、負荷が軽いジョブでの値である点は source に残す。
@@ -170,23 +190,29 @@ const POWER: Record<string, PowerProfile> = {
     watts: 32.8,
     quality: 'measured',
     source:
-      'EC2 g4dn.xlarge / Tesla T4 / ジョブコンテナ内 nvidia-smi の実測平均 (2026-08-12, 15秒×1Hz)。上限70W。負荷が軽い区間の値'
+      'EC2 g4dn.xlarge / Tesla T4 / ジョブコンテナ内 nvidia-smi の実測平均 (2026-08-12, 15秒×1Hz)。上限70W。負荷が軽い区間の値',
+    sourceEn:
+      'EC2 g4dn.xlarge / Tesla T4 / average of nvidia-smi inside the job container (2026-08-12, 15 s at 1 Hz). Limit 70 W. Measured during a light workload'
   },
   'aws-g4dn.xlarge': {
     watts: 70,
     quality: 'portal-estimated',
     source:
-      'T4 の power.limit=70W を上限として仮置き。負荷時の実測は未取得(DLAMI Base に PyTorch が無く負荷試験ができなかった)'
+      'T4 の power.limit=70W を上限として仮置き。負荷時の実測は未取得(DLAMI Base に PyTorch が無く負荷試験ができなかった)',
+    sourceEn:
+      'Placeholder: the T4 power limit of 70 W used as an upper bound. Not measured under load'
   },
   'aws-g6.xlarge': {
     watts: 72,
     quality: 'portal-estimated',
-    source: 'NVIDIA L4 の TDP 72W からの仮置き。実測ではない'
+    source: 'NVIDIA L4 の TDP 72W からの仮置き。実測ではない',
+    sourceEn: 'Placeholder from the NVIDIA L4 TDP of 72 W. Not measured'
   },
   'nvidia-l40s': {
     watts: 350,
     quality: 'portal-estimated',
-    source: 'NVIDIA L40S の TDP 350W からの仮置き。実測ではない'
+    source: 'NVIDIA L40S の TDP 350W からの仮置き。実測ではない',
+    sourceEn: 'Placeholder from the NVIDIA L40S TDP of 350 W. Not measured'
   }
 }
 
@@ -261,6 +287,10 @@ const ENV_LOCATIONS: { match: string; location: ComputeLocation }[] = [
       regionCode: 'jp-national',
       label: 'mdx (東京大学情報基盤センター)',
       processingLocation: '柏Ⅱキャンパス, 千葉, 日本',
+      en: {
+        label: 'mdx (Information Technology Center, The University of Tokyo)',
+        processingLocation: 'Kashiwa II Campus, Chiba, Japan'
+      },
       jurisdiction: 'Japan',
       // 50 ポイント/時間 = 50円/時間。USD 換算は為替に依存するため入れない。
       powerProfile: undefined
@@ -553,4 +583,28 @@ export function formatEnergy(kWh?: number): string {
   if (kWh < 0.001) return `${(kWh * 1e6).toFixed(0)} mWh`
   if (kWh < 1) return `${(kWh * 1000).toFixed(1)} Wh`
   return `${kWh.toFixed(3)} kWh`
+}
+
+/**
+ * レジストリに登録済みの実行環境の一覧。
+ * 報告書の画面で「どこで動かすか」を選ばせるために公開する。
+ * key はマッチキー(リージョンコードなど)で、computeFootprintForKey に渡す。
+ */
+export function listKnownLocations(): {
+  key: string
+  location: ComputeLocation
+}[] {
+  return ENV_LOCATIONS.map((e) => ({ key: e.match, location: e.location }))
+}
+
+/**
+ * 登録済みの実行環境を key で指定して見積もる。
+ * 実在の ComputeEnvironment が手元に無い「計画段階」の見積もり用。
+ */
+export function computeFootprintForKey(
+  key: string,
+  durationSeconds: number,
+  pueOverride?: number
+): Footprint {
+  return computeFootprint({ id: key }, durationSeconds, pueOverride)
 }

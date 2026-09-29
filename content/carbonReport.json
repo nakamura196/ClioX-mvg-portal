@@ -1,0 +1,112 @@
+{
+  "title": "Carbon and cost report",
+  "description": "Estimate the energy, carbon and cost of an analysis before you run it, and keep the estimate with your project records.",
+  "intro": [
+    "Before running an analysis on a collection, you can estimate how much electricity it will use, how much CO2 that means, and what it will cost. This page turns the estimate into a report you can attach to a project plan or file with the project records.",
+    "Nothing on this page runs a job, connects a wallet or spends money. It is arithmetic on published figures, and every figure says where it comes from."
+  ],
+  "form": {
+    "heading": "1. Describe the analysis",
+    "reportTitle": "Report title",
+    "purpose": "Purpose",
+    "purposeHint": "What will be analysed, and why. This goes into the report as written.",
+    "preparedBy": "Prepared by (optional)",
+    "linesHeading": "2. Where could it run?",
+    "linesHint": "One line per option. To compare places, keep the jobs and minutes the same.",
+    "lineLabel": "Name of this option",
+    "environment": "Compute environment",
+    "jobs": "Number of jobs",
+    "minutesPerJob": "Minutes per job",
+    "addLine": "Add an option",
+    "removeLine": "Remove",
+    "reset": "Back to the example",
+    "mode": "These options are alternatives — only one will run",
+    "modeHint": "Leave this on to compare places. Turn it off if every line will actually run; the report then adds them up."
+  },
+  "defaults": {
+    "reportTitle": "Text recognition for a digitised collection",
+    "purpose": "Example: text recognition (OCR) for about 12,000 page images, split into 40 jobs of about 30 minutes each. The figures are assumptions for planning, not measurements of an OCR run.",
+    "lineLabels": {
+      "eu-north-1": "Stockholm",
+      "ap-northeast-1": "Tokyo",
+      "agrifoodtef": "Calgary",
+      "mdx": "Kashiwa (mdx)"
+    }
+  },
+  "report": {
+    "heading": "3. The report",
+    "status": "Planning estimate — not a record of jobs that were run",
+    "generated": "Prepared",
+    "preparedBy": "Prepared by",
+    "purpose": "Purpose",
+    "totalEnergy": "Energy",
+    "totalEmissions": "Emissions",
+    "totalCost": "Cost",
+    "linesCounted": "{n} of {total} options counted",
+    "lowerBound": "Options that cannot be estimated are left out of the totals, not counted as zero. Treat the totals as a lower bound.",
+    "totalsAreSum": "Totals add up every line, because every line will run.",
+    "columns": {
+      "option": "Option",
+      "where": "Where it runs",
+      "time": "Jobs × minutes",
+      "energy": "Energy",
+      "emissions": "Emissions",
+      "cost": "Cost",
+      "basis": "Basis"
+    },
+    "notEstimated": "cannot be established",
+    "costUnknown": "no price registered",
+    "hours": "h",
+    "empty": "Add at least one option to see the report.",
+    "lowest": "Lowest emissions",
+    "highest": "Highest emissions",
+    "ratio": "The highest is about {x} times the lowest, for the same work.",
+    "compareCounted": "Compared {n} of {total} options. Options that cannot be estimated are not ranked.",
+    "usedBy": "used by"
+  },
+  "quality": {
+    "measured": "measured",
+    "provider-reported": "provider-reported",
+    "portal-estimated": "portal-estimated",
+    "unknown": "cannot be established"
+  },
+  "legend": {
+    "heading": "What the labels mean",
+    "measured": "Power was measured by us on the actual machine.",
+    "provider-reported": "Stated by the provider. There is no way for us to check it.",
+    "portal-estimated": "Calculated by this portal from hardware specifications. Not measured.",
+    "unknown": "Not enough is known to give a number, so none is given."
+  },
+  "reasons": {
+    "no-location": "This environment does not say where it physically runs, so emissions cannot be calculated.",
+    "no-grid": "No checked figure for the carbon intensity of this region's electricity is registered yet.",
+    "no-power": "The power draw of this environment has not been measured yet."
+  },
+  "sources": {
+    "heading": "Sources",
+    "grid": "Electricity",
+    "power": "Power draw",
+    "pue": "Facility overhead (PUE)",
+    "pueReported": "{pue}, stated by the provider",
+    "pueDefault": "1.0 — facility overhead not counted (lower bound)"
+  },
+  "assumptions": {
+    "heading": "Assumptions and limits",
+    "items": [
+      "Every option is assumed to take the same time. Faster hardware may finish sooner, which would lower its figures.",
+      "Only the electricity used while the job runs is counted. The carbon of building the hardware is not.",
+      "CPU power is not included: it cannot be measured from inside a virtual machine.",
+      "Emissions use the average carbon intensity of the local grid (location-based). Green-energy certificates are not subtracted.",
+      "Sources use different methods: some count the full life cycle of the power station, others only what is emitted when power is generated. Compare regions with that in mind."
+    ]
+  },
+  "export": {
+    "heading": "Keep a copy",
+    "csv": "Download CSV",
+    "json": "Download JSON",
+    "print": "Print or save as PDF",
+    "fixity": "SHA-256 of the JSON file",
+    "fixityHint": "If the JSON file you keep gives the same value, it is the same file this report describes.",
+    "computing": "calculating…"
+  }
+}
