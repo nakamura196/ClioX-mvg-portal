@@ -23,6 +23,7 @@ import ServiceCredentialVisualizer from '@components/@shared/ServiceCredentialVi
 import Web3Feedback from '@components/@shared/Web3Feedback'
 import { useAccount } from 'wagmi'
 import DDODownloadButton from '@components/@shared/DDODownloadButton'
+import useFindingAid from '@components/FindingAid/useFindingAid'
 
 // Gaia-X Service Credentials only mean something on networks that belong to
 // the Gaia-X ecosystem (Pontus-X devnet/testnet, the old Gaia-X testnet).
@@ -46,6 +47,7 @@ export default function AssetContent({
   const [receipts, setReceipts] = useState([])
   const [nftPublisher, setNftPublisher] = useState<string>()
   const [serviceCredential, setServiceCredential] = useState<string>()
+  const findingAid = useFindingAid()
 
   useEffect(() => {
     if (!receipts.length) return
@@ -126,6 +128,13 @@ export default function AssetContent({
                 <DDODownloadButton asset={asset} />
               )}
             </div>
+            <Button
+              style="text"
+              size="small"
+              to={`/asset/${asset?.id}/finding-aid`}
+            >
+              {findingAid.openLink} →
+            </Button>
             {debug === true && <DebugOutput title="DDO" output={asset} />}
           </div>
         </div>

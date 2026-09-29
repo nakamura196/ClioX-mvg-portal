@@ -1,0 +1,316 @@
+.findingAid {
+  max-width: 56rem;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacer);
+  font-size: var(--font-size-small);
+  margin-bottom: var(--spacer);
+}
+
+.print {
+  font: inherit;
+  cursor: pointer;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  background: var(--background-content);
+  color: var(--font-color-text);
+  padding: calc(var(--spacer) / 8) calc(var(--spacer) / 2);
+}
+
+.kicker {
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-primary);
+  margin-bottom: calc(var(--spacer) / 4);
+}
+
+.intro p {
+  margin-bottom: calc(var(--spacer) / 2);
+}
+
+/* Legend: the three sources, stated once, then repeated as badges per row */
+.legend {
+  border: 1px solid var(--border-color);
+  border-left: 4px solid var(--color-primary);
+  border-radius: var(--border-radius);
+  padding: calc(var(--spacer) / 2) var(--spacer);
+  margin: var(--spacer) 0;
+  background: var(--background-content);
+}
+
+.legend h2 {
+  font-size: var(--font-size-h5);
+  margin-top: 0;
+  margin-bottom: calc(var(--spacer) / 2);
+}
+
+.legend .badge {
+  justify-self: start;
+}
+
+.legend ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.legend li {
+  display: grid;
+  grid-template-columns: 11rem 1fr;
+  gap: calc(var(--spacer) / 2);
+  align-items: baseline;
+  margin-bottom: calc(var(--spacer) / 3);
+  font-size: var(--font-size-small);
+}
+
+.tally {
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-bold);
+  margin: calc(var(--spacer) / 2) 0 0;
+}
+
+.mismatch {
+  border: 1px solid #c98a1b;
+  border-left-width: 4px;
+  background: #fdf6e8;
+  color: #5c4a1f;
+  border-radius: var(--border-radius);
+  padding: calc(var(--spacer) / 2) var(--spacer);
+  font-size: var(--font-size-small);
+}
+
+.mismatch::before {
+  content: '⚠ ';
+}
+
+/* Badges: colour and border style both differ, so they survive greyscale print */
+.badge {
+  display: inline-block;
+  white-space: nowrap;
+  font-size: var(--font-size-mini);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.4;
+  padding: 0.1em 0.6em;
+  border-radius: 1em;
+  border: 1.5px solid;
+}
+
+.badge-chain {
+  background: #1f4e5f;
+  border-color: #1f4e5f;
+  color: #fff;
+}
+
+.badge-chain::before {
+  content: '■ ';
+}
+
+.badge-publisher {
+  background: transparent;
+  border-color: #8a6d3b;
+  color: #6b5220;
+}
+
+.badge-publisher::before {
+  content: '✎ ';
+}
+
+.badge-absent {
+  background: transparent;
+  border-style: dashed;
+  border-color: #999;
+  color: #666;
+}
+
+.badge-absent::before {
+  content: '— ';
+}
+
+/* ISAD(G) areas */
+.area {
+  margin-top: calc(var(--spacer) * 1.5);
+}
+
+.area h2 {
+  font-size: var(--font-size-h4);
+  border-bottom: 2px solid var(--font-color-heading);
+  padding-bottom: calc(var(--spacer) / 4);
+  margin-bottom: 0;
+}
+
+.rows {
+  display: grid;
+  grid-template-columns: 15rem 1fr;
+  margin: 0;
+}
+
+.rows > dt,
+.rows > dd {
+  margin: 0;
+  padding: calc(var(--spacer) / 2) 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.rows > dt {
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-small);
+  padding-right: var(--spacer);
+  color: var(--font-color-heading);
+}
+
+.rows > dd {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: calc(var(--spacer) / 4);
+  min-width: 0;
+}
+
+.rows > dt.absent,
+.rows > dd.absent {
+  color: #777;
+}
+
+.value {
+  width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.value p,
+.value ul,
+.value ol {
+  margin: 0 0 calc(var(--spacer) / 4);
+}
+
+.value code {
+  font-size: var(--font-size-mini);
+  overflow-wrap: anywhere;
+}
+
+.pairs {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: calc(var(--spacer) / 6) calc(var(--spacer) / 2);
+  margin: 0;
+  font-size: var(--font-size-small);
+}
+
+.pairs dt {
+  color: var(--font-color-light);
+}
+
+.pairs dd {
+  margin: 0;
+  min-width: 0;
+}
+
+.timeline {
+  list-style: none;
+  padding: 0;
+  font-size: var(--font-size-small);
+}
+
+.timeline li {
+  display: grid;
+  grid-template-columns: 10.5rem 1fr;
+  gap: calc(var(--spacer) / 2);
+  padding: calc(var(--spacer) / 8) 0;
+  border-left: 2px solid var(--border-color);
+  padding-left: calc(var(--spacer) / 2);
+}
+
+.when {
+  font-variant-numeric: tabular-nums;
+  color: var(--font-color-light);
+}
+
+.service ul {
+  padding-left: 1.2em;
+  font-size: var(--font-size-small);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacer) / 4);
+  list-style: none;
+  padding: 0;
+}
+
+.tags li {
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 0 0.5em;
+  font-size: var(--font-size-small);
+}
+
+.description {
+  font-size: var(--font-size-small);
+}
+
+/* Headings inside a publisher's description must not outrank the areas */
+.description :global(h1),
+.description :global(h2),
+.description :global(h3),
+.description :global(h4) {
+  font-size: var(--font-size-base);
+  margin: calc(var(--spacer) / 2) 0 calc(var(--spacer) / 4);
+}
+
+.muted {
+  color: var(--font-color-light);
+  font-size: var(--font-size-small);
+}
+
+.archivistNote {
+  margin-top: calc(var(--spacer) * 1.5);
+  padding-top: calc(var(--spacer) / 2);
+  border-top: 1px solid var(--border-color);
+  font-size: var(--font-size-small);
+  color: var(--font-color-light);
+}
+
+@media screen and (max-width: 40rem) {
+  .rows {
+    grid-template-columns: 1fr;
+  }
+
+  .rows > dt {
+    border-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .legend li,
+  .timeline li {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .legend li {
+    margin-bottom: calc(var(--spacer) / 2);
+  }
+}
+
+@media print {
+  /* Hide the site header, not the page title (also a <header>, with the h1) */
+  :global(body):has(.findingAid) :global(header:not(:has(h1))),
+  :global(body):has(.findingAid) :global(footer),
+  .toolbar {
+    display: none !important;
+  }
+
+  .area {
+    break-inside: avoid-page;
+  }
+
+  .badge-chain {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}
