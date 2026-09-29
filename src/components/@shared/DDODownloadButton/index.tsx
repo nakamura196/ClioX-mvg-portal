@@ -49,13 +49,15 @@ export default function DDODownloadButton({
 
   return (
     <>
-      <Button
-        className={styles.button}
-        onClick={() => setOpenModal(true)}
-        size="small"
-      >
-        {t('asset.prepareServiceCredential')}
-      </Button>
+      <span data-jargon style={{ display: 'contents' }}>
+        <Button
+          className={styles.button}
+          onClick={() => setOpenModal(true)}
+          size="small"
+        >
+          {t('asset.prepareServiceCredential')}
+        </Button>
+      </span>
 
       <Modal
         title="Prepare Gaia-X Service Credential"

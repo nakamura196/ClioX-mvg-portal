@@ -15,6 +15,7 @@ import Automation from './UserPreferences/Automation'
 import NetworkMenu from './NetworkMenu'
 import LanguageSwitcher from './LanguageSwitcher'
 import TourLauncher from '../FirstRunTour/Launcher'
+import ArchivistModeToggle from '@components/ArchivistMode/Toggle'
 const Wallet = loadable(() => import('./Wallet'))
 
 const cx = classNames.bind(styles)
@@ -82,13 +83,18 @@ export default function Menu(): ReactElement {
 
       <div className={styles.actions}>
         <TourLauncher />
+        <ArchivistModeToggle />
         <LanguageSwitcher />
         <SearchButton />
-        {appConfig.chainIdsSupported.length > 1 && <Networks />}
-        <NetworkMenu />
+        <span data-jargon style={{ display: 'contents' }}>
+          {appConfig.chainIdsSupported.length > 1 && <Networks />}
+          <NetworkMenu />
+        </span>
         <Wallet />
         {appConfig.automationConfig.enableAutomation === 'true' && (
-          <Automation />
+          <span data-jargon style={{ display: 'contents' }}>
+            <Automation />
+          </span>
         )}
         <UserPreferences />
       </div>

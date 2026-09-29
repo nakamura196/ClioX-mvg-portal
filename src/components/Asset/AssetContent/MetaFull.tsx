@@ -53,6 +53,7 @@ export default function MetaFull({ ddo }: { ddo: Asset }): ReactElement {
       <MetaItem
         title={<ArchivistTerm id="owner">{t('asset.owner')}</ArchivistTerm>}
         content={<Publisher account={ddo?.nft?.owner} />}
+        jargon
       />
       {assetState !== 'Active' && (
         <MetaItem
@@ -68,6 +69,7 @@ export default function MetaFull({ ddo }: { ddo: Asset }): ReactElement {
         <MetaItem
           title={t('asset.revenueSentTo')}
           content={<Publisher account={paymentCollector} />}
+          jargon
         />
       )}
 

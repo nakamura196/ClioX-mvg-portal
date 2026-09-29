@@ -12,6 +12,7 @@ import { useMarketMetadata } from '@context/MarketMetadata'
 import { useAccount } from 'wagmi'
 import FirstRunTour from '../FirstRunTour'
 import { FirstRunTourProvider } from '../FirstRunTour/context'
+import ArchivistModeBanner from '../ArchivistMode/Banner'
 
 export default function App({
   children
@@ -41,6 +42,7 @@ export default function App({
             <AnnouncementBanner text={devPreviewAnnouncementText} />
           )}
         <Header />
+        <ArchivistModeBanner />
 
         {isInPurgatory && (
           <Alert

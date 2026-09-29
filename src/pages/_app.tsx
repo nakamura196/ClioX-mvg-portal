@@ -20,6 +20,7 @@ import { connectKitTheme, wagmiClient } from '@utils/wallet'
 import AutomationProvider from '../@context/Automation/AutomationProvider'
 import { FilterProvider } from '@context/Filter'
 import { UseCasesProvider } from '../@context/UseCases'
+import { ArchivistModeProvider } from '@context/ArchivistMode'
 import { Analytics } from '@vercel/analytics/react'
 import Script from 'next/script'
 import { plausibleDataDomain } from 'app.config'
@@ -51,9 +52,11 @@ function MyApp({ Component, pageProps }: AppProps): ReactElement {
                       <ConsentProvider>
                         <SearchBarStatusProvider>
                           <FilterProvider>
-                            <App>
-                              <Component {...pageProps} />
-                            </App>
+                            <ArchivistModeProvider>
+                              <App>
+                                <Component {...pageProps} />
+                              </App>
+                            </ArchivistModeProvider>
                           </FilterProvider>
                         </SearchBarStatusProvider>
                       </ConsentProvider>

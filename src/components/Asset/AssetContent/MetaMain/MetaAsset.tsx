@@ -26,7 +26,7 @@ export default function MetaAsset({
         {t('asset.ownedBy')} &nbsp;
         <Publisher account={asset?.nft?.owner} showName={true} />
       </span>
-      <span>
+      <span data-jargon>
         <ExplorerTokenLink
           tokenAddress={asset?.services?.[0]?.datatokenAddress}
           networkId={asset?.chainId}

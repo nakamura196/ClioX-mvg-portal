@@ -74,7 +74,7 @@ export default function AssetContent({
 
   return (
     <>
-      <div className={styles.networkWrap}>
+      <div className={styles.networkWrap} data-jargon>
         <NetworkName networkId={asset?.chainId} className={styles.network} />
       </div>
 
