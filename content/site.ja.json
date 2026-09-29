@@ -14,7 +14,8 @@
       ]
     },
     { "name": "パートナー" },
-    { "name": "リソース" }
+    { "name": "リソース" },
+    { "name": "用語の手引き" }
   ],
   "devPreviewAnnouncement": "これは SITE-TITLE-PLACEHOLDER の開発プレビューです。一部の機能はベータ版であり、期待どおりに動作しない場合があります。通常版は [SITE-TITLE-PLACEHOLDER ポータル](SITE-LINK-PLACEHOLDER) をご利用ください。",
   "warning": {

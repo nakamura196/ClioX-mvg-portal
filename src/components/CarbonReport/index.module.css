@@ -1,0 +1,465 @@
+.page {
+  max-width: 60rem;
+  margin: 0 auto;
+}
+
+.intro p {
+  font-size: var(--font-size-large);
+  max-width: 48rem;
+}
+
+.panel {
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  background: var(--background-content);
+  padding: calc(var(--spacer) / 2) calc(var(--spacer) * 0.75);
+  margin: var(--spacer) 0;
+}
+
+.panel h2,
+.reportHeading,
+.exportBar h2 {
+  font-size: var(--font-size-h5, 1.2rem);
+  margin: calc(var(--spacer) / 2) 0 calc(var(--spacer) / 3);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: calc(var(--spacer) / 3);
+  font-size: var(--font-size-small);
+}
+
+.field > span {
+  font-weight: var(--font-weight-bold);
+  color: var(--font-color-heading);
+}
+
+.field small,
+.hint {
+  color: var(--font-color-light);
+  font-size: var(--font-size-small);
+}
+
+.field input,
+.field select,
+.field textarea {
+  font: inherit;
+  font-size: var(--font-size-base);
+  color: var(--font-color-text);
+  background: var(--background-body);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 0.45rem 0.6rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.field textarea {
+  resize: vertical;
+}
+
+.lines {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacer) / 4);
+}
+
+.lineRow {
+  display: grid;
+  grid-template-columns: minmax(8rem, 1fr) minmax(12rem, 2fr) 6.5rem 7.5rem auto;
+  gap: 0 calc(var(--spacer) / 3);
+  align-items: end;
+  padding-bottom: calc(var(--spacer) / 4);
+  border-bottom: 1px dashed var(--border-color);
+}
+
+.num input {
+  text-align: right;
+}
+
+.formActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacer) / 4);
+  margin-top: calc(var(--spacer) / 3);
+}
+
+.formActions button,
+.remove {
+  font: inherit;
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+  background: transparent;
+  border: 1px solid var(--color-primary);
+  border-radius: var(--border-radius);
+  padding: 0.45rem 0.9rem;
+  cursor: pointer;
+}
+
+.formActions button:hover,
+.remove:hover {
+  background: var(--background-highlight);
+}
+
+.remove {
+  margin-bottom: calc(var(--spacer) / 3);
+  border-color: var(--border-color);
+  color: var(--font-color-light);
+}
+
+.formActions .linkButton {
+  border-color: transparent;
+  text-decoration: underline;
+}
+
+.check {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  margin-top: calc(var(--spacer) / 2);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-bold);
+  color: var(--font-color-heading);
+}
+
+.check input {
+  margin-top: 0.2rem;
+}
+
+.check small {
+  display: block;
+  font-weight: normal;
+  color: var(--font-color-light);
+}
+
+/* ---- the report itself (this is what gets printed) ---- */
+
+.report {
+  border: 1px solid var(--border-color);
+  border-top: 4px solid var(--color-primary);
+  border-radius: var(--border-radius);
+  background: var(--background-content);
+  padding: calc(var(--spacer) * 0.75);
+  font-size: var(--font-size-small);
+}
+
+.reportHeader h1 {
+  font-size: var(--font-size-title);
+  margin: 0.2rem 0 calc(var(--spacer) / 3);
+}
+
+.status {
+  display: inline-block;
+  margin: 0;
+  font-size: var(--font-size-mini);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--font-color-light);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 0.1rem 0.5rem;
+}
+
+.meta {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.2rem calc(var(--spacer) / 2);
+  margin: 0 0 calc(var(--spacer) / 2);
+}
+
+.meta dt {
+  color: var(--font-color-light);
+}
+
+.meta dd {
+  margin: 0;
+  color: var(--font-color-heading);
+}
+
+.totals {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: calc(var(--spacer) / 3);
+}
+
+.totals > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  background: var(--background-highlight);
+  border-radius: var(--border-radius);
+  padding: calc(var(--spacer) / 3) calc(var(--spacer) / 2);
+}
+
+.totals span {
+  color: var(--font-color-light);
+}
+
+.totals strong {
+  font-size: 1.6rem;
+  line-height: 1.2;
+  color: var(--font-color-heading);
+  font-variant-numeric: tabular-nums;
+}
+
+.totals small {
+  color: var(--font-color-light);
+}
+
+.ratio {
+  justify-content: center;
+}
+
+.ratio strong {
+  color: var(--color-primary);
+}
+
+.usedBy {
+  display: block;
+  color: var(--font-color-light);
+}
+
+.note {
+  color: var(--font-color-light);
+  margin: calc(var(--spacer) / 4) 0 calc(var(--spacer) / 2);
+}
+
+.tableWrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.table th {
+  text-align: left;
+  font-weight: var(--font-weight-bold);
+  color: var(--font-color-light);
+  border-bottom: 1px solid var(--border-color);
+  padding: 0.4rem 0.5rem;
+  white-space: nowrap;
+}
+
+.table td {
+  vertical-align: top;
+  border-bottom: 1px solid var(--border-color);
+  padding: 0.5rem;
+  color: var(--font-color-heading);
+}
+
+.table td small {
+  display: block;
+  color: var(--font-color-light);
+}
+
+.table .right {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.option {
+  font-weight: var(--font-weight-bold);
+}
+
+.emissions {
+  min-width: 9rem;
+}
+
+.figure {
+  display: block;
+  white-space: nowrap;
+}
+
+.bar {
+  display: block;
+  height: 6px;
+  margin-top: 0.3rem;
+  background: var(--background-highlight);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.bar span {
+  display: block;
+  height: 100%;
+  min-width: 2px;
+  background: var(--color-primary);
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+.reason {
+  margin-top: 0.3rem;
+  max-width: 16rem;
+  line-height: 1.45;
+}
+
+/* 実測か推定かは、この報告書で最も重要な情報なので視覚的に強く分ける */
+.badge {
+  display: inline-block;
+  font-size: var(--font-size-mini);
+  line-height: 1.4;
+  padding: 0 0.35rem;
+  border-radius: var(--border-radius);
+  border: 1px solid currentColor;
+  margin-left: 0.3rem;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+td > .badge:first-child,
+dt > .badge:first-child {
+  margin-left: 0;
+}
+
+.measured {
+  color: var(--brand-alert-green, #3f8f3a);
+}
+
+.estimated {
+  color: var(--brand-alert-yellow, #a88a00);
+}
+
+.unknown {
+  color: var(--font-color-light);
+}
+
+.legend,
+.sources,
+.assumptions {
+  margin-top: calc(var(--spacer) / 2);
+}
+
+.legend h3,
+.sources h3,
+.assumptions h3 {
+  font-size: var(--font-size-base);
+  margin: 0 0 calc(var(--spacer) / 4);
+}
+
+.sources h4 {
+  font-size: var(--font-size-small);
+  color: var(--font-color-light);
+  margin: calc(var(--spacer) / 4) 0 0.2rem;
+}
+
+.legend dl {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.3rem calc(var(--spacer) / 2);
+  margin: 0;
+}
+
+.legend dl > div {
+  display: flex;
+  gap: 0.5rem;
+  align-items: baseline;
+}
+
+.legend dd {
+  margin: 0;
+}
+
+.sources ul,
+.assumptions ul {
+  margin: 0;
+  padding-left: 1.2em;
+  line-height: 1.5;
+}
+
+.sources li,
+.assumptions li {
+  margin-bottom: 0.2rem;
+}
+
+.fixity {
+  margin-top: calc(var(--spacer) / 2);
+  padding-top: calc(var(--spacer) / 3);
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.fixity span {
+  font-weight: var(--font-weight-bold);
+}
+
+.fixity code {
+  font-size: var(--font-size-mini);
+  word-break: break-all;
+}
+
+.fixity small {
+  color: var(--font-color-light);
+}
+
+.exportBar {
+  margin: var(--spacer) 0;
+}
+
+@media (max-width: 40rem) {
+  .lineRow {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .lineRow > .field:nth-child(1),
+  .lineRow > .field:nth-child(2) {
+    grid-column: 1 / -1;
+  }
+
+  .remove {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+
+  .totals {
+    grid-template-columns: 1fr;
+  }
+
+  .legend dl {
+    grid-template-columns: 1fr;
+  }
+
+  .report {
+    padding: calc(var(--spacer) / 2);
+  }
+}
+
+/*
+ * 印刷（PDF 保存）では報告書だけを残す。サイトの見出し・メニュー・入力欄は落とす。
+ * Page 側の構造には手を入れず、ここで隠す。
+ */
+@media print {
+  .noPrint {
+    display: none !important;
+  }
+
+  .report {
+    border: none;
+    padding: 0;
+    font-size: 10pt;
+  }
+
+  .table td,
+  .table th {
+    padding: 0.25rem 0.35rem;
+  }
+
+  .tableWrap {
+    overflow: visible;
+  }
+
+  :global(body):has(.page) :global(header),
+  :global(body):has(.page) :global(footer),
+  :global(body):has(.page) :global(nav) {
+    display: none !important;
+  }
+}

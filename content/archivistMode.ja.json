@@ -1,0 +1,109 @@
+{
+  "ui": {
+    "toggle": "アーキビスト表示",
+    "toggleHint": "暗号資産の用語を隠し、アーカイブズの言葉で表示します",
+    "bannerTitle": "アーキビスト表示",
+    "bannerText": "暗号資産の用語をアーカイブズの言葉に置き換え、ウォレットのアドレス・トークン名・ネットワーク名を隠しています。資料の中身や利用の決まりは変わりません。",
+    "bannerOff": "技術的な表示に戻す"
+  },
+  "common": {
+    "search": {
+      "placeholder": "カタログを検索",
+      "labels": {
+        "Service Type": "資料の種類",
+        "Access Type": "利用のしかた",
+        "compute": "持ち出さずに分析",
+        "Sales": "利用回数",
+        "Price": "費用"
+      }
+    },
+    "asset": {
+      "owner": "保管者",
+      "assetState": "利用状況",
+      "did": "永続識別子（DID）",
+      "metadataHistory": "記述の改訂履歴",
+      "ownedBy": "保管者",
+      "relatedAssets": "関連する資料",
+      "noSalesYet": "まだ利用されていません",
+      "sales_other": "回の利用",
+      "noFileInfo": "ファイルは非公開",
+      "externalContentText": "この資料の説明には外部サイトのコンテンツが含まれている可能性があります。表示を許可しますか？",
+      "accessDenied": "利用できません",
+      "notWhitelisted": "このアカウントは、この資料の利用者名簿に入っていません。保管者に問い合わせるか、別のアカウントでサインインしてください。",
+      "noPricingSchema": "この資料には利用条件が設定されていません。",
+      "orderingDisabled": "保管者がこの資料の利用を一時的に止めています",
+      "calculatingPrice": "費用を計算しています",
+      "purchaseSuccessDownload": "利用が認められました。この{{type}}をダウンロードできます。",
+      "purchaseSuccessAccess": "利用が認められました。この{{type}}を利用できます。",
+      "history": {
+        "stateUpdated": "利用状況を変更",
+        "nftMetadataUpdated": "記述を改訂"
+      }
+    },
+    "assetType": {
+      "compute": "持ち出さずに分析"
+    },
+    "wallet": {
+      "connect": "サインイン",
+      "connectWord": ""
+    },
+    "compute": {
+      "selectAlgorithmForPrice": "分析を選ぶと、費用が分かります",
+      "orderForFreeBefore": "この分析は",
+      "orderForFreeWord": "無料",
+      "orderForFreeAfter": "で依頼できます",
+      "priceAfterAlgorithm": "分析を選ぶと、費用が表示されます。",
+      "yourComputeJobs": "あなたが依頼した分析",
+      "jobStartedSuccess": "分析を始めました。進み具合は下、またはプロフィール画面で確認できます。",
+      "noEnvironment": "いま分析を実行できる計算機がありません。",
+      "searchPlaceholder": "タイトル・識別子で検索...",
+      "noAssets": "該当する分析がありません。",
+      "allowedDatasets": "この分析を実行してよいデータセット",
+      "startJob": "分析を依頼する",
+      "orderJob": "分析を依頼する",
+      "buyJob": "分析を依頼する",
+      "refreshTitle": "依頼した分析を再読み込み"
+    },
+    "buy": {
+      "willBuyDatatoken": "この{{type}}を利用するときは、請求票を 1 枚受け取り、すぐに保管者へ返します。これが利用の記録になります。",
+      "algoWillBuy": "分析のほうも同じように請求票を 1 枚受け取り、作成者へ返します。",
+      "ownDatatoken": "この資料の請求票を {{balance}} 枚お持ちなので、そのうち 1 枚を使います。追加の支払いはありません。",
+      "algoOwnDatatoken": "選んだ{{type}}の請求票をお持ちなので、そのうち 1 枚を使います。追加の支払いはありません。",
+      "insufficientBalance": "この資料を利用するための残高が足りません。",
+      "wrongNetwork": "この資料は別の台帳に登録されています。続けるには、その台帳に切り替えてください。",
+      "providerFeeRequired": "分析を実行する計算機の利用料もかかります。",
+      "providerFeeFree": "分析を実行する計算機は、無料で使えます。",
+      "gasFeeNote": "ただし、依頼を共有の台帳に記録するときに、少額のネットワーク手数料がかかることがあります。無料の資料でも同じです。"
+    },
+    "actions": {
+      "connectWallet": "サインイン"
+    },
+    "profile": {
+      "computeJobs": "依頼した分析",
+      "connectWallet": "サインインが要るのは、分析を依頼するときだけです。見る・読むだけなら要りません。",
+      "sales_other": "利用回数"
+    },
+    "web3": {
+      "noAccountTitle": "サインインしていません",
+      "wrongNetworkTitle": "この資料は別の台帳に登録されています",
+      "outOfSyncTitle": "カタログが追いついていません",
+      "outOfSyncMessage": "カタログが台帳の最新の記入をまだ読み込めていません。依頼が失敗することがあります。しばらくしてからお試しください。"
+    },
+    "bookmarks": {
+      "noNetwork": "台帳が選ばれていません"
+    }
+  },
+  "startComputeDataset": {
+    "form": {
+      "success": "分析を始めました。",
+      "error": "分析を始められませんでした。",
+      "data": [
+        { "label": "分析を実行する計算機を選ぶ" },
+        { "label": "この資料に対して実行する分析を選ぶ" }
+      ],
+      "assetTermsAndConditions": {
+        "prefixes": ["この資料が以下のライセンスで提供されることを了承し、"]
+      }
+    }
+  }
+}

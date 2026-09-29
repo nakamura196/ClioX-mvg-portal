@@ -1,5 +1,6 @@
 import { ReactElement, useState, useEffect } from 'react'
 import MetaItem from './MetaItem'
+import ArchivistTerm from '@shared/ArchivistTerm'
 import styles from './MetaFull.module.css'
 import { useTranslation } from 'react-i18next'
 import Publisher from '@shared/Publisher'
@@ -42,7 +43,7 @@ export default function MetaFull({ ddo }: { ddo: Asset }): ReactElement {
   }
 
   return ddo ? (
-    <div className={styles.metaFull}>
+    <div className={styles.metaFull} data-tour="asset-identifiers">
       {!isInPurgatory && (
         <MetaItem
           title={t('asset.dataAuthor')}
@@ -50,23 +51,42 @@ export default function MetaFull({ ddo }: { ddo: Asset }): ReactElement {
         />
       )}
       <MetaItem
-        title={t('asset.owner')}
+        title={<ArchivistTerm id="owner">{t('asset.owner')}</ArchivistTerm>}
         content={<Publisher account={ddo?.nft?.owner} />}
+        jargon
       />
       {assetState !== 'Active' && (
-        <MetaItem title={t('asset.assetState')} content={assetState} />
+        <MetaItem
+          title={
+            <ArchivistTerm id="assetState">
+              {t('asset.assetState')}
+            </ArchivistTerm>
+          }
+          content={assetState}
+        />
       )}
       {paymentCollector && paymentCollector !== ddo?.nft?.owner && (
         <MetaItem
           title={t('asset.revenueSentTo')}
           content={<Publisher account={paymentCollector} />}
+          jargon
         />
       )}
 
       {ddo?.metadata?.type === 'algorithm' && ddo?.metadata?.algorithm && (
-        <MetaItem title={t('asset.dockerImage')} content={<DockerImage />} />
+        <MetaItem
+          title={
+            <ArchivistTerm id="dockerImage">
+              {t('asset.dockerImage')}
+            </ArchivistTerm>
+          }
+          content={<DockerImage />}
+        />
       )}
-      <MetaItem title={t('asset.did')} content={<code>{ddo?.id}</code>} />
+      <MetaItem
+        title={<ArchivistTerm id="did">{t('asset.did')}</ArchivistTerm>}
+        content={<code>{ddo?.id}</code>}
+      />
     </div>
   ) : null
 }

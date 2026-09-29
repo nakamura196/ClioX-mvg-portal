@@ -1,0 +1,112 @@
+{
+  "contents": [
+    [
+      {
+        "boundingBox": [
+          [
+            124,
+            85
+          ],
+          [
+            124,
+            316
+          ],
+          [
+            186,
+            85
+          ],
+          [
+            186,
+            316
+          ]
+        ],
+        "id": 0,
+        "isVertical": "true",
+        "text": "歳且発句牒",
+        "isTextline": "true",
+        "confidence": 0.767
+      },
+      {
+        "boundingBox": [
+          [
+            156,
+            328
+          ],
+          [
+            156,
+            391
+          ],
+          [
+            187,
+            328
+          ],
+          [
+            187,
+            391
+          ]
+        ],
+        "id": 1,
+        "isVertical": "true",
+        "text": "芭蕉",
+        "isTextline": "true",
+        "confidence": 0.507
+      },
+      {
+        "boundingBox": [
+          [
+            145,
+            419
+          ],
+          [
+            145,
+            439
+          ],
+          [
+            181,
+            419
+          ],
+          [
+            181,
+            439
+          ]
+        ],
+        "id": 2,
+        "isVertical": "true",
+        "text": "一",
+        "isTextline": "true",
+        "confidence": 0.45
+      },
+      {
+        "boundingBox": [
+          [
+            192,
+            413
+          ],
+          [
+            192,
+            461
+          ],
+          [
+            203,
+            413
+          ],
+          [
+            203,
+            461
+          ]
+        ],
+        "id": 3,
+        "isVertical": "true",
+        "text": "同同廿一日",
+        "isTextline": "true",
+        "confidence": 0.328
+      }
+    ]
+  ],
+  "imginfo": {
+    "img_width": 1600,
+    "img_height": 747,
+    "img_path": "/data/inputs/saitan-01.jpg",
+    "img_name": "saitan-01.jpg"
+  }
+}

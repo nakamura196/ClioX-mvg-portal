@@ -6,6 +6,7 @@ import { ReactElement } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAccount } from 'wagmi'
 import ExplorerTokenLink from '../../../@shared/ExplorerLink/ExplorerTokenLink'
+import ArchivistTerm from '@shared/ArchivistTerm'
 import styles from './MetaAsset.module.css'
 
 export default function MetaAsset({
@@ -25,14 +26,15 @@ export default function MetaAsset({
         {t('asset.ownedBy')} &nbsp;
         <Publisher account={asset?.nft?.owner} showName={true} />
       </span>
-      <span>
+      <span data-jargon>
         <ExplorerTokenLink
           tokenAddress={asset?.services?.[0]?.datatokenAddress}
           networkId={asset?.chainId}
           className={styles.datatoken}
         >
           {t('asset.accessedWith', { symbol: dataTokenSymbol })}
-        </ExplorerTokenLink>
+        </ExplorerTokenLink>{' '}
+        <ArchivistTerm id="datatoken" />
         {activeConnector?.name === 'MetaMask' && isAssetNetwork && (
           <span className={styles.addWrap}>
             <AddToken

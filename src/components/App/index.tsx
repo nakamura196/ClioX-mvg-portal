@@ -10,6 +10,9 @@ import { ToastContainer } from 'react-toastify'
 import contentPurgatory from '../../../content/purgatory.json'
 import { useMarketMetadata } from '@context/MarketMetadata'
 import { useAccount } from 'wagmi'
+import FirstRunTour from '../FirstRunTour'
+import { FirstRunTourProvider } from '../FirstRunTour/context'
+import ArchivistModeBanner from '../ArchivistMode/Banner'
 
 export default function App({
   children
@@ -26,32 +29,39 @@ export default function App({
       ?.replaceAll('SITE-LINK-PLACEHOLDER', siteContent.siteUrl) || ''
 
   return (
-    <div className={styles.app}>
-      {siteContent?.announcement !== '' && (
-        <AnnouncementBanner state="warning" text={siteContent?.announcement} />
-      )}
-      {appConfig.showPreviewAlert === 'true' &&
-        devPreviewAnnouncementText !== '' && (
-          <AnnouncementBanner text={devPreviewAnnouncementText} />
+    <FirstRunTourProvider>
+      <div className={styles.app}>
+        {siteContent?.announcement !== '' && (
+          <AnnouncementBanner
+            state="warning"
+            text={siteContent?.announcement}
+          />
         )}
-      <Header />
+        {appConfig.showPreviewAlert === 'true' &&
+          devPreviewAnnouncementText !== '' && (
+            <AnnouncementBanner text={devPreviewAnnouncementText} />
+          )}
+        <Header />
+        <ArchivistModeBanner />
 
-      {isInPurgatory && (
-        <Alert
-          title={contentPurgatory.account.title}
-          badge={`Reason: ${purgatoryData?.reason}`}
-          text={contentPurgatory.account.description}
-          state="error"
-        />
-      )}
-      <main className={styles.main}>{children}</main>
-      <Footer />
+        {isInPurgatory && (
+          <Alert
+            title={contentPurgatory.account.title}
+            badge={`Reason: ${purgatoryData?.reason}`}
+            text={contentPurgatory.account.description}
+            state="error"
+          />
+        )}
+        <main className={styles.main}>{children}</main>
+        <Footer />
 
-      {appConfig?.privacyPreferenceCenter === 'true' && (
-        <PrivacyPreferenceCenter style="small" />
-      )}
+        {appConfig?.privacyPreferenceCenter === 'true' && (
+          <PrivacyPreferenceCenter style="small" />
+        )}
 
-      <ToastContainer position="bottom-right" newestOnTop />
-    </div>
+        <ToastContainer position="bottom-right" newestOnTop />
+        <FirstRunTour />
+      </div>
+    </FirstRunTourProvider>
   )
 }

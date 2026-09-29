@@ -1,0 +1,111 @@
+{
+  "ui": {
+    "toggle": "Archivist view",
+    "toggleHint": "Show the site in archival terms, with crypto details hidden",
+    "bannerTitle": "Archivist view",
+    "bannerText": "Crypto terms are replaced with archival ones, and wallet addresses, token names and networks are hidden. Nothing about the records or their rules changes.",
+    "bannerOff": "Show the full technical view"
+  },
+  "common": {
+    "search": {
+      "placeholder": "Search the catalogue",
+      "labels": {
+        "Service Type": "Kind of item",
+        "Access Type": "How it is used",
+        "compute": "analyse in place",
+        "Sales": "Times used",
+        "Price": "Cost"
+      }
+    },
+    "asset": {
+      "owner": "Custodian",
+      "assetState": "Access status",
+      "did": "Persistent identifier (DID)",
+      "metadataHistory": "Description history",
+      "ownedBy": "Custodian",
+      "relatedAssets": "Related items",
+      "noSalesYet": "Not used yet",
+      "sales_one": "use",
+      "sales_other": "uses",
+      "noFileInfo": "Files kept private",
+      "externalContentText": "The description of this item may include content from other websites. Do you want to show it?",
+      "accessDenied": "Not available to you",
+      "notWhitelisted": "Your account is not on this item's access list. Ask the custodian, or sign in with another account.",
+      "noPricingSchema": "No access terms are set for this item.",
+      "orderingDisabled": "The custodian has paused access to this item for now",
+      "calculatingPrice": "Working out the cost",
+      "purchaseSuccessDownload": "Access granted. You can now download this {{type}}.",
+      "purchaseSuccessAccess": "Access granted. You can now use this {{type}}.",
+      "history": {
+        "stateUpdated": "access status changed",
+        "nftMetadataUpdated": "description revised"
+      }
+    },
+    "assetType": {
+      "compute": "analyse in place"
+    },
+    "wallet": {
+      "connect": "Sign in",
+      "connectWord": ""
+    },
+    "compute": {
+      "selectAlgorithmForPrice": "Choose an analysis to see what it costs",
+      "orderForFreeBefore": "This analysis is ",
+      "orderForFreeWord": "free",
+      "orderForFreeAfter": "",
+      "priceAfterAlgorithm": "The cost appears once you choose an analysis.",
+      "yourComputeJobs": "Your analyses",
+      "jobStartedSuccess": "Your analysis has started. You can follow it below or on your profile.",
+      "noEnvironment": "No computer is available to run analyses right now.",
+      "searchPlaceholder": "Search by title or identifier...",
+      "noAssets": "No analyses found.",
+      "allowedDatasets": "Datasets this analysis may run on",
+      "startJob": "Request the analysis",
+      "orderJob": "Request the analysis",
+      "buyJob": "Request the analysis",
+      "refreshTitle": "Refresh your analyses"
+    },
+    "buy": {
+      "willBuyDatatoken": "To use this {{type}}, one access slip is issued to you and immediately handed back to the custodian. That is the record of use.",
+      "algoWillBuy": "The analysis also gets its own access slip, handed back to its author in the same way.",
+      "ownDatatoken": "You already hold {{balance}} access slips for this item, so one of them is used and you pay nothing more.",
+      "algoOwnDatatoken": "You already hold access slips for the selected {{type}}, so one of them is used and you pay nothing more.",
+      "insufficientBalance": "Your account does not have enough funds for this item.",
+      "wrongNetwork": "This item is registered on a different ledger. Switch to it to continue.",
+      "providerFeeRequired": "The computer that runs the analysis also charges a fee.",
+      "providerFeeFree": "The computer that runs the analysis is free to use.",
+      "gasFeeNote": "Recording your request on the shared ledger can still cost a small network fee, even for free items."
+    },
+    "actions": {
+      "connectWallet": "Sign in"
+    },
+    "profile": {
+      "computeJobs": "Analyses",
+      "connectWallet": "You only need to sign in to request an analysis. Browsing and reading need no sign-in.",
+      "sales_one": "Use",
+      "sales_other": "Uses"
+    },
+    "web3": {
+      "noAccountTitle": "Not signed in",
+      "wrongNetworkTitle": "This item is on a different ledger",
+      "outOfSyncTitle": "The catalogue is catching up",
+      "outOfSyncMessage": "The catalogue has not yet read the latest ledger entries. Requests may fail; please try again shortly."
+    },
+    "bookmarks": {
+      "noNetwork": "No ledger selected"
+    }
+  },
+  "startComputeDataset": {
+    "form": {
+      "success": "Your analysis has started.",
+      "error": "The analysis could not be started.",
+      "data": [
+        { "label": "Choose the computer that runs the analysis" },
+        { "label": "Choose the analysis to run on these records" }
+      ],
+      "assetTermsAndConditions": {
+        "prefixes": ["I acknowledge that this item is made available under"]
+      }
+    }
+  }
+}

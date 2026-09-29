@@ -2,3 +2,9 @@
   display: flex;
   align-self: stretch;
 }
+
+.hint {
+  display: flex;
+  align-items: center;
+  margin-left: calc(var(--spacer) / 6);
+}

@@ -1,0 +1,67 @@
+<?xml version='1.0' encoding='utf-8'?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>Title</title>
+        <respStmt>
+          <resp>Automated Transcription</resp>
+          <name ref="https://github.com/ndl-lab/ndlkotenocr-lite">NDL古典籍OCR-Liteアプリケーション</name>
+        </respStmt>
+        <respStmt>
+          <resp>Conversion to TEI encoding</resp>
+          <name>Kiyonori Nagasaki</name>
+        </respStmt>
+      </titleStmt>
+      <publicationStmt>
+        <p>Publication Information</p>
+      </publicationStmt>
+      <sourceDesc>
+        <p>Information about the source</p>
+      </sourceDesc>
+    </fileDesc>
+  </teiHeader>
+  <facsimile>
+    <surface>
+      <graphic url="/data/inputs/saitan-04.jpg" width="1600px" height="747px" />
+      <zone xml:id="L0000_000" ulx="1380" uly="128" lrx="1418" lry="234" />
+      <zone xml:id="L0000_001" ulx="1325" uly="191" lrx="1375" lry="373" />
+      <zone xml:id="L0000_002" ulx="1225" uly="78" lrx="1280" lry="533" />
+      <zone xml:id="L0000_003" ulx="1170" uly="79" lrx="1223" lry="537" />
+      <zone xml:id="L0000_004" ulx="1117" uly="82" lrx="1169" lry="530" />
+      <zone xml:id="L0000_005" ulx="1065" uly="87" lrx="1119" lry="536" />
+      <zone xml:id="L0000_006" ulx="1017" uly="83" lrx="1066" lry="537" />
+      <zone xml:id="L0000_007" ulx="968" uly="88" lrx="1018" lry="528" />
+      <zone xml:id="L0000_008" ulx="911" uly="90" lrx="961" lry="533" />
+      <zone xml:id="L0000_009" ulx="857" uly="86" lrx="909" lry="540" />
+      <zone xml:id="L0000_010" ulx="805" uly="93" lrx="852" lry="538" />
+      <zone xml:id="L0000_011" ulx="719" uly="458" lrx="743" lry="526" />
+      <zone xml:id="L0000_012" ulx="683" uly="106" lrx="723" lry="556" />
+      <zone xml:id="L0000_013" ulx="669" uly="457" lrx="690" lry="530" />
+      <zone xml:id="L0000_014" ulx="632" uly="111" lrx="676" lry="546" />
+      <zone xml:id="L0000_015" ulx="622" uly="453" lrx="642" lry="535" />
+      <zone xml:id="L0000_016" ulx="583" uly="111" lrx="626" lry="551" />
+      <zone xml:id="L0000_017" ulx="575" uly="457" lrx="596" lry="534" />
+      <zone xml:id="L0000_018" ulx="530" uly="112" lrx="578" lry="551" />
+      <zone xml:id="L0000_019" ulx="522" uly="462" lrx="548" lry="542" />
+      <zone xml:id="L0000_020" ulx="481" uly="115" lrx="526" lry="553" />
+      <zone xml:id="L0000_021" ulx="472" uly="459" lrx="488" lry="545" />
+      <zone xml:id="L0000_022" ulx="428" uly="113" lrx="474" lry="550" />
+      <zone xml:id="L0000_023" ulx="372" uly="120" lrx="425" lry="527" />
+      <zone xml:id="L0000_024" ulx="358" uly="461" lrx="381" lry="525" />
+      <zone xml:id="L0000_025" ulx="325" uly="121" lrx="371" lry="527" />
+      <zone xml:id="L0000_026" ulx="273" uly="119" lrx="320" lry="523" />
+      <zone xml:id="L0000_027" ulx="223" uly="118" lrx="267" lry="532" />
+      <zone xml:id="L0000_028" ulx="211" uly="459" lrx="239" lry="541" />
+      <zone xml:id="L0000_029" ulx="173" uly="117" lrx="213" lry="548" />
+      <zone xml:id="L0000_030" ulx="109" uly="116" lrx="161" lry="541" />
+    </surface>
+  </facsimile>
+  <text>
+    <body>
+      <p>
+        <pb n="saitan-04.jpg" facs="#saitan-04.jpg" />
+        <lb n="0" facs="#L0000_000" />元日<lb n="1" facs="#L0000_001" />次第不同<lb n="2" facs="#L0000_002" />くれ〳〵て餅を木魂のこね哉桃青<lb n="3" facs="#L0000_003" />翻立松我蓬莱々詠てん露言<lb n="4" facs="#L0000_004" />棟の宮餅に歌書て捧てし不下<lb n="5" facs="#L0000_005" />初明ぬ稲負せ松の下は国言水<lb n="6" facs="#L0000_006" />一屠二跡満りきのふ江戸伯の入添山夕<lb n="7" facs="#L0000_007" />烏啼てあけほの松に萱柳才丸<lb n="8" facs="#L0000_008" />三つ物や則チ必ス有レ我二暮<lb n="9" facs="#L0000_009" />一奏箸強ひ為の御構然り命の国え津<lb n="10" facs="#L0000_010" />初礼や虎の住林鶴の遠友水<lb n="11" facs="#L0000_011" />東山氏<lb n="12" facs="#L0000_012" />一大道を天下にとくとしめす春秀満<lb n="13" facs="#L0000_013" />愛宕下<lb n="14" facs="#L0000_014" />書初や今朝がゝ板の色外に山鳳<lb n="15" facs="#L0000_015" />一同浅村氏<lb n="16" facs="#L0000_016" />初芝居や造木のかづら長かもし雪流<lb n="17" facs="#L0000_017" />同生因氏<lb n="18" facs="#L0000_018" />買初や女中のゑ顔に間物棚能酒<lb n="19" facs="#L0000_019" />二番丁加藤氏<lb n="20" facs="#L0000_020" />年男めてたかるへき太郎右衛門斎改<lb n="21" facs="#L0000_021" />いせ丁塩かし<lb n="22" facs="#L0000_022" />四方長案一天和合君の春<lb n="23" facs="#L0000_023" />一松と川日本さかゆる朝の春仝<lb n="24" facs="#L0000_024" />嘉田氏<lb n="25" facs="#L0000_025" />ゆつりはや蓬莱山のつたへ草伝<lb n="26" facs="#L0000_026" />さんほうやたい吉日のひろめん日<lb n="27" facs="#L0000_027" />年徳やよろひうわ帯しめかち月<lb n="28" facs="#L0000_028" />米沢住人<lb n="29" facs="#L0000_029" />しき嶋や大道広き江戸の春未聞<lb n="30" facs="#L0000_030" />天長地久たり門松平御代写世月</p>
+    </body>
+  </text>
+</TEI>

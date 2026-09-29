@@ -212,7 +212,7 @@ export default function AssetActions({
   }, [accountIdToUse, asset])
 
   return (
-    <div className={styles.actions}>
+    <div className={styles.actions} data-tour="asset-access">
       {invalidProviderUrl !== undefined && (
         <div className={styles.providerAlert}>
           <Alert

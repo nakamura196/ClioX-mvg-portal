@@ -1,0 +1,135 @@
+{
+  "title": "Try an analysis on a sample collection",
+  "description": "Run an analysis on eight public-domain page images, with no wallet. Nothing is sent anywhere, and nothing is spent or deleted.",
+  "intro": "This page lets you rehearse a compute job from start to finish on a small public-domain collection. You choose the pages, choose an analysis, run it, and look at what comes back.",
+  "safe": [
+    "No wallet, no sign-in",
+    "Nothing is sent outside this site",
+    "Nothing is spent, changed or deleted"
+  ],
+  "roles": {
+    "heading": "Who does what in a compute job",
+    "custodian": "Custodian's computer",
+    "custodianNote": "Holds the records. They stay here.",
+    "analysis": "Approved analysis",
+    "analysisNote": "Is sent to the records.",
+    "results": "Results",
+    "resultsNote": "Only these come back to you.",
+    "here": "On this page, your browser plays the custodian's computer."
+  },
+  "step1": {
+    "heading": "1. The collection",
+    "lead": "Eight page images of a woodblock-printed book of New Year haikai verse, held by the National Diet Library, Japan. The NDL marks it as public domain.",
+    "fromSource": "From the NDL catalogue record",
+    "fromSourceNote": "Copied as written in the NDL's IIIF manifest (retrieved {date}). Not translated.",
+    "fields": {
+      "Title": "Title",
+      "Creator": "Creator",
+      "Publisher": "Publisher",
+      "Publication Date": "Date",
+      "Call Number": "Call number",
+      "DOI": "DOI",
+      "Access Restrictions": "Rights",
+      "attribution": "Holder"
+    },
+    "copies": "Our copies",
+    "copiesNote": "1600-pixel-wide JPEG copies of the full-size originals, fetched from the NDL image server on {date}.",
+    "pageNotesBadge": "Page notes are ours",
+    "pageNotes": [
+      "Front cover, with a colour chart",
+      "Inside front cover",
+      "Title and year (天和二歳, 1682)",
+      "Text: New Year verses",
+      "Text: verses and a Chinese poem",
+      "Text: verses",
+      "Inside back cover",
+      "Back cover"
+    ],
+    "select": "Choose pages",
+    "selectAll": "All",
+    "selectNone": "None",
+    "selected": "{n} of {total} pages chosen"
+  },
+  "step2": {
+    "heading": "2. Choose an analysis",
+    "what": "What it does",
+    "returns": "What comes back",
+    "leaves": "Do the images leave?",
+    "fixity": {
+      "name": "Fixity check",
+      "mode": "Runs here, now",
+      "what": "Computes a SHA-256 checksum and the pixel size of each chosen file — the same check you would make when accessioning digital files.",
+      "returns": "A table of file names, sizes and checksums (CSV).",
+      "leaves": "No. Only the table comes back."
+    },
+    "ocr": {
+      "name": "Text recognition (NDL古典籍OCR-Lite)",
+      "mode": "Replays a recorded run",
+      "what": "Reads the printed and brush-written text on each page and returns it as plain text, TEI, and line positions.",
+      "returns": "One set of text files per page, and a summary.",
+      "leaves": "No. Only the text files come back.",
+      "recorded": "This analysis is too large to run in a browser. We ran it once on {date}, on our own computer, under the same rules a compute job uses: no network, 2 CPUs, 2 GB of memory, and write access to the results folder only. This page replays that record."
+    }
+  },
+  "step3": {
+    "heading": "3. Run it",
+    "runFixity": "Run the fixity check",
+    "runOcr": "Replay the recorded run",
+    "running": "Running…",
+    "again": "Run again",
+    "none": "Choose at least one page first.",
+    "log": "Job log",
+    "logFixity": "Written by this page as it works.",
+    "logOcr": "Shown exactly as the program wrote it on {date} (in Japanese). The recorded run covered all 8 pages; lines for the pages you chose are highlighted.",
+    "container": "Container",
+    "limits": "Rules",
+    "limitsValue": "no network · 2 CPUs · 2 GB memory · user 1000",
+    "fixityLine": "{file}  {bytes} bytes  {w}×{h}  sha256 {hash}…  ({ms} ms)",
+    "fixityStart": "inputs: {n} files in /data/inputs",
+    "fixityEnd": "done: 1 file written to /data/outputs (fixity.csv)"
+  },
+  "step4": {
+    "heading": "4. What came back",
+    "outputs": "Files in the results folder",
+    "notReturned": "What did not come back",
+    "notReturnedValue": "The {n} page images. They stayed with the custodian.",
+    "fixity": {
+      "file": "File",
+      "bytes": "Bytes",
+      "pixels": "Pixels",
+      "sha256": "SHA-256",
+      "match": "Same file as the OCR run read?",
+      "yes": "Yes",
+      "no": "No — differs",
+      "matchNote": "The OCR record lists the checksum of every file it read. Where they match, the OCR text on this page was read from exactly these files.",
+      "download": "Download fixity.csv"
+    },
+    "ocr": {
+      "summary": "{ok} of {n} pages read · {lines} lines · {chars} characters · {seconds} seconds",
+      "page": "Page",
+      "lines": "{n} lines",
+      "line": "1 line",
+      "failed": "Failed",
+      "hover": "Point at a line to see where the program found it on the page.",
+      "noText": "No lines were read on this page.",
+      "draftHeading": "Read this as a draft",
+      "draft": "OCR makes mistakes, and a person should check it before it is used as a transcription. Two examples from this run: the title 歳旦発句牒 is read as 歳且発句牒 (pages 1 and 3), and the ruler under the book is read as text (“1.3.3”).",
+      "failHeading": "Page 8 failed — and the job still finished",
+      "fail": "The back cover has no text. The OCR program found zero lines and stopped with an error (it divides by the number of lines). The other pages' results still came back. The same thing would happen on the real network: a failed page is reported, not hidden.",
+      "downloads": "Download",
+      "confidence": "confidence {c}"
+    }
+  },
+  "step5": {
+    "heading": "5. On the real network, what changes",
+    "changes": [
+      "You choose a dataset in the catalogue instead of these eight files.",
+      "You connect a wallet and sign once. On the test network this costs nothing real.",
+      "The analysis runs on the custodian's computer (an Ocean Node), not in your browser. It takes a few minutes.",
+      "The results are files you download, as here."
+    ],
+    "same": "What stays the same: the records never leave the custodian, only approved analyses run on them, and you get files back.",
+    "notOpen": "A trial on the real test network is being prepared and is not open yet."
+  },
+  "credit": "Images: 歳旦発句牒 (芭蕉 編, 1682), National Diet Library, Japan, info:ndljp/pid/2534020, public domain. OCR: NDL古典籍OCR-Lite (CC BY 4.0)."
+}

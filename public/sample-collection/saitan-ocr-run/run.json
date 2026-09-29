@@ -1,0 +1,152 @@
+{
+  "_about": "Record of one real run of the OCR algorithm on the files above, made on the author's own computer under the same rules an Ocean Node compute job uses. Not a run on the Clio-X network.",
+  "started": "2026-09-26T17:30:01Z",
+  "finished": "2026-09-26T17:31:11Z",
+  "host": "Author's Mac (Apple silicon), Docker Desktop",
+  "container": {
+    "image": "localhost:5050/ndlkotenocr-lite:arm64",
+    "digest": "sha256:c54303263f75e60f6de8a0bb90ab9f9ba7c94e59915f18d3010a9ec9d17aa517",
+    "entrypoint": "python $ALGO"
+  },
+  "limits": {
+    "network": "none",
+    "cpus": 2,
+    "memoryGiB": 2,
+    "user": "1000:1000"
+  },
+  "command": "docker run --rm --network none --user 1000:1000 --cpus 2 --memory 2g -w / -v inputs:/data/inputs:ro -v transformations:/data/transformations:ro -v outputs:/data/outputs localhost:5050/ndlkotenocr-lite:arm64 python data/transformations/algorithm",
+  "algorithm": {
+    "wrapper": "c2d_entrypoint.py (nakamura196/matsuyama ocean-ocr)",
+    "engine": "NDL古典籍OCR-Lite",
+    "engineUrl": "https://github.com/ndl-lab/ndlkotenocr-lite",
+    "engineLicense": "CC BY 4.0"
+  },
+  "inputs": [
+    {
+      "file": "saitan-01.jpg",
+      "sha256": "803dfdb6ff6bae9dd1c02b757790462474655d2f5b072ca095d31fc2e2c7e1d4"
+    },
+    {
+      "file": "saitan-02.jpg",
+      "sha256": "6619a2ebb24930c1312d815f1c353d5e36ea73e5516d7c57564c861e351d6e35"
+    },
+    {
+      "file": "saitan-03.jpg",
+      "sha256": "26404488b2689c5e8c43ac5537f97567b934a105683b690cd4bc657ad33ce841"
+    },
+    {
+      "file": "saitan-04.jpg",
+      "sha256": "3928bd21b1f8b212847855bd5d6bb67f6173958e0d2211152e502fae53eb124b"
+    },
+    {
+      "file": "saitan-05.jpg",
+      "sha256": "2b00da57cf6d2096d61ea2d58a25d00cb7c4f6e18d42268be4d13b39349788af"
+    },
+    {
+      "file": "saitan-06.jpg",
+      "sha256": "d01da1e67437d6f07ebc3ac39779d963607d1769085c1be386b6e4069fdcf797"
+    },
+    {
+      "file": "saitan-07.jpg",
+      "sha256": "cd297f5baf8032d1d39d34de0c9ae555df3f5a3b23e8d7d8b28736dd6839c1a3"
+    },
+    {
+      "file": "saitan-08.jpg",
+      "sha256": "19067bfd15c5d33cd45d49e1a65421e6825a7cb50f58f70385bb498e38c71985"
+    }
+  ],
+  "outputs": [
+    "ocr-summary.json",
+    "saitan-01.json",
+    "saitan-01.txt",
+    "saitan-01.xml",
+    "saitan-01_tei.xml",
+    "saitan-02.json",
+    "saitan-02.txt",
+    "saitan-02.xml",
+    "saitan-02_tei.xml",
+    "saitan-03.json",
+    "saitan-03.txt",
+    "saitan-03.xml",
+    "saitan-03_tei.xml",
+    "saitan-04.json",
+    "saitan-04.txt",
+    "saitan-04.xml",
+    "saitan-04_tei.xml",
+    "saitan-05.json",
+    "saitan-05.txt",
+    "saitan-05.xml",
+    "saitan-05_tei.xml",
+    "saitan-06.json",
+    "saitan-06.txt",
+    "saitan-06.xml",
+    "saitan-06_tei.xml",
+    "saitan-07.json",
+    "saitan-07.txt",
+    "saitan-07.xml",
+    "saitan-07_tei.xml"
+  ],
+  "outputBytes": {
+    "saitan-01.json": 1850,
+    "saitan-01_tei.xml": 1431,
+    "saitan-07.json": 591,
+    "saitan-02_tei.xml": 1086,
+    "saitan-03_tei.xml": 2690,
+    "saitan-06.json": 4714,
+    "saitan-07.xml": 196,
+    "saitan-06_tei.xml": 2456,
+    "saitan-06.xml": 1505,
+    "saitan-05.json": 15360,
+    "saitan-04.xml": 4151,
+    "saitan-05.xml": 4663,
+    "saitan-01.xml": 521,
+    "saitan-02.xml": 196,
+    "saitan-04.json": 13898,
+    "saitan-07_tei.xml": 1086,
+    "saitan-03.xml": 1714,
+    "saitan-06.txt": 441,
+    "saitan-07.txt": 6,
+    "saitan-05.txt": 1246,
+    "saitan-04.txt": 1038,
+    "ocr-summary.json": 1215,
+    "saitan-03.json": 5867,
+    "saitan-05_tei.xml": 5771,
+    "saitan-02.json": 591,
+    "saitan-01.txt": 42,
+    "saitan-04_tei.xml": 5236,
+    "saitan-03.txt": 356,
+    "saitan-02.txt": 6
+  },
+  "outputSha256": {
+    "ocr-summary.json": "c6b1adffe2883c3f6c23127c2bcb06520f2e1fdf55001eaa788812c0f4e26d14",
+    "saitan-01.json": "9943ed58ac26f9bca73d5e8cc48028dd489e159d43bdee42d00a528287533209",
+    "saitan-01.txt": "257fec9cf386407f44a3e945c7c7d6024ed0a6db127e49df10f22679c96deca3",
+    "saitan-01.xml": "d21cee423ef527d5c42f6a305f6f625e8cd1b4f5d201fc98bd255f789265a8df",
+    "saitan-01_tei.xml": "54bf0c9f5a5e25b5548221f0a9b5f711738f498a5642c072e4e50bac2b67599c",
+    "saitan-02.json": "67ce28dca819b5662abfcc3863631746cc60d0cae530c3cfda314668a195d2dc",
+    "saitan-02.txt": "58d07b8a69516695e44b5cfd5da13a562d923e39c777e4ecde9a0ccf139e2b2c",
+    "saitan-02.xml": "2aea0e05f0b64d465bf6ded438f7fed2de42891b699941d5b5914fbfd316c670",
+    "saitan-02_tei.xml": "c4e00ca2831f43c1c9872506c7e3c8fb76d6535782ce8f8dce04142a24b00584",
+    "saitan-03.json": "15d634e474d623cea1ae4820590dae112487c23cf07e8eecc99ddf279cbfba78",
+    "saitan-03.txt": "951e61bbad9ba1c11699f21856dcf75554e98e8dc4c98ddc6584a2801608d433",
+    "saitan-03.xml": "aeb068521e3cca5c2b7e5ccaf5951c8fc5354d3103b3300e066f70e6abeec28d",
+    "saitan-03_tei.xml": "4031843170620b2a745c0075e2667d5aa805af64a6310fd848182e13b31c1933",
+    "saitan-04.json": "4822c1ccc1447b0cafe5441be0d2994d563f4c4d55473ef27202643e2206914d",
+    "saitan-04.txt": "0b279be4ceb4c6cd770cef0ebc335598097b61a0e0614db579f0e87f565ca65c",
+    "saitan-04.xml": "2a54847c9d079f2bef4b42c83902f27c38f6c63658a5f31e182b22a6def55a41",
+    "saitan-04_tei.xml": "0ff804b2f6f6d03bbbd544e65746a869233a0332b4333e73b82ee3403eb40165",
+    "saitan-05.json": "fa46847ab3a1337448dd8b9c3d35e91f873d4205b5d83d33068a224fb4695139",
+    "saitan-05.txt": "0744d148a47a6fb0ec69fb4779d27b041d78030cc63281cde6789e1c300a9b2e",
+    "saitan-05.xml": "66f8fb6ece4b93522b9fff1ea7e6aaa36a9030774a4f4abda2f35260e5ad975c",
+    "saitan-05_tei.xml": "f3e19c45112d927fe4f908186d4996a194d2e0580a7efd7c7e5ae776b8e46dee",
+    "saitan-06.json": "9b17ce136c8f7ffffb1c1f0632391b574fbca21a234f73e4df9629733a8acfd8",
+    "saitan-06.txt": "0105f1560ea5b5e3edfff4ae05d9eba4279ecb69d4e47d84d9485cffa3c5c4fb",
+    "saitan-06.xml": "ee28cb85f6a1a56077c0d924f75f517f21487fa2f6f36f29b3a30fde45ead674",
+    "saitan-06_tei.xml": "a88a7897deb4dc6f3b9c3910a013b26580e07267868eb6e9d9139ffe8023304b",
+    "saitan-07.json": "ad895ac8671de93027e9c1459afa56a6786e1216a6136d3acd389f426d4ca766",
+    "saitan-07.txt": "58d07b8a69516695e44b5cfd5da13a562d923e39c777e4ecde9a0ccf139e2b2c",
+    "saitan-07.xml": "1e19401324516167fa1c312e9636f76ee54f21ac208dcd8027adb886c283adff",
+    "saitan-07_tei.xml": "11775ea0bc4abc85c0329a81508c2ec4009330aa69b4dfac5ac5c9680f0cacce"
+  },
+  "logsSha256": "c8f504b92866e28c5d93c5336ba9260ab2b83dcf0b11e51d02afc6b8a37b2c7a"
+}
