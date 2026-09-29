@@ -1,0 +1,787 @@
+{
+  "contents": [
+    [
+      {
+        "boundingBox": [
+          [
+            1380,
+            128
+          ],
+          [
+            1380,
+            234
+          ],
+          [
+            1418,
+            128
+          ],
+          [
+            1418,
+            234
+          ]
+        ],
+        "id": 0,
+        "isVertical": "true",
+        "text": "元日",
+        "isTextline": "true",
+        "confidence": 0.785
+      },
+      {
+        "boundingBox": [
+          [
+            1325,
+            191
+          ],
+          [
+            1325,
+            373
+          ],
+          [
+            1375,
+            191
+          ],
+          [
+            1375,
+            373
+          ]
+        ],
+        "id": 1,
+        "isVertical": "true",
+        "text": "次第不同",
+        "isTextline": "true",
+        "confidence": 0.841
+      },
+      {
+        "boundingBox": [
+          [
+            1225,
+            78
+          ],
+          [
+            1225,
+            533
+          ],
+          [
+            1280,
+            78
+          ],
+          [
+            1280,
+            533
+          ]
+        ],
+        "id": 2,
+        "isVertical": "true",
+        "text": "くれ〳〵て餅を木魂のこね哉桃青",
+        "isTextline": "true",
+        "confidence": 0.822
+      },
+      {
+        "boundingBox": [
+          [
+            1170,
+            79
+          ],
+          [
+            1170,
+            537
+          ],
+          [
+            1223,
+            79
+          ],
+          [
+            1223,
+            537
+          ]
+        ],
+        "id": 3,
+        "isVertical": "true",
+        "text": "翻立松我蓬莱々詠てん露言",
+        "isTextline": "true",
+        "confidence": 0.824
+      },
+      {
+        "boundingBox": [
+          [
+            1117,
+            82
+          ],
+          [
+            1117,
+            530
+          ],
+          [
+            1169,
+            82
+          ],
+          [
+            1169,
+            530
+          ]
+        ],
+        "id": 4,
+        "isVertical": "true",
+        "text": "棟の宮餅に歌書て捧てし不下",
+        "isTextline": "true",
+        "confidence": 0.799
+      },
+      {
+        "boundingBox": [
+          [
+            1065,
+            87
+          ],
+          [
+            1065,
+            536
+          ],
+          [
+            1119,
+            87
+          ],
+          [
+            1119,
+            536
+          ]
+        ],
+        "id": 5,
+        "isVertical": "true",
+        "text": "初明ぬ稲負せ松の下は国言水",
+        "isTextline": "true",
+        "confidence": 0.775
+      },
+      {
+        "boundingBox": [
+          [
+            1017,
+            83
+          ],
+          [
+            1017,
+            537
+          ],
+          [
+            1066,
+            83
+          ],
+          [
+            1066,
+            537
+          ]
+        ],
+        "id": 6,
+        "isVertical": "true",
+        "text": "一屠二跡満りきのふ江戸伯の入添山夕",
+        "isTextline": "true",
+        "confidence": 0.791
+      },
+      {
+        "boundingBox": [
+          [
+            968,
+            88
+          ],
+          [
+            968,
+            528
+          ],
+          [
+            1018,
+            88
+          ],
+          [
+            1018,
+            528
+          ]
+        ],
+        "id": 7,
+        "isVertical": "true",
+        "text": "烏啼てあけほの松に萱柳才丸",
+        "isTextline": "true",
+        "confidence": 0.777
+      },
+      {
+        "boundingBox": [
+          [
+            911,
+            90
+          ],
+          [
+            911,
+            533
+          ],
+          [
+            961,
+            90
+          ],
+          [
+            961,
+            533
+          ]
+        ],
+        "id": 8,
+        "isVertical": "true",
+        "text": "三つ物や則チ必ス有レ我二暮",
+        "isTextline": "true",
+        "confidence": 0.805
+      },
+      {
+        "boundingBox": [
+          [
+            857,
+            86
+          ],
+          [
+            857,
+            540
+          ],
+          [
+            909,
+            86
+          ],
+          [
+            909,
+            540
+          ]
+        ],
+        "id": 9,
+        "isVertical": "true",
+        "text": "一奏箸強ひ為の御構然り命の国え津",
+        "isTextline": "true",
+        "confidence": 0.804
+      },
+      {
+        "boundingBox": [
+          [
+            805,
+            93
+          ],
+          [
+            805,
+            538
+          ],
+          [
+            852,
+            93
+          ],
+          [
+            852,
+            538
+          ]
+        ],
+        "id": 10,
+        "isVertical": "true",
+        "text": "初礼や虎の住林鶴の遠友水",
+        "isTextline": "true",
+        "confidence": 0.816
+      },
+      {
+        "boundingBox": [
+          [
+            719,
+            458
+          ],
+          [
+            719,
+            526
+          ],
+          [
+            743,
+            458
+          ],
+          [
+            743,
+            526
+          ]
+        ],
+        "id": 11,
+        "isVertical": "true",
+        "text": "東山氏",
+        "isTextline": "true",
+        "confidence": 0.692
+      },
+      {
+        "boundingBox": [
+          [
+            683,
+            106
+          ],
+          [
+            683,
+            556
+          ],
+          [
+            723,
+            106
+          ],
+          [
+            723,
+            556
+          ]
+        ],
+        "id": 12,
+        "isVertical": "true",
+        "text": "一大道を天下にとくとしめす春秀満",
+        "isTextline": "true",
+        "confidence": 0.762
+      },
+      {
+        "boundingBox": [
+          [
+            669,
+            457
+          ],
+          [
+            669,
+            530
+          ],
+          [
+            690,
+            457
+          ],
+          [
+            690,
+            530
+          ]
+        ],
+        "id": 13,
+        "isVertical": "true",
+        "text": "愛宕下",
+        "isTextline": "true",
+        "confidence": 0.586
+      },
+      {
+        "boundingBox": [
+          [
+            632,
+            111
+          ],
+          [
+            632,
+            546
+          ],
+          [
+            676,
+            111
+          ],
+          [
+            676,
+            546
+          ]
+        ],
+        "id": 14,
+        "isVertical": "true",
+        "text": "書初や今朝がゝ板の色外に山鳳",
+        "isTextline": "true",
+        "confidence": 0.751
+      },
+      {
+        "boundingBox": [
+          [
+            622,
+            453
+          ],
+          [
+            622,
+            535
+          ],
+          [
+            642,
+            453
+          ],
+          [
+            642,
+            535
+          ]
+        ],
+        "id": 15,
+        "isVertical": "true",
+        "text": "一同浅村氏",
+        "isTextline": "true",
+        "confidence": 0.602
+      },
+      {
+        "boundingBox": [
+          [
+            583,
+            111
+          ],
+          [
+            583,
+            551
+          ],
+          [
+            626,
+            111
+          ],
+          [
+            626,
+            551
+          ]
+        ],
+        "id": 16,
+        "isVertical": "true",
+        "text": "初芝居や造木のかづら長かもし雪流",
+        "isTextline": "true",
+        "confidence": 0.762
+      },
+      {
+        "boundingBox": [
+          [
+            575,
+            457
+          ],
+          [
+            575,
+            534
+          ],
+          [
+            596,
+            457
+          ],
+          [
+            596,
+            534
+          ]
+        ],
+        "id": 17,
+        "isVertical": "true",
+        "text": "同生因氏",
+        "isTextline": "true",
+        "confidence": 0.493
+      },
+      {
+        "boundingBox": [
+          [
+            530,
+            112
+          ],
+          [
+            530,
+            551
+          ],
+          [
+            578,
+            112
+          ],
+          [
+            578,
+            551
+          ]
+        ],
+        "id": 18,
+        "isVertical": "true",
+        "text": "買初や女中のゑ顔に間物棚能酒",
+        "isTextline": "true",
+        "confidence": 0.765
+      },
+      {
+        "boundingBox": [
+          [
+            522,
+            462
+          ],
+          [
+            522,
+            542
+          ],
+          [
+            548,
+            462
+          ],
+          [
+            548,
+            542
+          ]
+        ],
+        "id": 19,
+        "isVertical": "true",
+        "text": "二番丁加藤氏",
+        "isTextline": "true",
+        "confidence": 0.629
+      },
+      {
+        "boundingBox": [
+          [
+            481,
+            115
+          ],
+          [
+            481,
+            553
+          ],
+          [
+            526,
+            115
+          ],
+          [
+            526,
+            553
+          ]
+        ],
+        "id": 20,
+        "isVertical": "true",
+        "text": "年男めてたかるへき太郎右衛門斎改",
+        "isTextline": "true",
+        "confidence": 0.776
+      },
+      {
+        "boundingBox": [
+          [
+            472,
+            459
+          ],
+          [
+            472,
+            545
+          ],
+          [
+            488,
+            459
+          ],
+          [
+            488,
+            545
+          ]
+        ],
+        "id": 21,
+        "isVertical": "true",
+        "text": "いせ丁塩かし",
+        "isTextline": "true",
+        "confidence": 0.419
+      },
+      {
+        "boundingBox": [
+          [
+            428,
+            113
+          ],
+          [
+            428,
+            550
+          ],
+          [
+            474,
+            113
+          ],
+          [
+            474,
+            550
+          ]
+        ],
+        "id": 22,
+        "isVertical": "true",
+        "text": "四方長案一天和合君の春",
+        "isTextline": "true",
+        "confidence": 0.782
+      },
+      {
+        "boundingBox": [
+          [
+            372,
+            120
+          ],
+          [
+            372,
+            527
+          ],
+          [
+            425,
+            120
+          ],
+          [
+            425,
+            527
+          ]
+        ],
+        "id": 23,
+        "isVertical": "true",
+        "text": "一松と川日本さかゆる朝の春仝",
+        "isTextline": "true",
+        "confidence": 0.793
+      },
+      {
+        "boundingBox": [
+          [
+            358,
+            461
+          ],
+          [
+            358,
+            525
+          ],
+          [
+            381,
+            461
+          ],
+          [
+            381,
+            525
+          ]
+        ],
+        "id": 24,
+        "isVertical": "true",
+        "text": "嘉田氏",
+        "isTextline": "true",
+        "confidence": 0.345
+      },
+      {
+        "boundingBox": [
+          [
+            325,
+            121
+          ],
+          [
+            325,
+            527
+          ],
+          [
+            371,
+            121
+          ],
+          [
+            371,
+            527
+          ]
+        ],
+        "id": 25,
+        "isVertical": "true",
+        "text": "ゆつりはや蓬莱山のつたへ草伝",
+        "isTextline": "true",
+        "confidence": 0.829
+      },
+      {
+        "boundingBox": [
+          [
+            273,
+            119
+          ],
+          [
+            273,
+            523
+          ],
+          [
+            320,
+            119
+          ],
+          [
+            320,
+            523
+          ]
+        ],
+        "id": 26,
+        "isVertical": "true",
+        "text": "さんほうやたい吉日のひろめん日",
+        "isTextline": "true",
+        "confidence": 0.837
+      },
+      {
+        "boundingBox": [
+          [
+            223,
+            118
+          ],
+          [
+            223,
+            532
+          ],
+          [
+            267,
+            118
+          ],
+          [
+            267,
+            532
+          ]
+        ],
+        "id": 27,
+        "isVertical": "true",
+        "text": "年徳やよろひうわ帯しめかち月",
+        "isTextline": "true",
+        "confidence": 0.801
+      },
+      {
+        "boundingBox": [
+          [
+            211,
+            459
+          ],
+          [
+            211,
+            541
+          ],
+          [
+            239,
+            459
+          ],
+          [
+            239,
+            541
+          ]
+        ],
+        "id": 28,
+        "isVertical": "true",
+        "text": "米沢住人",
+        "isTextline": "true",
+        "confidence": 0.395
+      },
+      {
+        "boundingBox": [
+          [
+            173,
+            117
+          ],
+          [
+            173,
+            548
+          ],
+          [
+            213,
+            117
+          ],
+          [
+            213,
+            548
+          ]
+        ],
+        "id": 29,
+        "isVertical": "true",
+        "text": "しき嶋や大道広き江戸の春未聞",
+        "isTextline": "true",
+        "confidence": 0.792
+      },
+      {
+        "boundingBox": [
+          [
+            109,
+            116
+          ],
+          [
+            109,
+            541
+          ],
+          [
+            161,
+            116
+          ],
+          [
+            161,
+            541
+          ]
+        ],
+        "id": 30,
+        "isVertical": "true",
+        "text": "天長地久たり門松平御代写世月",
+        "isTextline": "true",
+        "confidence": 0.787
+      }
+    ]
+  ],
+  "imginfo": {
+    "img_width": 1600,
+    "img_height": 747,
+    "img_path": "/data/inputs/saitan-04.jpg",
+    "img_name": "saitan-04.jpg"
+  }
+}

@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='utf-8'?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>Title</title>
+        <respStmt>
+          <resp>Automated Transcription</resp>
+          <name ref="https://github.com/ndl-lab/ndlkotenocr-lite">NDL古典籍OCR-Liteアプリケーション</name>
+        </respStmt>
+        <respStmt>
+          <resp>Conversion to TEI encoding</resp>
+          <name>Kiyonori Nagasaki</name>
+        </respStmt>
+      </titleStmt>
+      <publicationStmt>
+        <p>Publication Information</p>
+      </publicationStmt>
+      <sourceDesc>
+        <p>Information about the source</p>
+      </sourceDesc>
+    </fileDesc>
+  </teiHeader>
+  <facsimile>
+    <surface>
+      <graphic url="/data/inputs/saitan-01.jpg" width="1600px" height="747px" />
+      <zone xml:id="L0000_000" ulx="124" uly="85" lrx="186" lry="316" />
+      <zone xml:id="L0000_001" ulx="156" uly="328" lrx="187" lry="391" />
+      <zone xml:id="L0000_002" ulx="145" uly="419" lrx="181" lry="439" />
+      <zone xml:id="L0000_003" ulx="192" uly="413" lrx="203" lry="461" />
+    </surface>
+  </facsimile>
+  <text>
+    <body>
+      <p>
+        <pb n="saitan-01.jpg" facs="#saitan-01.jpg" />
+        <lb n="0" facs="#L0000_000" />歳且発句牒<lb n="1" facs="#L0000_001" />芭蕉<lb n="2" facs="#L0000_002" />一<lb n="3" facs="#L0000_003" />同同廿一日</p>
+    </body>
+  </text>
+</TEI>
