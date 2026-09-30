@@ -96,6 +96,61 @@ Measured on the trial VM through the live portal (`https://cliox.ldas.jp/api/cha
 
 The second answer shows the limit of word search: the passages about the Senate (No. 62–63) use "senate" and "six years", not "senators serve", so they were not retrieved. The model then said so instead of inventing an answer, as the prompt asks.
 
+### Comparison: answering with Claude
+
+The service can write its answers with Claude (Anthropic API, `claude-opus-5-5`, effort `low`) instead of the local model. Set `CHATBOT_BACKEND=anthropic` and `ANTHROPIC_API_KEY` in the VM's `.env` and run `deploy.zsh`. The key is in 1Password as "Clio-X chatbot Anthropic API key".
+The passage search is unchanged, so **both models receive the same passages**. Only the reading and writing differs.
+
+Same 930 passages, same 8 questions, on a Mac (2026-09-30):
+
+| Question                                                         | qwen2.5:1.5b                                                                         | Claude                                                                                            |
+| ---------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
+| What does Madison say about factions?                            | Quotes the definition in one sentence                                                | Definition, the two cures (remove causes / control effects), why majority factions are the danger |
+| How long do senators serve, according to the papers?             | "The papers do not say."                                                             | "The documents do not say." Also notes No. 18's senate is an ancient league, not the U.S. Senate  |
+| Why is a standing army dangerous?                                | "Dangerous to liberty", one sentence                                                 | Gives the reasons in the passages (No. 26's example from 1688) and says they are incomplete       |
+| Why does Hamilton call the judiciary the least dangerous branch? | Correct, one sentence (no sword, no purse)                                           | Same points, in four parts                                                                        |
+| How do No. 10 and No. 51 differ in how they control factions?    | **Wrong**: presents "moral and religious motives", which No. 10 rejects, as a remedy | Correct contrast; notes the No. 51 passages given do not mention factions directly                |
+| What did Lincoln say at Gettysburg?                              | "The documents provided do not say."                                                 | Same, and notes the papers date from 1787, the address from 1863                                  |
+| 派閥について何と書いてありますか (Japanese)                      | Fixed reply (no matching words)                                                      | Same: the search finds nothing, so no model is called                                             |
+| What does Federalist No. 51 say about ambition?                  | "Ambition must be made to counteract ambition."                                      | That sentence plus the argument around it ("If men were angels…")                                 |
+
+Findings:
+
+- **Claude's answers were fuller and had no errors.** qwen's were short, and on the comparison question it stated the opposite of the text.
+- **Neither invented anything.** Both said when the passages did not answer the question.
+- **The search limits stay.** The Senate term and the Japanese question fail with either model; the fix belongs in the search.
+- **Time.** Claude took 2.7–15.8 s per question (median 6.9 s). It does not use the VM's CPU, so it should be similar on the VM. qwen took under 1 s on the Mac but 15–26 s on the VM (table above).
+- **Cost.** Claude used about 1,600 input and 330 output tokens per question: **about 1.3 US cents** (at $4 / $20 per million tokens). qwen is free.
+
+Anyone on the public site can ask questions, so with Claude the cost grows with use. At most 2 answers run at once (`MAX_PARALLEL`), but there is no daily cap. The next section limits the number of questions; also set a spending limit for this key in the Anthropic Console.
+
+### Sign-in and question limits (optional)
+
+Claude costs money per question, so who can ask and how many times can be limited. **Each of these works only when set.** Without them, anyone can ask, as upstream.
+
+- **Portal (Vercel): `CHATBOT_REQUIRE_SIGNIN=true`.** Before asking, the user signs a short message with their wallet (Sign-In with Ethereum layout; no transaction, no fee). The portal's server checks the signer's address and sets a cookie valid for 7 days; the chat routes then send that address to the chat service. Code: `src/@utils/chatbot/signin.ts`, `src/pages/api/chatbot/signin.ts` (`deploy/hosting` 7c62fa08; chat service side 77d27bfa).
+- **Chat service (VM `.env`):**
+  - `CHATBOT_DAILY_LIMIT_PER_USER`: questions per address per day
+  - `CHATBOT_DAILY_LIMIT_TOTAL`: answers per day for the whole site. **This is the real cost ceiling:** anyone can make new wallets for free, so a per-address limit alone does not cap the cost
+  - `CHATBOT_ALLOWED_USERS`: addresses that may ask. Use the same list as `C2D_ALLOWED_ADDRESSES` to allow only the trial wallets
+
+Only questions the model answers are counted; a question that matched no words and got the fixed reply is not. Days are UTC. Counts are kept on a VM volume, so a restart does not reset them. At the limit, the user gets a notice in the language of the question (Japanese or English).
+
+Checked locally (2026-09-30, limit of 2 per address, throwaway wallets):
+
+| Tried                                      | Result                                         |
+| ------------------------------------------ | ---------------------------------------------- |
+| Ask without signing in                     | Refused (401 `signin_required`)                |
+| Sign with a different wallet               | Refused (signature does not match the address) |
+| Change the address in the message and sign | Refused (message was not issued by this site)  |
+| Change the cookie                          | Refused                                        |
+| Sign in and ask twice                      | Claude answers                                 |
+| Third question                             | "You have reached today's limit (2 questions)" |
+| Restart with limits on                     | Counts are still there                         |
+| Nothing set                                | Anyone can ask, as before                      |
+
+**Mind the order.** If the VM has a limit or an allowlist but the portal lacks `CHATBOT_REQUIRE_SIGNIN`, everyone is told to sign in and nobody can ask. Set the portal first.
+
 ## Set it up on your own host
 
 Assumes the node from [Self-hosting on Sepolia](/developers/self-hosting) with its Cloudflare Tunnel, and the portal on Vercel.
