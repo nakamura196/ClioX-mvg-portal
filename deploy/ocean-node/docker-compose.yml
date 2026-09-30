@@ -66,7 +66,7 @@ services:
       #   - no network access from inside a job
       # The description must contain "mdx-kashiwa": the portal resolves the
       # processing location (for the carbon estimate) from this text.
-      DOCKER_COMPUTE_ENVIRONMENTS: '[{"socketPath":"/var/run/docker.sock","scanImages":false,"environments":[{"id":"mdx-kashiwa-cpu","description":"mdx (University of Tokyo, Kashiwa, Japan) mdx-kashiwa / CPU only","storageExpiry":604800,"minJobDuration":60,"maxJobDuration":900,"enableNetwork":false,"resources":[{"id":"cpu","total":2,"min":1,"max":2},{"id":"ram","total":2,"min":1,"max":2},{"id":"disk","total":20,"min":1,"max":10}],"free":{"maxJobDuration":600,"minJobDuration":10,"maxJobs":3,"access":{"addresses":${C2D_ALLOWED_ADDRESSES:?C2D_ALLOWED_ADDRESSES is required},"accessLists":[]},"resources":[{"id":"cpu","max":2},{"id":"ram","max":2},{"id":"disk","max":10}]}}]}]'
+      DOCKER_COMPUTE_ENVIRONMENTS: '[{"socketPath":"/var/run/docker.sock","scanImages":false,"paymentClaimInterval":300,"environments":[{"id":"mdx-kashiwa-cpu","description":"mdx (University of Tokyo, Kashiwa, Japan) mdx-kashiwa / CPU only","storageExpiry":604800,"minJobDuration":60,"maxJobDuration":900,"enableNetwork":false,"resources":[{"id":"cpu","total":2,"min":1,"max":2},{"id":"ram","total":2,"min":1,"max":2},{"id":"disk","total":20,"min":1,"max":10}],"free":{"maxJobDuration":600,"minJobDuration":10,"maxJobs":3,"access":{"addresses":${C2D_ALLOWED_ADDRESSES:?C2D_ALLOWED_ADDRESSES is required},"accessLists":[]},"resources":[{"id":"cpu","max":2},{"id":"ram","max":2},{"id":"disk","max":10}]}}]}]'
 
       HTTP_API_PORT: '8001'
       INTERFACES: '["HTTP"]'
