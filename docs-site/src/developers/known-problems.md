@@ -116,7 +116,7 @@ The same class of problem as the missing `templateId` (fixed earlier by `templat
 
 ## Paid (fixed-price) assets show no price and no Buy button
 
-**Where:** our hosting (the Sepolia subgraph manifest). **Status:** manifest fixed and test-built (`deploy/hosting` commit `90b3e126`); waiting for the subgraph to be redeployed.
+**Where:** our hosting (the Sepolia subgraph manifest). **Status:** fixed (`deploy/hosting` commit `90b3e126`); redeployed on 30 September as deployment `QmXgVEofKWgHfr57FGAZR2AucCkfkeP8ZmVJQLcqHmAqXj`. The asset page now shows the price, **Buy for 1 day** and **1 sale**. The price token is shown as its address (`0xfFf99…`) instead of "WETH"; not fixed yet.
 
 Measured on 30 September: the subgraph had indexed **no** fixed-rate exchange at all (`fixedRateExchanges` returned `[]`), even for a paid asset published and bought that day.
 The portal reads prices from the subgraph. With no exchange, `getAccessDetailsFromTokenPrice` returns `NOT_SUPPORTED`, so a paid asset has no price and no Buy button.
@@ -127,10 +127,10 @@ Upstream declares FixedRateExchange only as a template, started by the router's 
 We had already declared the Dispenser as a static data source for the same reason, but not the FixedRateExchange.
 
 **Fix:** declare FixedRateExchange (`0x80E63f73cAc60c1662f27D2DFd2EA834acddBaa8`) as a static data source in `deploy/ocean-node/subgraph/subgraph.sepolia.yaml`, like the Dispenser.
-Redeploy with a graft from the block before the first paid asset (created in block 11,815,074):
+Redeploy with a graft from a block before the first paid asset (created in block 11,815,074). graph-node refuses a graft block within 250 blocks of the base's head (_within the reorg threshold of 250 blocks_), so 11,815,073 was refused and 11,814,900 used:
 
 ```sh
-zsh deploy/ocean-node/scripts/deploy.zsh mdx-clio subgraph QmPjEAoiT91w9XwEdtFQsD6bNR7WwHdrcw2mvXZsJsW16K 11815073
+zsh deploy/ocean-node/scripts/deploy.zsh mdx-clio subgraph QmPjEAoiT91w9XwEdtFQsD6bNR7WwHdrcw2mvXZsJsW16K 11814900
 ```
 
 With a graft, exchanges created before that block stay unindexed. The skip patch above keeps their events from stopping the subgraph. Re-index from `startBlock` (no graft) if older paid assets matter.

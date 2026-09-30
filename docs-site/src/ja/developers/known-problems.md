@@ -115,7 +115,7 @@ zsh deploy/ocean-node/scripts/deploy.zsh mdx-clio subgraph QmR86ay2HF9AVb7cAJRge
 
 ## 有料（固定価格）の資産に、価格も購入ボタンも出ない
 
-**原因:** こちらの運用（Sepolia 用サブグラフの設定ファイル）。**状態:** 設定を直し、手元で組み立てを確かめた（`deploy/hosting` のコミット `90b3e126`）。サブグラフの配り直し待ち。
+**原因:** こちらの運用（Sepolia 用サブグラフの設定ファイル）。**状態:** 修正済み（`deploy/hosting` のコミット `90b3e126`）。9 月 30 日に配り直した（`QmXgVEofKWgHfr57FGAZR2AucCkfkeP8ZmVJQLcqHmAqXj`）。資産の画面に、価格と **Buy for 1 day**、**1 sale** が出るようになった。ただし価格のトークンが「WETH」ではなくアドレス（`0xfFf99…`）のまま表示される。これは未修正。
 
 9 月 30 日に確かめたところ、サブグラフには固定価格の販売所が 1 件も入っていませんでした（`fixedRateExchanges` が `[]`）。同じ日に公開し、実際に購入された有料の資産でも同じでした。
 ポータルは価格をサブグラフから読みます。販売所が見つからないと、`getAccessDetailsFromTokenPrice` は `NOT_SUPPORTED`（対応していない）を返します。そのため、有料の資産には価格も購入ボタンも出ません。
@@ -126,10 +126,10 @@ zsh deploy/ocean-node/scripts/deploy.zsh mdx-clio subgraph QmR86ay2HF9AVb7cAJRge
 Dispenser は同じ理由で、既に常時読む形にしてありました。FixedRateExchange だけが漏れていました。
 
 **対処:** `deploy/ocean-node/subgraph/subgraph.sepolia.yaml` に、Dispenser と同じ形で FixedRateExchange（`0x80E63f73cAc60c1662f27D2DFd2EA834acddBaa8`）を書き足しました。
-最初の有料資産（11,815,074 番のブロックで作成）の 1 つ前から、接ぎ木で配り直します。
+最初の有料資産（11,815,074 番のブロックで作成）より前から、接ぎ木で配り直します。graph-node は、元の索引の先頭から 250 ブロック以内への接ぎ木を断ります（_within the reorg threshold of 250 blocks_）。そのため 11,815,073 は断られ、11,814,900 を使いました。
 
 ```sh
-zsh deploy/ocean-node/scripts/deploy.zsh mdx-clio subgraph QmPjEAoiT91w9XwEdtFQsD6bNR7WwHdrcw2mvXZsJsW16K 11815073
+zsh deploy/ocean-node/scripts/deploy.zsh mdx-clio subgraph QmPjEAoiT91w9XwEdtFQsD6bNR7WwHdrcw2mvXZsJsW16K 11814900
 ```
 
 接ぎ木の場合、そのブロックより前に作られた販売所は入りません。その出来事でサブグラフが止まらないことは、上の修正で保証されています。それより古い有料資産も必要なら、接ぎ木をせずに `startBlock` から読み直します。
