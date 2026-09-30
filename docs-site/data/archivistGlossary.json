@@ -1,0 +1,176 @@
+{
+  "title": "Clio-X words, in archival terms",
+  "description": "The technical words you meet on Clio-X screens, explained through the archival practice you already know.",
+  "intro": [
+    "Clio-X borrows its vocabulary from blockchain and data engineering. Most of it describes things archives have done for a long time: registering, describing, controlling access, keeping an audit trail.",
+    "Each entry gives the everyday meaning, the closest archival practice, and where that comparison stops working. Words with a dotted underline elsewhere on the site open the same explanation."
+  ],
+  "reassurance": {
+    "title": "Before you click anything",
+    "items": [
+      "Looking around, searching and reading asset pages needs no wallet and changes nothing.",
+      "Connecting a wallet only shows the site your account address. It does not move money or sign anything.",
+      "Anything that writes to the ledger opens a confirmation window in your wallet first. You can always press Reject."
+    ]
+  },
+  "labels": {
+    "onScreen": "On screen",
+    "plain": "In plain words",
+    "archival": "In archival terms",
+    "limits": "Where the comparison stops",
+    "safety": "Is it safe?",
+    "interpares": "InterPARES definition",
+    "more": "Read more in the glossary",
+    "jumpTo": "Jump to"
+  },
+  "groups": [
+    {
+      "title": "Getting in",
+      "terms": ["wallet", "network", "transaction"]
+    },
+    {
+      "title": "Describing and registering",
+      "terms": ["asset", "did", "owner", "assetState", "metadataHistory"]
+    },
+    {
+      "title": "Access and use",
+      "terms": ["datatoken", "computeToData", "algorithm", "dockerImage"]
+    },
+    {
+      "title": "Underneath it all",
+      "terms": ["blockchain"]
+    }
+  ],
+  "terms": {
+    "wallet": {
+      "term": "Wallet",
+      "onScreen": ["Connect Wallet", "0x1234…abcd"],
+      "short": "The software that holds your account and signs actions on your behalf.",
+      "plain": "A wallet (for example, the MetaMask browser extension) keeps the private key of your account. The site never sees that key. When an action needs your agreement, the wallet opens its own window and asks you.",
+      "archival": "Your reader's card and your signature together. The card identifies you at the desk; the signature authorises each request slip.",
+      "limits": "No one can reissue it. If the recovery phrase is lost, the account is lost, and if someone else learns it, they become you. Never type it into a website.",
+      "safety": "Connecting is safe: the site only learns your address. Signing is the step to read carefully.",
+      "interpares": null
+    },
+    "network": {
+      "term": "Network",
+      "onScreen": ["Pontus-X", "Sepolia"],
+      "short": "Which shared ledger the site is reading from and writing to.",
+      "plain": "Clio-X runs on Pontus-X, a network operated for the Gaia-X data-space community. Test networks such as Sepolia work the same way but their tokens have no monetary value.",
+      "archival": "Which institution's register an entry goes into. A test network is a practice register kept for training.",
+      "limits": "Registers on different networks do not see each other. An asset published on a test network does not exist on Pontus-X.",
+      "safety": "Test networks are the right place to try things. Nothing done there costs real money.",
+      "interpares": null
+    },
+    "transaction": {
+      "term": "Transaction",
+      "onScreen": ["Confirm", "Sign"],
+      "short": "A signed entry written permanently into the ledger.",
+      "plain": "Publishing, editing, buying access and starting a compute job are all transactions. Each one is signed in your wallet and may carry a small network fee.",
+      "archival": "A signed entry in an accession or loans register, with a receipt number anyone can look up later.",
+      "limits": "An entry cannot be erased or corrected in place. A mistake is fixed by writing a new entry that supersedes it, and both remain visible.",
+      "safety": "Your wallet shows what will be signed before anything happens. Rejecting costs nothing.",
+      "interpares": null
+    },
+    "asset": {
+      "term": "Asset",
+      "onScreen": ["Asset", "Related Assets"],
+      "short": "Anything published in the Clio-X catalogue: a dataset, an algorithm or a service.",
+      "plain": "An asset is a catalogue entry plus the rules for using it. The files themselves stay with the publisher; the catalogue holds the description and says who may access it and on what terms.",
+      "archival": "A described unit in a finding aid, together with its access conditions. The description is public; the records stay in the repository.",
+      "limits": "The word comes from finance and suggests property or value. In Clio-X it only means \"a published item\" and says nothing about ownership of the content or its worth.",
+      "safety": "Browsing assets is read-only.",
+      "interpares": null
+    },
+    "did": {
+      "term": "DID",
+      "onScreen": ["DID", "did:op:…"],
+      "short": "The permanent identifier of an asset.",
+      "plain": "DID stands for Decentralized Identifier. In Clio-X it looks like did:op: followed by a long string, and it never changes after publication.",
+      "archival": "A reference code or persistent identifier, like an ARK or a DOI, that citations can rely on.",
+      "limits": "No agency assigns it. It is calculated from the network and the asset's registration, so there is no registrar to ask when something goes wrong.",
+      "safety": "Copying and sharing a DID is harmless. It only points to the public description.",
+      "interpares": "identifier"
+    },
+    "owner": {
+      "term": "Owner",
+      "onScreen": ["Owner", "Owned by"],
+      "short": "The account that controls an asset's description and access rules.",
+      "plain": "The owner can edit the metadata, change the price or pause access. It is shown separately from \"Data Author\", which is simply the name the publisher typed in.",
+      "archival": "The custodian of the records, as distinct from their creator. \"Data Author\" is closer to the creator in the provenance statement.",
+      "limits": "Control belongs to whoever holds the account, not to an institution. Custody changes hands by transferring the account's registration, with no deed of gift behind it.",
+      "safety": "Only the owner's wallet can change an asset. Visitors cannot alter anything.",
+      "interpares": "provenance"
+    },
+    "assetState": {
+      "term": "Asset state",
+      "onScreen": ["Asset State"],
+      "short": "Whether an asset is currently available.",
+      "plain": "Active assets can be used. Others may be marked end-of-life, deprecated, revoked, ordering disabled or unlisted. The label only appears when an asset is not active.",
+      "archival": "An access status such as \"withdrawn\", \"closed\" or \"superseded\" noted in the finding aid.",
+      "limits": "Changing the state does not delete anything. The earlier description and its history remain on the ledger.",
+      "safety": "Informational only.",
+      "interpares": null
+    },
+    "metadataHistory": {
+      "term": "Metadata history",
+      "onScreen": ["Metadata History"],
+      "short": "Every published version of an asset's description, with dates.",
+      "plain": "Each time the owner edits the description, the change is written as a new transaction. The history lists them so anyone can see what changed and when.",
+      "archival": "An audit trail, or the chain of custody of the description itself.",
+      "limits": "It records that the description changed, not why. Any explanation has to be written into the description.",
+      "safety": "Read-only.",
+      "interpares": "chain-of-custody"
+    },
+    "datatoken": {
+      "term": "Datatoken",
+      "onScreen": ["Accessed with …", "Add … to wallet"],
+      "short": "The access ticket for one asset.",
+      "plain": "To download or compute on an asset, your wallet obtains one of its datatokens (often free) and hands it in. The handover is the recorded proof that access was granted.",
+      "archival": "A request slip issued by the reading room: it grants one retrieval and is kept as the record that access took place.",
+      "limits": "Unlike a slip, a token can be passed to another account before it is used, and every issue and handover is publicly recorded.",
+      "safety": "Holding a datatoken does nothing by itself. It is only spent when you confirm an access.",
+      "interpares": "access"
+    },
+    "computeToData": {
+      "term": "Compute-to-Data",
+      "onScreen": ["Compute", "Compute Jobs", "Compute Environment"],
+      "short": "Running an analysis where the data lives, so that only results leave.",
+      "plain": "You choose an approved algorithm and a dataset. The analysis runs on the publisher's side, and you receive the output files, never the dataset itself.",
+      "archival": "Mediated access to restricted records: an archivist consults the closed file on your behalf and releases only an approved extract.",
+      "limits": "The mediator is a program, not a person. It applies no judgement beyond what the publisher decided in advance about which algorithms are allowed.",
+      "safety": "Starting a job is a transaction and asks for confirmation. Results appear on your profile.",
+      "interpares": "cloud-computing"
+    },
+    "algorithm": {
+      "term": "Algorithm",
+      "onScreen": ["algorithm"],
+      "short": "A published analysis procedure, such as text extraction or OCR.",
+      "plain": "Algorithms are assets too. A dataset's publisher decides which algorithms may run against it.",
+      "archival": "A documented procedure applied to records, such as a sampling method or an indexing routine, approved before use.",
+      "limits": "It runs automatically and identically each time. Its code can be inspected only if the publisher chose to share it.",
+      "safety": "Browsing algorithms is read-only.",
+      "interpares": null
+    },
+    "dockerImage": {
+      "term": "Docker image",
+      "onScreen": ["Docker Image"],
+      "short": "The packaged software environment an algorithm runs in.",
+      "plain": "A Docker image fixes the operating system, libraries and tools, so the algorithm behaves the same wherever it runs.",
+      "archival": "A precise specification of the equipment used to read a medium, recorded so the result can be reproduced.",
+      "limits": "The name alone does not guarantee the contents. Reproducibility depends on the image remaining available.",
+      "safety": "Informational only.",
+      "interpares": null
+    },
+    "blockchain": {
+      "term": "Blockchain",
+      "onScreen": [],
+      "short": "A register kept in many copies that check each other.",
+      "plain": "Every participant keeps the same list of entries. New entries are added only when the copies agree, and old entries cannot be changed quietly.",
+      "archival": "A register maintained in duplicate by many repositories at once, each verifying new entries before accepting them.",
+      "limits": "It shows that an entry was made and not altered. It cannot show that what was entered was true.",
+      "safety": "You never interact with it directly; the site and your wallet do.",
+      "interpares": "blockchain"
+    }
+  }
+}
