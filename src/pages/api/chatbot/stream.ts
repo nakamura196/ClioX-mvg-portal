@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { Readable } from 'stream'
 import { chatbotAuthHeaders } from '../../../@utils/chatbot/upstreamAuth'
+import { chatbotUserHeader } from '../../../@utils/chatbot/signin'
 
 export const config = {
   api: {
@@ -23,6 +24,9 @@ export default async function handler(
   }
 
   try {
+    // CHATBOT_REQUIRE_SIGNIN のときだけ、署名で確かめたアドレスを送る
+    const userHeader = chatbotUserHeader(req, res)
+    if (!userHeader) return
     const { sessionId, message, config } = req.body || {}
     if (!sessionId || !message) {
       return res
@@ -42,6 +46,7 @@ export default async function handler(
         method: 'POST',
         headers: {
           ...chatbotAuthHeaders(),
+          ...userHeader,
           'Content-Type': 'application/json',
           'X-Session-ID': sessionId,
           Accept: 'text/event-stream',

@@ -330,5 +330,12 @@
     "failedGettingAsset": "資産の取得に失敗しました。",
     "publisherAddress": "公開者アドレス:",
     "assetStateSetBy": "この資産は公開者によって「{{state}}」に設定されています"
+  },
+  "chatbot": {
+    "signinNeeded": "質問するには、ウォレットでサインインしてください。署名だけで、取引は送られず、手数料もかかりません。",
+    "signinButton": "ウォレットでサインイン",
+    "signinBusy": "ウォレットでの署名を待っています…",
+    "connectFirst": "先に右上からウォレットを接続し、ここでサインインしてください。",
+    "signinRequiredError": "質問するには、入力欄の上の「ウォレットでサインイン」を押してください。"
   }
 }

@@ -6,6 +6,8 @@ import { useChat, AssistantState } from './hooks/useChat'
 import MessageList from './ui/MessageList'
 import Composer from './ui/Composer'
 import ScrollToBottom from './ui/ScrollToBottom'
+import SigninBar from './ui/SigninBar'
+import { useChatbotSignin } from './hooks/useChatbotSignin'
 
 export default function ChatShell({
   status,
@@ -26,6 +28,7 @@ export default function ChatShell({
     updateUserMessage,
     pruneAfterMessage
   } = useChat(status, knowledgeStatus)
+  const signin = useChatbotSignin()
   const lastMessageContent = messages[messages.length - 1]?.content || ''
   const { messagesEndRef, shouldAutoScroll, handleScroll, scrollToBottom } =
     useSmartScroll(messages.length, lastMessageContent)
@@ -52,6 +55,11 @@ export default function ChatShell({
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.4, ease: [0.4, 0.0, 0.2, 1] }}
     >
+      {!signin.signedIn && (
+        <div className="px-6 pt-4">
+          <SigninBar {...signin} />
+        </div>
+      )}
       <div
         className={`flex-1 overflow-y-auto px-6 py-4 bg-transparent relative`}
         onScroll={handleScroll}
@@ -131,6 +139,7 @@ export default function ChatShell({
             status === 'uploading' ||
             status === 'processing' ||
             status === 'backend-error' ||
+            !signin.signedIn ||
             !knowledgeStatus?.has_knowledge
           }
           variant={isHero ? 'hero' : 'default'}
