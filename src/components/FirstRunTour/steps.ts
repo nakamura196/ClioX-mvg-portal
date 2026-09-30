@@ -3,11 +3,14 @@ import tourEn from '../../../content/firstRunTour.json'
 export type TourStepId = keyof (typeof tourEn)['steps']
 
 /**
- * One real archival dataset the whole tour walks through: the InterPARES
- * terminology, published as a compute-only dataset on Pontus-X devnet.
+ * One real archival dataset the whole tour walks through: the Federalist
+ * Papers, published as a compute-only dataset on the trial node (Sepolia).
+ * It must exist on the node this portal reads (NEXT_PUBLIC_METADATACACHE_URI);
+ * the earlier InterPARES DID lived only on Pontus-X devnet, so the asset page
+ * was empty on the trial and the tour lost its targets from step 4 on.
  */
 export const SAMPLE_ASSET_PATH =
-  '/asset/did:op:65e78d531a723c249afd18d1045dcb312912356b8b5fbf7f772287c3548bf43d'
+  '/asset/did:op:88084b2a810deca76dde649e3598410445b199379c3709a6d9d9d948f8484a9c'
 
 export interface TourStep {
   id: TourStepId

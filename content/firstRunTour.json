@@ -16,7 +16,7 @@
   "steps": {
     "welcome": {
       "title": "One task, about 5 minutes",
-      "body": "We will look at one real archival dataset — the InterPARES terminology — and see how Clio-X lets someone analyse records without the records ever leaving the archive that holds them.",
+      "body": "We will look at one real archival dataset — the Federalist Papers, 85 essays from 1787–1788 — and see how Clio-X lets someone analyse records without the records ever leaving the archive that holds them.",
       "safe": "Nothing in this tour spends money, publishes anything or changes any data. You do not need a wallet. While the tour is running, clicks on the page are paused, so nothing can happen by accident. You can stop at any time and come back later."
     },
     "catalogue": {
@@ -25,7 +25,7 @@
     },
     "search": {
       "title": "Search as you would in a catalogue",
-      "body": "Type a title, subject or creator here. When you try it later, “InterPARES” is a good first search. For this tour we will go straight to one entry."
+      "body": "Type a title, subject or creator here. When you try it later, “Federalist” is a good first search. For this tour we will go straight to one entry."
     },
     "record": {
       "title": "One page describes one dataset",
