@@ -114,6 +114,52 @@ The graft block must be one **before** the last indexed block when the base fail
 
 The same class of problem as the missing `templateId` (fixed earlier by `template-id-fallback.patch`): anything created before `startBlock` is unknown to the subgraph.
 
+## Paid (fixed-price) assets show no price and no Buy button
+
+**Where:** our hosting (the Sepolia subgraph manifest). **Status:** manifest fixed and test-built (`deploy/hosting` commit `90b3e126`); waiting for the subgraph to be redeployed.
+
+Measured on 30 September: the subgraph had indexed **no** fixed-rate exchange at all (`fixedRateExchanges` returned `[]`), even for a paid asset published and bought that day.
+The portal reads prices from the subgraph. With no exchange, `getAccessDetailsFromTokenPrice` returns `NOT_SUPPORTED`, so a paid asset has no price and no Buy button.
+Buying still works on chain (see below); only the portal cannot see the price.
+
+The cause is the truncated `startBlock` again.
+Upstream declares FixedRateExchange only as a template, started by the router's `FixedRateContractAdded` event. That event is older than block 11,459,550, so the template never starts.
+We had already declared the Dispenser as a static data source for the same reason, but not the FixedRateExchange.
+
+**Fix:** declare FixedRateExchange (`0x80E63f73cAc60c1662f27D2DFd2EA834acddBaa8`) as a static data source in `deploy/ocean-node/subgraph/subgraph.sepolia.yaml`, like the Dispenser.
+Redeploy with a graft from the block before the first paid asset (created in block 11,815,074):
+
+```sh
+zsh deploy/ocean-node/scripts/deploy.zsh mdx-clio subgraph QmPjEAoiT91w9XwEdtFQsD6bNR7WwHdrcw2mvXZsJsW16K 11815073
+```
+
+With a graft, exchanges created before that block stay unindexed. The skip patch above keeps their events from stopping the subgraph. Re-index from `startBlock` (no graft) if older paid assets matter.
+
+## Paid assets published with `ocean-cli` can be bought only by their publisher
+
+**Where:** Ocean (ocean.js 9.2.1 `createAsset`, used by `ocean-cli publish`). **Status:** avoided: `deploy/trial/paid.mjs` creates the price itself.
+
+When the DDO has a price above 0, `createAsset` creates the fixed-rate exchange with `allowedConsumer` set to the publisher's own address.
+The exchange then refuses every other buyer.
+The portal leaves `allowedConsumer` empty (anyone may buy). `paid.mjs` does the same.
+Read from the bundled code (`node_modules/@oceanprotocol/lib/dist/lib.modern.mjs`), not tried with a second buyer.
+
+## There is no test OCEAN on Sepolia
+
+**Where:** Ocean (the Sepolia OCEAN token). **Status:** worked around by pricing in Sepolia WETH.
+
+Only the token's owner can mint Sepolia OCEAN (`0x1B083D8584dd3e6Ff37d04a6e7e82b5F622f3985`). A dry run from the trial wallet reverted with _Ownable: caller is not the owner_.
+None of our wallets hold any. The portal's publish form prices in OCEAN, so nobody could buy such an asset.
+
+`deploy/trial/paid.mjs` prices in Sepolia WETH (`0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14`) instead: anyone can wrap test ETH into it.
+The router accepts WETH but does not list it as approved, so the Ocean community fee is 0.2% instead of 0.1%.
+The portal's buy flow uses whatever token the exchange uses, so a WETH price needs no portal change.
+
+Measured on 30 September (`zsh deploy/trial/paid.zsh publish`, then `buy <did>`): asset `did:op:f5fea961eef1e8ec393633c09ebea065731d37bc3d73fe63bf746a92e702d85a` at 0.001 WETH.
+The purchase transaction `0x8ac83fef42c88fb97bcb0cb3ee2e5148ed7b3ec557bc43a36948c197cfc2f800` moved 0.001002 WETH from the buyer.
+0.001 WETH reached the seller, and 0.000002 WETH stayed in the exchange as the community fee.
+One datatoken was minted to the buyer and burned by the order. The download then returned HTTP 200.
+
 ## "Allow all algorithms" (`*`) matched nothing
 
 **Where:** the portal. **Status:** fixed in the portal (commit `3b8fdaae`).

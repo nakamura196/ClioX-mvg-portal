@@ -113,6 +113,52 @@ zsh deploy/ocean-node/scripts/deploy.zsh mdx-clio subgraph QmR86ay2HF9AVb7cAJRge
 
 以前の `templateId` が 0 になる問題（`template-id-fallback.patch` で修正済み）と同じ種類です。読み始め位置より前に作られたものを、サブグラフは知りません。
 
+## 有料（固定価格）の資産に、価格も購入ボタンも出ない
+
+**原因:** こちらの運用（Sepolia 用サブグラフの設定ファイル）。**状態:** 設定を直し、手元で組み立てを確かめた（`deploy/hosting` のコミット `90b3e126`）。サブグラフの配り直し待ち。
+
+9 月 30 日に確かめたところ、サブグラフには固定価格の販売所が 1 件も入っていませんでした（`fixedRateExchanges` が `[]`）。同じ日に公開し、実際に購入された有料の資産でも同じでした。
+ポータルは価格をサブグラフから読みます。販売所が見つからないと、`getAccessDetailsFromTokenPrice` は `NOT_SUPPORTED`（対応していない）を返します。そのため、有料の資産には価格も購入ボタンも出ません。
+台帳の上では購入できます（下の項目）。価格が見えないのはポータルだけです。
+
+原因は、ここでも読み始め位置（`startBlock`）を後ろにずらしたことです。
+上流の設定では、FixedRateExchange はひな形としてだけ書かれています。ルーターの `FixedRateContractAdded` という出来事を受けて、読み取りが始まる仕組みです。この出来事は 11,459,550 番のブロックより前にあるため、読み取りが始まりません。
+Dispenser は同じ理由で、既に常時読む形にしてありました。FixedRateExchange だけが漏れていました。
+
+**対処:** `deploy/ocean-node/subgraph/subgraph.sepolia.yaml` に、Dispenser と同じ形で FixedRateExchange（`0x80E63f73cAc60c1662f27D2DFd2EA834acddBaa8`）を書き足しました。
+最初の有料資産（11,815,074 番のブロックで作成）の 1 つ前から、接ぎ木で配り直します。
+
+```sh
+zsh deploy/ocean-node/scripts/deploy.zsh mdx-clio subgraph QmPjEAoiT91w9XwEdtFQsD6bNR7WwHdrcw2mvXZsJsW16K 11815073
+```
+
+接ぎ木の場合、そのブロックより前に作られた販売所は入りません。その出来事でサブグラフが止まらないことは、上の修正で保証されています。それより古い有料資産も必要なら、接ぎ木をせずに `startBlock` から読み直します。
+
+## `ocean-cli` で公開した有料資産は、公開者本人しか買えない
+
+**原因:** Ocean（ocean.js 9.2.1 の `createAsset`。`ocean-cli publish` が使う）。**状態:** 回避済み。`deploy/trial/paid.mjs` は価格を自分で作る。
+
+DDO の価格が 0 より大きいと、`createAsset` は固定価格の販売所を作ります。そのとき、`allowedConsumer`（買ってよい相手）に公開者自身のアドレスを入れます。
+すると、販売所はほかの人の購入をすべて断ります。
+ポータルは `allowedConsumer` を空にします（誰でも買える）。`paid.mjs` も同じにしました。
+同梱のコード（`node_modules/@oceanprotocol/lib/dist/lib.modern.mjs`）を読んで分かったことです。別の人で買えないことは試していません。
+
+## Sepolia には、試しに使える OCEAN が無い
+
+**原因:** Ocean（Sepolia の OCEAN トークン）。**状態:** 価格を Sepolia の WETH で付けることで回避。
+
+Sepolia の OCEAN（`0x1B083D8584dd3e6Ff37d04a6e7e82b5F622f3985`）は、トークンの持ち主しか発行できません。試行用ウォレットから発行を試算すると、_Ownable: caller is not the owner_（持ち主ではない）で断られました。
+こちらのウォレットは、どれも OCEAN を持っていません。ポータルの公開画面は OCEAN で価格を付けるので、そのまま公開しても誰も買えません。
+
+`deploy/trial/paid.mjs` は、代わりに Sepolia の WETH（`0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14`）で価格を付けます。試験用の ETH を包めば、誰でも手に入ります。
+ルーターは WETH を受け付けますが、承認済みの一覧には入っていません。そのため Ocean への手数料は 0.1% ではなく 0.2% になります。
+ポータルの購入処理は、販売所が使うトークンをそのまま使います。WETH の価格でも、ポータル側の変更は要りません。
+
+9 月 30 日の実測（`zsh deploy/trial/paid.zsh publish` のあと `buy <did>`）: 資産 `did:op:f5fea961eef1e8ec393633c09ebea065731d37bc3d73fe63bf746a92e702d85a`、価格 0.001 WETH。
+購入の取引 `0x8ac83fef42c88fb97bcb0cb3ee2e5148ed7b3ec557bc43a36948c197cfc2f800` で、購入者から 0.001002 WETH が動きました。
+売り手に 0.001 WETH が届き、0.000002 WETH は手数料として販売所に残りました。
+データトークン 1 枚が購入者に発行され、注文の時点で焼却されました。そのあとのダウンロードは HTTP 200 でした。
+
 ## 「すべてのアルゴリズムを許可」（`*`）が 1 件も当たらない
 
 **原因:** ポータル。**状態:** ポータル側で修正済み（コミット `3b8fdaae`）。
