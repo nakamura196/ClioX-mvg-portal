@@ -55,11 +55,12 @@ export default function ChatShell({
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.4, ease: [0.4, 0.0, 0.2, 1] }}
     >
-      {!signin.signedIn && (
-        <div className="px-6 pt-4">
-          <SigninBar {...signin} />
-        </div>
-      )}
+      {!signin.signedIn &&
+        (!signin.hasWallet || signin.busy || signin.error) && (
+          <div className="px-6 pt-4">
+            <SigninBar busy={signin.busy} error={signin.error} />
+          </div>
+        )}
       <div
         className={`flex-1 overflow-y-auto px-6 py-4 bg-transparent relative`}
         onScroll={handleScroll}
@@ -126,7 +127,10 @@ export default function ChatShell({
         }}
       >
         <Composer
-          onSendMessage={(message) => {
+          onSendMessage={async (message) => {
+            // Sign-in (when the portal requires it) starts with the first
+            // question: the wallet asks for the signature, then it is sent.
+            if (!signin.signedIn && !(await signin.signIn())) return
             if (isHero) {
               setIsFirstInteraction(true)
               setSuppressFirstMessageAnimation(true)
@@ -139,7 +143,8 @@ export default function ChatShell({
             status === 'uploading' ||
             status === 'processing' ||
             status === 'backend-error' ||
-            !signin.signedIn ||
+            (!signin.signedIn && !signin.hasWallet) ||
+            signin.busy ||
             !knowledgeStatus?.has_knowledge
           }
           variant={isHero ? 'hero' : 'default'}
