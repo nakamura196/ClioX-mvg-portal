@@ -295,8 +295,15 @@ export async function getAccessDetails(
 }
 
 export function getAvailablePrice(asset: AssetExtended): AssetPrice {
+  // [local patch] Ocean Node 由来の stats.price は記号を持たないことがある。
+  // subgraph から取れた記号（accessDetails）があればそちらを使う
   const price: AssetPrice = asset?.stats?.price?.value
-    ? asset?.stats?.price
+    ? {
+        ...asset.stats.price,
+        tokenSymbol:
+          asset?.accessDetails?.baseToken?.symbol ||
+          asset.stats.price.tokenSymbol
+      }
     : {
         value: Number(asset?.accessDetails?.price),
         tokenSymbol: asset?.accessDetails?.baseToken?.symbol,

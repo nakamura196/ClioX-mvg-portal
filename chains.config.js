@@ -11,6 +11,13 @@ const chains = [
     network: 'sepolia',
     oceanTokenSymbol: 'OCEAN',
     oceanTokenAddress: '0x1B083D8584dd3e6Ff37d04a6e7e82b5F622f3985',
+    // Other price tokens seen on this chain. Our Ocean Node's DDO only gives
+    // a price token's address, so list views look the symbol up here.
+    // Sepolia OCEAN can only be minted by its owner, so trial paid records
+    // are priced in WETH (deploy/trial/paid.mjs).
+    baseTokens: [
+      { address: '0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14', symbol: 'WETH' }
+    ],
     nftFactoryAddress: '0xEF62FB495266C72a5212A11Dce8baa79Ec0ABeB1',
     fixedRateExchangeAddress: '0x80E63f73cAc60c1662f27D2DFd2EA834acddBaa8',
     dispenserAddress: '0x2720d405ef7cDC8a2E2e5AeBC8883C99611d893C',

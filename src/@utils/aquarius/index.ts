@@ -15,6 +15,7 @@ import {
 import { transformAssetToAssetSelection } from '../assetConvertor'
 import addressConfig from '../../../address.config'
 import { isValidDid } from '@utils/ddo'
+import { getTokenSymbol } from '@utils/tokenSymbol'
 import { Filters } from '@context/Filter'
 import { filterSets } from '@components/Search/Filter'
 import { CHAIN_TO_INDEX_MAP, DEFAULT_INDEX } from './_constants'
@@ -270,7 +271,12 @@ export function normalizeOceanNodeAsset(input: any): Asset {
         allocated: 0,
         price: {
           value: Number(rawStats?.[0]?.prices?.[0]?.price) || 0,
-          tokenSymbol: rawStats?.[0]?.prices?.[0]?.token || undefined
+          // token はアドレス。記号は chains.config.js から引く
+          tokenSymbol: getTokenSymbol(
+            doc.chainId,
+            rawStats?.[0]?.prices?.[0]?.token
+          ),
+          tokenAddress: rawStats?.[0]?.prices?.[0]?.token || undefined
         }
       }
     : rawStats || { orders: 0, allocated: 0, price: { value: 0 } }
