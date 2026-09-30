@@ -80,16 +80,22 @@ chatbot=false
 if remote 'grep -q "^CHATBOT_API_KEY=." .env'; then profiles="$profiles --profile chatbot"; chatbot=true; fi
 
 print "▶ Starting ($profiles)"
-remote "docker compose $profiles pull -q && docker compose $profiles up -d --remove-orphans"
+# --ignore-buildable / --build: the chatbot image is built here (chatbot/Dockerfile).
+remote "docker compose $profiles pull -q --ignore-buildable && docker compose $profiles up -d --build --remove-orphans"
 # cloudflared reads its routing file only at start, and compose does not
 # recreate it when only the mounted file changed (a new hostname stayed 404).
 if [[ "$profiles" == *tunnel* ]]; then remote "docker compose $profiles restart cloudflared >/dev/null"; fi
 if $chatbot; then
   # server.py is mounted, so a new version needs a restart (like cloudflared).
   remote "docker compose $profiles restart chatbot >/dev/null"
-  # The model is downloaded once into the ollama-data volume (~1 GB).
-  print "▶ Chatbot model"
-  remote 'm=$(grep "^CHATBOT_MODEL=" .env | cut -d= -f2); docker compose exec -T ollama ollama pull "${m:-qwen2.5:1.5b}" 2>&1 | tail -1'
+  # The local model is downloaded once into the ollama-data volume (~1 GB).
+  # Not needed when the chatbot answers with Claude (CHATBOT_BACKEND=anthropic).
+  if remote 'grep -q "^CHATBOT_BACKEND=anthropic" .env'; then
+    print "▶ Chatbot answers with Claude (Anthropic API); no local model to pull"
+  else
+    print "▶ Chatbot model"
+    remote 'm=$(grep "^CHATBOT_MODEL=" .env | cut -d= -f2); docker compose exec -T ollama ollama pull "${m:-qwen2.5:1.5b}" 2>&1 | tail -1'
+  fi
 fi
 sleep 15
 status

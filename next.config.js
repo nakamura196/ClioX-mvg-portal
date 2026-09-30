@@ -20,7 +20,10 @@ module.exports = (phase, { defaultConfig }) => {
       RESEND_FROM_EMAIL: process.env.RESEND_FROM_EMAIL,
       CONTACT_EMAIL: process.env.CONTACT_EMAIL,
       // /api/chatbot/* → チャットボットへの共有鍵（src/@utils/chatbot/upstreamAuth.ts）
-      CHATBOT_API_KEY: process.env.CHATBOT_API_KEY
+      CHATBOT_API_KEY: process.env.CHATBOT_API_KEY,
+      // 任意: ウォレットの署名でサインインした人だけ質問できる（src/@utils/chatbot/signin.ts）
+      CHATBOT_REQUIRE_SIGNIN: process.env.CHATBOT_REQUIRE_SIGNIN,
+      CHATBOT_SIGNIN_SECRET: process.env.CHATBOT_SIGNIN_SECRET
     },
     webpack: (config, options) => {
       config.module.rules.push(

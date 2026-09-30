@@ -334,5 +334,12 @@
     "failedGettingAsset": "Failed getting asset.",
     "publisherAddress": "Publisher Address:",
     "assetStateSetBy": "This asset has been set as \"{{state}}\" by the publisher"
+  },
+  "chatbot": {
+    "signinNeeded": "Sign in with your wallet to ask questions. It is a signature only: no transaction, no fee.",
+    "signinButton": "Sign in with wallet",
+    "signinBusy": "Waiting for your wallet…",
+    "connectFirst": "Connect your wallet first (top right), then sign in here.",
+    "signinRequiredError": "Please sign in with your wallet (above the input box) to ask questions."
   }
 }

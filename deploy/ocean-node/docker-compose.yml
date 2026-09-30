@@ -180,18 +180,32 @@ services:
   # cloudflared/config.yml with header X-Chatbot-Key. Knowledge is held in
   # memory; nothing is written to disk except the model files.
   # Memory: the model (qwen2.5:1.5b, ~1 GB) needs ~1.5 GiB while answering.
+  # CHATBOT_BACKEND=anthropic answers with Claude through the Anthropic API
+  # instead (needs ANTHROPIC_API_KEY in .env); ollama then sits idle.
   chatbot:
-    image: python:3.12-slim@sha256:f77ac9e44ae96ef2c90b8053ea08c31f8be030f824196b0ae4db6d462c84e51f
+    build: ./chatbot
+    image: cliox-chatbot:local
     container_name: cliox-chatbot
     restart: unless-stopped
     profiles: [chatbot]
     command: ['python', '/app/server.py']
     volumes:
       - ./chatbot/server.py:/app/server.py:ro
+      # today's question counts only (reset daily)
+      - chatbot-data:/data
     environment:
       API_KEY: '${CHATBOT_API_KEY:-}'
+      BACKEND: '${CHATBOT_BACKEND:-ollama}'
       OLLAMA_URL: http://ollama:11434
-      MODEL: '${CHATBOT_MODEL:-qwen2.5:1.5b}'
+      # Empty means the backend's default (qwen2.5:1.5b / claude-opus-5-5).
+      MODEL: '${CHATBOT_MODEL:-}'
+      ANTHROPIC_API_KEY: '${ANTHROPIC_API_KEY:-}'
+      # Optional limits (server.py). They need the portal's CHATBOT_REQUIRE_SIGNIN,
+      # which sends the signed-in wallet address. Empty = off.
+      ALLOWED_USERS: '${CHATBOT_ALLOWED_USERS:-}'
+      DAILY_LIMIT_PER_USER: '${CHATBOT_DAILY_LIMIT_PER_USER:-}'
+      DAILY_LIMIT_TOTAL: '${CHATBOT_DAILY_LIMIT_TOTAL:-}'
+      USAGE_FILE: /data/usage.json
       PYTHONUNBUFFERED: '1'
     ports:
       - '127.0.0.1:8011:8001'
@@ -247,6 +261,7 @@ volumes:
   ipfs-data:
   postgres-data:
   ollama-data:
+  chatbot-data:
 
 networks:
   cliox:

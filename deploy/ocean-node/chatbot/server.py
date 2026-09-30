@@ -18,13 +18,27 @@ public. This file implements the same HTTP contract as the portal uses it
 
 How it answers: the passages uploaded for a session are searched with BM25
 (words; Japanese by character pairs), the best few go into the prompt, and a
-local model served by Ollama writes the answer from them. Knowledge lives in
-memory only and is dropped after SESSION_TTL seconds without use.
+model writes the answer from them. BACKEND picks the model:
+  ollama     (default) a local model served by Ollama; standard library only
+  anthropic  Claude through the Anthropic API; needs ANTHROPIC_API_KEY and the
+             `anthropic` package (the Dockerfile next to this file installs it)
+Knowledge lives in memory only and is dropped after SESSION_TTL seconds
+without use.
 
 Every request except /api/health must carry X-Chatbot-Key = API_KEY; the
 portal's API routes add it from their own CHATBOT_API_KEY.
 
-Standard library only.
+Who may ask, and how much (all optional; off when unset). The portal sends the
+wallet address it verified by signature as X-Chatbot-User (only when its
+CHATBOT_REQUIRE_SIGNIN is on). Only questions that reach the model count.
+  ALLOWED_USERS          addresses allowed to ask (JSON array or commas)
+  DAILY_LIMIT_PER_USER   questions per address per day (UTC)
+  DAILY_LIMIT_TOTAL      questions per day for everyone together: the real
+                         cost ceiling, since new addresses are free to make
+  USAGE_FILE             where today's counts are kept across restarts
+If any of the first three is set, a question without X-Chatbot-User is refused.
+
+Standard library only when BACKEND=ollama.
 """
 import hmac
 import json
@@ -39,16 +53,35 @@ from collections import Counter
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 PORT = int(os.environ.get("PORT", "8001"))
+BACKEND = os.environ.get("BACKEND", "ollama")
 OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://ollama:11434").rstrip("/")
-MODEL = os.environ.get("MODEL", "qwen2.5:1.5b")
+MODEL = os.environ.get("MODEL") or ("claude-opus-5-5" if BACKEND == "anthropic" else "qwen2.5:1.5b")
+# Claude only: how hard it thinks before answering. Answers here are short and
+# drawn from four passages, so "low" is enough (compared 2026-09-30).
+EFFORT = os.environ.get("EFFORT", "low")
 API_KEY = os.environ.get("API_KEY", "")
 SESSION_TTL = int(os.environ.get("SESSION_TTL", "7200"))
 MAX_SESSIONS = int(os.environ.get("MAX_SESSIONS", "200"))
 MAX_CHUNKS = int(os.environ.get("MAX_CHUNKS_PER_SESSION", "5000"))
 MAX_BODY = int(os.environ.get("MAX_BODY_BYTES", str(20 * 1024 * 1024)))
 TOP_K = int(os.environ.get("TOP_K", "4"))
-MAX_TOKENS = int(os.environ.get("MAX_TOKENS", "512"))
-# Ollama answers one request at a time on CPU; more would only queue.
+# Ollama counts only the answer. Claude's limit also covers its thinking,
+# so it needs more room for the same length of answer.
+MAX_TOKENS = int(os.environ.get("MAX_TOKENS", "4000" if BACKEND == "anthropic" else "512"))
+
+def address_list(raw):
+    raw = raw.strip()
+    items = json.loads(raw) if raw.startswith("[") else raw.split(",")
+    return {a.strip().lower() for a in items if a.strip()}
+
+
+ALLOWED_USERS = address_list(os.environ.get("ALLOWED_USERS", ""))
+LIMIT_USER = int(os.environ.get("DAILY_LIMIT_PER_USER") or 0)
+LIMIT_TOTAL = int(os.environ.get("DAILY_LIMIT_TOTAL") or 0)
+USAGE_FILE = os.environ.get("USAGE_FILE", "")
+NEED_USER = bool(ALLOWED_USERS or LIMIT_USER or LIMIT_TOTAL)
+# Ollama answers one request at a time on CPU; more would only queue. With
+# Claude this also caps what a burst of questions can cost at once.
 GENERATIONS = threading.BoundedSemaphore(int(os.environ.get("MAX_PARALLEL", "2")))
 
 SYSTEM_PROMPT = (
@@ -130,6 +163,60 @@ SESSIONS = {}
 LOCK = threading.Lock()
 
 
+class Usage:
+    """Questions asked today, per address and in total. Reset at 00:00 UTC."""
+
+    def __init__(self, path):
+        self.path = path
+        self.lock = threading.Lock()
+        self.day, self.total, self.users = "", 0, {}
+        try:
+            with open(path) as f:
+                d = json.load(f)
+            self.day, self.total, self.users = d["day"], d["total"], d["users"]
+        except (OSError, ValueError, KeyError, TypeError):
+            pass
+
+    def take(self, user):
+        """Count one question for user, or return why it is refused."""
+        with self.lock:
+            today = time.strftime("%Y-%m-%d", time.gmtime())
+            if self.day != today:
+                self.day, self.total, self.users = today, 0, {}
+            if LIMIT_TOTAL and self.total >= LIMIT_TOTAL:
+                return "total"
+            if LIMIT_USER and self.users.get(user, 0) >= LIMIT_USER:
+                return "user"
+            self.total += 1
+            self.users[user] = self.users.get(user, 0) + 1
+            if self.path:
+                tmp = self.path + ".tmp"
+                with open(tmp, "w") as f:
+                    json.dump({"day": self.day, "total": self.total, "users": self.users}, f)
+                os.replace(tmp, self.path)
+            return None
+
+
+USAGE = Usage(USAGE_FILE)
+
+NOTICES = {
+    "signin": ("質問するには、ウォレットでサインインしてください（署名だけで、手数料はかかりません）。",
+               "Please sign in with your wallet to ask questions (a signature only; no fee)."),
+    "not_allowed": ("このアドレスは、まだ質問できる一覧に入っていません。管理者に連絡してください。",
+                    "This address is not on the list of addresses that may ask questions yet. "
+                    "Please contact the administrator."),
+    "user": (f"今日の質問は上限（{LIMIT_USER} 件）に達しました。0 時（UTC）に戻ります。",
+             f"You have reached today's limit ({LIMIT_USER} questions). It resets at 00:00 UTC."),
+    "total": ("このサイト全体の今日の質問が上限に達しました。0 時（UTC）に戻ります。",
+              "The site has reached today's limit on questions. It resets at 00:00 UTC."),
+}
+
+
+def notice(key, question):
+    ja, en = NOTICES[key]
+    return ja if re.search(r"[\u3040-\u30ff\u4e00-\u9fff]", question) else en
+
+
 def session(sid, create=False):
     with LOCK:
         now = time.time()
@@ -190,6 +277,48 @@ def ollama_chat(messages, config):
                 yield piece
             if data.get("done"):
                 return
+
+
+CLIENT = None  # Anthropic client, made at start when BACKEND=anthropic
+
+
+def claude_chat(messages, config):
+    """Yield pieces of the answer as Claude writes them.
+
+    Errors become RuntimeError with a short reason, which chat() reports to
+    the page like an Ollama error."""
+    import anthropic
+
+    try:
+        with CLIENT.beta.messages.stream(
+            model=MODEL,
+            # Not the page's max_tokens: it asks for 500, which with Claude
+            # would also have to hold the thinking and cut answers short.
+            max_tokens=MAX_TOKENS,
+            system=messages[0]["content"],
+            messages=messages[1:],
+            output_config={"effort": EFFORT},
+            # If Claude's safety check declines a question, the API retries it
+            # on another model in the same call instead of stopping.
+            betas=["server-side-fallback-2026-07-01"],
+            fallbacks="default",
+        ) as stream:
+            yield from stream.text_stream
+            final = stream.get_final_message()
+    except anthropic.RateLimitError:
+        raise RuntimeError("rate limited by the Anthropic API, try again in a moment")
+    except anthropic.APIStatusError as e:
+        raise RuntimeError(f"Anthropic API returned {e.status_code}")
+    except anthropic.APIConnectionError:
+        raise RuntimeError("could not reach the Anthropic API")
+    u = final.usage
+    print(f"claude: in {u.input_tokens} out {u.output_tokens} stop {final.stop_reason}", flush=True)
+    if final.stop_reason == "refusal":
+        yield "\n\n(The model declined to answer this question.)"
+
+
+def generate(messages, config):
+    return claude_chat(messages, config) if BACKEND == "anthropic" else ollama_chat(messages, config)
 
 
 def ollama_connected():
@@ -260,9 +389,13 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         path = self.path.split("?")[0]
         if path == "/api/health":
-            ok = ollama_connected()
+            # For Claude, only whether a key is set: a real check would be a
+            # billed request on every health probe. (Field name kept for the
+            # portal's health route.)
+            ok = bool(CLIENT) if BACKEND == "anthropic" else ollama_connected()
             return self.send_json(200, {"status": "healthy" if ok else "degraded",
-                                        "ollama_connected": ok, "model": MODEL})
+                                        "ollama_connected": ok, "backend": BACKEND,
+                                        "model": MODEL})
         if not self.authorised():
             return
         if path == "/api/v1/session/knowledge/status":
@@ -327,6 +460,22 @@ class Handler(BaseHTTPRequestHandler):
             "message": None if len(chunks) <= room else f"only {room} of {len(chunks)} kept (limit {MAX_CHUNKS})",
         })
 
+    def refusal(self, message):
+        """Why this question may not reach the model, as text for the page;
+        None when it may (and then it is counted)."""
+        if not NEED_USER:
+            return None
+        user = self.headers.get("X-Chatbot-User", "").strip().lower()
+        if not re.fullmatch(r"0x[0-9a-f]{40}", user):
+            return notice("signin", message)
+        if ALLOWED_USERS and user not in ALLOWED_USERS:
+            return notice("not_allowed", message)
+        why = USAGE.take(user)
+        if why:
+            print(f"limit: {why}", flush=True)
+            return notice(why, message)
+        return None
+
     def chat(self, sid, body):
         message = body.get("message")
         if not isinstance(message, str) or not message.strip():
@@ -357,7 +506,11 @@ class Handler(BaseHTTPRequestHandler):
                     "Try other words, in the language of the documents."
                 ])
             else:
-                pieces = ollama_chat(build_messages(message, hits), config)
+                refused = self.refusal(message)
+                if refused:
+                    pieces, hits, sources = iter([refused]), [], []
+                else:
+                    pieces = generate(build_messages(message, hits), config)
 
             def metadata():
                 return {"chunks_retrieved": len(hits),
@@ -394,5 +547,19 @@ class Handler(BaseHTTPRequestHandler):
 if __name__ == "__main__":
     if not API_KEY:
         raise SystemExit("API_KEY is not set; refusing to start an open endpoint")
-    print(f"listening on :{PORT}, model {MODEL} at {OLLAMA_URL}", flush=True)
+    if BACKEND == "anthropic":
+        import anthropic
+
+        if not os.environ.get("ANTHROPIC_API_KEY"):
+            raise SystemExit("BACKEND=anthropic needs ANTHROPIC_API_KEY")
+        CLIENT = anthropic.Anthropic(timeout=120.0)
+        print(f"listening on :{PORT}, model {MODEL} (Anthropic API, effort {EFFORT})", flush=True)
+    elif BACKEND == "ollama":
+        print(f"listening on :{PORT}, model {MODEL} at {OLLAMA_URL}", flush=True)
+    else:
+        raise SystemExit(f"unknown BACKEND {BACKEND!r}; use ollama or anthropic")
+    if NEED_USER:
+        print(f"questions need a signed-in address; allowed: {len(ALLOWED_USERS) or 'any'}; "
+              f"per day: {LIMIT_USER or '-'} per address, {LIMIT_TOTAL or '-'} in total; "
+              f"counts kept in {USAGE_FILE or 'memory'}", flush=True)
     ThreadingHTTPServer(("0.0.0.0", PORT), Handler).serve_forever()
