@@ -1,0 +1,67 @@
+{
+  "title": "Choose where to run, and keep a record",
+  "description": "Compare the estimated emissions of each place an analysis could run, choose one, and record the choice as a non-transferable token.",
+  "intro": [
+    "Before running an analysis, you can see how much CO2 the same work would produce at each place it could run. Choose one. You can then keep a record of that choice.",
+    "The record is a token that stays with you. It cannot be sold or passed on. It shows who chose, when, and what the options were at that moment. It is not a certified emission reduction."
+  ],
+  "work": {
+    "heading": "1. The work",
+    "purpose": "What is it for?",
+    "purposeDefault": "OCR of about 12,000 digitised pages",
+    "jobs": "Number of jobs",
+    "minutes": "Minutes per job",
+    "hint": "Planning figures. The same run time is assumed everywhere, although real machines differ."
+  },
+  "options": {
+    "heading": "2. Where to run it",
+    "lowest": "Lowest",
+    "cost": "Cost",
+    "notComparable": "Cannot be compared",
+    "notComparableHint": "Their power use has not been measured, so no emissions figure is given. They are not ranked, and they are never counted as zero.",
+    "chosenLine": "You chose {chosen}: {g}.",
+    "difference": "The highest option, {highest}, is estimated at {hg}. The difference is {d}.",
+    "differenceZero": "This is the highest of the options compared.",
+    "caution": "This is a difference between two estimates. It is not a reduction measured against what would otherwise have happened."
+  },
+  "quality": {
+    "measured": "Measured",
+    "provider-reported": "Reported by provider",
+    "portal-estimated": "Estimated by portal",
+    "unknown": "Cannot be established"
+  },
+  "record": {
+    "heading": "3. Keep a record",
+    "what": "The record lists every option, its figures and their sources. Download it and keep it with your project files. Its fingerprint (SHA-256) goes on the test network, so anyone can later check the file has not changed.",
+    "fingerprint": "Fingerprint of this record (SHA-256)",
+    "download": "Download the record (JSON)",
+    "connect": "Connect a wallet to record this choice on Sepolia (the test network; no real money).",
+    "connectButton": "Connect wallet",
+    "switch": "Switch to Sepolia",
+    "button": "Record this choice",
+    "busy": "Waiting for the wallet and the network…",
+    "done": "Recorded as token #{id}.",
+    "tx": "See the transaction",
+    "error": "Not recorded: {message}",
+    "downloadFirst": "Download the record first. Only its fingerprint goes on chain; the file itself is kept by you."
+  },
+  "mine": {
+    "heading": "4. Records",
+    "of": "Records held by {address}",
+    "none": "No records yet.",
+    "loading": "Reading from Sepolia…",
+    "share": "Link to these records",
+    "token": "Token",
+    "location": "Location",
+    "chosen": "Estimate at chosen location",
+    "highest": "Highest option",
+    "options": "Options compared",
+    "quality": "Quality",
+    "date": "Recorded",
+    "check": "Check a record file",
+    "checkHint": "Choose a downloaded record. Its fingerprint is compared with the tokens shown above.",
+    "match": "This file matches token #{id}. It has not changed since it was recorded.",
+    "noMatch": "This file does not match any of the tokens above."
+  },
+  "footnote": "Contract {address} on Sepolia. It stores who recorded what and when, and refuses transfers. It does not check the figures."
+}

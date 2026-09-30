@@ -1,0 +1,118 @@
+{
+  "@context": {
+    "prov": "http://www.w3.org/ns/prov#",
+    "cliox": "https://cliox-docs.ldas.jp/ns/carbon-choice#"
+  },
+  "type": "cliox:CarbonChoiceRecord",
+  "version": 1,
+  "statement": "The holder chose where to run the analysis. Figures are the portal’s planning estimates from published grid factors and power profiles. They are not measured for this job, not verified by anyone, and not a certified emission reduction.",
+  "prov:generatedAtTime": "2026-09-30T20:13:55.520Z",
+  "purpose": "OCR of about 12,000 digitised pages",
+  "workload": {
+    "jobs": 40,
+    "minutesPerJob": 30,
+    "durationSeconds": 72000,
+    "assumption": "Same run time assumed on every machine; real GPUs differ."
+  },
+  "method": "energy = power × duration × PUE; emissions = energy × location-based grid factor. Unit follows ISO/IEC 21031 (SCI); offsets are not counted.",
+  "chosen": {
+    "key": "eu-north-1",
+    "provider": "AWS",
+    "regionCode": "eu-north-1",
+    "processingLocation": "Stockholm, Sweden",
+    "energyKWh": 0.6559999999999999,
+    "gCO2e": 13.9728,
+    "usdCost": 11.16,
+    "quality": "measured",
+    "gridSource": "Electricity Maps, Grid in Review 2025 — flow-traced (consumption-based, imports included). Production-based on the same page: 19.0. Life-cycle (LCA) basis",
+    "powerSource": "EC2 g4dn.xlarge / Tesla T4 / average of nvidia-smi inside the job container (2026-08-12, 15 s at 1 Hz). Limit 70 W. Measured during a light workload",
+    "reason": null
+  },
+  "comparedWith": [
+    {
+      "key": "eu-north-1",
+      "provider": "AWS",
+      "regionCode": "eu-north-1",
+      "processingLocation": "Stockholm, Sweden",
+      "energyKWh": 0.6559999999999999,
+      "gCO2e": 13.9728,
+      "usdCost": 11.16,
+      "quality": "measured",
+      "gridSource": "Electricity Maps, Grid in Review 2025 — flow-traced (consumption-based, imports included). Production-based on the same page: 19.0. Life-cycle (LCA) basis",
+      "powerSource": "EC2 g4dn.xlarge / Tesla T4 / average of nvidia-smi inside the job container (2026-08-12, 15 s at 1 Hz). Limit 70 W. Measured during a light workload",
+      "reason": null
+    },
+    {
+      "key": "ca-central-1",
+      "provider": "AWS",
+      "regionCode": "ca-central-1",
+      "processingLocation": "Montreal, Quebec, Canada",
+      "energyKWh": 1.44,
+      "gCO2e": 49.68,
+      "usdCost": 17.872,
+      "quality": "portal-estimated",
+      "gridSource": "Hydro-Québec published value. Life-cycle (LCA) basis covering generation, transmission and distribution. No year is stated on the page",
+      "powerSource": "Placeholder from the NVIDIA L4 TDP of 72 W. Not measured",
+      "reason": null
+    },
+    {
+      "key": "us-west-2",
+      "provider": "AWS",
+      "regionCode": "us-west-2",
+      "processingLocation": "Oregon, United States",
+      "energyKWh": 1.44,
+      "gCO2e": 239.04,
+      "usdCost": 16.096,
+      "quality": "portal-estimated",
+      "gridSource": "EPA eGRID2023 State Output Emission Rates (CO2e 365.0 lb/MWh). Direct emissions at generation",
+      "powerSource": "Placeholder from the NVIDIA L4 TDP of 72 W. Not measured",
+      "reason": null
+    },
+    {
+      "key": "ap-northeast-1",
+      "provider": "AWS",
+      "regionCode": "ap-northeast-1",
+      "processingLocation": "Tokyo, Japan",
+      "energyKWh": 1.44,
+      "gCO2e": 617.76,
+      "usdCost": 23.344,
+      "quality": "portal-estimated",
+      "gridSource": "Japan Ministry of the Environment / METI substitute factor for electricity suppliers, 0.000429 t-CO2/kWh. Direct emissions at generation. The IEA-based carbon intensity of Japanese generation (2023) is about 485",
+      "powerSource": "Placeholder from the NVIDIA L4 TDP of 72 W. Not measured",
+      "reason": null
+    },
+    {
+      "key": "agrifoodtef",
+      "provider": "AgrifoodTEF",
+      "regionCode": "ca-alberta",
+      "processingLocation": "Calgary, Alberta, Canada",
+      "energyKWh": 8.469999999999999,
+      "gCO2e": 2837.45,
+      "usdCost": null,
+      "quality": "portal-estimated",
+      "gridSource": "Government of Alberta. Direct emissions at generation. 2005: 907 → 2019: 629 → 2024: 335",
+      "powerSource": "Placeholder from the NVIDIA L40S TDP of 350 W. Not measured",
+      "reason": null
+    }
+  ],
+  "notComparable": [
+    {
+      "key": "mdx",
+      "provider": "mdx",
+      "regionCode": "jp-national",
+      "processingLocation": "Kashiwa II Campus, Chiba, Japan",
+      "energyKWh": null,
+      "gCO2e": null,
+      "usdCost": null,
+      "quality": "unknown",
+      "gridSource": "Japan Ministry of the Environment / METI substitute factor, 0.000429 t-CO2/kWh. Not the actual factor of any specific site's electricity contract",
+      "powerSource": null,
+      "reason": "この環境の消費電力が未取得のため、炭素排出量を算出できない。実測してから登録すること。"
+    }
+  ],
+  "differenceFromHighest": {
+    "gCO2e": 2823.4772,
+    "highestKey": "agrifoodtef",
+    "note": "A difference between estimates, not a reduction against a baseline."
+  }
+}
