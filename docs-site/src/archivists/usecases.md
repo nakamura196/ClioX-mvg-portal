@@ -126,11 +126,11 @@ You may close the page meanwhile. Come back later **in the same browser**.
 - **Are you on a different address or browser from the one you started with?** Only analyses started on the trial site, from the same browser, with the same address, are listed.
 - **Is MetaMask on Sepolia?**
 
-::: info As of 27 September 2026
+::: info As of 30 September 2026
 The sample records, both analyses and the portal fix are on the trial site.
 The chatbot answered questions about the essays there: asked what Madison says about factions, it quoted No. 10 and named it (about 25 seconds).
 Starting an analysis from the screen was also checked (it finished in 13 seconds, then waited at "Job settling" for the hourly run).
-Seeing the charts on the Visualizations page is still being checked.
+On 30 September the finished job was added on the Visualizations page: after one MetaMask signature, all four charts appeared (dates from November 1787 to May 1788; the word cloud led by "government", "states", "people", "power").
 :::
 
 ## In Clio-X itself

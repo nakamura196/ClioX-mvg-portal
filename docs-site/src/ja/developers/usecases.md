@@ -189,7 +189,7 @@ Claude は 1 問ごとに費用がかかるので、使える人と件数を絞�
 
 画面で確かめたこと: 可視化ページに、終わったジョブが **Add** 付きで出ます（手元の `next dev` から公開中のノードへ、試用ウォレットのアドレスで。2026-09-27）。
 公開中のポータル（`cliox.ldas.jp`）でも、ブラウザの MetaMask から無償ジョブを始められました（試用ウォレットとは別の、許可済みのアドレス。2026-09-27 20:38 UTC）。ジョブは 13 秒で終わり、そのあと 1 時間ごとの精算を待って「ジョブを精算中」になりました（[分かっている問題](/ja/developers/known-problems)）。
-その先の、署名付きの `outputs.tar` の取得と図の表示は、まだ確かめていません。
+2026-09-30、このジョブを公開中の可視化ページで **Add** から取り込みました。Ocean Node から結果を取るための MetaMask の署名（`personal_sign`）が 1 回あり、`outputs.tar` をブラウザで展開して、4 つの図がすべて出ました。Email Analysis Distribution、Email Count Over Time（1787 年 11 月〜1788 年 5 月。最後の日付に 8 篇）、Sentiment Analysis by Category、Word Cloud（上位語は _government_、_states_、_people_、_power_）です。
 
 ## 限界
 

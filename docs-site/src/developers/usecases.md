@@ -189,7 +189,7 @@ One free job with each algorithm finished with exit code 0; the node's `outputs.
 
 What was checked on screen: on the Visualizations page the finished job appears with **Add** (local `next dev` against the live node, the trial wallet's address, 2026-09-27).
 On the live portal (`cliox.ldas.jp`) a free job was started from MetaMask in a browser (an allowed address other than the trial wallet, 2026-09-27 20:38 UTC). It finished in 13 seconds and then waited at "Job settling" for the node's hourly settlement ([known problem](/developers/known-problems)).
-The step after that — the signed download of `outputs.tar` and the charts — has not been checked yet.
+On 2026-09-30 that job was added on the live Visualizations page (**Add**): one MetaMask `personal_sign` for the Ocean Node result download, `outputs.tar` unpacked in the browser, and all four charts rendered — Email Analysis Distribution, Email Count Over Time (Nov 1787 – May 1788, 8 essays on the last date), Sentiment Analysis by Category, and the Word Cloud (top terms _government_, _states_, _people_, _power_).
 
 ## Limits
 
