@@ -220,14 +220,15 @@ Ocean Node 4.x はジョブの成果物を `outputs.tar` 1 つ（とログ 3 つ
 `next.config.js` の `serverRuntimeConfig` 経由で読むようにして直りました（`src/pages/api/contact-resend.ts` が自分の鍵ですでにしている方法です）。
 あわせて、会話用サービスが分割送信（chunked）の本文を読めるようにしました。Vercel は 1.5 MB のアップロードをこの形で送ります（`d1fa37fb`）。
 
-## 終わったジョブが、最長 1 時間「ジョブを精算中」のまま一覧に出ない
+## 終わったジョブが「ジョブを精算中」のまま一覧に出ない（最長 1 時間 → 今は 5 分）
 
-**原因の場所:** Ocean Node 4.2.0 の設定。**状況:** 未対応（直し方は分かっています）。
+**原因の場所:** Ocean Node 4.2.0 の設定。**状況:** 2026-09-30 に対応（間隔を 5 分に短縮）。
 
 2026-09-27、試用サイトの画面から始めた無償ジョブは 13 秒で終わりましたが、その後「ジョブを精算中」（`Job settling`、状態 71）で止まって見えました。
 ノードは、終わったジョブを「精算中」にしたあと、料金の精算（`claimPayments`）を**1 時間に 1 回**まとめて行い、そこで「完了」（状態 70）にします。無償ジョブは精算することがありませんが、この回を待つのは同じです。
 可視化とチャットボットのページは状態 70 のジョブだけを並べるため（`src/components/TextAnalysis/JobList.tsx`）、その間は一覧に出ません。
-間隔は `DOCKER_COMPUTE_ENVIRONMENTS` の各クラスタに `paymentClaimInterval`（秒、既定 3600、最小 60）を書けば縮められます（`deploy/ocean-node/docker-compose.yml`）。有償ジョブの精算期限（`claimDurationTimeout`）との兼ね合いを確かめてから変えます。
+間隔は `DOCKER_COMPUTE_ENVIRONMENTS` の各クラスタに `paymentClaimInterval`（秒、既定 3600、最小 60）を書けば縮められます（`deploy/ocean-node/docker-compose.yml`）。Ocean Node は、有償ジョブの精算期限（`claimDurationTimeout`）の中に間隔が 6 回入らないと、計算の仕組みを立ち上げません（`src/components/c2d/compute_engines.ts`）。短くする方向なら安全です。
+2026-09-30 に `300`（5 分）にしました（deploy/hosting `4ccc0598`）。入れ直したあと、ノードの記録に `Payments claim timer started (interval: 5 minutes)` と出ています。終わったジョブは 5 分ほどで一覧に出ます。
 
 ## 「可視化」「チャットボット」の画面が日本語にならない
 
