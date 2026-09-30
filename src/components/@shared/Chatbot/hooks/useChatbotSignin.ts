@@ -9,7 +9,7 @@ export function useChatbotSignin(): {
   busy: boolean
   error: string | null
   hasWallet: boolean
-  signIn: () => Promise<void>
+  signIn: () => Promise<boolean>
 } {
   const { address } = useAccount()
   const { data: signer } = useSigner()
@@ -37,7 +37,7 @@ export function useChatbotSignin(): {
   }, [address])
 
   const signIn = useCallback(async () => {
-    if (!signer || !message) return
+    if (!signer || !message) return false
     setBusy(true)
     setError(null)
     try {
@@ -50,8 +50,10 @@ export function useChatbotSignin(): {
       const d = await r.json()
       if (!r.ok) throw new Error(d.error || `sign-in failed (${r.status})`)
       setSignedInAs(d.address)
+      return true
     } catch (e) {
       setError((e as Error).message)
+      return false
     } finally {
       setBusy(false)
     }

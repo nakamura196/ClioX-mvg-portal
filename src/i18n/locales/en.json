@@ -336,10 +336,13 @@
     "assetStateSetBy": "This asset has been set as \"{{state}}\" by the publisher"
   },
   "chatbot": {
-    "signinNeeded": "Sign in with your wallet to ask questions. It is a signature only: no transaction, no fee.",
-    "signinButton": "Sign in with wallet",
-    "signinBusy": "Waiting for your wallet…",
-    "connectFirst": "Connect your wallet first (top right), then sign in here.",
-    "signinRequiredError": "Please sign in with your wallet (above the input box) to ask questions."
+    "signinNeeded": "Connect your wallet (top right) to ask questions. When you send your first question, your wallet asks you to sign a short message: a signature only, no transaction, no fee.",
+    "signinBusy": "Please sign the message in your wallet to send the question…",
+    "signinRequiredError": "Please sign in with your wallet (above the input box) to ask questions.",
+    "sampleOffer": "No compute job yet? You can try the chatbot with a prepared sample: {{name}} (85 essays, 930 passages).",
+    "sampleButton": "Load the sample",
+    "sampleLoading": "Loading…",
+    "sampleLoaded": "Sample loaded: {{name}}. Ask a question below.",
+    "sampleError": "Could not load the sample"
   }
 }

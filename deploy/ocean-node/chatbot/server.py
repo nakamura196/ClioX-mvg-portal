@@ -87,7 +87,8 @@ GENERATIONS = threading.BoundedSemaphore(int(os.environ.get("MAX_PARALLEL", "2")
 SYSTEM_PROMPT = (
     "You answer questions about archival documents. Use only the numbered "
     "passages given to you. If they do not contain the answer, say that the "
-    "documents provided do not say. Mention the title of the passage you used. "
+    "documents provided do not say. Mention the title of the passage you used; "
+    "do not refer to passages by their numbers, which the reader cannot see. "
     "Answer in the language of the question, briefly."
 )
 

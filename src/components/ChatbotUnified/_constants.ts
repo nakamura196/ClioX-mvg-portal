@@ -19,8 +19,10 @@ import {
 import {
   TRIAL_CHATBOT_ALGO_DIDS,
   TRIAL_CHATBOT_DATASET_DIDS,
-  CHATBOT_NAMESPACE as TRIAL_NAMESPACE
+  CHATBOT_NAMESPACE as TRIAL_NAMESPACE,
+  TRIAL_CHATBOT_SAMPLE
 } from '../ChatbotTrial/_constants'
+import type { ChatbotSample } from '../@shared/Chatbot/SampleKnowledge'
 
 export interface ChatbotProject {
   id: string
@@ -28,6 +30,8 @@ export interface ChatbotProject {
   namespace: string
   algoDidsByChain: Record<number, string | string[]>
   datasetDidsByChain?: Record<number, string[]>
+  // 任意: ジョブ無しで読み込める見本の資料
+  sample?: ChatbotSample
 }
 
 export const CHATBOT_PROJECTS: ChatbotProject[] = [
@@ -57,6 +61,7 @@ export const CHATBOT_PROJECTS: ChatbotProject[] = [
     name: 'Trial samples (Sepolia)',
     namespace: TRIAL_NAMESPACE,
     algoDidsByChain: TRIAL_CHATBOT_ALGO_DIDS,
-    datasetDidsByChain: TRIAL_CHATBOT_DATASET_DIDS
+    datasetDidsByChain: TRIAL_CHATBOT_DATASET_DIDS,
+    sample: TRIAL_CHATBOT_SAMPLE
   }
 ]
