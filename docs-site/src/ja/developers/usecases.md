@@ -128,7 +128,7 @@ Mac（CPU、Docker）でザ・フェデラリストの 930 個の抜粋を読ま
 
 Claude は 1 問ごとに費用がかかるので、使える人と件数を絞れるようにしました。**どれも設定したときだけ働きます。** 設定しなければ、本家と同じく誰でも質問できます。
 
-- **ポータル（Vercel）: `CHATBOT_REQUIRE_SIGNIN=true`。** 質問する前に、ウォレットで短い文に署名してもらいます（Sign-In with Ethereum の形式。取引は送られず、手数料もかかりません）。ポータルのサーバ側で署名した人のアドレスを確かめ、7 日間有効な cookie を渡します。チャットの窓口は、そのアドレスをチャットのサービスに送ります。コードは `src/@utils/chatbot/signin.ts` と `src/pages/api/chatbot/signin.ts` です（`deploy/hosting` の 7c62fa08。チャットのサービス側は 77d27bfa）。
+- **ポータル（Vercel）: `CHATBOT_REQUIRE_SIGNIN=true`。** ヘッダーでウォレットを接続した人が最初の質問を送ると、ウォレットが短い文への署名を求めます（Sign-In with Ethereum の形式。取引は送られず、手数料もかかりません）。サインイン用のボタンは置いていません。接続と署名が 2 つの手順に見えて分かりにくかったためです。ポータルのサーバ側で署名した人のアドレスを確かめ、7 日間有効な cookie を渡します。チャットの窓口は、そのアドレスをチャットのサービスに送ります。コードは `src/@utils/chatbot/signin.ts` と `src/pages/api/chatbot/signin.ts` です（`deploy/hosting` の 7c62fa08。チャットのサービス側は 77d27bfa）。
 - **チャットのサービス（VM の `.env`）:**
   - `CHATBOT_DAILY_LIMIT_PER_USER`: 1 つのアドレスが 1 日に聞ける数
   - `CHATBOT_DAILY_LIMIT_TOTAL`: サイト全体で 1 日に答える数。**費用の本当の上限はこちらです。** ウォレットは誰でも無料でいくつでも作れるので、アドレスごとの上限だけでは費用を抑えられません
@@ -167,6 +167,11 @@ Claude は 1 問ごとに費用がかかるので、使える人と件数を絞�
 7. **Vercel から Cloudflare を通れるか確かめる。** 試用環境では、`https://cliox.ldas.jp/api/chatbot/health` が最初 `Health check failed: Forbidden` を返しました。ゾーンのボット対策が Vercel のサーバーを止めていました（ノードの VM が止められたのと同じです。[分かっている問題](/ja/developers/known-problems)）。`zsh deploy/ocean-node/scripts/cloudflare-allow-chatbot.zsh` で、会話用のホスト名だけを対象に外しました（規則 `313d8c02…`、2026-09-27）。鍵の無い呼び出しは、サービス側で引き続き断ります。
 
 ## 使い方（試用サイトで）
+
+**チャットボットをすぐ試すだけなら、ジョブは要りません。** チャットボットのページで _Trial samples (Sepolia)_ を選び、「見本を読み込む」を押します。下の 2. の Knowledge passages と同じ抜粋 930 個（`public/samples/chatbot/federalist-knowledge.json`、`chatbot_knowledge.py` の出力そのもの）が読み込まれます。
+置いた理由: このページの Compute Jobs の一覧には、そのブラウザでポータルから始めたジョブしか出ません。初めて来た人には一覧が空で、質問できませんでした（2026-09-30 に指摘を受けて確認）。
+
+自分でジョブを流して試すとき:
 
 1. 無償のジョブを流せるウォレットを Sepolia でつなぎます（[CLI のページ](/ja/developers/trial-run)を参照）。
 2. ザ・フェデラリストの資料を開き、アルゴリズム **Text analysis** を選んで無償のジョブを始めます。チャットボット用には **Knowledge passages** で同じことをします。
