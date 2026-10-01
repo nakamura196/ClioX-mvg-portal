@@ -12,7 +12,7 @@ Asked for at the meeting of 30 September 2026 ("return emissions to users as tok
 - Contract: [`0x5919f54c6b36f3543eEe5f94133Ec8c58637F258`](https://sepolia.etherscan.io/address/0x5919f54c6b36f3543eEe5f94133Ec8c58637F258) (Sepolia, deployed 2026-09-30 by the trial wallet, tx `0x547d3a09…`). Source, 6 tests and deploy script in `contracts/carbon-choice/`.
 - Code: `src/@utils/carbonChoice.ts` (7 tests), `src/components/CarbonChoice/`, text in `content/carbonChoice(.ja).json`.
 
-Checked on 2026-09-30: token #1 was recorded with the trial wallet from `sample-record-token-1.json` (tx `0xdb24dc9c…`). The page listed it; the file matched; the same file with one digit changed did not. A `transferFrom` call reverted with `Soulbound()`. Recording from a browser wallet was not tried (needs a person to sign).
+Checked on 2026-09-30: token #1 was recorded with the trial wallet from `sample-record-token-1.json` (tx `0xdb24dc9c…`). The page listed it; the file matched; the same file with one digit changed did not. A `transferFrom` call reverted with `Soulbound()`. On 2026-10-01 the browser-wallet path was run end to end: the trial wallet was injected in place of MetaMask and signed from the page's "Record this choice" button. It became token #2 (Montreal, tx `0x2535a149…`, block 11821470). It was listed; the exported file matched; the file with the job count changed did not. Reading the chain directly, the stored fingerprint equals the file's SHA-256 and `locked(2)` is true. Signing with a real MetaMask by a person is still untested.
 
 Files: `page-en-options.jpg`, `page-en-record.jpg`, `sample-record-token-1.json`.
 

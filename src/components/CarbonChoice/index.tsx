@@ -235,12 +235,25 @@ export default function CarbonChoice(): ReactElement {
     }
   }
 
-  const [checkResult, setCheckResult] = useState<string>()
+  // If the wallet disconnects or locks while a request is pending, the
+  // request never answers; don't leave "waiting…" on screen.
+  useEffect(() => {
+    if (!address) setStatus((s) => (s?.kind === 'busy' ? undefined : s))
+  }, [address])
+
+  const [checkResult, setCheckResult] = useState<{
+    ok: boolean
+    text: string
+  }>()
   const checkFile = async (file?: File) => {
     if (!file) return
     const h = await sha256Hex(await file.text())
     const hit = records?.find((r) => r.recordHash === h)
-    setCheckResult(hit ? fill(c.mine.match, { id: hit.id }) : c.mine.noMatch)
+    setCheckResult(
+      hit
+        ? { ok: true, text: fill(c.mine.match, { id: hit.id }) }
+        : { ok: false, text: c.mine.noMatch }
+    )
   }
 
   const dateFmt = (d: Date) =>
@@ -494,7 +507,11 @@ export default function CarbonChoice(): ReactElement {
               <small>{c.mine.checkHint}</small>
             </label>
           )}
-          {checkResult && <p className={styles.ok}>{checkResult}</p>}
+          {checkResult && (
+            <p className={checkResult.ok ? styles.ok : styles.error}>
+              {checkResult.text}
+            </p>
+          )}
         </section>
       )}
 

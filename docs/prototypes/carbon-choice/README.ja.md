@@ -12,7 +12,7 @@
 - コントラクト: [`0x5919f54c6b36f3543eEe5f94133Ec8c58637F258`](https://sepolia.etherscan.io/address/0x5919f54c6b36f3543eEe5f94133Ec8c58637F258)（Sepolia。2026-09-30 に試用ウォレットで配布。tx `0x547d3a09…`）。ソース、テスト 6 件、配布スクリプトは `contracts/carbon-choice/`。
 - コード: `src/@utils/carbonChoice.ts`（テスト 7 件）、`src/components/CarbonChoice/`、文章は `content/carbonChoice(.ja).json`。
 
-2026-09-30 に確かめたこと: `sample-record-token-1.json` から、試用ウォレットでトークン #1 を記録しました（tx `0xdb24dc9c…`）。画面の一覧に出て、ファイルは一致し、数字を 1 か所変えたファイルは一致しませんでした。`transferFrom` は `Soulbound()` で拒まれました。ブラウザのウォレットからの記録は試していません（人が署名する必要があるため）。
+2026-09-30 に確かめたこと: `sample-record-token-1.json` から、試用ウォレットでトークン #1 を記録しました（tx `0xdb24dc9c…`）。画面の一覧に出て、ファイルは一致し、数字を 1 か所変えたファイルは一致しませんでした。`transferFrom` は `Soulbound()` で拒まれました。2026-10-01、ブラウザのウォレット経由の流れも通しました。画面に試用ウォレットを MetaMask の代わりとして持たせ、ページの「この選択を記録する」から署名しています。トークン #2（モントリオール、tx `0x2535a149…`、ブロック 11821470）として記録されました。一覧に出て、書き出したファイルは一致し、ジョブ数を 1 か所変えたファイルは一致しませんでした。チェーンを直接読んでも、書き込まれた指紋はファイルの SHA-256 と同じで、`locked(2)` は true でした。本物の MetaMask で人が署名する確認は、まだです。
 
 ファイル: `page-en-options.jpg`、`page-en-record.jpg`、`sample-record-token-1.json`。
 
