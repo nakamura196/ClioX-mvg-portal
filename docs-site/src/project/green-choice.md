@@ -82,15 +82,27 @@ The fourth suits a blockchain well.
 Every payment from the deposit (when, for whom, for which analysis) stays on the ledger, and anyone can check it.
 The funder can show afterwards that the subsidy was spent as intended.
 
-## The next prototype
+## The prototype: how the fee is set (1 October 2026)
 
-We will build 3 and 4 on the Sepolia test network with play money.
+Types 3 and 4 now run on the Sepolia test network with play money (PLAY).
+See "3. How the fee is set (prototype)" on [/carbon-choice](https://cliox.ldas.jp/carbon-choice).
+On the "compare and choose" screen, each place shows its list price and what the user actually pays.
 
-- **3 (surcharge and discount)**: shows that it works without outside money. The size of the surcharge and discount can be changed on screen.
-- **4 (deposited subsidy)**: the deposit balance, the subsidy share (for example half), and a per-job cap can be changed on screen.
-  Each subsidy payment links to its record on the ledger.
+- **3 (surcharge and discount)**: high-emission places (by default 20 g per hour or more: Tokyo) pay a 20 % surcharge into a pool.
+  Low-emission places (5 g or less: Stockholm and Montreal) get a 20 % discount from that pool.
+  No outside money. When the pool is short, the discount is only what it holds, and the screen says so.
+- **4 (deposited subsidy)**: anyone can deposit money. Choosing a low-emission place pays half the fee from the deposit, up to 5 PLAY per job.
+- In every case the provider receives its full list price. Only the user's share changes.
+- The shares, the cap and the band limits can be changed on screen; every amount updates at once.
+  A visitor can also open their own scheme with those settings.
+- Every payment and deposit stays on the ledger. The screen lists them, each with a link to its transaction.
 
-Both will show the amount each place would cost on the "compare and choose" screen of prototype (i).
+Example (OCR of about 12,000 pages, Stockholm): list price 11.16, discount 2.23, subsidy 4.46, so the user paid 4.46.
+The provider received 11.16.
+This payment was made from the page on 1 October 2026.
+As before, it was signed by a trial wallet driven by a script.
+
+Details (contract address, what was checked) are in [the notes for prototype (i)](./prototypes/carbon-choice).
 
 ## What we need you to decide
 
