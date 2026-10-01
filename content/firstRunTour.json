@@ -13,6 +13,8 @@
   "lostBody": "It may still be loading, or you may have moved to another page. You can go back to where the tour was, or skip this step.",
   "goBack": "Return to this step",
   "skip": "Skip this step",
+  "pausedText": "Guided tour paused ({current} / {total})",
+  "resume": "Back to the tour",
   "steps": {
     "welcome": {
       "title": "One task, about 5 minutes",

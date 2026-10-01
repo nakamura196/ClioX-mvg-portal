@@ -164,8 +164,8 @@ export default function FirstRunTour(): ReactElement {
 
   // Move keyboard and screen-reader focus to the card on every step.
   useEffect(() => {
-    if (active) cardRef.current?.focus({ preventScroll: true })
-  }, [active, index, lost])
+    if (active && onPage) cardRef.current?.focus({ preventScroll: true })
+  }, [active, index, lost, onPage])
 
   const goToStep = useCallback(
     (next: number) => {
@@ -180,7 +180,7 @@ export default function FirstRunTour(): ReactElement {
   )
 
   useEffect(() => {
-    if (!active) return
+    if (!active || !onPage) return
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') tour.stop()
       if (e.key === 'ArrowRight' && index < tourSteps.length - 1)
@@ -189,7 +189,7 @@ export default function FirstRunTour(): ReactElement {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [active, index, goToStep, tour])
+  }, [active, index, onPage, goToStep, tour])
 
   if (!active || !step || !stepText) return null
 
@@ -212,6 +212,38 @@ export default function FirstRunTour(): ReactElement {
     .replace('{current}', String(index + 1))
     .replace('{total}', String(tourSteps.length))
   const safe = 'safe' in stepText ? (stepText.safe as string) : null
+
+  // On a page the tour does not cover, don't cover the page: show a small
+  // bar the viewer can ignore, return from, or close.
+  // Until then (a Next/Back navigation may still be landing) show nothing.
+  if (!onPage) {
+    if (!lost && step.target) return null
+    return (
+      <div className={styles.pausedBar} role="status">
+        <span>
+          {text.pausedText
+            .replace('{current}', String(index + 1))
+            .replace('{total}', String(tourSteps.length))}
+        </span>
+        {step.path && (
+          <button
+            type="button"
+            className={styles.primary}
+            onClick={() => router.push(step.path)}
+          >
+            {text.resume}
+          </button>
+        )}
+        <button
+          type="button"
+          className={styles.secondary}
+          onClick={() => tour.stop()}
+        >
+          {text.stop}
+        </button>
+      </div>
+    )
+  }
 
   return (
     <div className={styles.tour}>
