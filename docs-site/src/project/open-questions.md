@@ -46,7 +46,7 @@ From [When the publishing service closes](/archivists/when-a-node-closes):
     - **(b) Record the choice** with a non-transferable token — a badge the holder cannot sell — stating that the job ran at a low-carbon location. It is labelled as a claim, not a verified fact.
     - **(c) Link to retiring certified credits.** Instead of issuing credits ourselves, users may retire credits already certified by a registry and attach the retirement proof to the job's record. This is shown separately from the emissions figure (ISO/IEC 21031, SCI) and never subtracted from it.
 
-    Steps (a) and (b) are now [prototype (i)](./prototypes/carbon-choice) (30 September 2026). Still for the Clio-X team to decide: whether (c) is wanted, and how essential "sellable" is.
+    Steps (a) and (b) are now [prototype (i)](./prototypes/carbon-choice) (30 September 2026). Step (b) only keeps a record; it gives no benefit. Pricing the difference to reward the choice, and who funds that, are set out in [Rewarding the greener choice](./green-choice) (1 October 2026). Still for the Clio-X team to decide: whether (c) is wanted, and how essential "sellable" is.
 
 ## Identity
 
