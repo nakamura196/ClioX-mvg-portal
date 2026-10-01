@@ -172,5 +172,27 @@
       "en": "Next step could be to publish the same images and OCR as a compute asset on the trial node.",
       "ja": "次は、同じ画像と OCR を試用ノードに計算用の資料として登録できます。"
     }
+  },
+  {
+    "letter": "i",
+    "topic": "carbon-choice",
+    "branch": "proto/carbon-choice",
+    "commit": "94c4dc9b",
+    "image": {
+      "en": "page-en-options.jpg",
+      "ja": "page-en-options.jpg"
+    },
+    "title": {
+      "en": "Choose where to run, and keep a record",
+      "ja": "動かす場所を選び、記録を残す"
+    },
+    "line": {
+      "en": "Compare estimated emissions for every place an analysis could run, choose one, and record the choice as a token that cannot be transferred or sold.",
+      "ja": "分析を動かせる場所ごとに排出量の見積もりを比べて 1 つを選び、その選択を、人に渡せず売ることもできないトークンとして記録します。"
+    },
+    "open": {
+      "en": "Answers the 30 September request to return emissions as tokens (open question 13, steps a and b). The token is an attributable claim: the contract does not check the figures.",
+      "ja": "9 月 30 日の「排出量をトークンで還元したい」への応答（相談したいこと 13 の a・b）。トークンは「誰が主張したか分かる記録」で、コントラクトは数値を確かめません。"
+    }
   }
 ]

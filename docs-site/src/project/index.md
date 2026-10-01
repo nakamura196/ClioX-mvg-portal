@@ -16,6 +16,7 @@ For that we set up a trial on the Sepolia test network, with our own Ocean Node 
 
 - **[Trial check, 26 Sep 2026](./check-2026-09-26)** — three problems we met on the trial, and what we did.
 - **[Prototypes](./prototypes/)** — eight small features, each on its own branch, with screenshots.
+- **[Rewarding the greener choice](./green-choice)** — making the lower-emission choice pay off: why not a sellable credit, and who funds it.
 - **[Open questions](./open-questions)** — what we would like to decide with the Clio-X team.
 
 ## In short

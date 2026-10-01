@@ -99,9 +99,9 @@ It moves roughly through:
 "Job queued" → "Pulling algorithm image" → "Running algorithm" → "Publishing results" → "Job settling" → "Job finished"
 
 The analysis itself takes less than a minute.
-After that it **stays at "Job settling" for up to an hour**.
+After that it **stays at "Job settling" for up to 5 minutes**.
 Nothing is wrong.
-The service settles payments once an hour and marks jobs finished only then; free analyses wait for that run too.
+The service settles payments every 5 minutes and marks jobs finished only then; free analyses wait for that run too.
 You may close the page meanwhile. Come back later **in the same browser**.
 
 ### 3. Load it into Visualizations
@@ -126,11 +126,11 @@ You may close the page meanwhile. Come back later **in the same browser**.
 - **Are you on a different address or browser from the one you started with?** Only analyses started on the trial site, from the same browser, with the same address, are listed.
 - **Is MetaMask on Sepolia?**
 
-::: info As of 27 September 2026
+::: info As of 30 September 2026
 The sample records, both analyses and the portal fix are on the trial site.
 The chatbot answered questions about the essays there: asked what Madison says about factions, it quoted No. 10 and named it (about 25 seconds).
-Starting an analysis from the screen was also checked (it finished in 13 seconds, then waited at "Job settling" for the hourly run).
-Seeing the charts on the Visualizations page is still being checked.
+Starting an analysis from the screen was also checked (it finished in 13 seconds, then waited at "Job settling" for the settlement run, which was hourly then and every 5 minutes since 30 September).
+On 30 September the finished job was added on the Visualizations page: after one MetaMask signature, all four charts appeared (dates from November 1787 to May 1788; the word cloud led by "government", "states", "people", "power").
 :::
 
 ## In Clio-X itself

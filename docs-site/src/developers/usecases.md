@@ -128,7 +128,7 @@ Anyone on the public site can ask questions, so with Claude the cost grows with 
 
 Claude costs money per question, so who can ask and how many times can be limited. **Each of these works only when set.** Without them, anyone can ask, as upstream.
 
-- **Portal (Vercel): `CHATBOT_REQUIRE_SIGNIN=true`.** Before asking, the user signs a short message with their wallet (Sign-In with Ethereum layout; no transaction, no fee). The portal's server checks the signer's address and sets a cookie valid for 7 days; the chat routes then send that address to the chat service. Code: `src/@utils/chatbot/signin.ts`, `src/pages/api/chatbot/signin.ts` (`deploy/hosting` 7c62fa08; chat service side 77d27bfa).
+- **Portal (Vercel): `CHATBOT_REQUIRE_SIGNIN=true`.** When a user who connected their wallet in the header sends their first question, the wallet asks them to sign a short message (Sign-In with Ethereum layout; no transaction, no fee). There is no separate sign-in button: connecting and signing as two steps was confusing. The portal's server checks the signer's address and sets a cookie valid for 7 days; the chat routes then send that address to the chat service. Code: `src/@utils/chatbot/signin.ts`, `src/pages/api/chatbot/signin.ts` (`deploy/hosting` 7c62fa08; chat service side 77d27bfa).
 - **Chat service (VM `.env`):**
   - `CHATBOT_DAILY_LIMIT_PER_USER`: questions per address per day
   - `CHATBOT_DAILY_LIMIT_TOTAL`: answers per day for the whole site. **This is the real cost ceiling:** anyone can make new wallets for free, so a per-address limit alone does not cap the cost
@@ -168,6 +168,11 @@ Assumes the node from [Self-hosting on Sepolia](/developers/self-hosting) with i
 
 ## Use it (on the trial site)
 
+**To just try the chatbot, no job is needed.** On the chatbot page, choose _Trial samples (Sepolia)_ and press "Load the sample". It loads the same 930 passages that the Knowledge passages job in step 2 produces (`public/samples/chatbot/federalist-knowledge.json`, the output of `chatbot_knowledge.py` as is).
+Why: the Compute Jobs list on this page shows only jobs started from the portal in the same browser, so a first-time visitor saw an empty list and could not ask anything (reported and checked 2026-09-30).
+
+To run the job yourself:
+
 1. Connect a wallet on Sepolia that is allowed to run free jobs (see [the CLI page](/developers/trial-run)).
 2. Open the Federalist Papers asset, choose the **Text analysis** algorithm, and start the free job. For the chatbot, do the same with **Knowledge passages**.
 3. When the job has finished, open **Visualizations** (project _Email Text_) or **Chatbot** (project _Trial samples (Sepolia)_) and add the job.
@@ -183,14 +188,14 @@ Published on 2026-09-27 with the trial wallet (`0xedAa…262E`):
 One free job with each algorithm finished with exit code 0; the node's `outputs.tar` held the same five files (and the same 1.49 MB `final_output.json`) as the local runs.
 
 What was checked on screen: on the Visualizations page the finished job appears with **Add** (local `next dev` against the live node, the trial wallet's address, 2026-09-27).
-On the live portal (`cliox.ldas.jp`) a free job was started from MetaMask in a browser (an allowed address other than the trial wallet, 2026-09-27 20:38 UTC). It finished in 13 seconds and then waited at "Job settling" for the node's hourly settlement ([known problem](/developers/known-problems)).
-The step after that — the signed download of `outputs.tar` and the charts — has not been checked yet.
+On the live portal (`cliox.ldas.jp`) a free job was started from MetaMask in a browser (an allowed address other than the trial wallet, 2026-09-27 20:38 UTC). It finished in 13 seconds and then waited at "Job settling" for the node's settlement run, hourly at the time ([known problem](/developers/known-problems)).
+On 2026-09-30 that job was added on the live Visualizations page (**Add**): one MetaMask `personal_sign` for the Ocean Node result download, `outputs.tar` unpacked in the browser, and all four charts rendered — Email Analysis Distribution, Email Count Over Time (Nov 1787 – May 1788, 8 essays on the last date), Sentiment Analysis by Category, and the Word Cloud (top terms _government_, _states_, _people_, _power_).
 
 ## Limits
 
 - The pages show only **your own** jobs (the wallet you connected), and on the trial only jobs **started from the portal in the same browser**. Ocean Node 4.2.0 returns `inputDID` and `algoDID` as `null` for free jobs, so the portal remembers both when you start the job (browser storage, `src/@utils/jobAlgorithmMemory.ts`). Jobs started with the CLI, in another browser, or before this change are not listed.
 - The Visualizations page keeps upstream's project name _Email Text_ and chart titles ("Email Count Over Time"); the Federalist essays appear there.
 - The _Cameroon Gazette_ visualization and the Cameroon / InterPARES / UdL chatbots still exist only on Pontus-X.
-- A job appears up to an hour after it ends: it stays at "Job settling" until the node's hourly settlement, and the pages list only finished jobs.
+- A job appears up to 5 minutes after it ends: it stays at "Job settling" until the node's settlement run (every 5 minutes since 2026-09-30; it was hourly), and the pages list only finished jobs.
 - These two pages stay in English when the portal is switched to Japanese.
 - The chat service runs on the same VM as the node (3 CPUs, 2.5 GiB for Ollama). One answer at a time; a second request while two are running gets "busy".

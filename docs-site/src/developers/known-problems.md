@@ -221,14 +221,15 @@ The variable was set for the deployment, but the chat service logged every call 
 Reading it through `serverRuntimeConfig` in `next.config.js` (as `src/pages/api/contact-resend.ts` already does for its key) fixed it.
 The same service also had to learn chunked request bodies: Vercel sends the 1.5 MB upload that way (`d1fa37fb`).
 
-## A finished job stays at "Job settling" for up to an hour and is not listed
+## A finished job stays at "Job settling" and is not listed (up to an hour; now 5 minutes)
 
-**Where:** Ocean Node 4.2.0 configuration. **Status:** not fixed (the fix is known).
+**Where:** Ocean Node 4.2.0 configuration. **Status:** fixed on 2026-09-30 (interval shortened to 5 minutes).
 
 On 2026-09-27 a free job started from the trial portal finished in 13 seconds and then sat at "Job settling" (status 71).
 After a job ends the node marks it as settling, and settles payments (`claimPayments`) **once an hour**; only then does the job become "Job finished" (status 70). A free job has nothing to settle but still waits for that run.
 The Visualizations and Chatbot pages list only status 70 (`src/components/TextAnalysis/JobList.tsx`), so the job is missing until then.
-The interval is `paymentClaimInterval` (seconds, default 3600, minimum 60) on each cluster in `DOCKER_COMPUTE_ENVIRONMENTS` (`deploy/ocean-node/docker-compose.yml`). Check it against the claim deadline for paid jobs (`claimDurationTimeout`) before changing it.
+The interval is `paymentClaimInterval` (seconds, default 3600, minimum 60) on each cluster in `DOCKER_COMPUTE_ENVIRONMENTS` (`deploy/ocean-node/docker-compose.yml`). Ocean Node refuses to create the engine unless six intervals fit into the claim deadline for paid jobs (`claimDurationTimeout`, `src/components/c2d/compute_engines.ts`), so shorter is the safe direction.
+On 2026-09-30 it was set to `300` (deploy/hosting `4ccc0598`); after the redeploy the node log reads `Payments claim timer started (interval: 5 minutes)`. A finished job now appears within about 5 minutes.
 
 ## The Visualizations and Chatbot pages are not translated into Japanese
 

@@ -62,6 +62,10 @@ function sidebarEn(): DefaultTheme.Sidebar {
             link: '/project/check-2026-09-26'
           },
           { text: 'Prototypes', link: '/project/prototypes/' },
+          {
+            text: 'Rewarding the greener choice',
+            link: '/project/green-choice'
+          },
           { text: 'Open questions', link: '/project/open-questions' }
         ]
       }
@@ -129,6 +133,10 @@ function sidebarJa(): DefaultTheme.Sidebar {
             link: '/ja/project/check-2026-09-26'
           },
           { text: '試作の一覧', link: '/ja/project/prototypes/' },
+          {
+            text: '環境にやさしい選択に、利益を戻す',
+            link: '/ja/project/green-choice'
+          },
           { text: '相談したいこと', link: '/ja/project/open-questions' }
         ]
       }
