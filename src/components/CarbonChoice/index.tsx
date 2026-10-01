@@ -22,6 +22,7 @@ import {
   planChoice
 } from '@utils/carbonChoice'
 import { getOceanConfig } from '@utils/ocean'
+import GreenFeePanel, { FeeLine, useGreenFee } from './GreenFee'
 import styles from './index.module.css'
 
 type Content = typeof contentEn
@@ -115,6 +116,9 @@ export default function CarbonChoice(): ReactElement {
   const maxG = highest?.footprint.gCO2e ?? 0
   const nameOf = (k: string) =>
     locName(plan.ranked.find((o) => o.key === k)?.footprint.location) ?? k
+
+  // ---- 3. 利用料 ----
+  const fee = useGreenFee(plan.durationSeconds)
 
   // ---- 3. 記録 ----
   // 作成時刻は入力が変わった時点で決める。サーバー描画とずれないようブラウザで決める
@@ -335,10 +339,18 @@ export default function CarbonChoice(): ReactElement {
                       <span className={styles.lowest}>{c.options.lowest}</span>
                     )}
                     <Badge quality={f.quality} c={c} />
-                    {f.usdCost != null && (
-                      <small>{`${c.options.cost} $${f.usdCost.toFixed(
-                        2
-                      )}`}</small>
+                    {fee.locations ? (
+                      <FeeLine
+                        q={fee.quoteFor(o.key)}
+                        f={c.fee}
+                        priced={!!fee.locations[o.key]}
+                      />
+                    ) : (
+                      f.usdCost != null && (
+                        <small>{`${c.options.cost} $${f.usdCost.toFixed(
+                          2
+                        )}`}</small>
+                      )
                     )}
                   </span>
                 </label>
@@ -383,6 +395,14 @@ export default function CarbonChoice(): ReactElement {
           </div>
         )}
       </section>
+
+      <GreenFeePanel
+        fee={fee}
+        f={c.fee}
+        chosenKey={key}
+        placeName={nameOf}
+        refHash={hash}
+      />
 
       <section className={styles.panel}>
         <h2>{c.record.heading}</h2>

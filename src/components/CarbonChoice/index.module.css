@@ -273,3 +273,107 @@
     text-align: left;
   }
 }
+
+/* ---- 3. 利用料（型 3・型 4） ---- */
+.feeLine {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.1rem 0.5rem;
+  font-size: var(--font-size-small);
+  color: var(--font-color-light);
+}
+
+.feeLine strong {
+  color: var(--font-color-heading);
+}
+
+.feeNone {
+  width: 100%;
+  color: var(--font-color-light);
+  font-size: var(--font-size-small);
+}
+
+.bandTag {
+  font-size: var(--font-size-mini);
+  font-weight: var(--font-weight-bold);
+  border-radius: 999px;
+  padding: 0 0.45rem;
+  border: 1px solid currentColor;
+}
+
+.band_low {
+  color: var(--brand-alert-green, #3f8f3a);
+}
+
+.band_middle {
+  color: var(--font-color-light);
+}
+
+.band_high {
+  color: var(--brand-alert-orange, #b86e00);
+}
+
+.feeTypes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: calc(var(--spacer) / 2);
+  margin: calc(var(--spacer) / 3) 0;
+}
+
+.feeType {
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 0.5rem 0.75rem;
+  margin: 0;
+  min-width: 0;
+}
+
+.feeType legend {
+  font-weight: var(--font-weight-bold);
+  color: var(--font-color-heading);
+  padding: 0 0.25rem;
+}
+
+.feeType input:disabled {
+  opacity: 0.5;
+}
+
+.fund {
+  margin: 0.25rem 0 0;
+  font-size: var(--font-size-small);
+}
+
+.select,
+.labelInput {
+  font: inherit;
+  font-size: var(--font-size-base);
+  color: var(--font-color-text);
+  background: var(--background-body);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 0.45rem 0.6rem;
+  max-width: 100%;
+}
+
+.draft {
+  border-left: 3px solid var(--brand-alert-orange, #b86e00);
+  padding-left: 0.75rem;
+  margin: calc(var(--spacer) / 2) 0;
+}
+
+.draft p {
+  margin: 0.25rem 0;
+}
+
+.depositList {
+  font-size: var(--font-size-small);
+  margin: 0.25rem 0;
+  padding-left: 1.2rem;
+}
+
+.feeShort {
+  width: 100%;
+  color: var(--brand-alert-orange, #b35f36);
+}
