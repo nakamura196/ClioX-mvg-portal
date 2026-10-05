@@ -24,6 +24,7 @@ import {
   quoteFee,
   sameRules
 } from '@utils/greenFee'
+import Help from './Help'
 import styles from './index.module.css'
 
 type Content = typeof contentEn
@@ -74,6 +75,7 @@ interface PaymentView {
   subsidy: number
   payerPays: number
   band: Band
+  ref?: string
   tx?: string
 }
 
@@ -141,6 +143,7 @@ async function loadLedger(
         subsidy: num(p.subsidy),
         payerPays: num(p.payerPays),
         band: bandFromCode(p.band),
+        ref: /^0x0+$/.test(p.ref) ? undefined : String(p.ref).slice(2),
         tx: logs[0]?.transactionHash
       }
     })
@@ -370,13 +373,17 @@ export default function GreenFeePanel({
   f,
   chosenKey,
   placeName,
-  refHash
+  refHash,
+  jobId,
+  jobHash
 }: {
   fee: GreenFee
   f: Fee
   chosenKey?: string
   placeName: (key: string) => string
   refHash?: string
+  jobId?: string
+  jobHash?: string
 }): ReactElement {
   const router = useRouter()
   const ja = router.locale === 'ja'
@@ -489,6 +496,12 @@ export default function GreenFeePanel({
     <section className={styles.panel}>
       <h2>{f.heading}</h2>
       <p>{f.intro}</p>
+      {jobId && (
+        <p className={styles.hint}>
+          {fill(f.jobBanner, { id: jobId })}
+          <Help label={f.helpLabel} text={f.helpJob} />
+        </p>
+      )}
 
       {fee.loadError ? (
         <p className={styles.error}>{f.loadError}</p>
@@ -544,6 +557,7 @@ export default function GreenFeePanel({
               </div>
               <p className={styles.fund}>
                 {f.pool}: <strong>{formatPlay(scheme.pool)} PLAY</strong>
+                <Help label={f.helpLabel} text={f.helpPool} />
               </p>
             </fieldset>
 
@@ -581,6 +595,7 @@ export default function GreenFeePanel({
               </div>
               <p className={styles.fund}>
                 {f.deposit}: <strong>{formatPlay(scheme.deposit)} PLAY</strong>
+                <Help label={f.helpLabel} text={f.helpDeposit} />
               </p>
             </fieldset>
           </div>
@@ -705,7 +720,9 @@ export default function GreenFeePanel({
                           scheme.id,
                           chosenKey,
                           fee.seconds,
-                          refHash ? '0x' + refHash : ethers.constants.HashZero
+                          jobHash || refHash
+                            ? '0x' + (jobHash ?? refHash)
+                            : ethers.constants.HashZero
                         ),
                       (receipt, iface) => {
                         const ev = findEvent(receipt, iface, 'Paid')
@@ -805,6 +822,7 @@ export default function GreenFeePanel({
                     <th>{f.col.discount}</th>
                     <th>{f.col.subsidy}</th>
                     <th>{f.col.pays}</th>
+                    <th>{f.col.job}</th>
                     <th>{f.col.tx}</th>
                   </tr>
                 </thead>
@@ -823,6 +841,12 @@ export default function GreenFeePanel({
                       <td>{p.subsidy ? `−${formatPlay(p.subsidy)}` : ''}</td>
                       <td>
                         <strong>{formatPlay(p.payerPays)}</strong>
+                      </td>
+                      <td>
+                        {p.ref &&
+                          (jobHash && p.ref === jobHash
+                            ? f.thisJob
+                            : short(p.ref))}
                       </td>
                       <td>
                         {p.tx && (

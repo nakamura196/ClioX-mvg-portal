@@ -23,6 +23,7 @@ import {
 } from '@utils/carbonChoice'
 import { getOceanConfig } from '@utils/ocean'
 import GreenFeePanel, { FeeLine, useGreenFee } from './GreenFee'
+import Help from './Help'
 import styles from './index.module.css'
 
 type Content = typeof contentEn
@@ -116,6 +117,21 @@ export default function CarbonChoice(): ReactElement {
   const maxG = highest?.footprint.gCO2e ?? 0
   const nameOf = (k: string) =>
     locName(plan.ranked.find((o) => o.key === k)?.footprint.location) ?? k
+
+  // ---- ジョブ ID（Compute の詳細から来たとき）----
+  const jobId =
+    typeof router.query.job === 'string' && router.query.job
+      ? router.query.job.slice(0, 200)
+      : undefined
+  const [jobHash, setJobHash] = useState<string>()
+  useEffect(() => {
+    let alive = true
+    setJobHash(undefined)
+    if (jobId) sha256Hex(jobId).then((h) => alive && setJobHash(h))
+    return () => {
+      alive = false
+    }
+  }, [jobId])
 
   // ---- 3. 利用料 ----
   const fee = useGreenFee(plan.durationSeconds)
@@ -309,6 +325,10 @@ export default function CarbonChoice(): ReactElement {
 
       <section className={styles.panel}>
         <h2>{c.options.heading}</h2>
+        <p className={styles.hint}>
+          gCO2e
+          <Help label={c.fee.helpLabel} text={c.fee.helpGco2e} />
+        </p>
         <ul className={styles.options}>
           {plan.ranked.map((o, i) => {
             const f = o.footprint
@@ -402,6 +422,8 @@ export default function CarbonChoice(): ReactElement {
         chosenKey={key}
         placeName={nameOf}
         refHash={hash}
+        jobId={jobId}
+        jobHash={jobHash}
       />
 
       <section className={styles.panel}>

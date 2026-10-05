@@ -1,5 +1,6 @@
 import { ReactElement, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import Link from 'next/link'
 import Time from '@shared/atoms/Time'
 import Button from '@shared/atoms/Button'
 import Modal from '@shared/atoms/Modal'
@@ -97,6 +98,14 @@ export default function Details({
       >
         <DetailsAssets job={job} />
         <Results job={job} />
+
+        {job.jobId && (
+          <p>
+            <Link href={`/carbon-choice?job=${encodeURIComponent(job.jobId)}`}>
+              {t('compute.payGreenFee')}
+            </Link>
+          </p>
+        )}
 
         <div className={styles.meta}>
           <MetaItem

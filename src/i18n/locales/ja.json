@@ -150,6 +150,7 @@
     "refresh": "更新",
     "refreshTitle": "計算ジョブを再取得",
     "showDetails": "詳細を表示",
+    "payGreenFee": "このジョブの環境配慮料を払う",
     "results": "実行結果",
     "noResults": "結果がありません。",
     "waitingForResults": "結果を待っています...",

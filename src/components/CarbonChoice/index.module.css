@@ -377,3 +377,31 @@
   width: 100%;
   color: var(--brand-alert-orange, #b35f36);
 }
+
+.help {
+  display: inline;
+  margin-left: calc(var(--spacer) / 4);
+}
+
+.helpButton {
+  width: 1.4em;
+  height: 1.4em;
+  padding: 0;
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--font-color-light);
+  font-size: var(--font-size-small);
+  line-height: 1;
+  cursor: pointer;
+}
+
+.helpText {
+  display: block;
+  margin: calc(var(--spacer) / 4) 0;
+  padding: calc(var(--spacer) / 3);
+  border-left: 3px solid var(--border-color);
+  color: var(--font-color-light);
+  font-size: var(--font-size-small);
+  font-weight: normal;
+}

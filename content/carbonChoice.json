@@ -99,12 +99,20 @@
       "discount": "Discount",
       "subsidy": "Subsidy",
       "pays": "Paid",
-      "tx": "Tx"
+      "tx": "Tx",
+      "job": "Job"
     },
     "deposits": "Deposits",
     "depositRow": "{from} deposited {v} PLAY.",
     "caution": "Bands come from the portal's estimate of emissions per hour, not from measurement. A discount or subsidy is not proof that emissions were reduced.",
-    "contract": "Contract {address} on Sepolia. It holds the play money PLAY and the fee rules. The providers' receiving addresses are made-up addresses for this prototype."
+    "contract": "Contract {address} on Sepolia. It holds the play money PLAY and the fee rules. The providers' receiving addresses are made-up addresses for this prototype.",
+    "helpLabel": "What does this mean?",
+    "helpGco2e": "gCO2e is grams of CO2 equivalent. Gases other than CO2, such as methane, are converted to CO2 by their warming effect and added up. Here it is an estimate of the emissions from the electricity used to run a computer at that place for one hour.",
+    "helpPool": "The pool is the saved-up money that pays for discounts. It is filled by the surcharges paid at high-emission places. No outside money goes in. When it is empty, there is no discount.",
+    "helpDeposit": "The deposit balance is what is left of the money a funder deposited. Each subsidy is paid from it, so it goes down with every payment.",
+    "thisJob": "This job",
+    "jobBanner": "Paying for compute job {id}. The ledger will keep the SHA-256 of this job ID, so anyone with the ID can find the payment.",
+    "helpJob": "The ledger stores only a fingerprint (SHA-256) of the job ID, not the ID itself."
   },
   "record": {
     "heading": "4. Keep a record",

@@ -153,6 +153,7 @@
     "refresh": "Refresh",
     "refreshTitle": "Refresh compute jobs",
     "showDetails": "Show Details",
+    "payGreenFee": "Pay the environmental fee for this job",
     "results": "Results",
     "noResults": "No results found.",
     "waitingForResults": "Waiting for results...",
