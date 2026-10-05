@@ -66,6 +66,10 @@ function sidebarEn(): DefaultTheme.Sidebar {
             text: 'Rewarding the greener choice',
             link: '/project/green-choice'
           },
+          {
+            text: 'New here? What the prototypes do',
+            link: '/project/carbon-choice-guide'
+          },
           { text: 'Open questions', link: '/project/open-questions' }
         ]
       }
@@ -136,6 +140,10 @@ function sidebarJa(): DefaultTheme.Sidebar {
           {
             text: '環境にやさしい選択に、利益を戻す',
             link: '/ja/project/green-choice'
+          },
+          {
+            text: '初めての方へ: 試作は何をしているか',
+            link: '/ja/project/carbon-choice-guide'
           },
           { text: '相談したいこと', link: '/ja/project/open-questions' }
         ]

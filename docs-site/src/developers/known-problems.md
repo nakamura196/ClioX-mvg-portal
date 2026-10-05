@@ -246,3 +246,4 @@ The text in `src/components/TextAnalysis/`, `ChatbotUnified/` and `ChatbotTrial/
 - Tenderly's public RPC answered 429 to the CLI; `https://ethereum-sepolia-rpc.publicnode.com` worked.
 - The portal's server-side rendering breaks on Node 25 (`localStorage.getItem is not a function`). Use Node 22.
 - mdx blocks outbound UDP, so cloudflared's QUIC fails (error 1033). Use `--protocol http2`.
+- Carbon-choice prototype: right after creating a scheme, the ledger can show the previous scheme's rows under the new header for a few seconds, then corrects itself. Seen once in the real-MetaMask check of 2026-10-05; switching schemes from the dropdown is not affected. Cause is in the Clio-X page (stale ledger state), not on chain.

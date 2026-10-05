@@ -245,3 +245,4 @@ Ocean Node 4.x はジョブの成果物を `outputs.tar` 1 つ（とログ 3 つ
 - Tenderly の公開 RPC は CLI に 429 を返しました。`https://ethereum-sepolia-rpc.publicnode.com` は使えました。
 - ポータルのサーバー側描画は Node 25 で壊れます（`localStorage.getItem is not a function`）。Node 22 を使ってください。
 - mdx は外向きの UDP を止めているので、cloudflared の QUIC が失敗します（エラー 1033）。`--protocol http2` を使います。
+- 環境への配慮の試作: 仕組みを作った直後、数秒だけ、新しい仕組みの見出しの下に前の仕組みの台帳の行が出ることがあります。数秒で直ります。2026-10-05 の本物の MetaMask での確認で 1 度見ました。プルダウンで仕組みを切り替えたときは起きません。原因はチェーンではなく、Clio-X の画面側（古い台帳の状態が残る）です。
