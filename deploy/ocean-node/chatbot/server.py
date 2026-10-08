@@ -22,6 +22,9 @@ model writes the answer from them. BACKEND picks the model:
   ollama     (default) a local model served by Ollama; standard library only
   anthropic  Claude through the Anthropic API; needs ANTHROPIC_API_KEY and the
              `anthropic` package (the Dockerfile next to this file installs it)
+  openai     any OpenAI-compatible API; needs OPENAI_API_KEY. OPENAI_BASE_URL
+             defaults to mdx-MaaS (https://api.maas.mdx1.jp/v1), and MODEL to
+             gemma-4 there (fast, keeps to the passages; tried 2026-10-08)
 Knowledge lives in memory only and is dropped after SESSION_TTL seconds
 without use.
 
@@ -36,9 +39,10 @@ CHATBOT_REQUIRE_SIGNIN is on). Only questions that reach the model count.
   DAILY_LIMIT_TOTAL      questions per day for everyone together: the real
                          cost ceiling, since new addresses are free to make
   USAGE_FILE             where today's counts are kept across restarts
-If any of the first three is set, a question without X-Chatbot-User is refused.
+If ALLOWED_USERS or DAILY_LIMIT_PER_USER is set, a question without
+X-Chatbot-User is refused. DAILY_LIMIT_TOTAL alone works without sign-in.
 
-Standard library only when BACKEND=ollama.
+Standard library only when BACKEND=ollama or openai.
 """
 import hmac
 import json
@@ -55,7 +59,14 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 PORT = int(os.environ.get("PORT", "8001"))
 BACKEND = os.environ.get("BACKEND", "ollama")
 OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://ollama:11434").rstrip("/")
-MODEL = os.environ.get("MODEL") or ("claude-opus-5-5" if BACKEND == "anthropic" else "qwen2.5:1.5b")
+DEFAULT_MODELS = {
+    "anthropic": "claude-opus-5-5",
+    "openai": "google/gemma-4-31B-it-qat-w4a16-ct",
+    "ollama": "qwen2.5:1.5b",
+}
+MODEL = os.environ.get("MODEL") or DEFAULT_MODELS.get(BACKEND, "")
+OPENAI_BASE_URL = os.environ.get("OPENAI_BASE_URL", "https://api.maas.mdx1.jp/v1").rstrip("/")
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
 # Claude only: how hard it thinks before answering. Answers here are short and
 # drawn from four passages, so "low" is enough (compared 2026-09-30).
 EFFORT = os.environ.get("EFFORT", "low")
@@ -67,7 +78,7 @@ MAX_BODY = int(os.environ.get("MAX_BODY_BYTES", str(20 * 1024 * 1024)))
 TOP_K = int(os.environ.get("TOP_K", "4"))
 # Ollama counts only the answer. Claude's limit also covers its thinking,
 # so it needs more room for the same length of answer.
-MAX_TOKENS = int(os.environ.get("MAX_TOKENS", "4000" if BACKEND == "anthropic" else "512"))
+MAX_TOKENS = int(os.environ.get("MAX_TOKENS", {"anthropic": "4000", "openai": "1500"}.get(BACKEND, "512")))
 
 def address_list(raw):
     raw = raw.strip()
@@ -79,7 +90,7 @@ ALLOWED_USERS = address_list(os.environ.get("ALLOWED_USERS", ""))
 LIMIT_USER = int(os.environ.get("DAILY_LIMIT_PER_USER") or 0)
 LIMIT_TOTAL = int(os.environ.get("DAILY_LIMIT_TOTAL") or 0)
 USAGE_FILE = os.environ.get("USAGE_FILE", "")
-NEED_USER = bool(ALLOWED_USERS or LIMIT_USER or LIMIT_TOTAL)
+NEED_USER = bool(ALLOWED_USERS or LIMIT_USER)
 # Ollama answers one request at a time on CPU; more would only queue. With
 # Claude this also caps what a burst of questions can cost at once.
 GENERATIONS = threading.BoundedSemaphore(int(os.environ.get("MAX_PARALLEL", "2")))
@@ -318,8 +329,58 @@ def claude_chat(messages, config):
         yield "\n\n(The model declined to answer this question.)"
 
 
+def openai_chat(messages, config):
+    """Yield pieces of the answer from an OpenAI-compatible API (mdx-MaaS).
+
+    Thinking models send their reasoning in a separate field; only the
+    answer (delta.content) is passed on."""
+    body = {
+        "model": MODEL,
+        "messages": messages,
+        "stream": True,
+        "temperature": float(config.get("temperature") or 0.3),
+        # As with Claude, not the page's max_tokens: a thinking model spends
+        # part of it before the answer starts.
+        "max_tokens": MAX_TOKENS,
+    }
+    req = urllib.request.Request(
+        f"{OPENAI_BASE_URL}/chat/completions",
+        data=json.dumps(body).encode(),
+        headers={"Content-Type": "application/json", "Authorization": f"Bearer {OPENAI_API_KEY}"},
+    )
+    started = False
+    try:
+        with urllib.request.urlopen(req, timeout=300) as res:
+            for line in res:
+                line = line.decode().strip()
+                if not line.startswith("data:"):
+                    continue
+                data = line[5:].strip()
+                if data == "[DONE]":
+                    return
+                d = json.loads(data)
+                if d.get("error"):
+                    raise RuntimeError(str(d["error"].get("message") or d["error"]))
+                for choice in d.get("choices") or []:
+                    piece = (choice.get("delta") or {}).get("content") or ""
+                    if not started:
+                        # Some models (Qwen3.6) open with blank lines.
+                        piece = piece.lstrip()
+                        started = bool(piece)
+                    if piece:
+                        yield piece
+    except urllib.error.HTTPError as e:
+        raise RuntimeError(f"model API returned {e.code}")
+    except urllib.error.URLError:
+        raise RuntimeError("could not reach the model API")
+
+
 def generate(messages, config):
-    return claude_chat(messages, config) if BACKEND == "anthropic" else ollama_chat(messages, config)
+    if BACKEND == "anthropic":
+        return claude_chat(messages, config)
+    if BACKEND == "openai":
+        return openai_chat(messages, config)
+    return ollama_chat(messages, config)
 
 
 def ollama_connected():
@@ -393,7 +454,12 @@ class Handler(BaseHTTPRequestHandler):
             # For Claude, only whether a key is set: a real check would be a
             # billed request on every health probe. (Field name kept for the
             # portal's health route.)
-            ok = bool(CLIENT) if BACKEND == "anthropic" else ollama_connected()
+            if BACKEND == "anthropic":
+                ok = bool(CLIENT)
+            elif BACKEND == "openai":
+                ok = bool(OPENAI_API_KEY)
+            else:
+                ok = ollama_connected()
             return self.send_json(200, {"status": "healthy" if ok else "degraded",
                                         "ollama_connected": ok, "backend": BACKEND,
                                         "model": MODEL})
@@ -464,11 +530,13 @@ class Handler(BaseHTTPRequestHandler):
     def refusal(self, message):
         """Why this question may not reach the model, as text for the page;
         None when it may (and then it is counted)."""
-        if not NEED_USER:
+        if not (NEED_USER or LIMIT_TOTAL):
             return None
         user = self.headers.get("X-Chatbot-User", "").strip().lower()
         if not re.fullmatch(r"0x[0-9a-f]{40}", user):
-            return notice("signin", message)
+            if NEED_USER:
+                return notice("signin", message)
+            user = "anonymous"  # only the total limit applies
         if ALLOWED_USERS and user not in ALLOWED_USERS:
             return notice("not_allowed", message)
         why = USAGE.take(user)
@@ -555,12 +623,17 @@ if __name__ == "__main__":
             raise SystemExit("BACKEND=anthropic needs ANTHROPIC_API_KEY")
         CLIENT = anthropic.Anthropic(timeout=120.0)
         print(f"listening on :{PORT}, model {MODEL} (Anthropic API, effort {EFFORT})", flush=True)
+    elif BACKEND == "openai":
+        if not OPENAI_API_KEY:
+            raise SystemExit("BACKEND=openai needs OPENAI_API_KEY")
+        print(f"listening on :{PORT}, model {MODEL} at {OPENAI_BASE_URL}", flush=True)
     elif BACKEND == "ollama":
         print(f"listening on :{PORT}, model {MODEL} at {OLLAMA_URL}", flush=True)
     else:
-        raise SystemExit(f"unknown BACKEND {BACKEND!r}; use ollama or anthropic")
-    if NEED_USER:
-        print(f"questions need a signed-in address; allowed: {len(ALLOWED_USERS) or 'any'}; "
+        raise SystemExit(f"unknown BACKEND {BACKEND!r}; use ollama, anthropic or openai")
+    if NEED_USER or LIMIT_TOTAL:
+        print(f"questions need a signed-in address: {'yes' if NEED_USER else 'no'}; "
+              f"allowed: {len(ALLOWED_USERS) or 'any'}; "
               f"per day: {LIMIT_USER or '-'} per address, {LIMIT_TOTAL or '-'} in total; "
               f"counts kept in {USAGE_FILE or 'memory'}", flush=True)
     ThreadingHTTPServer(("0.0.0.0", PORT), Handler).serve_forever()
