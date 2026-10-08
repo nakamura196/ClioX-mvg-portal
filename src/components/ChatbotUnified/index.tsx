@@ -72,6 +72,7 @@ export default function ChatbotUnified(): ReactElement {
           algoDidsByChain={selectedProject.algoDidsByChain}
           datasetDidsByChain={selectedProject.datasetDidsByChain}
           namespace={selectedProject.namespace}
+          sample={selectedProject.sample}
         />
       </div>
     </div>

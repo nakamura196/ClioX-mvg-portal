@@ -1,3 +1,5 @@
 # Recorded output of a real OCR run: keep byte-for-byte as the program wrote it
 public/sample-collection/saitan-ocr-run/outputs/
 public/sample-collection/saitan-ocr-run/logs.txt
+# Chatbot sample knowledge: chatbot_knowledge.py output, served as is
+public/samples/chatbot/

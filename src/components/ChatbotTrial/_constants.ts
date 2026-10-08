@@ -15,3 +15,14 @@ export const TRIAL_CHATBOT_DATASET_DIDS: Record<number, string[]> = {
 }
 
 export const CHATBOT_NAMESPACE = 'chatbot:trial'
+
+// 見本の資料: ジョブを走らせなくても試せるように、ザ・フェデラリストの
+// 抜粋（930 個）を置いておく。中身は deploy/trial/sample/federalist-papers.tar.gz
+// を deploy/trial/algorithm/chatbot_knowledge.py にかけた final_output.json
+// そのもの（Compute ジョブの結果と同じ）。
+export const TRIAL_CHATBOT_SAMPLE = {
+  url: '/samples/chatbot/federalist-knowledge.json',
+  jobId: 'sample:federalist-papers',
+  assetName: 'The Federalist Papers (sample)',
+  datasetDid: TRIAL_CHATBOT_DATASET_DIDS[11155111][0]
+}

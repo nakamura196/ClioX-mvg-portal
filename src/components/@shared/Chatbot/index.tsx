@@ -1,17 +1,20 @@
 import { ReactElement, useCallback, useEffect, useRef, useState } from 'react'
 import JobList from './JobList'
 import ChatShell from './ChatShell'
+import SampleKnowledge, { ChatbotSample } from './SampleKnowledge'
 import { ChatbotUseCaseData } from '../../../@context/UseCases/models/Chatbot.model'
 import { chatbotApi, KnowledgeStatus } from '../../../@utils/chatbot'
 
 export default function ChatbotViz({
   algoDidsByChain,
   datasetDidsByChain,
-  namespace
+  namespace,
+  sample
 }: {
   algoDidsByChain: Record<number, string | string[]>
   datasetDidsByChain?: Record<number, string[]>
   namespace: string
+  sample?: ChatbotSample
 }): ReactElement {
   // Get chatbot data from IndexedDB through useUseCases hook
   const [, setChatbotData] = useState<ChatbotUseCaseData[]>([])
@@ -135,6 +138,16 @@ export default function ChatbotViz({
 
   return (
     <div className="flex flex-col gap-6">
+      {sample && (
+        <SampleKnowledge
+          sample={sample}
+          namespace={namespace}
+          onStatusChange={(s: AssistantState) => {
+            setAssistantStatus(s)
+            if (s === 'processing' || s === 'uploading') forceRefresh()
+          }}
+        />
+      )}
       <JobList
         algoDidsByChain={algoDidsByChain}
         datasetDidsByChain={datasetDidsByChain}
