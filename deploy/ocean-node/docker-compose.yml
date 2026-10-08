@@ -197,11 +197,16 @@ services:
       API_KEY: '${CHATBOT_API_KEY:-}'
       BACKEND: '${CHATBOT_BACKEND:-ollama}'
       OLLAMA_URL: http://ollama:11434
-      # Empty means the backend's default (qwen2.5:1.5b / claude-opus-5-5).
+      # Empty means the backend's default (qwen2.5:1.5b / claude-opus-5-5 /
+      # gemma-4 on mdx-MaaS).
       MODEL: '${CHATBOT_MODEL:-}'
       ANTHROPIC_API_KEY: '${ANTHROPIC_API_KEY:-}'
-      # Optional limits (server.py). They need the portal's CHATBOT_REQUIRE_SIGNIN,
-      # which sends the signed-in wallet address. Empty = off.
+      # BACKEND=openai: an OpenAI-compatible API, mdx-MaaS unless the URL is set.
+      OPENAI_BASE_URL: '${CHATBOT_OPENAI_BASE_URL:-https://api.maas.mdx1.jp/v1}'
+      OPENAI_API_KEY: '${CHATBOT_OPENAI_API_KEY:-}'
+      # Optional limits (server.py). ALLOWED_USERS and DAILY_LIMIT_PER_USER need
+      # the portal's CHATBOT_REQUIRE_SIGNIN, which sends the signed-in wallet
+      # address; DAILY_LIMIT_TOTAL works without it. Empty = off.
       ALLOWED_USERS: '${CHATBOT_ALLOWED_USERS:-}'
       DAILY_LIMIT_PER_USER: '${CHATBOT_DAILY_LIMIT_PER_USER:-}'
       DAILY_LIMIT_TOTAL: '${CHATBOT_DAILY_LIMIT_TOTAL:-}'
