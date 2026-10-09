@@ -77,7 +77,7 @@
     "depositAmount": "預ける額（PLAY）",
     "depositButton": "仕組み #{id} に預ける",
     "withdrawButton": "預け入れを引き出す",
-    "payButton": "{place} で払う（{pay} PLAY）",
+    "payButton": "{place} で払う（最大 {pay} PLAY）",
     "payHint": "払うと、手順 4 の記録の指紋も一緒に台帳に残ります。",
     "payNotPriced": "選んだ場所は料金が登録されていません。ほかの場所を選んでください。",
     "connect": "払ったり預けたりするには、ウォレットをつないでください。",
@@ -100,7 +100,8 @@
       "subsidy": "補助",
       "pays": "負担",
       "tx": "取引",
-      "job": "ジョブ"
+      "job": "ジョブ",
+      "member": "補助の資格"
     },
     "deposits": "預け入れ",
     "depositRow": "{from} が {v} PLAY を預けました。",
@@ -112,7 +113,44 @@
     "helpDeposit": "預け入れ残高は、助成機関などが預けたお金の残りです。補助が払われるたびにここから出るので、払うごとに減ります。",
     "thisJob": "このジョブ",
     "jobBanner": "計算ジョブ {id} の環境配慮料を払います。台帳には、このジョブ ID の指紋（SHA-256）が残ります。ジョブ ID を知っている人は、この払いを探せます。",
-    "helpJob": "台帳に残るのは、ジョブ ID そのものではなく指紋です。"
+    "helpJob": "台帳に残るのは、ジョブ ID そのものではなく指紋です。",
+    "gate": {
+      "label": "補助を受けられる人",
+      "name": [
+        "誰でも",
+        "EAS の会員証明がある人"
+      ],
+      "fixed": "スキームを作るときに決めます。作った後は変えられません。",
+      "unreadable": "確認できません。このスキームでは払えません。",
+      "createLabel": "新しいスキームで補助を受けられる人",
+      "createHint": "作った後は変えられません。上乗せと値引きは、どちらでも誰でも対象です。",
+      "help": "証明とは、公開の仕組み EAS（Ethereum Attestation Service）に残す「このウォレットは会員です」という署名つきのメモです。運営者が書き、取り消すこともできます。払うとき、契約がチェーン上でこれを読みます。残るのはウォレットのアドレスだけで、名前は残りません。",
+      "needWallet": "ウォレットをつなぐと、会員の証明があるか確かめます。",
+      "checking": "会員の証明を探しています…",
+      "ok": "会員の証明があります（{link}、期限 {until}）。",
+      "noExpiry": "なし",
+      "untilDate": "{date} まで",
+      "subsidyNow": "補助 {v} PLAY。",
+      "none": "証明がありません。補助なしで {y} PLAY を払います。",
+      "reasonIntro": "この証明は使えません。理由:",
+      "reason": {
+        "ok": "有効です",
+        "noUid": "証明の番号がありません",
+        "stopped": "会員向けの補助は、いま止まっています",
+        "notFound": "その証明が見つかりません",
+        "wrongSchema": "会員証明とは別の種類です",
+        "wrongAttester": "運営者が書いたものではありません",
+        "otherRecipient": "別のウォレットあてです",
+        "revoked": "取り消されています",
+        "expired": "期限が切れています"
+      },
+      "withoutSubsidy": "補助なしで {y} PLAY を払います。",
+      "uidLabel": "証明の番号（0x…。easscan に出ています）",
+      "uidHint": "自動で見つからないときだけ入れてください。",
+      "lookupFailed": "easscan で探せませんでした。下に証明の番号を入れてください。",
+      "link": "easscan",
+      "ledgerMark": "EAS"
+    }
   },
   "record": {
     "heading": "4. 記録を残す",
