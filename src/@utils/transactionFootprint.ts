@@ -143,7 +143,9 @@ const unknown = (unit: string, reason: string): Quantity => ({
 const valid = (n: unknown): n is number =>
   typeof n === 'number' && Number.isFinite(n) && n >= 0
 
-export function computeTransaction(input: TransactionInput): TransactionFootprint {
+export function computeTransaction(
+  input: TransactionInput
+): TransactionFootprint {
   const { intervals, allocation } = input
   const notes: string[] = []
   const totalHours = intervals.reduce((a, i) => a + i.hours, 0)
@@ -162,13 +164,22 @@ export function computeTransaction(input: TransactionInput): TransactionFootprin
           quality: 'measured',
           basis: 'measured per job (no allocation applied)'
         }
-      : unknown('kWh', 'allocation is measured-per-job but no measured energy was supplied')
+      : unknown(
+          'kWh',
+          'allocation is measured-per-job but no measured energy was supplied'
+        )
   } else if (intervals.some((i) => !valid(i.powerKW))) {
-    itEnergy = unknown('kWh', 'pool power (kW) is missing for at least one interval')
+    itEnergy = unknown(
+      'kWh',
+      'pool power (kW) is missing for at least one interval'
+    )
   } else if (
     intervals.some((i) => !valid(i.hours) || !(i.share >= 0 && i.share <= 1))
   ) {
-    itEnergy = unknown('kWh', 'duration or compute share is missing or outside 0..1')
+    itEnergy = unknown(
+      'kWh',
+      'duration or compute share is missing or outside 0..1'
+    )
   } else {
     const value = intervals.reduce(
       (a, i) => a + (i.powerKW as number) * i.hours * i.share,
@@ -195,16 +206,25 @@ export function computeTransaction(input: TransactionInput): TransactionFootprin
   let facilityEnergy: Quantity
   if (scope === 'facility') {
     // 事業者の電力値に冷却が含まれる: そのまま施設電力量。IT 分は PUE があれば逆算
-    facilityEnergy = { ...itEnergy, basis: itEnergy.basis + '; provider states cooling is included' }
+    facilityEnergy = {
+      ...itEnergy,
+      basis: itEnergy.basis + '; provider states cooling is included'
+    }
     if (valid(itEnergy.value) && valid(input.pue) && input.pue >= 1) {
       itEnergy = {
         ...itEnergy,
         value: itEnergy.value / input.pue,
-        quality: weakestQuality(itEnergy.quality, input.pueQuality ?? 'provider-reported'),
+        quality: weakestQuality(
+          itEnergy.quality,
+          input.pueQuality ?? 'provider-reported'
+        ),
         basis: 'facility energy / PUE (derived)'
       }
     } else if (itEnergy.value !== undefined) {
-      itEnergy = unknown('kWh', 'power includes cooling and no PUE was given, so the IT-only part cannot be separated')
+      itEnergy = unknown(
+        'kWh',
+        'power includes cooling and no PUE was given, so the IT-only part cannot be separated'
+      )
     }
   } else if (!valid(itEnergy.value)) {
     facilityEnergy = unknown('kWh', itEnergy.reason ?? 'IT energy is unknown')
@@ -237,7 +257,10 @@ export function computeTransaction(input: TransactionInput): TransactionFootprin
       if (!valid(w.lPerKWh)) {
         water = unknown('L', 'WUE is not a valid number')
       } else if (!valid(itEnergy.value)) {
-        water = unknown('L', 'WUE is per kWh of IT energy and the IT energy is unknown')
+        water = unknown(
+          'L',
+          'WUE is per kWh of IT energy and the IT energy is unknown'
+        )
       } else {
         water = {
           value: itEnergy.value * w.lPerKWh,
@@ -251,10 +274,14 @@ export function computeTransaction(input: TransactionInput): TransactionFootprin
     } else {
       const flows = intervals.map((i) => i.waterLPerHour ?? w.lPerHour)
       if (flows.some((q) => !valid(q))) {
-        water = unknown('L', 'water flow (L/h) is missing for at least one interval')
+        water = unknown(
+          'L',
+          'water flow (L/h) is missing for at least one interval'
+        )
       } else {
         const value = intervals.reduce(
-          (a, i, n) => a + (flows[n] as number) * i.hours * (i.waterShare ?? i.share),
+          (a, i, n) =>
+            a + (flows[n] as number) * i.hours * (i.waterShare ?? i.share),
           0
         )
         water = {
@@ -262,7 +289,8 @@ export function computeTransaction(input: TransactionInput): TransactionFootprin
           unit: 'L',
           // 割り振りは推定。実測の消費量とは呼ばない
           quality: weakestQuality(w.quality, 'portal-estimated'),
-          basis: 'water allocated by compute share (an accounting estimate, not measured consumption)'
+          basis:
+            'water allocated by compute share (an accounting estimate, not measured consumption)'
         }
       }
     }
@@ -283,7 +311,10 @@ export function computeTransaction(input: TransactionInput): TransactionFootprin
   if (!input.grid) {
     carbon = unknown('gCO2e', 'no grid emission factor for this location')
   } else if (!valid(facilityEnergy.value)) {
-    carbon = unknown('gCO2e', facilityEnergy.reason ?? 'facility energy is unknown')
+    carbon = unknown(
+      'gCO2e',
+      facilityEnergy.reason ?? 'facility energy is unknown'
+    )
   } else {
     carbon = {
       value: facilityEnergy.value * input.grid.gCO2ePerKWh,
@@ -339,7 +370,13 @@ export interface TransactionReceipt {
     pue?: number
     pueQuality?: DataQuality
     powerQuality: DataQuality
-    water?: { kind: WaterInput['kind']; definition: WaterKind; scope: WaterScope; value?: number; unit: string }
+    water?: {
+      kind: WaterInput['kind']
+      definition: WaterKind
+      scope: WaterScope
+      value?: number
+      unit: string
+    }
     gridIntensity?: GridIntensity
   }
   values: {

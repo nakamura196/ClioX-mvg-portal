@@ -56,7 +56,11 @@ describe('PUE', () => {
     expect(f.carbon.value).toBeUndefined()
   })
   it('power that includes cooling is taken as facility energy', () => {
-    const f = computeTransaction({ ...worked, powerScope: 'facility', pue: 1.25 })
+    const f = computeTransaction({
+      ...worked,
+      powerScope: 'facility',
+      pue: 1.25
+    })
     expect(f.facilityEnergy.value).toBeCloseTo(0.025)
     expect(f.itEnergy.value).toBeCloseTo(0.02)
   })
@@ -181,13 +185,19 @@ describe('carbon, intervals, allocation', () => {
     })
     expect(f.itEnergy.value).toBe(0.04)
     expect(f.itEnergy.quality).toBe('measured')
-    const none = computeTransaction({ ...worked, allocation: 'measured-per-job' })
+    const none = computeTransaction({
+      ...worked,
+      allocation: 'measured-per-job'
+    })
     expect(none.itEnergy.value).toBeUndefined()
   })
   it('recirculating flow gets a warning note', () => {
     const f = computeTransaction({
       ...worked,
-      water: { ...(worked.water as object), definition: 'recirculating-flow' } as never
+      water: {
+        ...(worked.water as object),
+        definition: 'recirculating-flow'
+      } as never
     })
     expect(f.notes.join(' ')).toMatch(/not consumed/)
   })
