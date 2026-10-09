@@ -37,12 +37,28 @@ export const GREEN_FEE_ABI = [
   'function deposit(uint256 schemeId, uint256 amount)',
   'function withdraw(uint256 schemeId, uint256 amount)',
   'function pay(uint256 schemeId, string key, uint32 durationSeconds, bytes32 ref) returns (uint256)',
+  'function payMember(uint256 schemeId, string key, uint32 durationSeconds, bytes32 ref, uint64 expiry, bytes signature) returns (uint256)',
+  // 補助の資格の確かめ方（スキームごと）。古い契約には無い
+  'function operator() view returns (address)',
+  'function gate(uint256) view returns (uint8)',
+  'function setGate(uint256 schemeId, uint8 g)',
+  'function isMember(address) view returns (bool)',
+  'function members() view returns (address[])',
+  'function setMember(address wallet, bool member)',
+  'function memberPayment(uint256) view returns (bool)',
   'function paymentsOf(uint256 schemeId) view returns (uint256[])',
   'function getPayment(uint256) view returns (tuple(uint32 schemeId, address payer, uint40 paidAt, uint64 blockNumber, uint32 durationSeconds, uint64 mgCO2e, uint8 band, uint256 base, uint256 surcharge, uint256 discount, uint256 subsidy, uint256 payerPays, bytes32 ref, string locationKey))',
   'event SchemeCreated(uint256 indexed schemeId, address indexed owner, string label)',
   'event Paid(uint256 indexed paymentId, uint256 indexed schemeId, address indexed payer, string locationKey, uint256 base, uint256 surcharge, uint256 discount, uint256 subsidy, uint256 payerPays)',
   'event Deposited(uint256 indexed schemeId, address indexed from, uint256 amount)'
 ]
+
+/**
+ * 補助（型 4）の資格の確かめ方。スキームごとに選ぶ。
+ * 0 なし（誰でも）／1 名簿（運営者が登録したウォレット）／2 引換券（署名つき）
+ */
+export type Gate = 0 | 1 | 2
+export const GATES: Gate[] = [0, 1, 2]
 
 /** 金額はすべて PLAY の 100 万分の 1 単位（整数）。1 PLAY = 1 ドル相当の見立て */
 export const MICRO = 1_000_000
@@ -105,7 +121,9 @@ export function quoteFee(
   loc: FeeLocation,
   rules: FeeRules,
   funds: FeeFunds,
-  durationSeconds: number
+  durationSeconds: number,
+  /** 補助の資格があるか。無ければ補助は 0（値引き・上乗せは変わらない） */
+  eligible = true
 ): FeeQuote {
   const d = Math.max(0, Math.floor(durationSeconds))
   const base = Math.floor((loc.microPerHour * d) / 3600)
@@ -123,7 +141,7 @@ export function quoteFee(
   const discount = Math.min(discountWanted, Math.max(0, funds.pool))
   const due = base + surcharge - discount
   const subsidy =
-    band === 'low'
+    band === 'low' && eligible
       ? Math.min(
           Math.floor((due * rules.subsidyBps) / 10000),
           rules.subsidyCapMicro,

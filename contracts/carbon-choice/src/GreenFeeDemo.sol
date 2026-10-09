@@ -44,6 +44,33 @@ contract GreenFeeDemo {
     }
 
     address public immutable operator;
+
+    // ------------------------------------------------------------- members
+    //
+    // Who may receive the type 4 subsidy is chosen per scheme (its "gate"),
+    // so the ways of checking eligibility can be tried side by side:
+    //   0 Open      everyone (the original behaviour)
+    //   1 Allowlist wallets the operator listed by hand (isMember)
+    //   2 Voucher   wallets holding a short-lived voucher signed by `verifier`
+    //               (id.ldas.jp checks the person off-chain; this contract
+    //               only checks the signature)
+    // Surcharge and discount (type 3) are not affected by the gate.
+    // No name or ORCID iD ever reaches the chain, only wallet addresses.
+
+    uint8 public constant GATE_OPEN = 0;
+    uint8 public constant GATE_ALLOWLIST = 1;
+    uint8 public constant GATE_VOUCHER = 2;
+
+    address public verifier; // address whose signature makes a voucher valid
+    mapping(address => bool) public isMember; // operator-managed allowlist
+    address[] private _members;
+    mapping(address => bool) private _everListed;
+    mapping(uint256 => uint8) public gate; // scheme id => gate
+    mapping(uint256 => bool) public memberPayment; // payment id => subsidy gate was passed
+
+    event VerifierSet(address verifier);
+    event MemberSet(address indexed wallet, bool member);
+    event GateSet(uint256 indexed schemeId, uint8 gate);
     mapping(string => Location) public locations;
     string[] private _locationKeys;
 
@@ -129,9 +156,48 @@ contract GreenFeeDemo {
     error BadInput();
     error InsufficientBalance();
     error InsufficientAllowance();
+    error BadVoucher();
 
     constructor() {
         operator = msg.sender;
+    }
+
+    function setVerifier(address v) external {
+        if (msg.sender != operator) revert NotOperator();
+        verifier = v;
+        emit VerifierSet(v);
+    }
+
+    function setGate(uint256 schemeId, uint8 g) external {
+        Scheme storage s = _scheme(schemeId);
+        if (msg.sender != s.owner) revert NotSchemeOwner();
+        if (g > GATE_VOUCHER) revert BadInput();
+        gate[schemeId] = g;
+        emit GateSet(schemeId, g);
+    }
+
+    function setMember(address wallet, bool member) external {
+        if (msg.sender != operator) revert NotOperator();
+        isMember[wallet] = member;
+        if (!_everListed[wallet]) {
+            _everListed[wallet] = true;
+            _members.push(wallet);
+        }
+        emit MemberSet(wallet, member);
+    }
+
+    /// @notice Wallets currently on the allowlist.
+    function members() external view returns (address[] memory out) {
+        uint256 n;
+        for (uint256 i; i < _members.length; i++) if (isMember[_members[i]]) n++;
+        out = new address[](n);
+        n = 0;
+        for (uint256 i; i < _members.length; i++) if (isMember[_members[i]]) out[n++] = _members[i];
+    }
+
+    /// @notice The message the verifier signs (EIP-191 personal_sign over this hash).
+    function voucherHash(address holder, uint64 expiry) public view returns (bytes32) {
+        return keccak256(abi.encodePacked("clio-x member", block.chainid, address(this), holder, expiry));
     }
 
     // ---------------------------------------------------------------- PLAY
@@ -237,8 +303,36 @@ contract GreenFeeDemo {
 
     // ------------------------------------------------------------ payments
 
+    /// @notice Quote for a payer who has not passed the scheme's gate.
     function quote(uint256 schemeId, string calldata key, uint32 durationSeconds)
         public
+        view
+        returns (Quote memory)
+    {
+        return _quote(schemeId, key, durationSeconds, false);
+    }
+
+    /// @notice Quote for a payer who has passed the scheme's gate.
+    function quoteMember(uint256 schemeId, string calldata key, uint32 durationSeconds)
+        public
+        view
+        returns (Quote memory)
+    {
+        return _quote(schemeId, key, durationSeconds, true);
+    }
+
+    /// @notice Quote for `payer` using only what the chain knows: the allowlist.
+    ///         A voucher cannot be seen from a view call; use quoteMember for it.
+    function quoteFor(address payer, uint256 schemeId, string calldata key, uint32 durationSeconds)
+        external
+        view
+        returns (Quote memory)
+    {
+        return _quote(schemeId, key, durationSeconds, gate[schemeId] == GATE_ALLOWLIST && isMember[payer]);
+    }
+
+    function _quote(uint256 schemeId, string calldata key, uint32 durationSeconds, bool member)
+        private
         view
         returns (Quote memory q)
     {
@@ -257,7 +351,7 @@ contract GreenFeeDemo {
             q.discount = q.discountWanted < s.pool ? q.discountWanted : s.pool;
         }
         uint256 due = q.base + q.surcharge - q.discount;
-        if (q.band == 0) {
+        if (q.band == 0 && (member || gate[schemeId] == GATE_OPEN)) {
             uint256 sub = (due * r.subsidyBps) / 10_000;
             if (sub > r.subsidyCapMicro) sub = r.subsidyCapMicro;
             if (sub > s.deposit) sub = s.deposit;
@@ -272,8 +366,30 @@ contract GreenFeeDemo {
         external
         returns (uint256 paymentId)
     {
+        return _pay(schemeId, key, durationSeconds, ref, gate[schemeId] == GATE_ALLOWLIST && isMember[msg.sender]);
+    }
+
+    /// @notice Same as pay, with a voucher from the verifier for msg.sender.
+    ///         The voucher is valid until `expiry` (unix seconds).
+    function payMember(
+        uint256 schemeId,
+        string calldata key,
+        uint32 durationSeconds,
+        bytes32 ref,
+        uint64 expiry,
+        bytes calldata signature
+    ) external returns (uint256 paymentId) {
+        _checkVoucher(expiry, signature);
+        // A voucher only counts in a scheme that uses the voucher gate.
+        return _pay(schemeId, key, durationSeconds, ref, _isVoucherScheme(schemeId));
+    }
+
+    function _pay(uint256 schemeId, string calldata key, uint32 durationSeconds, bytes32 ref, bool member)
+        private
+        returns (uint256 paymentId)
+    {
         if (durationSeconds == 0) revert BadInput();
-        Quote memory q = quote(schemeId, key, durationSeconds);
+        Quote memory q = _quote(schemeId, key, durationSeconds, member);
         Scheme storage s = _schemes[schemeId - 1];
 
         _transfer(msg.sender, address(this), q.payerPays);
@@ -304,6 +420,7 @@ contract GreenFeeDemo {
             })
         );
         paymentId = _payments.length;
+        if (member) memberPayment[paymentId] = true;
         _paymentsOf[schemeId].push(paymentId);
         emit Paid(paymentId, schemeId, msg.sender, key, q.base, q.surcharge, q.discount, q.subsidy, q.payerPays);
     }
@@ -331,6 +448,27 @@ contract GreenFeeDemo {
     function _checkRules(Rules calldata r) private pure {
         if (r.surchargeBps > 10_000 || r.discountBps > 10_000 || r.subsidyBps > 10_000) revert BadInput();
         if (r.lowUpToMgPerHour >= r.highFromMgPerHour) revert BadInput();
+    }
+
+    function _checkVoucher(uint64 expiry, bytes calldata signature) private view {
+        if (verifier == address(0) || block.timestamp > expiry) revert BadVoucher();
+        if (_recover(voucherHash(msg.sender, expiry), signature) != verifier) revert BadVoucher();
+    }
+
+    function _isVoucherScheme(uint256 schemeId) private view returns (bool) {
+        return gate[schemeId] == GATE_VOUCHER;
+    }
+
+    function _recover(bytes32 hash, bytes calldata sig) private pure returns (address) {
+        if (sig.length != 65) return address(0);
+        bytes32 r = bytes32(sig[0:32]);
+        bytes32 sv = bytes32(sig[32:64]);
+        uint8 v = uint8(sig[64]);
+        if (v < 27) v += 27;
+        // reject malleable (high-s) signatures
+        if (uint256(sv) > 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5D576E7357A4501DDFE92F46681B20A0) return address(0);
+        bytes32 digest = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", hash));
+        return ecrecover(digest, v, r, sv);
     }
 
     function _transfer(address from, address to, uint256 value) private {

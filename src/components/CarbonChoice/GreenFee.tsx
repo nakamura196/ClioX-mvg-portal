@@ -13,6 +13,8 @@ import {
   FeeLocation,
   FeeQuote,
   FeeRules,
+  GATES,
+  Gate,
   GREEN_FEE_ABI,
   GREEN_FEE_ADDRESS,
   GREEN_FEE_DEPLOY_BLOCK,
@@ -62,6 +64,8 @@ interface SchemeView {
   discountsOut: number
   subsidiesOut: number
   payments: number
+  /** 補助の資格の確かめ方。古い契約には無いので 0（誰でも） */
+  gate: Gate
 }
 
 interface PaymentView {
@@ -77,6 +81,8 @@ interface PaymentView {
   band: Band
   ref?: string
   tx?: string
+  /** 補助の資格の確認を通った支払いか */
+  member: boolean
 }
 
 interface DepositView {
@@ -84,6 +90,27 @@ interface DepositView {
   amount: number
   block: number
   tx: string
+}
+
+/** 引換券の貼り付け: {"expiry": 1790000000, "signature": "0x…"} */
+export interface Voucher {
+  expiry: number
+  signature: string
+}
+function parseVoucher(text: string): Voucher | undefined {
+  try {
+    const v = JSON.parse(text)
+    const expiry = Number(v.expiry)
+    if (
+      Number.isInteger(expiry) &&
+      expiry > Date.now() / 1000 &&
+      /^0x[0-9a-fA-F]{130}$/.test(v.signature)
+    )
+      return { expiry, signature: v.signature }
+  } catch {
+    // 空欄や書きかけ
+  }
+  return undefined
 }
 
 function toRules(r: ethers.utils.Result): FeeRules {
@@ -99,7 +126,12 @@ function toRules(r: ethers.utils.Result): FeeRules {
 
 async function loadScheme(c: ethers.Contract, id: number): Promise<SchemeView> {
   const s = await c.getScheme(id)
+  const gate = await c
+    .gate(id)
+    .then((g: number) => (g === 1 || g === 2 ? g : 0) as Gate)
+    .catch((): Gate => 0)
   return {
+    gate,
     id,
     owner: s.owner,
     label: s.label,
@@ -124,6 +156,7 @@ async function loadLedger(
     recent.map(async (bid) => {
       const p = await c.getPayment(bid)
       const block = num(p.blockNumber)
+      const member = await c.memberPayment(bid).catch(() => false)
       const logs = await c.provider
         .getLogs({
           address: GREEN_FEE_ADDRESS,
@@ -144,7 +177,8 @@ async function loadLedger(
         payerPays: num(p.payerPays),
         band: bandFromCode(p.band),
         ref: /^0x0+$/.test(p.ref) ? undefined : String(p.ref).slice(2),
-        tx: logs[0]?.transactionHash
+        tx: logs[0]?.transactionHash,
+        member: !!member
       }
     })
   )
@@ -188,6 +222,10 @@ export function useGreenFee(durationSeconds: number) {
   const [use4, setUse4] = useState(true)
   const [ledger, setLedger] = useState<PaymentView[]>()
   const [deposits, setDeposits] = useState<DepositView[]>()
+  const { address } = useAccount()
+  const [operator, setOperator] = useState<string>()
+  const [members, setMembers] = useState<string[]>([])
+  const [voucherText, setVoucherText] = useState('')
 
   useEffect(() => {
     const q = Number(router.query.scheme)
@@ -212,6 +250,8 @@ export function useGreenFee(durationSeconds: number) {
       const count = num(await c.schemeCount())
       const ids = Array.from({ length: count }, (_, i) => i + 1)
       setSchemes(await Promise.all(ids.map((id) => loadScheme(c, id))))
+      setOperator(await c.operator().catch(() => undefined))
+      setMembers(await c.members().catch(() => []))
       setLoadError(false)
     } catch {
       setLoadError(true)
@@ -261,9 +301,21 @@ export function useGreenFee(durationSeconds: number) {
     2 ** 32 - 1
   )
 
+  const voucher = parseVoucher(voucherText)
+  const isMember =
+    !!address && members.some((m) => m.toLowerCase() === address.toLowerCase())
+  // 引換券は画面からは中身を確かめられない（署名の確認は契約が行う）。
+  // 形が正しければ、資格ありとして試算する。
+  const eligible =
+    !scheme || scheme.gate === 0
+      ? true
+      : scheme.gate === 1
+      ? isMember
+      : !!voucher
+
   const quoteFor = (key: string): FeeQuote | undefined =>
     locations?.[key] && scheme
-      ? quoteFee(locations[key], rules, funds, seconds)
+      ? quoteFee(locations[key], rules, funds, seconds, eligible)
       : undefined
 
   return {
@@ -284,6 +336,13 @@ export function useGreenFee(durationSeconds: number) {
     resetDraft,
     seconds,
     quoteFor,
+    operator,
+    members,
+    isMember,
+    eligible,
+    voucherText,
+    setVoucherText,
+    voucher,
     ledger,
     deposits,
     refresh: async () => {
@@ -398,6 +457,8 @@ export default function GreenFeePanel({
   const [balance, setBalance] = useState<number>()
   const [depositPlay, setDepositPlay] = useState(100)
   const [label, setLabel] = useState<string>()
+  const [gateChoice, setGateChoice] = useState<Gate>()
+  const [memberInput, setMemberInput] = useState('')
 
   const { scheme, schemes, draft, setDraft, rules } = fee
 
@@ -466,6 +527,11 @@ export default function GreenFeePanel({
     !!address &&
     !!scheme &&
     scheme.owner.toLowerCase() === address.toLowerCase()
+  const isOperator =
+    !!address &&
+    !!fee.operator &&
+    fee.operator.toLowerCase() === address.toLowerCase()
+  const gate = scheme?.gate ?? 0
   const chosenQuote = chosenKey ? fee.quoteFor(chosenKey) : undefined
   const chosenPriced = !!chosenKey && !!fee.locations?.[chosenKey]
 
@@ -527,6 +593,140 @@ export default function GreenFeePanel({
               ))}
             </select>
           </label>
+
+          <fieldset className={styles.feeType}>
+            <legend>
+              {f.gate.title}
+              <Help label={f.helpLabel} text={f.gate.help} />
+            </legend>
+            <p className={styles.hint}>{f.gate.hint}</p>
+            {isOwner ? (
+              <div className={styles.actions}>
+                <select
+                  className={styles.select}
+                  value={gateChoice ?? gate}
+                  onChange={(e) =>
+                    setGateChoice(Number(e.target.value) as Gate)
+                  }
+                >
+                  {GATES.map((g) => (
+                    <option key={g} value={g}>
+                      {f.gate.name[g]}
+                    </option>
+                  ))}
+                </select>
+                {gateChoice !== undefined && gateChoice !== gate && (
+                  <button
+                    type="button"
+                    disabled={
+                      status?.kind === 'busy' ||
+                      !address ||
+                      chain?.id !== CARBON_CHOICE_CHAIN_ID
+                    }
+                    onClick={() =>
+                      send(
+                        (c) => c.setGate(scheme.id, gateChoice),
+                        () => {
+                          setGateChoice(undefined)
+                        }
+                      )
+                    }
+                  >
+                    {f.gate.save}
+                  </button>
+                )}
+              </div>
+            ) : (
+              <p>
+                <strong>{f.gate.name[gate]}</strong>
+              </p>
+            )}
+            {gate !== 0 && (
+              <p className={fee.eligible ? styles.ok : styles.hint}>
+                {!address
+                  ? f.gate.needWallet
+                  : fee.eligible
+                  ? f.gate.eligible
+                  : gate === 1
+                  ? f.gate.notListed
+                  : f.gate.needVoucher}
+              </p>
+            )}
+            {gate === 2 && (
+              <label className={styles.field}>
+                <span>{f.gate.voucherLabel}</span>
+                <textarea
+                  rows={2}
+                  value={fee.voucherText}
+                  placeholder='{"expiry": 1790000000, "signature": "0x…"}'
+                  onChange={(e) => fee.setVoucherText(e.target.value)}
+                />
+                <small className={styles.hint}>{f.gate.voucherHint}</small>
+              </label>
+            )}
+            {(gate === 1 || fee.members.length > 0 || isOperator) && (
+              <>
+                <h4>{f.gate.membersTitle}</h4>
+                {fee.members.length === 0 ? (
+                  <p className={styles.hint}>{f.gate.membersNone}</p>
+                ) : (
+                  <ul className={styles.depositList}>
+                    {fee.members.map((m) => (
+                      <li key={m}>
+                        <a
+                          href={`${EXPLORER}/address/${m}`}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <code>{short(m)}</code>
+                        </a>
+                        {isOperator && (
+                          <>
+                            {' '}
+                            <button
+                              type="button"
+                              disabled={status?.kind === 'busy'}
+                              onClick={() => send((c) => c.setMember(m, false))}
+                            >
+                              {f.gate.memberRemove}
+                            </button>
+                          </>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {isOperator && (
+                  <div className={styles.actions}>
+                    <input
+                      className={styles.labelInput}
+                      value={memberInput}
+                      placeholder="0x…"
+                      onChange={(e) => setMemberInput(e.target.value.trim())}
+                      aria-label={f.gate.memberAdd}
+                    />
+                    <button
+                      type="button"
+                      disabled={
+                        status?.kind === 'busy' ||
+                        !ethers.utils.isAddress(memberInput)
+                      }
+                      onClick={() =>
+                        send(
+                          (c) => c.setMember(memberInput, true),
+                          () => {
+                            setMemberInput('')
+                          }
+                        )
+                      }
+                    >
+                      {f.gate.memberAdd}
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+          </fieldset>
 
           <div className={styles.feeTypes}>
             <fieldset className={styles.feeType}>
@@ -715,15 +915,22 @@ export default function GreenFeePanel({
                   onClick={() =>
                     chosenKey &&
                     send(
-                      (c) =>
-                        c.pay(
-                          scheme.id,
-                          chosenKey,
-                          fee.seconds,
+                      (c) => {
+                        const ref =
                           jobHash || refHash
                             ? '0x' + (jobHash ?? refHash)
                             : ethers.constants.HashZero
-                        ),
+                        return gate === 2 && fee.voucher
+                          ? c.payMember(
+                              scheme.id,
+                              chosenKey,
+                              fee.seconds,
+                              ref,
+                              fee.voucher.expiry,
+                              fee.voucher.signature
+                            )
+                          : c.pay(scheme.id, chosenKey, fee.seconds, ref)
+                      },
                       (receipt, iface) => {
                         const ev = findEvent(receipt, iface, 'Paid')
                         return ev
@@ -742,7 +949,8 @@ export default function GreenFeePanel({
                             fee.locations[chosenKey],
                             scheme.rules,
                             scheme,
-                            fee.seconds
+                            fee.seconds,
+                            fee.eligible
                           ).payerPays
                         )
                       })
@@ -822,6 +1030,7 @@ export default function GreenFeePanel({
                     <th>{f.col.discount}</th>
                     <th>{f.col.subsidy}</th>
                     <th>{f.col.pays}</th>
+                    <th>{f.col.member}</th>
                     <th>{f.col.job}</th>
                     <th>{f.col.tx}</th>
                   </tr>
@@ -842,6 +1051,7 @@ export default function GreenFeePanel({
                       <td>
                         <strong>{formatPlay(p.payerPays)}</strong>
                       </td>
+                      <td>{p.member ? f.gate.memberMark : ''}</td>
                       <td>
                         {p.ref &&
                           (jobHash && p.ref === jobHash

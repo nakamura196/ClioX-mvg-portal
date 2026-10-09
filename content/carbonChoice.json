@@ -100,7 +100,8 @@
       "subsidy": "Subsidy",
       "pays": "Paid",
       "tx": "Tx",
-      "job": "Job"
+      "job": "Job",
+      "member": "Member"
     },
     "deposits": "Deposits",
     "depositRow": "{from} deposited {v} PLAY.",
@@ -112,7 +113,29 @@
     "helpDeposit": "The deposit balance is what is left of the money a funder deposited. Each subsidy is paid from it, so it goes down with every payment.",
     "thisJob": "This job",
     "jobBanner": "Paying for compute job {id}. The ledger will keep the SHA-256 of this job ID, so anyone with the ID can find the payment.",
-    "helpJob": "The ledger stores only a fingerprint (SHA-256) of the job ID, not the ID itself."
+    "helpJob": "The ledger stores only a fingerprint (SHA-256) of the job ID, not the ID itself.",
+    "gate": {
+      "title": "Who may receive the subsidy",
+      "hint": "Choose, per scheme, how eligibility for the type 4 subsidy is checked. Surcharge and discount (type 3) are open to everyone in every case.",
+      "help": "Open: anyone gets the subsidy. List: only wallets the operator added by hand. Voucher: only a wallet holding a short-lived signed voucher from the issuer. Only the wallet address is ever written to the ledger, never a name.",
+      "name": [
+        "Open: everyone",
+        "List: wallets the operator registered",
+        "Voucher: a signed, short-lived voucher"
+      ],
+      "save": "Change the scheme's setting",
+      "needWallet": "Connect a wallet to see whether you are eligible.",
+      "eligible": "You are eligible for the subsidy in this scheme.",
+      "notListed": "This wallet is not on the list, so no subsidy is paid. Surcharge and discount still apply.",
+      "needVoucher": "Paste a valid voucher below to receive the subsidy. Without it no subsidy is paid.",
+      "voucherLabel": "Voucher",
+      "voucherHint": "Only the shape is checked on this page. The contract checks the signature when you pay, and rejects an invalid or expired voucher.",
+      "membersTitle": "Members on the list",
+      "membersNone": "No wallet is listed yet.",
+      "memberAdd": "Add to list",
+      "memberRemove": "Remove",
+      "memberMark": "member"
+    }
   },
   "record": {
     "heading": "4. Keep a record",
