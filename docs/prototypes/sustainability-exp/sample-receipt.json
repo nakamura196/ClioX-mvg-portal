@@ -1,5 +1,5 @@
 {
-  "schema": "clio-x-transaction-receipt/0.1",
+  "schema": "clio-x-transaction-receipt/0.2",
   "transactionId": "demo-2026-10-09-0001",
   "provider": "Shirakawa Cloud",
   "location": {
@@ -81,8 +81,12 @@
       "description": "Cooling water flow samples (demo placeholder)"
     }
   ],
+  "source": {
+    "schema": "clio-x-transaction-source/0.1",
+    "sha256": "ca20562938f6b7fac789fb9427c9e0d57519f707678134dd9c53eeb00cd849b4",
+    "canonicalization": "RFC 8785 (JCS)"
+  },
   "integrity": {
-    "statement": "A SHA-256 of this file shows that the file was not altered after it was produced. It does not show that the provider sensors or reported figures are accurate.",
-    "signature": "not yet implemented"
+    "statement": "A signature over this receipt shows who issued it and that it was not altered afterwards. It does not show that the provider sensors or reported figures are accurate."
   }
 }

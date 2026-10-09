@@ -1,0 +1,43 @@
+{
+  "schema": "clio-x-transaction-source/0.1",
+  "transactionId": "demo-2026-10-09-0001",
+  "provider": "Shirakawa Cloud",
+  "location": {
+    "name": "Tokyo, Japan",
+    "jurisdiction": "Japan"
+  },
+  "startedAtTime": "2026-10-09T09:00:00Z",
+  "endedAtTime": "2026-10-09T10:00:00Z",
+  "input": {
+    "intervals": [
+      {
+        "powerKW": 0.45,
+        "hours": 0.2,
+        "share": 0.25
+      },
+      {
+        "powerKW": 0.25,
+        "hours": 0.8,
+        "share": 0.25
+      }
+    ],
+    "allocation": "reserved-share",
+    "powerQuality": "provider-reported",
+    "powerScope": "it-only",
+    "pue": 1.3,
+    "pueQuality": "provider-reported",
+    "water": {
+      "kind": "flow",
+      "lPerHour": 2.5,
+      "quality": "provider-reported",
+      "definition": "consumption",
+      "scope": "on-site"
+    },
+    "grid": {
+      "gCO2ePerKWh": 429,
+      "label": "Tokyo, Japan",
+      "asOf": "see source",
+      "source": "Japan substitute factor FY2023"
+    }
+  }
+}

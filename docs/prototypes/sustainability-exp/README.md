@@ -9,7 +9,7 @@ Branch `proto/sustainability-exp` (from `deploy/hosting` 80ae898b). For the join
   - treatment: the same, plus electricity, water and carbon per transaction with quality labels.
   - 6 trials, 4 providers each (order shuffled per trial and recorded). At the end the participant downloads results as JSON and CSV. No server, no network calls.
 - `/experiment?view=design`: every trial with computed figures and the lowest flags; "Download design.json" for the MATLAB simulation. Not linked from the participant screens (it would show control participants the treatment figures).
-- `/experiment?view=receipt`: one sample transaction receipt with its SHA-256 and a JSON download. The page says the hash shows the file was not altered, not that the provider's sensors are accurate. Signature: not yet implemented.
+- `/experiment?view=receipt`: one sample transaction receipt (schema `clio-x-transaction-receipt/0.2`) with two hashes, an unsigned JSON download, a source-data download, a "Sign as provider" button and a "Verify a signed receipt" section. The page says the signature shows who issued the receipt and that it was not altered, not that the provider's sensors are accurate. See "Receipt hashes and signature" below.
 
 ## Method (`src/@utils/transactionFootprint.ts`, 19 tests)
 
@@ -36,7 +36,7 @@ All values are illustrative (shown on screen as "Demo data only"). Grid factors 
 
 ## Checked (2026-10-09, dev server, Playwright)
 
-All six trials clicked through in treatment; downloaded JSON and CSV have 6 rows with the fields above. The SHA-256 shown on the receipt page equals `sha256` of the downloaded file (`b072c348…ad13e7`). Trial 4 shows "cannot be established" with the reason for the missing water figure.
+All six trials clicked through in treatment; downloaded JSON and CSV have 6 rows with the fields above. (Superseded by the canonical-JSON hashes below.) Trial 4 shows "cannot be established" with the reason for the missing water figure.
 
 ## Open points
 
@@ -47,4 +47,21 @@ All six trials clicked through in treatment; downloaded JSON and CSV have 6 rows
 - Participant view (`/experiment` without `?view=`) is shown without the portal's header, banners, footer and first-run tour, so participants see only the task. The researcher views (`?view=design`, `?view=receipt`) keep the normal layout. There is no language switch in the participant view; use `/ja/experiment` for Japanese.
 - Condition names appear in the downloaded results (needed for analysis), not on screen.
 - Response time is measured from display to confirm; first-selection time is also recorded.
-- Receipt signing and a real evidence hash are not implemented.
+- Receipt signing and the source-data hash are implemented (below). Still open: schema registration on Sepolia.
+
+## Receipt hashes and signature (2026-10-09)
+
+Code: `src/@utils/canonicalJson.ts`, `src/@utils/receiptAttestation.ts` (+ tests), `src/components/Experiment/Sign.tsx`, `Verify.tsx`. No new dependency.
+
+- Canonicalization: RFC 8785 (JCS). Keys sorted by UTF-16 code unit, no whitespace, numbers as ECMAScript prints them, NaN/Infinity rejected, undefined keys dropped.
+- `source.sha256` = SHA-256 of the canonical JSON of the source data (`sample-source.json`: transaction id, provider, location, times, and the full calculation input: intervals, power, shares, PUE, water flow or WUE, grid factor). Anyone with that file recomputes it. The worked example (Vicki, 90 s, 25%, 4 kW, 12 L/h) is pinned in a test to `4eeceaab...d598b`, and the value was also checked with an independent Python implementation.
+- Receipt hash = SHA-256 of the canonical JSON of the receipt, so re-formatting the file does not change it. The receipt itself no longer has a signature field. The signature is in a separate file, the signed receipt (`clio-x-signed-receipt/0.1` = receipt + EAS off-chain attestation package, the same shape eas-sdk produces).
+- Signature: EAS off-chain attestation (EIP-712, no gas, nothing sent). Sepolia EAS `0xC2679fBD37d54388Ce493F1DB75320D236e1815e`, chainId 11155111, contract `VERSION()` = "0.26" (read from Sepolia on 2026-10-09). Domain name "EAS Attestation", off-chain version 2 (with salt). Implemented with ethers v5 only; verification needs no wallet.
+- Schema: `bytes32 receiptSha256,bytes32 sourceSha256,string method`, revocable, no resolver. UID `0xcc83b871...2e21d` (keccak256 of schema, zero resolver, revocable). Two hashes and a method name, not the receipt body: the numbers stay in the receipt (not published), and the signature still binds the source data and the accounting method version.
+- attester = the provider's connected wallet. recipient = the requester's wallet (typed in, checksum checked).
+- Cross-check: a fixed attestation made with `@ethereum-attestation-service/eas-sdk` 2.10.0 on ethers v6 (public Hardhat test mnemonic, fixed time and salt) is stored in `src/@utils/__fixtures__/`. The ethers-v5 code produces the identical signature, UID, data encoding and easscan compact package (test "cross-check").
+- Verify section: recomputes the receipt hash, compares with the signed value, recovers the signer, shows attester, recipient, time, and checks method, schema, UID, network. An optional source-data file is hashed and compared.
+- easscan: the sdk's link format is `https://sepolia.easscan.org/offchain/url/#attestation=<deflate+base64 of the compact package>`. The page builds it in the browser (CompressionStream). The compact package matches the sdk's. I did not open the link on easscan in a browser.
+- `sample-signed-receipt.json` is signed with the public test key (marked in the file). Not a real provider.
+
+Not done: the schema is not registered on Sepolia (a user step: SchemaRegistry `0x0a7E2Ff54e76B8E6659aedc9103FB21c038050D0`; until then easscan may not show the schema name). Signing from a real wallet in the browser was not tested (no wallet in the test browser); the signing function itself is tested with a wallet object. MetaMask needs to be on Sepolia (the page asks to switch). Whether to use revocable, and whether to also anchor the attestation on-chain, are open.
