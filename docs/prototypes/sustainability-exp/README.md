@@ -44,7 +44,7 @@ All six trials clicked through in treatment; downloaded JSON and CSV have 6 rows
 - The draft's formula uses a flow (L/h), its figure uses an annual-average WUE (0.36 L/kWh). Both are supported; a WUE-based figure is an average, not this job's use.
 - Carbon is not defined in the draft; here: facility energy x location-based grid factor.
 - All provider figures are illustrative. Real values need agreement on sources.
-- The portal's header, search bar and first-run tour surround the page; a participant sees them. A stripped layout may be wanted for the real study.
+- Participant view (`/experiment` without `?view=`) is shown without the portal's header, banners, footer and first-run tour, so participants see only the task. The researcher views (`?view=design`, `?view=receipt`) keep the normal layout. There is no language switch in the participant view; use `/ja/experiment` for Japanese.
 - Condition names appear in the downloaded results (needed for analysis), not on screen.
 - Response time is measured from display to confirm; first-selection time is also recorded.
 - Receipt signing and a real evidence hash are not implemented.
