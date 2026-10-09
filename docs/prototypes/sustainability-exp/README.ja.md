@@ -62,6 +62,7 @@ IT 電力量 E = Σ P·Δt·s。電力が IT のみなら、施設電力量 = E 
 - 突き合わせ: `@ethereum-attestation-service/eas-sdk` 2.10.0（ethers v6）で作った署名を、固定の値として `src/@utils/__fixtures__/` に置きました（公開のテスト用ニーモニック、時刻と salt は固定）。ethers v5 の実装は、署名、UID、データの符号化、easscan 用の圧縮パッケージのすべてで同じ値を出しました（テスト「cross-check」）。
 - 確かめる欄: 受領証のハッシュを計算し直し、署名された値と比べ、署名者を復元し、署名者・受取人・時刻を出します。方法、スキーマ、UID、ネットワークも確認します。元データのファイルを選ぶと、そのハッシュも比べます。
 - easscan: sdk のリンクの形は `https://sepolia.easscan.org/offchain/url/#attestation=<圧縮して base64 にした値>` です。画面でこのリンクを作ります（ブラウザの CompressionStream）。圧縮前のパッケージは sdk と一致しています。リンクを easscan で実際に開く確認は、まだしていません。
+- easscan での確認（2026-10-09、ヘッドレスの Chromium）: `sample-signed-receipt.json` から作ったリンクを sepolia.easscan.org で開きました。easscan は中身を読み取り、「Schema (0xcc83b871…2e21d) not found」で止まりました。スキーマを登録していないので、これは予想どおりです。登録した後にもう一度確かめます。
 - `sample-signed-receipt.json` は公開のテスト用の鍵で署名しています（ファイルにも書いてあります）。実在の事業者ではありません。
 
 未了: スキーマは Sepolia に登録していません（利用者の作業です。SchemaRegistry は `0x0a7E2Ff54e76B8E6659aedc9103FB21c038050D0`。登録するまで easscan にスキーマ名が出ないことがあります）。実際のウォレットでの署名は、ブラウザで試していません（テスト用ブラウザにウォレットがないため）。署名の関数そのものは、ウォレット相当のオブジェクトでテスト済みです。MetaMask は Sepolia にする必要があります（画面が切り替えを頼みます）。revocable にするか、attestation をチェーンにも載せるかは、決まっていません。
