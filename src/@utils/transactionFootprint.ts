@@ -17,6 +17,7 @@
  *   - 水は「割り振りによる推定」であり、実測の消費量ではない。
  */
 import type { DataQuality, GridIntensity } from './computeFootprint'
+import { canonicalSha256, stripHexPrefix } from './canonicalJson'
 
 export const TRANSACTION_METHOD = {
   id: 'clio-x-transaction-allocation',
@@ -351,8 +352,52 @@ export function computeSingleInterval(
 // 受領証 (transaction receipt)
 // ---------------------------------------------------------------------------
 
+/**
+ * 計算に使った入力一式(ハッシュの対象)。
+ * 事業者の識別子、場所、区間・電力・シェア・PUE・水・系統排出係数をすべて含む。
+ * このオブジェクトを正規化した JSON(canonicalJson.ts)にして SHA-256 を取ったものが
+ * 受領証の source.sha256。入力ファイルがあれば、誰でも同じ値を再計算できる。
+ */
+export interface TransactionSourceData {
+  schema: 'clio-x-transaction-source/0.1'
+  transactionId: string
+  provider: string
+  location: { name: string; jurisdiction: string }
+  startedAtTime?: string
+  endedAtTime?: string
+  input: TransactionInput
+}
+
+export const SOURCE_SCHEMA = 'clio-x-transaction-source/0.1'
+export const RECEIPT_SCHEMA = 'clio-x-transaction-receipt/0.2'
+export const CANONICALIZATION = 'RFC 8785 (JCS)'
+
+export function buildSourceData(params: {
+  transactionId: string
+  provider: string
+  location: { name: string; jurisdiction: string }
+  startedAtTime?: string
+  endedAtTime?: string
+  input: TransactionInput
+}): TransactionSourceData {
+  return {
+    schema: SOURCE_SCHEMA,
+    transactionId: params.transactionId,
+    provider: params.provider,
+    location: params.location,
+    startedAtTime: params.startedAtTime,
+    endedAtTime: params.endedAtTime,
+    input: params.input
+  }
+}
+
+/** 入力一式の SHA-256 (0x なしの 16 進 64 桁) */
+export function sourceSha256(source: TransactionSourceData): string {
+  return stripHexPrefix(canonicalSha256(source))
+}
+
 export interface TransactionReceipt {
-  schema: 'clio-x-transaction-receipt/0.1'
+  schema: typeof RECEIPT_SCHEMA
   transactionId: string
   parentTransactionId?: string
   provider: string
@@ -388,10 +433,15 @@ export interface TransactionReceipt {
   notes: string[]
   /** 元になったテレメトリ(事業者の計測系の識別子や URL)。無ければ空 */
   evidence: { ref: string; description: string }[]
-  /** 何を保証し、何を保証しないか */
+  /** 計算に使った入力一式のハッシュ。入力ファイルから再計算できる */
+  source: {
+    schema: typeof SOURCE_SCHEMA
+    sha256: string
+    canonicalization: typeof CANONICALIZATION
+  }
+  /** 何を保証し、何を保証しないか。署名は別ファイル(署名付き受領証)に付く */
   integrity: {
     statement: string
-    signature: 'not yet implemented'
   }
 }
 
@@ -409,7 +459,7 @@ export function buildTransactionReceipt(params: {
   const { input, footprint: f } = params
   const w = input.water
   return {
-    schema: 'clio-x-transaction-receipt/0.1',
+    schema: RECEIPT_SCHEMA,
     transactionId: params.transactionId,
     ...(params.parentTransactionId
       ? { parentTransactionId: params.parentTransactionId }
@@ -446,10 +496,14 @@ export function buildTransactionReceipt(params: {
     },
     notes: f.notes,
     evidence: params.evidence ?? [],
+    source: {
+      schema: SOURCE_SCHEMA,
+      sha256: sourceSha256(buildSourceData(params)),
+      canonicalization: CANONICALIZATION
+    },
     integrity: {
       statement:
-        'A SHA-256 of this file shows that the file was not altered after it was produced. It does not show that the provider sensors or reported figures are accurate.',
-      signature: 'not yet implemented'
+        'A signature over this receipt shows who issued it and that it was not altered afterwards. It does not show that the provider sensors or reported figures are accurate.'
     }
   }
 }

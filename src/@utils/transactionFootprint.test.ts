@@ -204,7 +204,7 @@ describe('carbon, intervals, allocation', () => {
 })
 
 describe('buildTransactionReceipt', () => {
-  it('carries share, intervals, values, allocation, method version, signature status', () => {
+  it('carries share, intervals, values, allocation, method version, source hash', () => {
     const f = computeSingleInterval(worked.intervals[0], worked)
     const r = buildTransactionReceipt({
       transactionId: 'tx-1',
@@ -218,7 +218,7 @@ describe('buildTransactionReceipt', () => {
     expect(r.allocation.intervals[0].share).toBe(0.25)
     expect(r.values.water.value).toBeCloseTo(0.075)
     expect(r.values.water.quality).toBe('portal-estimated')
-    expect(r.integrity.signature).toBe('not yet implemented')
+    expect(r.source.sha256).toMatch(/^[0-9a-f]{64}$/)
     expect(JSON.parse(JSON.stringify(r)).values.itEnergy.unit).toBe('kWh')
   })
 })
