@@ -1,0 +1,948 @@
+{
+  "schema": "clio-x-sustainability-experiment-design/0.1",
+  "trialsVersion": "0.1",
+  "note": "All per-option figures are computed from the trial inputs by transactionFootprint.ts. Demo data only; not provider claims.",
+  "correctOptionRule": "Lowest facility energy per transaction; ties are all correct. Water-lowest and carbon-lowest are listed separately; energyWaterAgree is null when any option has unknown water.",
+  "trials": [
+    {
+      "id": "t1",
+      "job": {
+        "en": "OCR of 2,000 scanned pages (shared GPU)",
+        "ja": "スキャン画像 2,000 ページの文字認識(共有 GPU)"
+      },
+      "flags": {
+        "energyLowestIds": [
+          "d"
+        ],
+        "waterLowestIds": [
+          "a"
+        ],
+        "carbonLowestIds": [
+          "a"
+        ],
+        "costLowestIds": [
+          "b"
+        ],
+        "energyWaterAgree": false,
+        "waterUnknownIds": []
+      },
+      "options": [
+        {
+          "id": "a",
+          "provider": "Nordlys Cloud",
+          "location": {
+            "en": "Stockholm, Sweden",
+            "ja": "スウェーデン・ストックホルム"
+          },
+          "jurisdiction": {
+            "en": "Sweden (EU)",
+            "ja": "スウェーデン(EU)"
+          },
+          "costUSD": 2.1,
+          "governance": {
+            "indigenousData": "conditional"
+          },
+          "certifications": [
+            "ISO/IEC 27001"
+          ],
+          "itEnergyKWh": 0.15,
+          "facilityEnergyKWh": 0.1725,
+          "waterL": 0.03,
+          "waterReason": null,
+          "carbonGCO2e": 3.67425,
+          "quality": {
+            "energy": "portal-estimated",
+            "water": "portal-estimated",
+            "carbon": "portal-estimated"
+          },
+          "isEnergyLowest": false,
+          "isWaterLowest": true,
+          "isCarbonLowest": true,
+          "isCostLowest": false
+        },
+        {
+          "id": "b",
+          "provider": "Prairie Budget Compute",
+          "location": {
+            "en": "Calgary, Canada",
+            "ja": "カナダ・カルガリー"
+          },
+          "jurisdiction": {
+            "en": "Canada (Alberta)",
+            "ja": "カナダ(アルバータ州)"
+          },
+          "costUSD": 0.9,
+          "governance": {
+            "indigenousData": "not-suitable"
+          },
+          "certifications": [],
+          "itEnergyKWh": 0.16,
+          "facilityEnergyKWh": 0.256,
+          "waterL": 0.14400000000000002,
+          "waterReason": null,
+          "carbonGCO2e": 85.76,
+          "quality": {
+            "energy": "portal-estimated",
+            "water": "portal-estimated",
+            "carbon": "portal-estimated"
+          },
+          "isEnergyLowest": false,
+          "isWaterLowest": false,
+          "isCarbonLowest": false,
+          "isCostLowest": true
+        },
+        {
+          "id": "c",
+          "provider": "Pacific Grid Services",
+          "location": {
+            "en": "Oregon, USA",
+            "ja": "米国・オレゴン"
+          },
+          "jurisdiction": {
+            "en": "United States",
+            "ja": "米国"
+          },
+          "costUSD": 1.6,
+          "governance": {
+            "indigenousData": "suitable"
+          },
+          "certifications": [
+            "ISO/IEC 27001",
+            "ISO/IEC 42001"
+          ],
+          "itEnergyKWh": 0.12,
+          "facilityEnergyKWh": 0.162,
+          "waterL": 0.16799999999999998,
+          "waterReason": null,
+          "carbonGCO2e": 26.892,
+          "quality": {
+            "energy": "portal-estimated",
+            "water": "portal-estimated",
+            "carbon": "portal-estimated"
+          },
+          "isEnergyLowest": false,
+          "isWaterLowest": false,
+          "isCarbonLowest": false,
+          "isCostLowest": false
+        },
+        {
+          "id": "d",
+          "provider": "Sakura Compute",
+          "location": {
+            "en": "Tokyo, Japan",
+            "ja": "日本・東京"
+          },
+          "jurisdiction": {
+            "en": "Japan",
+            "ja": "日本"
+          },
+          "costUSD": 1.85,
+          "governance": {
+            "indigenousData": "conditional"
+          },
+          "certifications": [
+            "ISO/IEC 27001"
+          ],
+          "itEnergyKWh": 0.12,
+          "facilityEnergyKWh": 0.15,
+          "waterL": 0.072,
+          "waterReason": null,
+          "carbonGCO2e": 64.35,
+          "quality": {
+            "energy": "portal-estimated",
+            "water": "portal-estimated",
+            "carbon": "portal-estimated"
+          },
+          "isEnergyLowest": true,
+          "isWaterLowest": false,
+          "isCarbonLowest": false,
+          "isCostLowest": false
+        }
+      ]
+    },
+    {
+      "id": "t2",
+      "job": {
+        "en": "Train a small classifier on 10,000 catalogue records (dedicated GPU node)",
+        "ja": "目録 1 万件で小さな分類モデルを学習(専有 GPU ノード)"
+      },
+      "flags": {
+        "energyLowestIds": [
+          "c"
+        ],
+        "waterLowestIds": [
+          "c"
+        ],
+        "carbonLowestIds": [
+          "b"
+        ],
+        "costLowestIds": [
+          "d"
+        ],
+        "energyWaterAgree": true,
+        "waterUnknownIds": []
+      },
+      "options": [
+        {
+          "id": "a",
+          "provider": "Glacier Hydro Cloud",
+          "location": {
+            "en": "Montreal, Canada",
+            "ja": "カナダ・モントリオール"
+          },
+          "jurisdiction": {
+            "en": "Canada (Quebec)",
+            "ja": "カナダ(ケベック州)"
+          },
+          "costUSD": 3.4,
+          "governance": {
+            "indigenousData": "suitable"
+          },
+          "certifications": [
+            "ISO/IEC 27001",
+            "ISO/IEC 42001"
+          ],
+          "itEnergyKWh": 0.9,
+          "facilityEnergyKWh": 1.395,
+          "waterL": 0.7200000000000001,
+          "waterReason": null,
+          "carbonGCO2e": 48.1275,
+          "quality": {
+            "energy": "provider-reported",
+            "water": "provider-reported",
+            "carbon": "portal-estimated"
+          },
+          "isEnergyLowest": false,
+          "isWaterLowest": false,
+          "isCarbonLowest": false,
+          "isCostLowest": false
+        },
+        {
+          "id": "b",
+          "provider": "Fjord Compute",
+          "location": {
+            "en": "Stockholm, Sweden",
+            "ja": "スウェーデン・ストックホルム"
+          },
+          "jurisdiction": {
+            "en": "Sweden (EU)",
+            "ja": "スウェーデン(EU)"
+          },
+          "costUSD": 3.1,
+          "governance": {
+            "indigenousData": "conditional"
+          },
+          "certifications": [
+            "ISO/IEC 27001"
+          ],
+          "itEnergyKWh": 1.1,
+          "facilityEnergyKWh": 1.595,
+          "waterL": 0.33,
+          "waterReason": null,
+          "carbonGCO2e": 33.9735,
+          "quality": {
+            "energy": "provider-reported",
+            "water": "provider-reported",
+            "carbon": "portal-estimated"
+          },
+          "isEnergyLowest": false,
+          "isWaterLowest": false,
+          "isCarbonLowest": true,
+          "isCostLowest": false
+        },
+        {
+          "id": "c",
+          "provider": "Cascade Efficient GPU",
+          "location": {
+            "en": "Oregon, USA",
+            "ja": "米国・オレゴン"
+          },
+          "jurisdiction": {
+            "en": "United States",
+            "ja": "米国"
+          },
+          "costUSD": 4.2,
+          "governance": {
+            "indigenousData": "suitable"
+          },
+          "certifications": [
+            "ISO/IEC 27001",
+            "ISO/IEC 42001"
+          ],
+          "itEnergyKWh": 0.5319999999999999,
+          "facilityEnergyKWh": 0.5851999999999999,
+          "waterL": 0.13299999999999998,
+          "waterReason": null,
+          "carbonGCO2e": 97.1432,
+          "quality": {
+            "energy": "provider-reported",
+            "water": "provider-reported",
+            "carbon": "portal-estimated"
+          },
+          "isEnergyLowest": true,
+          "isWaterLowest": true,
+          "isCarbonLowest": false,
+          "isCostLowest": false
+        },
+        {
+          "id": "d",
+          "provider": "MetroNode",
+          "location": {
+            "en": "Tokyo, Japan",
+            "ja": "日本・東京"
+          },
+          "jurisdiction": {
+            "en": "Japan",
+            "ja": "日本"
+          },
+          "costUSD": 2.6,
+          "governance": {
+            "indigenousData": "not-suitable"
+          },
+          "certifications": [],
+          "itEnergyKWh": 1.1,
+          "facilityEnergyKWh": 1.6500000000000001,
+          "waterL": 0.6050000000000001,
+          "waterReason": null,
+          "carbonGCO2e": 707.85,
+          "quality": {
+            "energy": "provider-reported",
+            "water": "provider-reported",
+            "carbon": "portal-estimated"
+          },
+          "isEnergyLowest": false,
+          "isWaterLowest": false,
+          "isCarbonLowest": false,
+          "isCostLowest": true
+        }
+      ]
+    },
+    {
+      "id": "t3",
+      "job": {
+        "en": "Transcribe 50 hours of interview audio (shared GPU)",
+        "ja": "聞き取り音声 50 時間の文字起こし(共有 GPU)"
+      },
+      "flags": {
+        "energyLowestIds": [
+          "c"
+        ],
+        "waterLowestIds": [
+          "c"
+        ],
+        "carbonLowestIds": [
+          "b"
+        ],
+        "costLowestIds": [
+          "c"
+        ],
+        "energyWaterAgree": true,
+        "waterUnknownIds": []
+      },
+      "options": [
+        {
+          "id": "a",
+          "provider": "Boreal Cloud",
+          "location": {
+            "en": "Montreal, Canada",
+            "ja": "カナダ・モントリオール"
+          },
+          "jurisdiction": {
+            "en": "Canada (Quebec)",
+            "ja": "カナダ(ケベック州)"
+          },
+          "costUSD": 1.7,
+          "governance": {
+            "indigenousData": "suitable"
+          },
+          "certifications": [
+            "ISO/IEC 27001"
+          ],
+          "itEnergyKWh": 0.22499999999999998,
+          "facilityEnergyKWh": 0.26999999999999996,
+          "waterL": 0.36,
+          "waterReason": null,
+          "carbonGCO2e": 9.315,
+          "quality": {
+            "energy": "portal-estimated",
+            "water": "portal-estimated",
+            "carbon": "portal-estimated"
+          },
+          "isEnergyLowest": false,
+          "isWaterLowest": false,
+          "isCarbonLowest": false,
+          "isCostLowest": false
+        },
+        {
+          "id": "b",
+          "provider": "Aurora Compute",
+          "location": {
+            "en": "Stockholm, Sweden",
+            "ja": "スウェーデン・ストックホルム"
+          },
+          "jurisdiction": {
+            "en": "Sweden (EU)",
+            "ja": "スウェーデン(EU)"
+          },
+          "costUSD": 1.95,
+          "governance": {
+            "indigenousData": "conditional"
+          },
+          "certifications": [
+            "ISO/IEC 27001",
+            "ISO/IEC 42001"
+          ],
+          "itEnergyKWh": 0.272,
+          "facilityEnergyKWh": 0.32096,
+          "waterL": 0.054400000000000004,
+          "waterReason": null,
+          "carbonGCO2e": 6.836448000000001,
+          "quality": {
+            "energy": "portal-estimated",
+            "water": "portal-estimated",
+            "carbon": "portal-estimated"
+          },
+          "isEnergyLowest": false,
+          "isWaterLowest": false,
+          "isCarbonLowest": true,
+          "isCostLowest": false
+        },
+        {
+          "id": "c",
+          "provider": "Dry Plains Compute",
+          "location": {
+            "en": "Calgary, Canada",
+            "ja": "カナダ・カルガリー"
+          },
+          "jurisdiction": {
+            "en": "Canada (Alberta)",
+            "ja": "カナダ(アルバータ州)"
+          },
+          "costUSD": 1.1,
+          "governance": {
+            "indigenousData": "not-suitable"
+          },
+          "certifications": [],
+          "itEnergyKWh": 0.21000000000000002,
+          "facilityEnergyKWh": 0.23520000000000005,
+          "waterL": 0.010500000000000002,
+          "waterReason": null,
+          "carbonGCO2e": 78.79200000000002,
+          "quality": {
+            "energy": "portal-estimated",
+            "water": "portal-estimated",
+            "carbon": "portal-estimated"
+          },
+          "isEnergyLowest": true,
+          "isWaterLowest": true,
+          "isCarbonLowest": false,
+          "isCostLowest": true
+        },
+        {
+          "id": "d",
+          "provider": "Harbour Digital",
+          "location": {
+            "en": "Tokyo, Japan",
+            "ja": "日本・東京"
+          },
+          "jurisdiction": {
+            "en": "Japan",
+            "ja": "日本"
+          },
+          "costUSD": 1.5,
+          "governance": {
+            "indigenousData": "conditional"
+          },
+          "certifications": [
+            "ISO/IEC 27001"
+          ],
+          "itEnergyKWh": 0.27,
+          "facilityEnergyKWh": 0.35100000000000003,
+          "waterL": 0.2565,
+          "waterReason": null,
+          "carbonGCO2e": 150.579,
+          "quality": {
+            "energy": "portal-estimated",
+            "water": "portal-estimated",
+            "carbon": "portal-estimated"
+          },
+          "isEnergyLowest": false,
+          "isWaterLowest": false,
+          "isCarbonLowest": false,
+          "isCostLowest": false
+        }
+      ]
+    },
+    {
+      "id": "t4",
+      "job": {
+        "en": "Generate embeddings for 500 PDF reports (shared GPU)",
+        "ja": "PDF 報告書 500 件の埋め込みベクトル生成(共有 GPU)"
+      },
+      "flags": {
+        "energyLowestIds": [
+          "b"
+        ],
+        "waterLowestIds": [
+          "c"
+        ],
+        "carbonLowestIds": [
+          "c"
+        ],
+        "costLowestIds": [
+          "a"
+        ],
+        "energyWaterAgree": null,
+        "waterUnknownIds": [
+          "b"
+        ]
+      },
+      "options": [
+        {
+          "id": "a",
+          "provider": "Granite Cloud",
+          "location": {
+            "en": "Oregon, USA",
+            "ja": "米国・オレゴン"
+          },
+          "jurisdiction": {
+            "en": "United States",
+            "ja": "米国"
+          },
+          "costUSD": 0.8,
+          "governance": {
+            "indigenousData": "suitable"
+          },
+          "certifications": [
+            "ISO/IEC 27001"
+          ],
+          "itEnergyKWh": 0.08800000000000001,
+          "facilityEnergyKWh": 0.11880000000000002,
+          "waterL": 0.10560000000000001,
+          "waterReason": null,
+          "carbonGCO2e": 19.720800000000004,
+          "quality": {
+            "energy": "portal-estimated",
+            "water": "portal-estimated",
+            "carbon": "portal-estimated"
+          },
+          "isEnergyLowest": false,
+          "isWaterLowest": false,
+          "isCarbonLowest": false,
+          "isCostLowest": true
+        },
+        {
+          "id": "b",
+          "provider": "Lakeshore Compute",
+          "location": {
+            "en": "Montreal, Canada",
+            "ja": "カナダ・モントリオール"
+          },
+          "jurisdiction": {
+            "en": "Canada (Quebec)",
+            "ja": "カナダ(ケベック州)"
+          },
+          "costUSD": 1.1,
+          "governance": {
+            "indigenousData": "conditional"
+          },
+          "certifications": [
+            "ISO/IEC 27001",
+            "ISO/IEC 42001"
+          ],
+          "itEnergyKWh": 0.07600000000000001,
+          "facilityEnergyKWh": 0.09120000000000002,
+          "waterL": null,
+          "waterReason": "no water figure (flow or WUE) was supplied",
+          "carbonGCO2e": 3.1464000000000008,
+          "quality": {
+            "energy": "portal-estimated",
+            "water": "unknown",
+            "carbon": "portal-estimated"
+          },
+          "isEnergyLowest": true,
+          "isWaterLowest": false,
+          "isCarbonLowest": false,
+          "isCostLowest": false
+        },
+        {
+          "id": "c",
+          "provider": "Nordic Open Cloud",
+          "location": {
+            "en": "Stockholm, Sweden",
+            "ja": "スウェーデン・ストックホルム"
+          },
+          "jurisdiction": {
+            "en": "Sweden (EU)",
+            "ja": "スウェーデン(EU)"
+          },
+          "costUSD": 1.3,
+          "governance": {
+            "indigenousData": "suitable"
+          },
+          "certifications": [
+            "ISO/IEC 27001"
+          ],
+          "itEnergyKWh": 0.08000000000000002,
+          "facilityEnergyKWh": 0.09760000000000002,
+          "waterL": 0.020000000000000004,
+          "waterReason": null,
+          "carbonGCO2e": 2.0788800000000003,
+          "quality": {
+            "energy": "portal-estimated",
+            "water": "portal-estimated",
+            "carbon": "portal-estimated"
+          },
+          "isEnergyLowest": false,
+          "isWaterLowest": true,
+          "isCarbonLowest": true,
+          "isCostLowest": false
+        },
+        {
+          "id": "d",
+          "provider": "Kanto Data Centre",
+          "location": {
+            "en": "Tokyo, Japan",
+            "ja": "日本・東京"
+          },
+          "jurisdiction": {
+            "en": "Japan",
+            "ja": "日本"
+          },
+          "costUSD": 0.95,
+          "governance": {
+            "indigenousData": "not-suitable"
+          },
+          "certifications": [],
+          "itEnergyKWh": 0.10400000000000001,
+          "facilityEnergyKWh": 0.16640000000000002,
+          "waterL": 0.0728,
+          "waterReason": null,
+          "carbonGCO2e": 71.38560000000001,
+          "quality": {
+            "energy": "portal-estimated",
+            "water": "portal-estimated",
+            "carbon": "portal-estimated"
+          },
+          "isEnergyLowest": false,
+          "isWaterLowest": false,
+          "isCarbonLowest": false,
+          "isCostLowest": false
+        }
+      ]
+    },
+    {
+      "id": "t5",
+      "job": {
+        "en": "Run a layout-analysis workflow on 800 images (burst then steady load)",
+        "ja": "画像 800 枚のレイアウト解析ワークフロー(立ち上がりの高負荷のあと定常)"
+      },
+      "flags": {
+        "energyLowestIds": [
+          "d"
+        ],
+        "waterLowestIds": [
+          "d"
+        ],
+        "carbonLowestIds": [
+          "c"
+        ],
+        "costLowestIds": [
+          "b"
+        ],
+        "energyWaterAgree": true,
+        "waterUnknownIds": []
+      },
+      "options": [
+        {
+          "id": "a",
+          "provider": "Tidewater Compute",
+          "location": {
+            "en": "Oregon, USA",
+            "ja": "米国・オレゴン"
+          },
+          "jurisdiction": {
+            "en": "United States",
+            "ja": "米国"
+          },
+          "costUSD": 1.45,
+          "governance": {
+            "indigenousData": "suitable"
+          },
+          "certifications": [
+            "ISO/IEC 27001"
+          ],
+          "itEnergyKWh": 0.09999999999999999,
+          "facilityEnergyKWh": 0.11999999999999998,
+          "waterL": 2.25,
+          "waterReason": null,
+          "carbonGCO2e": 19.919999999999998,
+          "quality": {
+            "energy": "portal-estimated",
+            "water": "portal-estimated",
+            "carbon": "portal-estimated"
+          },
+          "isEnergyLowest": false,
+          "isWaterLowest": false,
+          "isCarbonLowest": false,
+          "isCostLowest": false
+        },
+        {
+          "id": "b",
+          "provider": "Summit Cloud",
+          "location": {
+            "en": "Calgary, Canada",
+            "ja": "カナダ・カルガリー"
+          },
+          "jurisdiction": {
+            "en": "Canada (Alberta)",
+            "ja": "カナダ(アルバータ州)"
+          },
+          "costUSD": 1,
+          "governance": {
+            "indigenousData": "conditional"
+          },
+          "certifications": [
+            "ISO/IEC 27001"
+          ],
+          "itEnergyKWh": 0.0925,
+          "facilityEnergyKWh": 0.115625,
+          "waterL": 1.1,
+          "waterReason": null,
+          "carbonGCO2e": 38.734375,
+          "quality": {
+            "energy": "portal-estimated",
+            "water": "portal-estimated",
+            "carbon": "portal-estimated"
+          },
+          "isEnergyLowest": false,
+          "isWaterLowest": false,
+          "isCarbonLowest": false,
+          "isCostLowest": true
+        },
+        {
+          "id": "c",
+          "provider": "Cedar Hydro",
+          "location": {
+            "en": "Montreal, Canada",
+            "ja": "カナダ・モントリオール"
+          },
+          "jurisdiction": {
+            "en": "Canada (Quebec)",
+            "ja": "カナダ(ケベック州)"
+          },
+          "costUSD": 1.65,
+          "governance": {
+            "indigenousData": "suitable"
+          },
+          "certifications": [
+            "ISO/IEC 27001",
+            "ISO/IEC 42001"
+          ],
+          "itEnergyKWh": 0.12250000000000001,
+          "facilityEnergyKWh": 0.14700000000000002,
+          "waterL": 3.85,
+          "waterReason": null,
+          "carbonGCO2e": 5.0715,
+          "quality": {
+            "energy": "portal-estimated",
+            "water": "portal-estimated",
+            "carbon": "portal-estimated"
+          },
+          "isEnergyLowest": false,
+          "isWaterLowest": false,
+          "isCarbonLowest": true,
+          "isCostLowest": false
+        },
+        {
+          "id": "d",
+          "provider": "Shirakawa Cloud",
+          "location": {
+            "en": "Tokyo, Japan",
+            "ja": "日本・東京"
+          },
+          "jurisdiction": {
+            "en": "Japan",
+            "ja": "日本"
+          },
+          "costUSD": 1.35,
+          "governance": {
+            "indigenousData": "not-suitable"
+          },
+          "certifications": [],
+          "itEnergyKWh": 0.07250000000000001,
+          "facilityEnergyKWh": 0.09425000000000001,
+          "waterL": 0.625,
+          "waterReason": null,
+          "carbonGCO2e": 40.43325000000001,
+          "quality": {
+            "energy": "portal-estimated",
+            "water": "portal-estimated",
+            "carbon": "portal-estimated"
+          },
+          "isEnergyLowest": true,
+          "isWaterLowest": true,
+          "isCarbonLowest": false,
+          "isCostLowest": false
+        }
+      ]
+    },
+    {
+      "id": "t6",
+      "job": {
+        "en": "Fine-tune a language model on 3,000 transcribed pages (dedicated GPU node)",
+        "ja": "文字起こし 3,000 ページで言語モデルを微調整(専有 GPU ノード)"
+      },
+      "flags": {
+        "energyLowestIds": [
+          "d"
+        ],
+        "waterLowestIds": [
+          "d"
+        ],
+        "carbonLowestIds": [
+          "b"
+        ],
+        "costLowestIds": [
+          "a"
+        ],
+        "energyWaterAgree": true,
+        "waterUnknownIds": []
+      },
+      "options": [
+        {
+          "id": "a",
+          "provider": "Value GPU",
+          "location": {
+            "en": "Calgary, Canada",
+            "ja": "カナダ・カルガリー"
+          },
+          "jurisdiction": {
+            "en": "Canada (Alberta)",
+            "ja": "カナダ(アルバータ州)"
+          },
+          "costUSD": 2.4,
+          "governance": {
+            "indigenousData": "not-suitable"
+          },
+          "certifications": [],
+          "itEnergyKWh": 2.4,
+          "facilityEnergyKWh": 3.5999999999999996,
+          "waterL": 1.68,
+          "waterReason": null,
+          "carbonGCO2e": 1205.9999999999998,
+          "quality": {
+            "energy": "provider-reported",
+            "water": "provider-reported",
+            "carbon": "portal-estimated"
+          },
+          "isEnergyLowest": false,
+          "isWaterLowest": false,
+          "isCarbonLowest": false,
+          "isCostLowest": true
+        },
+        {
+          "id": "b",
+          "provider": "Evergreen AI Cloud",
+          "location": {
+            "en": "Stockholm, Sweden",
+            "ja": "スウェーデン・ストックホルム"
+          },
+          "jurisdiction": {
+            "en": "Sweden (EU)",
+            "ja": "スウェーデン(EU)"
+          },
+          "costUSD": 3.9,
+          "governance": {
+            "indigenousData": "suitable"
+          },
+          "certifications": [
+            "ISO/IEC 27001",
+            "ISO/IEC 42001"
+          ],
+          "itEnergyKWh": 1.632,
+          "facilityEnergyKWh": 2.04,
+          "waterL": 0.4895999999999999,
+          "waterReason": null,
+          "carbonGCO2e": 43.452000000000005,
+          "quality": {
+            "energy": "provider-reported",
+            "water": "provider-reported",
+            "carbon": "portal-estimated"
+          },
+          "isEnergyLowest": false,
+          "isWaterLowest": false,
+          "isCarbonLowest": true,
+          "isCostLowest": false
+        },
+        {
+          "id": "c",
+          "provider": "Maple Compute",
+          "location": {
+            "en": "Montreal, Canada",
+            "ja": "カナダ・モントリオール"
+          },
+          "jurisdiction": {
+            "en": "Canada (Quebec)",
+            "ja": "カナダ(ケベック州)"
+          },
+          "costUSD": 4.9,
+          "governance": {
+            "indigenousData": "conditional"
+          },
+          "certifications": [
+            "ISO/IEC 27001"
+          ],
+          "itEnergyKWh": 2.09,
+          "facilityEnergyKWh": 2.8215,
+          "waterL": 2.299,
+          "waterReason": null,
+          "carbonGCO2e": 97.34174999999999,
+          "quality": {
+            "energy": "provider-reported",
+            "water": "provider-reported",
+            "carbon": "portal-estimated"
+          },
+          "isEnergyLowest": false,
+          "isWaterLowest": false,
+          "isCarbonLowest": false,
+          "isCostLowest": false
+        },
+        {
+          "id": "d",
+          "provider": "Pacific Standard",
+          "location": {
+            "en": "Oregon, USA",
+            "ja": "米国・オレゴン"
+          },
+          "jurisdiction": {
+            "en": "United States",
+            "ja": "米国"
+          },
+          "costUSD": 6.2,
+          "governance": {
+            "indigenousData": "suitable"
+          },
+          "certifications": [
+            "ISO/IEC 27001",
+            "ISO/IEC 42001"
+          ],
+          "itEnergyKWh": 1.36,
+          "facilityEnergyKWh": 1.5232000000000003,
+          "waterL": 0.272,
+          "waterReason": null,
+          "carbonGCO2e": 252.85120000000006,
+          "quality": {
+            "energy": "provider-reported",
+            "water": "provider-reported",
+            "carbon": "portal-estimated"
+          },
+          "isEnergyLowest": true,
+          "isWaterLowest": true,
+          "isCarbonLowest": false,
+          "isCostLowest": false
+        }
+      ]
+    }
+  ]
+}
