@@ -19,11 +19,18 @@ import {
   GREEN_FEE_ADDRESS,
   GREEN_FEE_DEPLOY_BLOCK,
   MICRO,
+  MemberReason,
+  BASIS_EAS,
+  EASSCAN,
+  attestationQuery,
   bandFromCode,
+  candidateUids,
+  easscanUrl,
   formatPlay,
   gToMg,
   mgToG,
   quoteFee,
+  reasonFromCode,
   sameRules
 } from '@utils/greenFee'
 import Help from './Help'
@@ -64,9 +71,21 @@ interface SchemeView {
   discountsOut: number
   subsidiesOut: number
   payments: number
-  /** 補助の資格の確かめ方。古い契約には無いので 0（誰でも） */
-  gate: Gate
+  /** 補助を受けられる人の決め方。読めないときは undefined（払えなくする） */
+  gate?: Gate
 }
+
+/** 契約が答えた、払う人の会員証明の判定 */
+interface Membership {
+  state: 'idle' | 'loading' | 'done'
+  ok: boolean
+  reason: MemberReason
+  uid?: string
+  expiresAt?: number
+  /** easscan の検索窓口に問い合わせられなかった */
+  lookupFailed?: boolean
+}
+const NO_MEMBERSHIP: Membership = { state: 'idle', ok: false, reason: 'noUid' }
 
 interface PaymentView {
   id: number
@@ -81,8 +100,8 @@ interface PaymentView {
   band: Band
   ref?: string
   tx?: string
-  /** 補助の資格の確認を通った支払いか */
-  member: boolean
+  /** 補助の根拠。EAS の証明を使ったときだけ attestation が入る */
+  attestation?: string
 }
 
 interface DepositView {
@@ -90,27 +109,6 @@ interface DepositView {
   amount: number
   block: number
   tx: string
-}
-
-/** 引換券の貼り付け: {"expiry": 1790000000, "signature": "0x…"} */
-export interface Voucher {
-  expiry: number
-  signature: string
-}
-function parseVoucher(text: string): Voucher | undefined {
-  try {
-    const v = JSON.parse(text)
-    const expiry = Number(v.expiry)
-    if (
-      Number.isInteger(expiry) &&
-      expiry > Date.now() / 1000 &&
-      /^0x[0-9a-fA-F]{130}$/.test(v.signature)
-    )
-      return { expiry, signature: v.signature }
-  } catch {
-    // 空欄や書きかけ
-  }
-  return undefined
 }
 
 function toRules(r: ethers.utils.Result): FeeRules {
@@ -128,8 +126,8 @@ async function loadScheme(c: ethers.Contract, id: number): Promise<SchemeView> {
   const s = await c.getScheme(id)
   const gate = await c
     .gate(id)
-    .then((g: number) => (g === 1 || g === 2 ? g : 0) as Gate)
-    .catch((): Gate => 0)
+    .then((g: number) => (g === 0 || g === 1 ? (g as Gate) : undefined))
+    .catch((): undefined => undefined)
   return {
     gate,
     id,
@@ -156,7 +154,6 @@ async function loadLedger(
     recent.map(async (bid) => {
       const p = await c.getPayment(bid)
       const block = num(p.blockNumber)
-      const member = await c.memberPayment(bid).catch(() => false)
       const logs = await c.provider
         .getLogs({
           address: GREEN_FEE_ADDRESS,
@@ -178,7 +175,10 @@ async function loadLedger(
         band: bandFromCode(p.band),
         ref: /^0x0+$/.test(p.ref) ? undefined : String(p.ref).slice(2),
         tx: logs[0]?.transactionHash,
-        member: !!member
+        attestation:
+          num(p.basis) === BASIS_EAS && !/^0x0+$/.test(p.attestation)
+            ? String(p.attestation)
+            : undefined
       }
     })
   )
@@ -223,9 +223,12 @@ export function useGreenFee(durationSeconds: number) {
   const [ledger, setLedger] = useState<PaymentView[]>()
   const [deposits, setDeposits] = useState<DepositView[]>()
   const { address } = useAccount()
-  const [operator, setOperator] = useState<string>()
-  const [members, setMembers] = useState<string[]>([])
-  const [voucherText, setVoucherText] = useState('')
+  const [memberCfg, setMemberCfg] = useState<{
+    schema: string
+    attester: string
+  }>()
+  const [uidText, setUidText] = useState('')
+  const [membership, setMembership] = useState<Membership>(NO_MEMBERSHIP)
 
   useEffect(() => {
     const q = Number(router.query.scheme)
@@ -250,8 +253,11 @@ export function useGreenFee(durationSeconds: number) {
       const count = num(await c.schemeCount())
       const ids = Array.from({ length: count }, (_, i) => i + 1)
       setSchemes(await Promise.all(ids.map((id) => loadScheme(c, id))))
-      setOperator(await c.operator().catch(() => undefined))
-      setMembers(await c.members().catch(() => []))
+      const [schema, attester] = await Promise.all([
+        c.memberSchema(),
+        c.memberAttester()
+      ]).catch(() => [])
+      setMemberCfg(schema && attester ? { schema, attester } : undefined)
       setLoadError(false)
     } catch {
       setLoadError(true)
@@ -262,6 +268,81 @@ export function useGreenFee(durationSeconds: number) {
   }, [refresh])
 
   const scheme = schemes?.find((s) => s.id === schemeId)
+  const gate = scheme?.gate
+
+  // 払う人あての会員証明を探し、契約の isMember に判定してもらう。
+  // easscan の検索窓口は番号を探すための便利でしかなく、判定は契約が行う。
+  useEffect(() => {
+    if (gate !== 1 || !address) {
+      setMembership(NO_MEMBERSHIP)
+      return
+    }
+    let stale = false
+    setMembership({ state: 'loading', ok: false, reason: 'noUid' })
+    ;(async () => {
+      const c = readContract()
+      let lookupFailed = false
+      let found: { uid: string; expiresAt: number }[] = []
+      if (/^0x[0-9a-fA-F]{64}$/.test(uidText)) {
+        found = [{ uid: uidText, expiresAt: 0 }]
+      } else if (memberCfg) {
+        try {
+          const res = await fetch(`${EASSCAN}/graphql`, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify(
+              attestationQuery(
+                memberCfg.schema,
+                ethers.utils.getAddress(memberCfg.attester),
+                ethers.utils.getAddress(address)
+              )
+            )
+          })
+          if (!res.ok) throw new Error(String(res.status))
+          found = candidateUids(await res.json())
+        } catch {
+          lookupFailed = true
+        }
+      }
+      let last: MemberReason = 'noUid'
+      for (const cand of found) {
+        const r = await c.isMember(address, cand.uid)
+        const reason = reasonFromCode(r.reason)
+        if (r.ok)
+          return {
+            state: 'done' as const,
+            ok: true,
+            reason,
+            uid: cand.uid,
+            expiresAt: cand.expiresAt
+          }
+        last = reason
+      }
+      return {
+        state: 'done' as const,
+        ok: false,
+        reason: last,
+        lookupFailed
+      }
+    })()
+      .then((m) => !stale && setMembership(m))
+      .catch(
+        () =>
+          !stale &&
+          setMembership({
+            state: 'done',
+            ok: false,
+            reason: 'notFound',
+            lookupFailed: true
+          })
+      )
+    return () => {
+      stale = true
+    }
+  }, [gate, address, memberCfg, uidText, schemeId])
+
+  // 補助を受ける資格。読めない仕組みは「なし」にして、払えなくする
+  const eligible = gate === 0 || (gate === 1 && membership.ok)
 
   // 仕組みを選び直したら、画面の設定をその仕組みの設定に戻す
   const resetDraft = useCallback(() => {
@@ -301,18 +382,6 @@ export function useGreenFee(durationSeconds: number) {
     2 ** 32 - 1
   )
 
-  const voucher = parseVoucher(voucherText)
-  const isMember =
-    !!address && members.some((m) => m.toLowerCase() === address.toLowerCase())
-  // 引換券は画面からは中身を確かめられない（署名の確認は契約が行う）。
-  // 形が正しければ、資格ありとして試算する。
-  const eligible =
-    !scheme || scheme.gate === 0
-      ? true
-      : scheme.gate === 1
-      ? isMember
-      : !!voucher
-
   const quoteFor = (key: string): FeeQuote | undefined =>
     locations?.[key] && scheme
       ? quoteFee(locations[key], rules, funds, seconds, eligible)
@@ -336,13 +405,10 @@ export function useGreenFee(durationSeconds: number) {
     resetDraft,
     seconds,
     quoteFor,
-    operator,
-    members,
-    isMember,
     eligible,
-    voucherText,
-    setVoucherText,
-    voucher,
+    membership,
+    uidText,
+    setUidText,
     ledger,
     deposits,
     refresh: async () => {
@@ -457,8 +523,7 @@ export default function GreenFeePanel({
   const [balance, setBalance] = useState<number>()
   const [depositPlay, setDepositPlay] = useState(100)
   const [label, setLabel] = useState<string>()
-  const [gateChoice, setGateChoice] = useState<Gate>()
-  const [memberInput, setMemberInput] = useState('')
+  const [newGate, setNewGate] = useState<Gate>(0)
 
   const { scheme, schemes, draft, setDraft, rules } = fee
 
@@ -527,13 +592,42 @@ export default function GreenFeePanel({
     !!address &&
     !!scheme &&
     scheme.owner.toLowerCase() === address.toLowerCase()
-  const isOperator =
-    !!address &&
-    !!fee.operator &&
-    fee.operator.toLowerCase() === address.toLowerCase()
-  const gate = scheme?.gate ?? 0
-  const chosenQuote = chosenKey ? fee.quoteFor(chosenKey) : undefined
+  const gate = scheme?.gate
   const chosenPriced = !!chosenKey && !!fee.locations?.[chosenKey]
+  // 実際に払うのは Sepolia 上の設定。この額を上限として契約に渡す
+  const chosenOnChain =
+    scheme && chosenKey && fee.locations?.[chosenKey]
+      ? quoteFee(
+          fee.locations[chosenKey],
+          scheme.rules,
+          scheme,
+          fee.seconds,
+          fee.eligible
+        )
+      : undefined
+  const chosenFull =
+    scheme && chosenKey && fee.locations?.[chosenKey]
+      ? quoteFee(
+          fee.locations[chosenKey],
+          scheme.rules,
+          scheme,
+          fee.seconds,
+          false
+        )
+      : undefined
+  const m = fee.membership
+  const okParts = fill(f.gate.ok, {
+    link: '\u0001',
+    until: m.expiresAt
+      ? fill(f.gate.untilDate, {
+          date: new Date(m.expiresAt * 1000).toLocaleDateString(
+            ja ? 'ja-JP' : 'en-CA'
+          )
+        })
+      : f.gate.noExpiry
+  }).split('\u0001')
+  const canPay =
+    gate !== undefined && !(gate === 1 && m.state !== 'done') && !!chosenOnChain
 
   const pct = (bps: number) => bps / 100
   const setBps = (k: keyof FeeRules) => (v: number) =>
@@ -594,139 +688,11 @@ export default function GreenFeePanel({
             </select>
           </label>
 
-          <fieldset className={styles.feeType}>
-            <legend>
-              {f.gate.title}
-              <Help label={f.helpLabel} text={f.gate.help} />
-            </legend>
-            <p className={styles.hint}>{f.gate.hint}</p>
-            {isOwner ? (
-              <div className={styles.actions}>
-                <select
-                  className={styles.select}
-                  value={gateChoice ?? gate}
-                  onChange={(e) =>
-                    setGateChoice(Number(e.target.value) as Gate)
-                  }
-                >
-                  {GATES.map((g) => (
-                    <option key={g} value={g}>
-                      {f.gate.name[g]}
-                    </option>
-                  ))}
-                </select>
-                {gateChoice !== undefined && gateChoice !== gate && (
-                  <button
-                    type="button"
-                    disabled={
-                      status?.kind === 'busy' ||
-                      !address ||
-                      chain?.id !== CARBON_CHOICE_CHAIN_ID
-                    }
-                    onClick={() =>
-                      send(
-                        (c) => c.setGate(scheme.id, gateChoice),
-                        () => {
-                          setGateChoice(undefined)
-                        }
-                      )
-                    }
-                  >
-                    {f.gate.save}
-                  </button>
-                )}
-              </div>
-            ) : (
-              <p>
-                <strong>{f.gate.name[gate]}</strong>
-              </p>
-            )}
-            {gate !== 0 && (
-              <p className={fee.eligible ? styles.ok : styles.hint}>
-                {!address
-                  ? f.gate.needWallet
-                  : fee.eligible
-                  ? f.gate.eligible
-                  : gate === 1
-                  ? f.gate.notListed
-                  : f.gate.needVoucher}
-              </p>
-            )}
-            {gate === 2 && (
-              <label className={styles.field}>
-                <span>{f.gate.voucherLabel}</span>
-                <textarea
-                  rows={2}
-                  value={fee.voucherText}
-                  placeholder='{"expiry": 1790000000, "signature": "0x…"}'
-                  onChange={(e) => fee.setVoucherText(e.target.value)}
-                />
-                <small className={styles.hint}>{f.gate.voucherHint}</small>
-              </label>
-            )}
-            {(gate === 1 || fee.members.length > 0 || isOperator) && (
-              <>
-                <h4>{f.gate.membersTitle}</h4>
-                {fee.members.length === 0 ? (
-                  <p className={styles.hint}>{f.gate.membersNone}</p>
-                ) : (
-                  <ul className={styles.depositList}>
-                    {fee.members.map((m) => (
-                      <li key={m}>
-                        <a
-                          href={`${EXPLORER}/address/${m}`}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          <code>{short(m)}</code>
-                        </a>
-                        {isOperator && (
-                          <>
-                            {' '}
-                            <button
-                              type="button"
-                              disabled={status?.kind === 'busy'}
-                              onClick={() => send((c) => c.setMember(m, false))}
-                            >
-                              {f.gate.memberRemove}
-                            </button>
-                          </>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-                {isOperator && (
-                  <div className={styles.actions}>
-                    <input
-                      className={styles.labelInput}
-                      value={memberInput}
-                      placeholder="0x…"
-                      onChange={(e) => setMemberInput(e.target.value.trim())}
-                      aria-label={f.gate.memberAdd}
-                    />
-                    <button
-                      type="button"
-                      disabled={
-                        status?.kind === 'busy' ||
-                        !ethers.utils.isAddress(memberInput)
-                      }
-                      onClick={() =>
-                        send(
-                          (c) => c.setMember(memberInput, true),
-                          () => {
-                            setMemberInput('')
-                          }
-                        )
-                      }
-                    >
-                      {f.gate.memberAdd}
-                    </button>
-                  </div>
-                )}
-              </>
-            )}
-          </fieldset>
+          <p className={gate === undefined ? styles.error : styles.hint}>
+            <strong>{f.gate.label}:</strong>{' '}
+            {gate === undefined ? f.gate.unreadable : f.gate.name[gate]}
+            <Help label={f.helpLabel} text={`${f.gate.fixed} ${f.gate.help}`} />
+          </p>
 
           <div className={styles.feeTypes}>
             <fieldset className={styles.feeType}>
@@ -855,12 +821,33 @@ export default function GreenFeePanel({
                       onChange={(e) => setLabel(e.target.value)}
                       aria-label="label"
                     />
+                    <label className={styles.field}>
+                      <span>{f.gate.createLabel}</span>
+                      <select
+                        className={styles.select}
+                        value={newGate}
+                        onChange={(e) =>
+                          setNewGate(Number(e.target.value) as Gate)
+                        }
+                      >
+                        {GATES.map((g) => (
+                          <option key={g} value={g}>
+                            {f.gate.name[g]}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
                     <button
                       type="button"
                       disabled={status?.kind === 'busy'}
                       onClick={() =>
                         send(
-                          (c) => c.createScheme(label ?? f.labelDefault, rules),
+                          (c) =>
+                            c.createScheme(
+                              label ?? f.labelDefault,
+                              rules,
+                              newGate
+                            ),
                           (receipt, iface) => {
                             const ev = findEvent(
                               receipt,
@@ -877,7 +864,9 @@ export default function GreenFeePanel({
                   </>
                 )}
               </div>
-              <p className={styles.hint}>{f.createHint}</p>
+              <p className={styles.hint}>
+                {f.createHint} {f.gate.createHint}
+              </p>
             </div>
           )}
 
@@ -909,28 +898,32 @@ export default function GreenFeePanel({
                 <button
                   type="button"
                   className={styles.primary}
-                  disabled={
-                    status?.kind === 'busy' || !chosenQuote || !chosenPriced
-                  }
-                  onClick={() =>
-                    chosenKey &&
+                  disabled={status?.kind === 'busy' || !canPay}
+                  onClick={() => {
+                    if (!chosenKey || !chosenOnChain) return
+                    const ref =
+                      jobHash || refHash
+                        ? '0x' + (jobHash ?? refHash)
+                        : ethers.constants.HashZero
+                    const cap = chosenOnChain.payerPays
                     send(
-                      (c) => {
-                        const ref =
-                          jobHash || refHash
-                            ? '0x' + (jobHash ?? refHash)
-                            : ethers.constants.HashZero
-                        return gate === 2 && fee.voucher
+                      (c) =>
+                        gate === 1
                           ? c.payMember(
                               scheme.id,
                               chosenKey,
                               fee.seconds,
                               ref,
-                              fee.voucher.expiry,
-                              fee.voucher.signature
+                              m.ok && m.uid ? m.uid : ethers.constants.HashZero,
+                              cap
                             )
-                          : c.pay(scheme.id, chosenKey, fee.seconds, ref)
-                      },
+                          : c.payUpTo(
+                              scheme.id,
+                              chosenKey,
+                              fee.seconds,
+                              ref,
+                              cap
+                            ),
                       (receipt, iface) => {
                         const ev = findEvent(receipt, iface, 'Paid')
                         return ev
@@ -938,25 +931,70 @@ export default function GreenFeePanel({
                           : undefined
                       }
                     )
-                  }
+                  }}
                 >
-                  {chosenKey && chosenQuote
+                  {chosenKey && chosenOnChain
                     ? fill(f.payButton, {
                         place: placeName(chosenKey),
-                        // 実際に払うのは Sepolia 上の設定
-                        pay: formatPlay(
-                          quoteFee(
-                            fee.locations[chosenKey],
-                            scheme.rules,
-                            scheme,
-                            fee.seconds,
-                            fee.eligible
-                          ).payerPays
-                        )
+                        pay: formatPlay(chosenOnChain.payerPays)
                       })
                     : f.payNotPriced}
                 </button>
               </div>
+              {gate === 1 && (
+                <div className={styles.hint}>
+                  {m.state === 'loading' ? (
+                    <p>{f.gate.checking}</p>
+                  ) : m.ok && m.uid ? (
+                    <p className={styles.ok}>
+                      {okParts[0]}
+                      <a
+                        href={easscanUrl(m.uid)}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {f.gate.link}
+                      </a>
+                      {okParts[1]}{' '}
+                      {chosenOnChain &&
+                        fill(f.gate.subsidyNow, {
+                          v: formatPlay(chosenOnChain.subsidy)
+                        })}
+                    </p>
+                  ) : (
+                    <p>
+                      {m.reason !== 'noUid' && (
+                        <>
+                          {f.gate.reasonIntro} {f.gate.reason[m.reason]}.{' '}
+                        </>
+                      )}
+                      {chosenFull
+                        ? m.reason === 'noUid'
+                          ? fill(f.gate.none, {
+                              y: formatPlay(chosenFull.payerPays)
+                            })
+                          : fill(f.gate.withoutSubsidy, {
+                              y: formatPlay(chosenFull.payerPays)
+                            })
+                        : ''}
+                    </p>
+                  )}
+                  {(m.lookupFailed || (m.state === 'done' && !m.ok)) && (
+                    <label className={styles.field}>
+                      <span>{f.gate.uidLabel}</span>
+                      <input
+                        className={styles.labelInput}
+                        value={fee.uidText}
+                        placeholder="0x…"
+                        onChange={(e) => fee.setUidText(e.target.value.trim())}
+                      />
+                      <small className={styles.hint}>
+                        {m.lookupFailed ? f.gate.lookupFailed : f.gate.uidHint}
+                      </small>
+                    </label>
+                  )}
+                </div>
+              )}
               <p className={styles.hint}>
                 {chosenPriced ? f.payHint : f.payNotPriced}
               </p>
@@ -1051,7 +1089,19 @@ export default function GreenFeePanel({
                       <td>
                         <strong>{formatPlay(p.payerPays)}</strong>
                       </td>
-                      <td>{p.member ? f.gate.memberMark : ''}</td>
+                      <td>
+                        {p.attestation ? (
+                          <a
+                            href={easscanUrl(p.attestation)}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            {f.gate.ledgerMark}
+                          </a>
+                        ) : (
+                          '—'
+                        )}
+                      </td>
                       <td>
                         {p.ref &&
                           (jobHash && p.ref === jobHash
