@@ -1,8 +1,15 @@
-import { ReactElement, useEffect, useMemo, useState } from 'react'
+import { ReactElement, useMemo } from 'react'
 import trialsJson from '../../../content/experiment/trials.json'
 import { TrialsFile, optionFootprint, optionInput } from '@utils/experiment'
-import { sha256Hex } from '@utils/carbonReport'
-import { Quantity, buildTransactionReceipt } from '@utils/transactionFootprint'
+import { receiptSha256 } from '@utils/receiptAttestation'
+import { stripHexPrefix } from '@utils/canonicalJson'
+import {
+  Quantity,
+  buildSourceData,
+  buildTransactionReceipt
+} from '@utils/transactionFootprint'
+import Sign from './Sign'
+import Verify from './Verify'
 import { QualityBadge, download, num, pick } from './shared'
 import styles from './index.module.css'
 
@@ -23,10 +30,10 @@ export default function ExperimentReceipt({
   const option = TRIALS.trials
     .find((t) => t.id === SAMPLE_TRIAL)!
     .options.find((o) => o.id === SAMPLE_OPTION)!
-  const receipt = useMemo(() => {
+  const { receipt, source } = useMemo(() => {
     const input = optionInput(option)
     const footprint = optionFootprint(option)
-    return buildTransactionReceipt({
+    const common = {
       transactionId: 'demo-2026-10-09-0001',
       provider: option.provider,
       location: {
@@ -34,9 +41,12 @@ export default function ExperimentReceipt({
         jurisdiction: option.jurisdiction.en
       },
       input,
-      footprint,
       startedAtTime: '2026-10-09T09:00:00Z',
-      endedAtTime: '2026-10-09T10:00:00Z',
+      endedAtTime: '2026-10-09T10:00:00Z'
+    }
+    const receipt = buildTransactionReceipt({
+      ...common,
+      footprint,
       evidence: [
         {
           ref: 'demo://telemetry/pool-power/2026-10-09T09:00Z-10:00Z',
@@ -48,13 +58,15 @@ export default function ExperimentReceipt({
         }
       ]
     })
+    return { receipt, source: buildSourceData(common) }
   }, [option])
 
   const text = useMemo(() => JSON.stringify(receipt, null, 2) + '\n', [receipt])
-  const [hash, setHash] = useState('')
-  useEffect(() => {
-    sha256Hex(text).then(setHash)
-  }, [text])
+  const sourceText = useMemo(
+    () => JSON.stringify(source, null, 2) + '\n',
+    [source]
+  )
+  const hash = stripHexPrefix(receiptSha256(receipt))
 
   const rows: [string, Quantity][] = [
     [r.itEnergy, receipt.values.itEnergy],
@@ -226,12 +238,17 @@ export default function ExperimentReceipt({
           <div>
             <dt>{r.hash}</dt>
             <dd className={styles.mono} data-testid="receipt-hash">
-              {hash || '…'}
+              {hash}
+            </dd>
+          </div>
+          <div>
+            <dt>{r.sourceHash}</dt>
+            <dd className={styles.mono} data-testid="source-hash">
+              {receipt.source.sha256}
             </dd>
           </div>
         </dl>
         <p className={styles.note}>{r.hashNote}</p>
-        <p className={styles.note}>{r.signature}</p>
         <div className={styles.actions}>
           <button
             type="button"
@@ -244,10 +261,26 @@ export default function ExperimentReceipt({
               )
             }
           >
-            {r.download}
+            {r.downloadUnsigned}
+          </button>
+          <button
+            type="button"
+            className={`${styles.button} ${styles.secondary}`}
+            onClick={() =>
+              download(
+                `source-${receipt.transactionId}.json`,
+                sourceText,
+                'application/json'
+              )
+            }
+          >
+            {r.downloadSource}
           </button>
         </div>
       </section>
+
+      <Sign r={r} receipt={receipt} />
+      <Verify r={r} />
     </div>
   )
 }
