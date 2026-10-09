@@ -41,7 +41,7 @@ interface IEASWrite {
 ///
 ///   register  one time: registers the schema "bool member" (no resolver, revocable)
 ///   attest    MEMBER=<wallet>: writes "this wallet is a member" for that wallet
-///   revoke    UID=<attestation id>: revokes it (the subsidy stops at once)
+///   revoke    ATTESTATION_UID=<attestation id>: revokes it (the subsidy stops at once)
 ///
 /// Run one with --sig, e.g.
 ///   forge script script/EasMember.s.sol:EasMember --sig 'attest()' --rpc-url ... --broadcast
@@ -86,7 +86,7 @@ contract EasMember is Script {
     }
 
     function revoke() external {
-        bytes32 uid = vm.envBytes32("UID");
+        bytes32 uid = vm.envBytes32("ATTESTATION_UID");
         vm.startBroadcast(vm.envUint("PRIVATE_KEY"));
         IEASWrite(SEPOLIA_EAS)
             .revoke(RevocationRequest({schema: schemaUid(), data: RevocationRequestData({uid: uid, value: 0})}));

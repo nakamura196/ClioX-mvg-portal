@@ -13,12 +13,12 @@
  * ここの quoteFee は、そのコントラクトの quote と同じ計算をする（画面上の試算用）。
  */
 
-/** Sepolia に配った GreenFeeDemo (2026-10-01, tx 0xc916b30f…) */
+/** Sepolia に配った GreenFeeDemo (2026-10-09 EAS 版, tx 0x86d7f18d…) */
 export const GREEN_FEE_ADDRESS =
   process.env.NEXT_PUBLIC_GREEN_FEE_ADDRESS ||
-  '0xa497eDb2e5B86a223737C66002cb24896AC9c932'
+  '0xF1C2738b41ACf84708e611ebe7883f4D51E158f6'
 /** 配った区画。台帳から取引を探すときの起点 */
-export const GREEN_FEE_DEPLOY_BLOCK = 11821626
+export const GREEN_FEE_DEPLOY_BLOCK = 11880222
 /** 誰でも使える既定の仕組み */
 export const DEFAULT_SCHEME_ID = 1
 

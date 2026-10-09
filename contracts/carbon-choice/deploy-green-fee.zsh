@@ -15,6 +15,6 @@ export PRIVATE_KEY
 if [[ -n "${DRY:-}" ]]; then
   forge script script/DeployGreenFee.s.sol:DeployGreenFee --rpc-url "$RPC" 2>&1 | grep -E 'GreenFeeDemo|block|Error|revert'
 else
-  forge script script/DeployGreenFee.s.sol:DeployGreenFee --rpc-url "$RPC" --broadcast --slow 2>&1 | grep -E 'GreenFeeDemo|block|Hash|ONCHAIN EXECUTION|Error|revert'
+  forge script script/DeployGreenFee.s.sol:DeployGreenFee --rpc-url "$RPC" --broadcast --slow --skip-simulation 2>&1 | grep -E 'GreenFeeDemo|block|Hash|ONCHAIN EXECUTION|Error|revert'
 fi
 unset PRIVATE_KEY
