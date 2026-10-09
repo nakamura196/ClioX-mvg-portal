@@ -235,6 +235,11 @@ export interface TrialRecord {
   timestamp: string
 }
 
+/** 浮動小数点の端数(1.6500000000000001)を記録に残さない */
+function round6(v: number | undefined): number | null {
+  return v === undefined ? null : Number(v.toPrecision(6))
+}
+
 export function buildTrialRecord(p: {
   trial: Trial
   trialIndex: number
@@ -261,8 +266,8 @@ export function buildTrialRecord(p: {
     chosenIsCarbonLowest: flags.carbonLowestIds.includes(p.chosen),
     chosenIsCostLowest: flags.costLowestIds.includes(p.chosen),
     energyWaterAgree: flags.energyWaterAgree,
-    chosenEnergyKWh: c?.footprint.facilityEnergy.value ?? null,
-    chosenWaterL: c?.footprint.water.value ?? null,
+    chosenEnergyKWh: round6(c?.footprint.facilityEnergy.value),
+    chosenWaterL: round6(c?.footprint.water.value),
     chosenCostUSD: c?.option.costUSD ?? NaN,
     responseMs: Math.round(p.responseMs),
     firstChoiceMs: Math.round(p.firstChoiceMs),

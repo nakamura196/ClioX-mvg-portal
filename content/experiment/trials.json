@@ -1,5 +1,13 @@
 {
   "version": "0.1",
+  "demoNotice": {
+    "en": "Demo data only. These values are illustrative and are not provider claims.",
+    "ja": "デモ用のデータです。数値は例示で、事業者の申告ではありません。"
+  },
+  "priorityStatement": {
+    "en": "Your priority for these decisions is to minimise environmental impact. Cost matters less.",
+    "ja": "これらの選択で、あなたが最も重視するのは環境への影響を小さくすることです。費用はそれほど重視しません。"
+  },
   "trials": [
     {
       "id": "t1",

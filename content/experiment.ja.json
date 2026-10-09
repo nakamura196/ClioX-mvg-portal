@@ -1,0 +1,130 @@
+{
+  "title": "ジョブを動かす場所を選ぶ",
+  "description": "短い選択課題です。いくつかのジョブについて事業者を比べ、それぞれ 1 つ選びます。",
+  "start": {
+    "heading": "はじめる前に",
+    "intro": [
+      "{count} 件の課題が出ます。それぞれ、複数の事業者がジョブを動かせます。使いたいものを 1 つ選んでください。",
+      "ひっかけはありません。答えはこのブラウザの中だけに残ります。サーバーには何も送りません。最後に、答えをファイルとして保存できます。"
+    ],
+    "priorityHeading": "あなたの優先事項",
+    "pidLabel": "参加者コード(任意)",
+    "pidHint": "調査担当者からコードを受け取っていれば、ここに入れてください。名前は入れないでください。",
+    "begin": "はじめる"
+  },
+  "trial": {
+    "progress": "課題 {n} / {total}",
+    "job": "ジョブ",
+    "choose": "事業者を 1 つ選んでください。",
+    "select": "選ぶ",
+    "selected": "選択中",
+    "confirm": "選択を確定",
+    "confirmNext": "確定して次へ",
+    "confirmLast": "確定して終了",
+    "needChoice": "先に事業者を選んでください。",
+    "perTransaction": "1 件あたり(このジョブ)"
+  },
+  "card": {
+    "cost": "費用",
+    "location": "処理場所",
+    "jurisdiction": "法域",
+    "indigenous": "先住民のデータ",
+    "certifications": "認証",
+    "none": "記載なし",
+    "energy": "電力",
+    "water": "水",
+    "carbon": "炭素",
+    "estimatesNote": "電力・水・炭素は、このジョブ 1 件の見積もりです。水は計算シェアで割り振った会計上の推定で、実測した消費量ではありません。",
+    "suitability": {
+      "suitable": "適している",
+      "conditional": "条件つき(データ統治の取り決めが必要)",
+      "not-suitable": "適していない",
+      "unknown": "記載なし"
+    }
+  },
+  "quality": {
+    "measured": "実測",
+    "provider-reported": "事業者申告",
+    "portal-estimated": "推定",
+    "unknown": "算出不可"
+  },
+  "demoNotice": "デモ用のデータです。数値は例示で、事業者の申告ではありません。",
+  "done": {
+    "heading": "終了しました",
+    "body": [
+      "ありがとうございました。答えはこのブラウザの中だけにあります。何も送られていません。",
+      "結果のファイルを保存して、参加を依頼した調査担当者に送ってください。"
+    ],
+    "downloadJson": "結果を保存(JSON)",
+    "downloadCsv": "結果を保存(CSV)"
+  },
+  "design": {
+    "heading": "課題の設計(研究者向け)",
+    "intro": "下の数値はすべて、content/experiment/trials.json の入力から、1 件ごとの会計モジュールで計算したものです。同じ数値をシミュレーション用に保存できます。",
+    "download": "design.json を保存",
+    "correct": "正解は、1 件あたりの施設電力量が最小の選択肢です。同じ値なら全部正解です。水が最小のもの、炭素が最小のものは別に示します。水の数値がない選択肢があるとき、「一致」は判定できません。",
+    "trial": "課題",
+    "option": "選択肢",
+    "cost": "費用(USD)",
+    "itEnergy": "IT 電力量(kWh)",
+    "facilityEnergy": "施設電力量(kWh)",
+    "water": "水(L)",
+    "carbon": "炭素(gCO2e)",
+    "flags": "最小の項目",
+    "energyWater": "電力最小と水最小の一致",
+    "agree": "一致",
+    "disagree": "不一致",
+    "unknownAgree": "判定不能(水の数値がない)",
+    "flagEnergy": "電力",
+    "flagWater": "水",
+    "flagCarbon": "炭素",
+    "flagCost": "費用"
+  },
+  "receipt": {
+    "heading": "処理の受領証(見本)",
+    "intro": "ジョブ 1 件の受領証です。上と同じ会計モジュールで作っています。ジョブと事業者はデモです。数値は、ここに示した入力から計算しています。",
+    "sampleNote": "デモ用のデータです。実際のジョブの記録ではありません。",
+    "transaction": "処理 ID",
+    "provider": "事業者",
+    "location": "所在地と法域",
+    "period": "開始 / 終了",
+    "allocation": "割り当ての根拠",
+    "allocationValues": {
+      "dedicated": "専有マシン(シェア 100%)",
+      "reserved-share": "共有 GPU の予約分 × 時間",
+      "measured-per-job": "ジョブ単位の実測"
+    },
+    "method": "方法とバージョン",
+    "intervals": "区間",
+    "colInterval": "区間",
+    "colPower": "プール電力(kW)",
+    "colHours": "長さ(時間)",
+    "colShare": "計算シェア",
+    "colWaterFlow": "水の流量(L/h)",
+    "totals": "合計",
+    "value": "値",
+    "quality": "区分",
+    "basis": "求め方",
+    "itEnergy": "IT 電力量",
+    "facilityEnergy": "施設電力量",
+    "water": "水",
+    "carbon": "炭素",
+    "assumptions": "前提",
+    "powerScope": "電力の値の範囲",
+    "powerScopeValues": {
+      "it-only": "IT 機器のみ(冷却などは PUE で加算)",
+      "facility": "冷却を含む施設全体"
+    },
+    "pue": "PUE",
+    "waterDef": "水の定義",
+    "grid": "系統排出係数",
+    "evidence": "元のテレメトリの参照",
+    "integrity": "ファイルの完全性",
+    "hash": "JSON ファイルの SHA-256",
+    "hashNote": "このハッシュは、ファイルが作られたあとに書き換えられていないことを示します。事業者のセンサーや申告値が正確であることは示しません。",
+    "signature": "署名: 未実装です。",
+    "download": "受領証を保存(JSON)",
+    "notes": "注記"
+  },
+  "missing": "—"
+}

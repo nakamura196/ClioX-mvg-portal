@@ -1,0 +1,130 @@
+{
+  "title": "Choosing where to run a job",
+  "description": "A short decision exercise: compare providers for several jobs and choose one for each.",
+  "start": {
+    "heading": "Before you begin",
+    "intro": [
+      "You will see {count} short tasks. For each task, several providers could run the job. Choose the one you would use.",
+      "There are no trick questions. Your answers are kept in this browser only. Nothing is sent to a server. At the end you can download your answers as a file."
+    ],
+    "priorityHeading": "Your priority",
+    "pidLabel": "Participant code (optional)",
+    "pidHint": "If the researcher gave you a code, enter it here. Do not enter your name.",
+    "begin": "Start"
+  },
+  "trial": {
+    "progress": "Task {n} of {total}",
+    "job": "Job",
+    "choose": "Choose one provider:",
+    "select": "Select",
+    "selected": "Selected",
+    "confirm": "Confirm choice",
+    "confirmNext": "Confirm and continue",
+    "confirmLast": "Confirm and finish",
+    "needChoice": "Select a provider first.",
+    "perTransaction": "Per transaction (this job)"
+  },
+  "card": {
+    "cost": "Cost",
+    "location": "Processing location",
+    "jurisdiction": "Jurisdiction",
+    "indigenous": "Indigenous data",
+    "certifications": "Certifications",
+    "none": "None listed",
+    "energy": "Electricity",
+    "water": "Water",
+    "carbon": "Carbon",
+    "estimatesNote": "Electricity, water and carbon are estimates for this one job. Water is allocated by compute share: an accounting estimate, not measured consumption.",
+    "suitability": {
+      "suitable": "Suitable",
+      "conditional": "Conditional (needs a data-governance agreement)",
+      "not-suitable": "Not suitable",
+      "unknown": "Not stated"
+    }
+  },
+  "quality": {
+    "measured": "measured",
+    "provider-reported": "provider-reported",
+    "portal-estimated": "estimated",
+    "unknown": "cannot be established"
+  },
+  "demoNotice": "Demo data only. These values are illustrative and are not provider claims.",
+  "done": {
+    "heading": "Finished",
+    "body": [
+      "Thank you. Your answers are in this browser only. Nothing has been sent.",
+      "Download the results file and send it to the researcher who asked you to take part."
+    ],
+    "downloadJson": "Download results (JSON)",
+    "downloadCsv": "Download results (CSV)"
+  },
+  "design": {
+    "heading": "Design of the exercise (researchers)",
+    "intro": "Every figure below is computed from the inputs in content/experiment/trials.json by the transaction accounting module. The same numbers can be downloaded for the simulation.",
+    "download": "Download design.json",
+    "correct": "Correct option = lowest facility energy per transaction. Ties are all correct. Water-lowest and carbon-lowest are listed separately. \"Agree\" is unknown when an option has no water figure.",
+    "trial": "Trial",
+    "option": "Option",
+    "cost": "Cost (USD)",
+    "itEnergy": "IT energy (kWh)",
+    "facilityEnergy": "Facility energy (kWh)",
+    "water": "Water (L)",
+    "carbon": "Carbon (gCO2e)",
+    "flags": "Lowest in",
+    "energyWater": "Energy-lowest and water-lowest agree",
+    "agree": "yes",
+    "disagree": "no",
+    "unknownAgree": "cannot be established (water missing)",
+    "flagEnergy": "energy",
+    "flagWater": "water",
+    "flagCarbon": "carbon",
+    "flagCost": "cost"
+  },
+  "receipt": {
+    "heading": "Transaction receipt (sample)",
+    "intro": "A receipt for one job, built by the same accounting module. The job and the provider are a demo. The values are computed from the inputs shown here.",
+    "sampleNote": "Demo data only. This is not a record of a real job.",
+    "transaction": "Transaction",
+    "provider": "Provider",
+    "location": "Location and jurisdiction",
+    "period": "Started / ended",
+    "allocation": "Allocation basis",
+    "allocationValues": {
+      "dedicated": "dedicated machine (share 100%)",
+      "reserved-share": "reserved share of shared GPU capacity, times time",
+      "measured-per-job": "measured per job"
+    },
+    "method": "Method and version",
+    "intervals": "Intervals",
+    "colInterval": "Interval",
+    "colPower": "Pool power (kW)",
+    "colHours": "Duration (h)",
+    "colShare": "Compute share",
+    "colWaterFlow": "Water flow (L/h)",
+    "totals": "Totals",
+    "value": "Value",
+    "quality": "Quality",
+    "basis": "How it was obtained",
+    "itEnergy": "IT energy",
+    "facilityEnergy": "Facility energy",
+    "water": "Water",
+    "carbon": "Carbon",
+    "assumptions": "Assumptions",
+    "powerScope": "Power figure covers",
+    "powerScopeValues": {
+      "it-only": "IT equipment only (cooling and overhead added through PUE)",
+      "facility": "the whole facility including cooling"
+    },
+    "pue": "PUE",
+    "waterDef": "Water definition",
+    "grid": "Grid emission factor",
+    "evidence": "Source telemetry references",
+    "integrity": "File integrity",
+    "hash": "SHA-256 of the JSON file",
+    "hashNote": "This hash shows that the file was not altered after it was produced. It does not show that the provider's sensors or reported figures are accurate.",
+    "signature": "Signature: not yet implemented.",
+    "download": "Download receipt (JSON)",
+    "notes": "Notes"
+  },
+  "missing": "—"
+}
