@@ -30,6 +30,8 @@ export default function App({
   // 研究者向けの ?view=design / ?view=receipt は通常の枠で出す。
   const isExperimentParticipant =
     router.pathname === '/experiment' && !router.query.view
+  // 研究者向けの画面でも案内ツアーは出さない（ツアーの題材と関係がなく、ボタンも覆ってしまう）。
+  const isExperiment = router.pathname === '/experiment'
 
   if (isExperimentParticipant) {
     return (
@@ -78,7 +80,7 @@ export default function App({
         )}
 
         <ToastContainer position="bottom-right" newestOnTop />
-        <FirstRunTour />
+        {!isExperiment && <FirstRunTour />}
       </div>
     </FirstRunTourProvider>
   )
