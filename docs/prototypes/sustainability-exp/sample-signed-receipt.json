@@ -1,0 +1,175 @@
+{
+  "schema": "clio-x-signed-receipt/0.1",
+  "testKeyNotice": "TEST ONLY. Signed with the public Hardhat/anvil test mnemonic (account #0). This is not a real provider and the signature proves nothing about any real job.",
+  "receipt": {
+    "schema": "clio-x-transaction-receipt/0.2",
+    "transactionId": "demo-2026-10-09-0001",
+    "provider": "Shirakawa Cloud",
+    "location": {
+      "name": "Tokyo, Japan",
+      "jurisdiction": "Japan"
+    },
+    "startedAtTime": "2026-10-09T09:00:00Z",
+    "endedAtTime": "2026-10-09T10:00:00Z",
+    "allocation": {
+      "basis": "reserved-share",
+      "method": "clio-x-transaction-allocation/0.1",
+      "averageShare": 0.25,
+      "intervals": [
+        {
+          "powerKW": 0.45,
+          "hours": 0.2,
+          "share": 0.25
+        },
+        {
+          "powerKW": 0.25,
+          "hours": 0.8,
+          "share": 0.25
+        }
+      ]
+    },
+    "assumptions": {
+      "powerScope": "it-only",
+      "pue": 1.3,
+      "pueQuality": "provider-reported",
+      "powerQuality": "provider-reported",
+      "water": {
+        "kind": "flow",
+        "definition": "consumption",
+        "scope": "on-site",
+        "value": 2.5,
+        "unit": "L/h"
+      },
+      "gridIntensity": {
+        "gCO2ePerKWh": 429,
+        "label": "Tokyo, Japan",
+        "asOf": "see source",
+        "source": "Japan substitute factor FY2023"
+      }
+    },
+    "values": {
+      "itEnergy": {
+        "value": 0.07250000000000001,
+        "unit": "kWh",
+        "quality": "portal-estimated",
+        "basis": "sum of pool power x duration x reserved compute share"
+      },
+      "facilityEnergy": {
+        "value": 0.09425000000000001,
+        "unit": "kWh",
+        "quality": "portal-estimated",
+        "basis": "IT energy x PUE 1.3"
+      },
+      "water": {
+        "value": 0.625,
+        "unit": "L",
+        "quality": "portal-estimated",
+        "basis": "water allocated by compute share (an accounting estimate, not measured consumption)"
+      },
+      "carbon": {
+        "value": 40.43325000000001,
+        "unit": "gCO2e",
+        "quality": "portal-estimated",
+        "basis": "facility energy x grid factor 429 gCO2e/kWh (location-based)"
+      }
+    },
+    "notes": [],
+    "evidence": [
+      {
+        "ref": "demo://telemetry/pool-power/2026-10-09T09:00Z-10:00Z",
+        "description": "Pool power samples (demo placeholder, no real source)"
+      },
+      {
+        "ref": "demo://telemetry/water-flow/2026-10-09T09:00Z-10:00Z",
+        "description": "Cooling water flow samples (demo placeholder)"
+      }
+    ],
+    "source": {
+      "schema": "clio-x-transaction-source/0.1",
+      "sha256": "ca20562938f6b7fac789fb9427c9e0d57519f707678134dd9c53eeb00cd849b4",
+      "canonicalization": "RFC 8785 (JCS)"
+    },
+    "integrity": {
+      "statement": "A signature over this receipt shows who issued it and that it was not altered afterwards. It does not show that the provider sensors or reported figures are accurate."
+    }
+  },
+  "attestation": {
+    "easSchema": "bytes32 receiptSha256,bytes32 sourceSha256,string method",
+    "easSchemaUid": "0xcc83b871f8f8bc097b902370b7739e24bc3de80a77d46fce90f62c2687f2e21d",
+    "network": {
+      "chainId": 11155111,
+      "easContract": "0xC2679fBD37d54388Ce493F1DB75320D236e1815e",
+      "easVersion": "0.26"
+    },
+    "package": {
+      "signer": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      "sig": {
+        "version": 2,
+        "uid": "0x0e8e8b793b2cd93c912accd1d8ffa997157f411ed4c5413406790fed3fddc239",
+        "domain": {
+          "name": "EAS Attestation",
+          "version": "0.26",
+          "chainId": "11155111",
+          "verifyingContract": "0xC2679fBD37d54388Ce493F1DB75320D236e1815e"
+        },
+        "primaryType": "Attest",
+        "types": {
+          "Attest": [
+            {
+              "name": "version",
+              "type": "uint16"
+            },
+            {
+              "name": "schema",
+              "type": "bytes32"
+            },
+            {
+              "name": "recipient",
+              "type": "address"
+            },
+            {
+              "name": "time",
+              "type": "uint64"
+            },
+            {
+              "name": "expirationTime",
+              "type": "uint64"
+            },
+            {
+              "name": "revocable",
+              "type": "bool"
+            },
+            {
+              "name": "refUID",
+              "type": "bytes32"
+            },
+            {
+              "name": "data",
+              "type": "bytes"
+            },
+            {
+              "name": "salt",
+              "type": "bytes32"
+            }
+          ]
+        },
+        "message": {
+          "version": 2,
+          "schema": "0xcc83b871f8f8bc097b902370b7739e24bc3de80a77d46fce90f62c2687f2e21d",
+          "recipient": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+          "time": "1791540000",
+          "expirationTime": "0",
+          "revocable": true,
+          "refUID": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "data": "0x118b7f737efbb57ea0d676cbc0542831dea5bc503bec314dd2191bfe8637944aca20562938f6b7fac789fb9427c9e0d57519f707678134dd9c53eeb00cd849b400000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000021636c696f2d782d7472616e73616374696f6e2d616c6c6f636174696f6e2f302e3100000000000000000000000000000000000000000000000000000000000000",
+          "salt": "0x3333333333333333333333333333333333333333333333333333333333333333"
+        },
+        "signature": {
+          "v": 27,
+          "r": "0xa69dd5b55781d1dd3e75b6c7b55846279aa6daac088b22fc67436570d627445f",
+          "s": "0x019bbe108ee0bd90786f89fe6aa12b3b33d6e8b1ec8a76306318500877173bba"
+        }
+      }
+    }
+  }
+}

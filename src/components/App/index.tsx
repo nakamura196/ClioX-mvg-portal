@@ -10,6 +10,7 @@ import { ToastContainer } from 'react-toastify'
 import contentPurgatory from '../../../content/purgatory.json'
 import { useMarketMetadata } from '@context/MarketMetadata'
 import { useAccount } from 'wagmi'
+import { useRouter } from 'next/router'
 import FirstRunTour from '../FirstRunTour'
 import { FirstRunTourProvider } from '../FirstRunTour/context'
 import ArchivistModeBanner from '../ArchivistMode/Banner'
@@ -22,6 +23,23 @@ export default function App({
   const { siteContent, appConfig } = useMarketMetadata()
   const { address } = useAccount()
   const { isInPurgatory, purgatoryData } = useAccountPurgatory(address)
+  const router = useRouter()
+
+  // 実験の参加者画面では、ポータルの見出し・案内ツアー・フッターを出さない。
+  // 参加者が条件と関係のない情報（料金、案内、他のページ）を見ないようにするため。
+  // 研究者向けの ?view=design / ?view=receipt は通常の枠で出す。
+  const isExperimentParticipant =
+    router.pathname === '/experiment' && !router.query.view
+
+  if (isExperimentParticipant) {
+    return (
+      <FirstRunTourProvider>
+        <div className={styles.app}>
+          <main className={styles.main}>{children}</main>
+        </div>
+      </FirstRunTourProvider>
+    )
+  }
 
   const devPreviewAnnouncementText =
     siteContent?.devPreviewAnnouncement
