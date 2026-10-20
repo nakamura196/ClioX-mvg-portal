@@ -6,7 +6,7 @@ import {
   TRANSACTION_METHOD_LABEL
 } from './transactionFootprint'
 
-// V. Lemieux の計算例: 90 s (0.025 h), シェア 25%, 4 kW, 12 L/h
+// 参照用の計算例: 90 s (0.025 h), シェア 25%, 4 kW, 12 L/h
 const worked: TransactionInput = {
   intervals: [{ powerKW: 4, hours: 0.025, share: 0.25 }],
   allocation: 'reserved-share',
