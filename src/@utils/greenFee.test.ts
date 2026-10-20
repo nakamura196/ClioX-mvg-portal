@@ -1,4 +1,11 @@
-import { DEFAULT_RULES, FeeLocation, quoteFee } from './greenFee'
+import {
+  DEFAULT_RULES,
+  FeeLocation,
+  attestationQuery,
+  candidateUids,
+  quoteFee,
+  reasonFromCode
+} from './greenFee'
 
 // 値は Sepolia の GreenFeeDemo (0xa497…c932) の quote を 2026-10-01 に読んだもの
 const stockholm: FeeLocation = {
@@ -59,5 +66,50 @@ describe('quoteFee (same as GreenFeeDemo.quote)', () => {
     expect(q.discount).toBe(0)
     expect(q.subsidy).toBe(0)
     expect(q.payerPays).toBe(q.base)
+  })
+})
+
+describe('quoteFee without a membership proof', () => {
+  it('drops only the subsidy', () => {
+    const q = quoteFee(stockholm, DEFAULT_RULES, funds, H20, false)
+    expect(q.discount).toBe(2232000)
+    expect(q.subsidy).toBe(0)
+    expect(q.payerPays).toBe(11160000 - 2232000)
+  })
+})
+
+describe('EAS helpers', () => {
+  const uid = '0x' + 'ab'.repeat(32)
+  it('asks easscan for unrevoked attestations of one schema, attester and recipient', () => {
+    const q = attestationQuery('0xs', '0xa', '0xr')
+    expect(q.variables).toEqual({
+      s: { equals: '0xs' },
+      a: { equals: '0xa' },
+      r: { equals: '0xr' }
+    })
+    expect(q.query).toContain('revoked:{equals:false}')
+  })
+  it('keeps unexpired candidates in the given order', () => {
+    const json = {
+      data: {
+        attestations: [
+          { id: uid, expirationTime: 0 },
+          { id: '0x' + 'cd'.repeat(32), expirationTime: 100 },
+          { id: '0x' + 'ef'.repeat(32), expirationTime: 5000 },
+          { id: 'junk', expirationTime: 0 }
+        ]
+      }
+    }
+    expect(candidateUids(json, 1000)).toEqual([
+      { uid, expiresAt: 0 },
+      { uid: '0x' + 'ef'.repeat(32), expiresAt: 5000 }
+    ])
+    expect(candidateUids({ errors: [] })).toEqual([])
+    expect(candidateUids(null)).toEqual([])
+  })
+  it('maps the contract reason codes', () => {
+    expect(reasonFromCode(0)).toBe('ok')
+    expect(reasonFromCode(7)).toBe('revoked')
+    expect(reasonFromCode(99)).toBe('notFound')
   })
 })

@@ -77,7 +77,7 @@
     "depositAmount": "Amount to deposit (PLAY)",
     "depositButton": "Deposit into scheme #{id}",
     "withdrawButton": "Withdraw the deposit",
-    "payButton": "Pay for {place} ({pay} PLAY)",
+    "payButton": "Pay for {place} (at most {pay} PLAY)",
     "payHint": "The payment also stores the fingerprint of the record in step 4.",
     "payNotPriced": "The chosen location has no registered price. Please choose another.",
     "connect": "Connect a wallet to pay or deposit.",
@@ -100,7 +100,8 @@
       "subsidy": "Subsidy",
       "pays": "Paid",
       "tx": "Tx",
-      "job": "Job"
+      "job": "Job",
+      "member": "Subsidy basis"
     },
     "deposits": "Deposits",
     "depositRow": "{from} deposited {v} PLAY.",
@@ -112,7 +113,44 @@
     "helpDeposit": "The deposit balance is what is left of the money a funder deposited. Each subsidy is paid from it, so it goes down with every payment.",
     "thisJob": "This job",
     "jobBanner": "Paying for compute job {id}. The ledger will keep the SHA-256 of this job ID, so anyone with the ID can find the payment.",
-    "helpJob": "The ledger stores only a fingerprint (SHA-256) of the job ID, not the ID itself."
+    "helpJob": "The ledger stores only a fingerprint (SHA-256) of the job ID, not the ID itself.",
+    "gate": {
+      "label": "Who may receive the subsidy",
+      "name": [
+        "Anyone",
+        "People with an EAS membership attestation"
+      ],
+      "fixed": "Chosen when the scheme is created. It cannot be changed afterwards.",
+      "unreadable": "Cannot be checked. You cannot pay in this scheme.",
+      "createLabel": "Who may receive the subsidy in the new scheme",
+      "createHint": "This cannot be changed after the scheme is created. Surcharge and discount are open to everyone either way.",
+      "help": "An attestation is a signed note on the public Ethereum Attestation Service (EAS): this wallet is a member. The operator writes it and can revoke it. The contract reads it on the chain when you pay. Only the wallet address is recorded, never a name.",
+      "needWallet": "Connect a wallet to check whether you have a membership attestation.",
+      "checking": "Looking for your membership attestation…",
+      "ok": "You have a membership attestation ({link}, valid {until}).",
+      "noExpiry": "no expiry",
+      "untilDate": "until {date}",
+      "subsidyNow": "Subsidy: {v} PLAY.",
+      "none": "No attestation for this wallet. You pay {y} PLAY, without the subsidy.",
+      "reasonIntro": "The attestation cannot be used:",
+      "reason": {
+        "ok": "valid",
+        "noUid": "no attestation number was given",
+        "stopped": "the subsidy for member schemes is stopped for now",
+        "notFound": "the attestation was not found",
+        "wrongSchema": "it is a different kind of attestation",
+        "wrongAttester": "it was not written by the operator",
+        "otherRecipient": "it was written for another wallet",
+        "revoked": "it was revoked",
+        "expired": "it has expired"
+      },
+      "withoutSubsidy": "You pay {y} PLAY, without the subsidy.",
+      "uidLabel": "Attestation number (0x…, shown on easscan)",
+      "uidHint": "Fill this in only if it was not found automatically.",
+      "lookupFailed": "Could not search easscan. Enter the attestation number below.",
+      "link": "easscan",
+      "ledgerMark": "EAS"
+    }
   },
   "record": {
     "heading": "4. Keep a record",

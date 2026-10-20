@@ -50,7 +50,7 @@ contract GreenFeeDemoTest is Test {
     }
 
     function test_feebateIsRevenueNeutral() public {
-        uint256 id = g.createScheme("t3", rules(2_000, 2_000, 0, 0));
+        uint256 id = g.createScheme("t3", rules(2_000, 2_000, 0, 0), 0);
 
         // No surcharge paid yet: the pool is empty, so no discount.
         GreenFeeDemo.Quote memory q0 = g.quote(id, "low", HOURS_20);
@@ -83,7 +83,7 @@ contract GreenFeeDemoTest is Test {
     }
 
     function test_discountLimitedToPool() public {
-        uint256 id = g.createScheme("t3", rules(100, 5_000, 0, 0)); // 1 % in, 50 % out
+        uint256 id = g.createScheme("t3", rules(100, 5_000, 0, 0), 0); // 1 % in, 50 % out
         vm.prank(alice);
         g.pay(id, "high", HOURS_20, bytes32(0)); // pool = 233_440
         GreenFeeDemo.Quote memory q = g.quote(id, "low", HOURS_20);
@@ -92,7 +92,7 @@ contract GreenFeeDemoTest is Test {
     }
 
     function test_subsidyShareCapAndDeposit() public {
-        uint256 id = g.createScheme("t4", rules(0, 0, 5_000, 5_000_000)); // 50 %, cap 5 PLAY
+        uint256 id = g.createScheme("t4", rules(0, 0, 5_000, 5_000_000), 0); // 50 %, cap 5 PLAY
 
         // No deposit yet: no subsidy.
         assertEq(g.quote(id, "low", HOURS_20).subsidy, 0);
@@ -122,7 +122,7 @@ contract GreenFeeDemoTest is Test {
     }
 
     function test_bothTypesTogether() public {
-        uint256 id = g.createScheme("t3+t4", rules(2_000, 2_000, 5_000, 10e6));
+        uint256 id = g.createScheme("t3+t4", rules(2_000, 2_000, 5_000, 10e6), 0);
         vm.prank(sponsor);
         g.deposit(id, 50e6);
         vm.prank(alice);
@@ -135,7 +135,7 @@ contract GreenFeeDemoTest is Test {
     }
 
     function test_depositRunsOut() public {
-        uint256 id = g.createScheme("t4", rules(0, 0, 10_000, 100e6));
+        uint256 id = g.createScheme("t4", rules(0, 0, 10_000, 100e6), 0);
         vm.prank(sponsor);
         g.deposit(id, 3e6);
         GreenFeeDemo.Quote memory q = g.quote(id, "low", HOURS_20);
@@ -144,7 +144,7 @@ contract GreenFeeDemoTest is Test {
 
     function test_onlyOwnerChangesRulesAndWithdraws() public {
         vm.prank(sponsor);
-        uint256 id = g.createScheme("mine", rules(0, 0, 5_000, 1e6));
+        uint256 id = g.createScheme("mine", rules(0, 0, 5_000, 1e6), 0);
         vm.prank(alice);
         vm.expectRevert(GreenFeeDemo.NotSchemeOwner.selector);
         g.setRules(id, rules(0, 0, 10_000, 1e6));
@@ -165,13 +165,13 @@ contract GreenFeeDemoTest is Test {
         GreenFeeDemo.Rules memory r = rules(0, 0, 0, 0);
         r.lowUpToMgPerHour = 20_000;
         vm.expectRevert(GreenFeeDemo.BadInput.selector);
-        g.createScheme("bad", r);
+        g.createScheme("bad", r, 0);
         vm.expectRevert(GreenFeeDemo.BadInput.selector);
-        g.createScheme("bad", rules(10_001, 0, 0, 0));
+        g.createScheme("bad", rules(10_001, 0, 0, 0), 0);
     }
 
     function test_cannotPayWithoutBalance() public {
-        uint256 id = g.createScheme("t3", rules(0, 0, 0, 0));
+        uint256 id = g.createScheme("t3", rules(0, 0, 0, 0), 0);
         vm.prank(address(0xBEEF));
         vm.expectRevert(GreenFeeDemo.InsufficientBalance.selector);
         g.pay(id, "low", HOURS_20, bytes32(0));
@@ -180,7 +180,7 @@ contract GreenFeeDemoTest is Test {
     function test_unknownLocationAndScheme() public {
         vm.expectRevert(GreenFeeDemo.NoSuchScheme.selector);
         g.quote(1, "low", 60);
-        uint256 id = g.createScheme("t3", rules(0, 0, 0, 0));
+        uint256 id = g.createScheme("t3", rules(0, 0, 0, 0), 0);
         vm.expectRevert(GreenFeeDemo.NoSuchLocation.selector);
         g.quote(id, "nowhere", 60);
     }
