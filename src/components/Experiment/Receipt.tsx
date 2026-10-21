@@ -1,8 +1,10 @@
 import { ReactElement, useMemo } from 'react'
+import { useRouter } from 'next/router'
 import trialsJson from '../../../content/experiment/trials.json'
 import { TrialsFile, optionFootprint, optionInput } from '@utils/experiment'
 import { receiptSha256 } from '@utils/receiptAttestation'
 import { stripHexPrefix } from '@utils/canonicalJson'
+import { receiptSteps } from '@utils/receiptSteps'
 import {
   Quantity,
   buildSourceData,
@@ -27,6 +29,18 @@ export default function ExperimentReceipt({
   ja: boolean
 }): ReactElement {
   const r = c.receipt
+  const router = useRouter()
+  // 計算の過程の表示は ?steps=1 で持つ。リンクを渡せば開いた状態で見せられる
+  const showSteps = router.query.steps === '1'
+  function toggleSteps(on: boolean) {
+    const query = { ...router.query }
+    if (on) query.steps = '1'
+    else delete query.steps
+    router.replace({ pathname: router.pathname, query }, undefined, {
+      shallow: true,
+      scroll: false
+    })
+  }
   const option = TRIALS.trials
     .find((t) => t.id === SAMPLE_TRIAL)!
     .options.find((o) => o.id === SAMPLE_OPTION)!
@@ -67,6 +81,7 @@ export default function ExperimentReceipt({
     [source]
   )
   const hash = stripHexPrefix(receiptSha256(receipt))
+  const steps = useMemo(() => receiptSteps(receipt, source), [receipt, source])
 
   const rows: [string, Quantity][] = [
     [r.itEnergy, receipt.values.itEnergy],
@@ -180,7 +195,69 @@ export default function ExperimentReceipt({
             {r.notes}: {n}
           </p>
         ))}
+        <label className={styles.check}>
+          <input
+            type="checkbox"
+            checked={showSteps}
+            onChange={(e) => toggleSteps(e.target.checked)}
+            data-testid="steps-toggle"
+          />
+          {r.stepsToggle}
+        </label>
       </section>
+
+      {showSteps && (
+        <section className={styles.panel} data-testid="receipt-steps">
+          <h2>{r.stepsHeading}</h2>
+          <p className={styles.note}>{r.stepsIntro}</p>
+          {steps.map((s) => (
+            <div className={styles.step} key={s.key}>
+              <h3>
+                {r[s.key]}
+                <QualityBadge
+                  quality={s.quantity.quality}
+                  label={
+                    c.quality[s.quantity.quality as keyof typeof c.quality]
+                  }
+                />
+              </h3>
+              {s.kind === 'unknown' ? (
+                <p>
+                  {r.stepsUnknown} {s.quantity.reason}
+                </p>
+              ) : (
+                <>
+                  <p>{r.stepsKinds[s.kind]}</p>
+                  <ol className={styles.formula}>
+                    {s.terms.map((t, i) => (
+                      <li key={i}>
+                        <span className={styles.stepLabel}>
+                          {r.colInterval} {i + 1}
+                        </span>
+                        {t}
+                      </li>
+                    ))}
+                    <li className={s.terms.length ? styles.sep : undefined}>
+                      <strong>{s.total}</strong>
+                    </li>
+                  </ol>
+                  <p className={styles.note}>
+                    {r.stepsQuality}{' '}
+                    {s.qualityInputs
+                      .map(
+                        (q) =>
+                          `${r.stepsInputs[q.input]} = ${
+                            c.quality[q.quality as keyof typeof c.quality]
+                          }`
+                      )
+                      .join(ja ? '、' : ', ')}
+                  </p>
+                </>
+              )}
+            </div>
+          ))}
+        </section>
+      )}
 
       <section className={styles.panel}>
         <h2>{r.assumptions}</h2>
