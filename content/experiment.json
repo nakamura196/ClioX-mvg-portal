@@ -168,7 +168,32 @@
     "sourceCheckNg": "Source data file: its hash does NOT equal the one in the receipt",
     "pass": "OK",
     "fail": "NG",
-    "signedHashes": "Signed values"
+    "signedHashes": "Signed values",
+    "stepsToggle": "Show how each value was calculated",
+    "stepsHeading": "How each value was calculated",
+    "stepsIntro": "Each value above is worked through here from the inputs (intervals and assumptions). Numbers in the working are shown to 4 significant figures, so they can differ from the 3-figure table in the last digit.",
+    "stepsQuality": "The quality of a result is the weakest of the inputs it was made from:",
+    "stepsUnknown": "Cannot be calculated:",
+    "stepsKinds": {
+      "itShare": "IT energy = for each interval, pool power × duration × compute share, then add the intervals. The share is the part of the shared machine reserved for this job.",
+      "itMeasured": "IT energy = the energy the provider measured for this job. No share is applied.",
+      "itFromFacility": "The provider's power figure already includes cooling, so the IT-only part is facility energy ÷ PUE.",
+      "facilityPue": "Facility energy = IT energy × PUE. PUE is total facility energy ÷ IT equipment energy, so PUE 1.3 means 0.3 kWh more for cooling, power conversion and lighting for every 1 kWh the machines use. It is the provider's average, not a figure for this job.",
+      "facilityGiven": "The provider's power figure includes cooling, so it is used as facility energy: pool power × duration × compute share, added over the intervals.",
+      "waterFlow": "Water = for each interval, water flow × duration × share, then add the intervals. The water is divided by the same compute share, so this is an accounting estimate, not water measured for this job.",
+      "waterWue": "Water = IT energy × WUE. WUE is on-site water ÷ IT energy, a yearly average from the provider, not this job's own water use.",
+      "carbon": "Carbon = facility energy × grid emission factor (location-based: the average emissions of the local grid, not of a specific electricity contract)."
+    },
+    "stepsInputs": {
+      "power": "pool power",
+      "allocation": "division by compute share",
+      "measured": "measured per job",
+      "itEnergy": "IT energy",
+      "pue": "PUE",
+      "water": "water figure",
+      "facilityEnergy": "facility energy",
+      "grid": "grid emission factor"
+    }
   },
   "missing": "—"
 }
