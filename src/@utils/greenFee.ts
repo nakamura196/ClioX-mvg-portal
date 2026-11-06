@@ -360,3 +360,97 @@ export function formatPlay(micro: number): string {
 /** g/時 の表示（画面で閾値を入れるときの単位） */
 export const mgToG = (mg: number) => mg / 1000
 export const gToMg = (g: number) => Math.round(g * 1000)
+
+/** 型 3 の原資の見通し（試算）。チェーンには書かない */
+export interface PoolOutlook {
+  /** 排出の多い場所の割合がこれ以上なら、原資は減らない（1 万分率）。'none' は値引きが無い、'never' は上乗せが無い */
+  breakEvenBps: number | 'none' | 'never'
+  jobs: number
+  lowJobs: number
+  highJobs: number
+  /** 決まりどおりに値引きできた件数 */
+  fullDiscounts: number
+  /** 原資が足りず、値引きを減らした件数 */
+  partialDiscounts: number
+  /** 原資が 0 で、値引きできなかった件数 */
+  noDiscounts: number
+  /** 初めて値引きが足りなくなった件（1 から数える）。足りたなら null */
+  firstShort: number | null
+  poolStart: number
+  poolEnd: number
+  discountPaid: number
+  discountWanted: number
+}
+
+/**
+ * 排出の少ない場所 low と多い場所 high に、同じ長さの仕事が jobs 件続くとしたときの原資の動き。
+ * 多い場所の仕事は割合 highShareBps で、乱数を使わず等間隔に並べる（i 件目までの多い場所の件数 = floor(i × 割合)）。
+ * 中くらいの場所は原資を動かさないので数えない。
+ */
+export function simulatePool(
+  low: FeeLocation,
+  high: FeeLocation,
+  rules: FeeRules,
+  poolStart: number,
+  durationSeconds: number,
+  highShareBps: number,
+  jobs: number
+): PoolOutlook {
+  const share = Math.min(10000, Math.max(0, Math.floor(highShareBps)))
+  const n = Math.max(0, Math.floor(jobs))
+  const empty = { pool: 0, deposit: 0 }
+  const s = quoteFee(high, rules, empty, durationSeconds, false).surcharge
+  const d = quoteFee(
+    low,
+    rules,
+    { pool: Number.MAX_SAFE_INTEGER, deposit: 0 },
+    durationSeconds,
+    false
+  ).discountWanted
+  const breakEvenBps: PoolOutlook['breakEvenBps'] =
+    d === 0 ? 'none' : s === 0 ? 'never' : Math.ceil((d * 10000) / (s + d))
+  let pool = Math.max(0, poolStart)
+  const out: PoolOutlook = {
+    breakEvenBps,
+    jobs: n,
+    lowJobs: 0,
+    highJobs: 0,
+    fullDiscounts: 0,
+    partialDiscounts: 0,
+    noDiscounts: 0,
+    firstShort: null,
+    poolStart: pool,
+    poolEnd: pool,
+    discountPaid: 0,
+    discountWanted: 0
+  }
+  for (let i = 1; i <= n; i++) {
+    const isHigh =
+      Math.floor((i * share) / 10000) > Math.floor(((i - 1) * share) / 10000)
+    if (isHigh) {
+      out.highJobs++
+      pool += quoteFee(
+        high,
+        rules,
+        { pool, deposit: 0 },
+        durationSeconds,
+        false
+      ).surcharge
+      continue
+    }
+    out.lowJobs++
+    const q = quoteFee(low, rules, { pool, deposit: 0 }, durationSeconds, false)
+    out.discountWanted += q.discountWanted
+    out.discountPaid += q.discount
+    pool -= q.discount
+    if (q.discountWanted === 0) continue
+    if (q.discount === q.discountWanted) out.fullDiscounts++
+    else {
+      if (q.discount === 0) out.noDiscounts++
+      else out.partialDiscounts++
+      if (out.firstShort === null) out.firstShort = i
+    }
+  }
+  out.poolEnd = pool
+  return out
+}

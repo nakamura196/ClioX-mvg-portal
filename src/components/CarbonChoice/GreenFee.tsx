@@ -40,7 +40,8 @@ import {
   mgToG,
   quoteFee,
   reasonFromCode,
-  sameRules
+  sameRules,
+  simulatePool
 } from '@utils/greenFee'
 import Help from './Help'
 import styles from './index.module.css'
@@ -645,6 +646,112 @@ function OptionCompare({
   )
 }
 
+/**
+ * 型 3 の原資の見通し。今の画面の決まりと、選んでいる仕組みの原資から、
+ * 排出の少ない場所と多い場所の仕事が続いたときの動きを試算する（チェーンには書かない）。
+ */
+function PoolOutlookPanel({
+  fee,
+  f,
+  chosenKey,
+  placeName
+}: {
+  fee: GreenFee
+  f: Fee
+  chosenKey?: string
+  placeName: (key: string) => string
+}): ReactElement {
+  const [sharePct, setSharePct] = useState(20)
+  const [jobs, setJobs] = useState(50)
+  const o = f.outlook
+  const locs = fee.locations ? Object.values(fee.locations) : []
+  if (!locs.length || !fee.scheme) return null
+  const { rules, seconds, scheme } = fee
+  const byMg = [...locs].sort((a, b) => a.mgPerHour - b.mgPerHour)
+  const empty = { pool: 0, deposit: 0 }
+  const chosen = chosenKey && fee.locations?.[chosenKey]
+  const low =
+    chosen && quoteFee(chosen, rules, empty, 3600).band === 'low'
+      ? chosen
+      : byMg[0]
+  const high = byMg[byMg.length - 1]
+  const names = { low: placeName(low.key), high: placeName(high.key) }
+  const hint = fill(o.hint, {
+    hours: Math.round((seconds / 3600) * 10) / 10,
+    id: scheme.id,
+    ...names
+  })
+  if (!typesOn(rules)[3])
+    return (
+      <>
+        <h3>{o.heading}</h3>
+        <p className={styles.hint}>{o.off}</p>
+      </>
+    )
+  const r = simulatePool(
+    low,
+    high,
+    rules,
+    scheme.pool,
+    seconds,
+    Math.round(sharePct * 100),
+    jobs
+  )
+  return (
+    <>
+      <h3>{o.heading}</h3>
+      <p className={styles.hint}>{hint}</p>
+      <div className={styles.actions}>
+        <NumberField
+          text={fill(o.share, names)}
+          value={sharePct}
+          onChange={(v) => setSharePct(Math.min(100, Math.max(0, v)))}
+        />
+        <NumberField
+          text={o.jobs}
+          value={jobs}
+          onChange={(v) => setJobs(Math.min(1000, Math.max(0, Math.floor(v))))}
+        />
+      </div>
+      <p>
+        <strong>
+          {r.breakEvenBps === 'never'
+            ? o.never
+            : r.breakEvenBps === 'none'
+            ? o.off
+            : fill(o.breakEven, {
+                p: (r.breakEvenBps / 100).toFixed(1),
+                ...names
+              })}
+        </strong>
+      </p>
+      <p>
+        {fill(o.result, {
+          jobs: r.jobs,
+          lowJobs: r.lowJobs,
+          highJobs: r.highJobs,
+          full: r.fullDiscounts,
+          partial: r.partialDiscounts,
+          none: r.noDiscounts,
+          ...names
+        })}
+        {r.firstShort === null
+          ? o.lasted
+          : fill(o.firstShort, { n: r.firstShort })}
+      </p>
+      <p>
+        {fill(o.pool, {
+          start: formatPlay(r.poolStart),
+          end: formatPlay(r.poolEnd),
+          paid: formatPlay(r.discountPaid),
+          wanted: formatPlay(r.discountWanted)
+        })}
+      </p>
+      <p className={styles.hint}>{o.caution}</p>
+    </>
+  )
+}
+
 type Status =
   | { kind: 'busy' }
   | { kind: 'done'; tx: string; text: string }
@@ -1034,6 +1141,13 @@ export default function GreenFeePanel({
           </p>
 
           <OptionCompare
+            fee={fee}
+            f={f}
+            chosenKey={chosenKey}
+            placeName={placeName}
+          />
+
+          <PoolOutlookPanel
             fee={fee}
             f={f}
             chosenKey={chosenKey}

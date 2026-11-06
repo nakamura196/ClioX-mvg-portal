@@ -192,6 +192,20 @@
         "scheme": "Scheme"
       },
       "listPrice": "List price: {place} {base}, {high} {hbase}. Figures in PLAY."
+    },
+    "outlook": {
+      "heading": "Will the type 3 pool last? (estimate)",
+      "hint": "Type 3 pays discounts at low-emission places from surcharges at high-emission places. This estimate runs the same {hours}-hour job many times, at {low} and at {high}, and shows how the pool of scheme #{id} would change. Nothing is written to the chain. Places in the middle band do not move the pool, so they are left out.",
+      "off": "Type 3 is off in the current settings, so there is no pool to run out.",
+      "share": "Share of jobs at {high} (%)",
+      "jobs": "Number of jobs",
+      "breakEven": "The pool holds steady only if at least {p} % of these jobs run at {high}. Below that, it shrinks.",
+      "never": "With no surcharge, nothing ever goes into the pool, so the discount stops as soon as the current pool is used up.",
+      "result": "Out of {jobs} jobs, {lowJobs} run at {low} and {highJobs} at {high}. The full discount was given {full} times, a reduced one {partial} times, and none {none} times.",
+      "firstShort": " The discount first fell short at job {n}.",
+      "lasted": " The discount was never short.",
+      "pool": "Pool: {start} at the start, {end} at the end. Discounts given: {paid} of {wanted} PLAY.",
+      "caution": "Jobs are spread evenly, not drawn at random, and every job has the same length. Real use will not be this regular."
     }
   },
   "record": {
