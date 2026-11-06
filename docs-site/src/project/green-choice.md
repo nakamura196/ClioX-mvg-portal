@@ -131,7 +131,7 @@ We set up one scheme per combination on the test network and paid under each (a 
 ### Payments made by a person with MetaMask
 
 On the same day, a person signed and paid with a real MetaMask wallet.
-Earlier payments were made by a trial wallet driven by a script, so this is the first time it was done by hand.
+A person had already checked payments by hand on October 5, on the earlier contract that had only types 3 and 4. These are the first payments made by hand on the new contract with all four types.
 All three are in Stockholm (list price 11.16).
 
 - **Payment #12 (3 + 4)**: discount 2.23, subsidy 4.46, so the user paid 4.46. The same as the October example above.
