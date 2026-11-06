@@ -7,16 +7,23 @@
 # portal, so it is installed into a throw-away folder unless PLAYWRIGHT_DIR
 # points at one that has it.
 #
-# Usage: zsh scripts/demo-video/build.zsh <script.json> [base-url] [out-dir] [langs]
+# Usage: zsh scripts/demo-video/build.zsh [script.json] [base-url] [out-dir] [langs]
 #   e.g. zsh scripts/demo-video/build.zsh scripts/demo-video/green-fee.json http://localhost:3011
+#   With no script.json, records the archivists' first look (script.json) in English,
+#   as before.
 # Output: <out-dir>/<name>.<lang>.mp4 and its caption files, one per language (default: en ja)
 set -euo pipefail
 
 here=${0:A:h}
-script=${1:A}
-base=${2:-http://localhost:8140}
-out=${3:-$here/../../docs/prototypes/demo-video/out}
-langs=(${=${4:-en ja}})
+if [[ ${1:-} == *.json ]]; then
+  script=${1:A}; shift
+  langs=(${=${3:-en ja}})
+else
+  script=$here/script.json
+  langs=(${=${3:-en}})
+fi
+base=${1:-http://localhost:8140}
+out=${2:-$here/../../docs/prototypes/demo-video/out}
 
 if [[ -z ${CHROMIUM_PATH:-} ]]; then
   shells=(~/Library/Caches/ms-playwright/chromium_headless_shell-*/chrome-headless-shell-mac-arm64/chrome-headless-shell(N))

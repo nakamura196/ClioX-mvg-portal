@@ -16,7 +16,9 @@ rooms, the network fee, and why a wallet is needed only to run an analysis.
   alongside each en). Edit it and run
   `zsh scripts/demo-video/build.zsh` with a dev server on port 8140 to get
   a new video in `docs/prototypes/demo-video/out/` (not committed; about
-  4 MB).
+  4 MB). Since 6 November 2026 the file is `clio-x-first-look.en.mp4`
+  (the recorder also makes other videos; see
+  `docs/prototypes/carbon-choice/README.md`).
 - Loading waits are cut out. Frames come from the browser's own paint
   timestamps, so captions stay in sync (Playwright's built-in recorder
   drifted by 1–4 s).
