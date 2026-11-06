@@ -1,57 +1,57 @@
 WEBVTT
 
 1
-00:00:06.829 --> 00:00:14.887
+00:00:14.703 --> 00:00:24.753
 The same analysis can run in several data centres. In Stockholm it emits about 14 g of CO2.
 
 2
-00:00:16.498 --> 00:00:20.699
+00:00:26.365 --> 00:00:31.940
 In Tokyo the same job emits about 618 g.
 
 3
-00:00:20.700 --> 00:00:28.759
+00:00:31.940 --> 00:00:41.916
 The aim: whoever picks the lower-emission place should pay less. The question is who covers the difference.
 
 4
-00:00:30.379 --> 00:00:39.580
+00:00:43.541 --> 00:00:55.166
 There are four options. Each can be switched on alone or combined. Each was deployed as its own scheme.
 
 5
-00:00:41.191 --> 00:00:50.393
+00:00:56.779 --> 00:01:08.555
 Option 1: the provider itself takes 10 % less for low-emission jobs.
 
 6
-00:00:52.005 --> 00:00:59.063
+00:01:10.167 --> 00:01:19.092
 Only the provider can set this share. A scheme can only choose whether to pass it on.
 
 7
-00:01:00.674 --> 00:01:10.874
+00:01:20.706 --> 00:01:33.458
 Option 2: the portal charges a 10 % fee on every job and waives it for low-emission places.
 
 8
-00:01:12.484 --> 00:01:20.543
+00:01:35.071 --> 00:01:46.947
 Note: Stockholm stays at the list price. It is only cheaper than the others, because they pay the fee.
 
 9
-00:01:22.155 --> 00:01:32.357
+00:01:48.558 --> 00:02:01.984
 Option 3: high-emission places pay a surcharge into a pool, which pays the discount. No outside money.
 
 10
-00:01:33.968 --> 00:01:44.029
+00:02:03.596 --> 00:02:18.373
 Option 4: a funder deposits money in advance, and it pays half of a low-emission job, up to 5 per job.
 
 11
-00:01:45.647 --> 00:01:52.991
+00:02:20.000 --> 00:02:29.501
 This table puts the options side by side for the same job: what the user pays, and who covers the rest.
 
 12
-00:01:54.611 --> 00:02:05.384
+00:02:31.123 --> 00:02:46.224
 In Stockholm, against a list price of 11.16: option 1 gives 10.04, option 3 gives 8.93, option 4 gives 6.16.
 
 13
-00:02:07.000 --> 00:02:15.058
+00:02:47.838 --> 00:02:58.513
 With all four together the user pays 3.91, while a Tokyo job costs 30.35.
 
 14
-00:02:16.669 --> 00:02:24.870
+00:03:00.124 --> 00:03:11.300
 Every payment stays on the public ledger, with a link to its transaction. A funder can show where its money went.

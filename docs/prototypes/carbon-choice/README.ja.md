@@ -89,10 +89,17 @@
 
 ### デモ動画（2026-11-06）
 
-4 通りの選択肢を順に切り替え、比べ表と台帳を見せる字幕つきの無音動画（英語版 約 140 秒、日本語版 約 153 秒）。財布はつながず、配布のときに払った実例だけを見せます。
+4 通りの選択肢を順に切り替え、比べ表と台帳を見せる動画です。字幕は画面に焼き込み、声が付きます。英語版は約 2 分 44 秒、日本語版は約 3 分 35 秒で、どちらも 3840×2160（4K）です。財布はつながず、配布のときに払った実例だけを見せます。
 
-- 台本: `scripts/demo-video/green-fee.json`（字幕は英日を並べて書く）
-- 作り直し: このブランチの画面を `npx next dev -p 3011` で立ち上げ、`zsh scripts/demo-video/build.zsh scripts/demo-video/green-fee.json http://localhost:3011 docs/prototypes/carbon-choice/video`
-- 出力: `docs/prototypes/carbon-choice/video/clio-x-green-fee-options.{en,ja}.mp4`（git の外）と字幕ファイル（git に入れる）
-- 録画の道具は proto/demo-video（2026-09-26）のものを写し、台本と言語を選べるようにしました。字を大きくするため、800×450 の画面を 2.4 倍で描き、1920×1080 で書き出します。
+- 声は日英とも Kokoro です（日本語 `jf_alpha`、英語 `af_heart`）。`~/git/blog/common/kokoro/kokoro_core.py` を、読みの規則ごとそのまま使っています。読み上げる文は台本の `say` に書きます（数字の読みはかなで書く）。
+- 読み間違いは、音声認識（whisper.cpp large-v3-turbo）で聞き取って確かめました。英日とも、台本どおりに読んでいます。
+- 台本: `scripts/demo-video/green-fee.json`
+- 作り直し:
+  1. 声を作る: `~/git/zenn/scripts/media/kokoro-ja/.venv/bin/python scripts/demo-video/voice.py scripts/demo-video/green-fee.json docs/prototypes/carbon-choice/video ja`（英語は `en`）
+  2. 画面を立ち上げる: `npx next dev -p 3011`
+  3. 撮る: `zsh scripts/demo-video/build.zsh scripts/demo-video/green-fee.json http://localhost:3011 docs/prototypes/carbon-choice/video`
+- 各場面は、声が終わるまで止めて撮ります。声は字幕の出る時刻に置いて重ねます。
+- 4K で撮るため、800×450 の画面を 4.8 倍で描いています。~/git/blog の決まりは「1920×1080 を 2 倍」です。ただ、この画面は中身の幅が狭く、1920 幅だと字が小さすぎます。
+- 窓なしの録画は表示倍率を無視するので、ブラウザに `--force-device-scale-factor` を渡しています（~/git/blog と同じ対処）。
+- 出力: `docs/prototypes/carbon-choice/video/clio-x-green-fee-options.{en,ja}.mp4`（git の外、30〜40 MB）と字幕ファイル（git に入れる）。
 - 仕組みの名前（「Option 1: provider rebate」など）はチェーン上の値なので、日本語の画面でも英語のまま出ます。

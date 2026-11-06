@@ -89,10 +89,17 @@ Not yet checked:
 
 ### Demo video (6 November 2026)
 
-A silent, captioned walk through the four options, the comparison table and the ledger (English about 140 s, Japanese about 153 s). No wallet is connected; it shows only the worked payments made at deployment.
+A narrated walk through the four options, the comparison table and the ledger, with captions in the picture. English about 2 min 44 s, Japanese about 3 min 35 s, both 3840×2160 (4K). No wallet is connected; it shows only the worked payments made at deployment.
 
-- Script: `scripts/demo-video/green-fee.json` (each caption in en and ja)
-- Rebuild: run this branch with `npx next dev -p 3011`, then `zsh scripts/demo-video/build.zsh scripts/demo-video/green-fee.json http://localhost:3011 docs/prototypes/carbon-choice/video`
-- Output: `docs/prototypes/carbon-choice/video/clio-x-green-fee-options.{en,ja}.mp4` (not in git) and the caption files (in git)
-- The recorder is copied from proto/demo-video (2026-09-26) and now takes a script and a language. To make the text larger it draws an 800×450 page at 2.4x and writes 1920×1080.
+- Voice: Kokoro for both languages (ja `jf_alpha`, en `af_heart`), through `~/git/blog/common/kokoro/kokoro_core.py` with its reading rules. What is read aloud is the script's `say` (numbers spelled out where Kokoro misreads them).
+- Checked by transcribing the narration with whisper.cpp (large-v3-turbo): both languages read as scripted.
+- Script: `scripts/demo-video/green-fee.json`
+- Rebuild:
+  1. voice: `~/git/zenn/scripts/media/kokoro-ja/.venv/bin/python scripts/demo-video/voice.py scripts/demo-video/green-fee.json docs/prototypes/carbon-choice/video ja` (and `en`)
+  2. run the page: `npx next dev -p 3011`
+  3. record: `zsh scripts/demo-video/build.zsh scripts/demo-video/green-fee.json http://localhost:3011 docs/prototypes/carbon-choice/video`
+- Each step is held until its voice ends; the voice is placed at the caption's start.
+- 4K: an 800×450 page drawn at 4.8x. ~/git/blog's rule is 1920×1080 at 2x, but this page is narrow and its text is too small at 1920.
+- Headless screencasts ignore the device scale factor, so the browser gets `--force-device-scale-factor` (same fix as ~/git/blog).
+- Output: `docs/prototypes/carbon-choice/video/clio-x-green-fee-options.{en,ja}.mp4` (not in git, 30–40 MB) and the caption files (in git).
 - Scheme names (e.g. "Option 1: provider rebate") are on-chain values, so they stay in English on the Japanese page.

@@ -40,6 +40,20 @@ const pick = (v) =>
 const pickAll = (o) =>
   Object.fromEntries(Object.entries(o).map(([k, v]) => [k, pick(v)]))
 const prefix = lang === 'ja' ? '/ja' : ''
+// Narration (optional): <outDir>/<name>.<lang>.voice.json from voice.py.
+// Each step with a voice is held until the voice ends; the voice is mixed in at the step's start.
+const voicePath = join(
+  outDir,
+  `${script.name || 'clio-x-first-look'}.${lang}.voice.json`
+)
+const voices = (() => {
+  try {
+    return JSON.parse(readFileSync(voicePath, 'utf8'))
+  } catch {
+    return {}
+  }
+})()
+const spoken = [] // { t, wav }
 const { width, height } = script.viewport
 // A smaller viewport drawn at 2x makes the page's text larger in the video.
 const dsf = script.deviceScaleFactor || 1
@@ -179,7 +193,13 @@ async function highlight(page, targets) {
 const exe =
   process.env.CHROMIUM_PATH ||
   `${process.env.HOME}/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell`
-const browser = await chromium.launch({ executablePath: exe })
+// Headless screencasts are taken in CSS pixels and ignore the context's
+// deviceScaleFactor; the browser-wide flag makes the frames really dsf times larger
+// (same fix as ~/git/blog/common/kakeai/recorder.mjs, 2026-09-20).
+const browser = await chromium.launch({
+  executablePath: exe,
+  args: dsf !== 1 ? [`--force-device-scale-factor=${dsf}`] : []
+})
 const context = await browser.newContext({
   viewport: { width, height },
   deviceScaleFactor: dsf,
@@ -225,7 +245,8 @@ const t0 = now()
 const cuts = []
 const cues = []
 
-for (const step of script.steps) {
+for (const [index, step] of script.steps.entries()) {
+  const voice = voices[String(index)]
   const cover = () =>
     page.evaluate((c) => {
       if (!window.__demo) return
@@ -251,7 +272,11 @@ for (const step of script.steps) {
     await page.waitForTimeout(1500)
     cuts.push([started, now()])
   }
-  if (step.hold) await page.waitForTimeout(step.hold * 1000)
+  if (step.cover && voice && !step.en) {
+    // A cover with narration: hold it until the voice ends.
+    spoken.push({ t: now(), wav: voice.wav })
+    await page.waitForTimeout(Math.max(step.hold || 0, voice.sec + 0.8) * 1000)
+  } else if (step.hold) await page.waitForTimeout(step.hold * 1000)
   if (step.uncover) {
     await page.evaluate(() => window.__demo.uncover())
     await page.waitForTimeout(700)
@@ -261,7 +286,10 @@ for (const step of script.steps) {
   if (step.en) {
     await page.evaluate((t) => window.__demo.caption(t), step[lang])
     cue = { start: now(), en: step.en, ja: step.ja }
-    await page.waitForTimeout(readingTime(step[lang]) * 1000)
+    if (voice) spoken.push({ t: cue.start, wav: voice.wav })
+    await page.waitForTimeout(
+      Math.max(readingTime(step[lang]), voice ? voice.sec + 0.6 : 0) * 1000
+    )
   }
   if (step.then?.click) {
     // The caption stays up while the viewer sees what the click did; the
@@ -335,6 +363,34 @@ for (const l of ['en', 'ja']) {
 // One language's captions are already in the picture. Both languages are also
 // added as selectable tracks, off by default so the text is not shown twice.
 const mp4 = join(outDir, `${base}.mp4`)
+let audio = []
+if (spoken.length) {
+  const wav = join(outDir, `${base}.narration.wav`)
+  const ins = spoken.flatMap((v) => ['-i', v.wav])
+  const chains = spoken.map((v, i) => {
+    const ms = Math.max(0, Math.round(shift(v.t) * 1000))
+    return `[${i}:a]adelay=${ms}|${ms}[a${i}]`
+  })
+  const filter = `${chains.join(';')};${spoken
+    .map((_, i) => `[a${i}]`)
+    .join('')}amix=inputs=${spoken.length}:normalize=0,apad,atrim=0:${shift(
+    end
+  ).toFixed(3)}[out]`
+  execFileSync('ffmpeg', [
+    '-y',
+    '-loglevel',
+    'error',
+    ...ins,
+    '-filter_complex',
+    filter,
+    '-map',
+    '[out]',
+    '-ar',
+    '48000',
+    wav
+  ])
+  audio = ['-i', wav]
+}
 execFileSync(
   'ffmpeg',
   [
@@ -349,14 +405,18 @@ execFileSync(
     vtt('en'),
     '-i',
     vtt('ja'),
+    ...audio,
     '-map',
     '0:v',
     '-map',
     '1',
     '-map',
     '2',
+    ...(audio.length ? ['-map', '3:a', '-c:a', 'aac', '-b:a', '192k'] : []),
     '-vf',
-    'format=yuv420p',
+    `scale=${Math.round((width * dsf) / 2) * 2}:${
+      Math.round((height * dsf) / 2) * 2
+    },format=yuv420p`,
     '-c:v',
     'libx264',
     '-crf',
