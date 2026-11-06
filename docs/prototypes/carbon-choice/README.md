@@ -81,10 +81,13 @@ Checked on 6 November 2026:
 3. The owner's EAS member attestation is valid for the new contract's `isMember` too (it lives in EAS, so changing the contract does not need new attestations).
 4. On a local build of the page: the options bar, the comparison table, switching scheme (#1 → #4) and the portal fee on each candidate row, checked by eye. No console errors.
 
+Checked afterwards (6 November 2026):
+
+- Live on the public cliox.ldas.jp (PR #10 merged into deploy/hosting, `ecda175e`). The comparison table on the public page matches the values on the chain.
+- A person paid three times from MetaMask, all in Stockholm. Payment #12 (scheme #1, 3 + 4, block 12078692): discount 2.232, subsidy 4.464, user 4.464, as in the table. #13 (scheme #7, all four): type 1 1.116, type 3 2.232, type 4 3.906, user 3.906, as in the table (the 1.116 type 2 fee was fully waived). #14 (scheme #7, the next payment): only 0.2048 was left in the type 3 pool, so the discount was cut to that and the user paid 4.9196.
+
 Not yet checked:
 
-- A person paying from MetaMask on the new contract (the worked payments were sent by the operator wallet from a script).
-- The public cliox.ldas.jp (after branch proto/green-options is merged into deploy/hosting).
 - The 10 % for type 1 is a placeholder set by the operator, not an offer from a real provider.
 
 ### Demo video (6 November 2026)

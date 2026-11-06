@@ -2,6 +2,8 @@ import {
   DEFAULT_RULES,
   FEE_OPTIONS,
   FeeLocation,
+  NO_TYPES,
+  simulatePool,
   optionRules,
   typesOn,
   attestationQuery,
@@ -177,5 +179,37 @@ describe('EAS helpers', () => {
     expect(reasonFromCode(0)).toBe('ok')
     expect(reasonFromCode(7)).toBe('revoked')
     expect(reasonFromCode(99)).toBe('notFound')
+  })
+})
+
+describe('simulatePool (type 3 pool outlook)', () => {
+  const r3 = optionRules(FEE_OPTIONS.find((o) => o.id === 'o3'))
+  it('gives the break-even share of high-emission jobs', () => {
+    // 20 時間: 東京の上乗せ 4.6688、ストックホルムの値引き 2.232 → 2.232 / 6.9008 = 32.35 %
+    const o = simulatePool(stockholm, tokyo, r3, 0, H20, 2000, 10)
+    expect(o.breakEvenBps).toBe(3235)
+  })
+  it('runs out below the break-even share', () => {
+    // 割合 20 %: 5 件目と 10 件目が東京。原資 0 から始めると 1〜4 件目と 9 件目は値引きできない
+    const o = simulatePool(stockholm, tokyo, r3, 0, H20, 2000, 10)
+    expect(o.highJobs).toBe(2)
+    expect(o.lowJobs).toBe(8)
+    expect(o.firstShort).toBe(1)
+    expect(o.noDiscounts).toBe(5)
+    // 5 件目の上乗せ 4.6688 で 6・7 件目は満額、8 件目は残り 0.2048、9 件目は 0
+    expect(o.fullDiscounts).toBe(2)
+    expect(o.partialDiscounts).toBe(1)
+    expect(o.poolEnd).toBe(4668800)
+    expect(o.discountPaid).toBe(4668800)
+  })
+  it('lasts at or above the break-even share', () => {
+    const o = simulatePool(stockholm, tokyo, r3, 4668800, H20, 4000, 100)
+    expect(o.firstShort).toBeNull()
+    expect(o.poolEnd).toBeGreaterThan(o.poolStart)
+  })
+  it('reports no discount when type 3 is off', () => {
+    const o = simulatePool(stockholm, tokyo, NO_TYPES, 0, H20, 2000, 10)
+    expect(o.breakEvenBps).toBe('none')
+    expect(o.firstShort).toBeNull()
   })
 })
