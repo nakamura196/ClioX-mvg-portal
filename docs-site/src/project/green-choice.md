@@ -92,7 +92,7 @@ On the "compare and choose" screen, each place shows its list price and what the
   Low-emission places (5 g or less: Stockholm and Montreal) get a 20 % discount from that pool.
   No outside money. When the pool is short, the discount is only what it holds, and the screen says so.
 - **4 (deposited subsidy)**: anyone can deposit money. Choosing a low-emission place pays half the fee from the deposit, up to 5 PLAY per job.
-- In every case the provider receives its full list price. Only the user's share changes.
+- In every case the provider receives its full list price. Only the user's share changes (type 1, added in November, is the one exception: the provider gives up part of it).
 - The shares, the cap and the band limits can be changed on screen; every amount updates at once.
   A visitor can also open their own scheme with those settings.
 - Every payment and deposit stays on the ledger. The screen lists them, each with a link to its transaction.
@@ -104,8 +104,52 @@ As before, it was signed by a trial wallet driven by a script.
 
 Details (contract address, what was checked) are in [the notes for prototype (i)](./prototypes/carbon-choice).
 
+## Comparing all four types (6 November 2026)
+
+Types 1 and 2 now run too, so all four can be switched and compared.
+The aim is that you can pay under each type and see the difference before we discuss.
+This is live on [/carbon-choice](https://cliox.ldas.jp/carbon-choice).
+
+- **1 (provider rebate)**: the computing provider gives up part of its list price, only for jobs in low-emission places.
+  Only the provider (or the operator) can set the share. A scheme only chooses whether to use it.
+  No one plays the provider in the prototype, so the operator set a provisional 10 % for every place.
+- **2 (portal fee)**: the portal adds a fee to every job (10 % by default) and waives it in low-emission places.
+  Low-emission places do not become cheaper than the list price. The other places just become more expensive.
+- The "Options" bar on the page selects one type, "3 + 4", or "all four".
+  The table below it shows what the user pays at the chosen place and at Tokyo, the highest-emission place.
+
+We set up one scheme per combination on the test network and paid under each (a 20-hour job, in PLAY; list price 23.34 in Tokyo, 11.16 in Stockholm).
+
+| Option   | Tokyo pays | Stockholm pays | Who covers the difference                 |
+| -------- | ---------- | -------------- | ----------------------------------------- |
+| 1 only   | 23.34      | 10.04          | Provider forgoes 1.12                     |
+| 2 only   | 25.68      | 11.16          | 2.33 fee in Tokyo; waived in Stockholm    |
+| 3 only   | 28.01      | 8.93           | 2.23 discount from Tokyo's 4.67 surcharge |
+| 4 only   | 23.34      | 6.16           | 5.00 from the deposit (cap)               |
+| All four | 30.35      | 3.91           | Provider 1.12, pool 2.23, deposit 3.91    |
+
+### Payments made by a person with MetaMask
+
+On the same day, a person signed and paid with a real MetaMask wallet.
+Earlier payments were made by a trial wallet driven by a script, so this is the first time it was done by hand.
+All three are in Stockholm (list price 11.16).
+
+- **Payment #12 (3 + 4)**: discount 2.23, subsidy 4.46, so the user paid 4.46. The same as the October example above.
+- **Payment #13 (all four)**: provider 1.12, pool 2.23, deposit 3.91, so the user paid 3.91, as in the table. The 1.12 fee was charged and then fully waived.
+- **Payment #14 (all four, the next payment)**: the user paid 4.92.
+  Only 0.20 was left in the type 3 pool, so the discount was cut to that.
+
+### What we learned
+
+- **Type 3 stops discounting when the pool runs out.** The pool is filled by surcharges on people who pay in high-emission places.
+  If almost everyone chooses low-emission places, it cannot last. This actually happened with #14.
+- **Type 2 alone leaves low-emission places at the list price.** They do not get cheaper; the others get more expensive (Stockholm stays at 11.16, Tokyo 25.68).
+- **Stacking all four widens the gap a lot.** Stockholm pays 3.91 and Tokyo 30.35 (list prices 11.16 and 23.34).
+- The 10 % for type 1 is a provisional value set by the operator, not one offered by a real provider.
+
 ## What we need you to decide
 
-- **In real operation, who pays?** Which of the four, or which combination.
+- **In real operation, who pays?** Which of the four, or which combination. If type 3 is used, what happens when the pool runs out?
+- **If type 1 is used, can we ask providers for a rebate?** The provider sets the share.
 - **If option 4 is used, what funds are expected?** Research grants, institutional budgets, provider sponsorship, and the subsidy share and cap.
 - **Is (c) in [open question](./open-questions) 13** (linking to the retirement of certified credits) also needed?
