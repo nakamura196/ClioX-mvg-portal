@@ -23,3 +23,8 @@
 - [ ] 可視化（/usecases/visualizations）とチャットボット（/usecases/chatbot）を Sepolia で動かす。追加の手順をドキュメントにする
 - [ ] 検証ページ（/verify）の使い方をドキュメントにする
 - [ ] 機能ごとのチュートリアル動画
+- [x] 補助を「承認した人」だけに出す（EAS。PR #6 で 2026-10-09 に公開済み）
+  - [ ] 他の会員の登録: `zsh contracts/carbon-choice/eas-member.zsh attest-file <一覧>`（一覧はリポジトリの外に置く）
+- [ ] 差額を誰が出すか、4 通りを切り替えて比べられる試作（ブランチ proto/green-options）
+  - 2026-11-06 型 1・型 2 を追加し、Sepolia に配布（0xd8748Aee…DF25）。記録は docs/prototypes/carbon-choice/README.ja.md
+  - 残り: PR を出して公開 → 人が MetaMask で払う確認 → 文書サイト（green-choice）の更新 → Vicki 先生たちと相談

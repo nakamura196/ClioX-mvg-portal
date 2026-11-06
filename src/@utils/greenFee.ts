@@ -1,7 +1,11 @@
 /**
- * 排出の少ない場所の利用料を安くする試作（型 3 と型 4）。
+ * 排出の少ない場所の利用料を安くする試作（型 1〜4）。
  * 方針は cliox-docs.ldas.jp/ja/project/green-choice。
  *
+ * 型 1（提供者の値引き）: 場所の提供者が、排出の少ない仕事では定価の一部を受け取らない。
+ *   割合を決めるのは提供者（試作では運営が代わりに設定）。仕組みは、それを使うかだけを選ぶ。
+ * 型 2（ポータル手数料の免除）: 仕組みの運営者が全件に手数料をかけ、排出の少ない場所では
+ *   その一部を免除する。運営者がその収入をあきらめる。
  * 型 3（上乗せと値引き）: 排出の多い場所に上乗せし、その分を貯めた「原資」から
  *   排出の少ない場所を値引きする。外からのお金は入れない。原資が無ければ値引きもない。
  * 型 4（補助の預け入れ）: 誰かが預けたお金から、排出の少ない場所の利用料の一部を払う。
@@ -13,25 +17,27 @@
  * ここの quoteFee は、そのコントラクトの quote と同じ計算をする（画面上の試算用）。
  */
 
-/** Sepolia に配った GreenFeeDemo (2026-10-09 EAS 版, tx 0x86d7f18d…) */
+/** Sepolia に配った GreenFeeDemo (2026-11-06 型 1〜4 版, tx 0x41ae2caf…) */
 export const GREEN_FEE_ADDRESS =
   process.env.NEXT_PUBLIC_GREEN_FEE_ADDRESS ||
-  '0xF1C2738b41ACf84708e611ebe7883f4D51E158f6'
+  '0xd8748AeedE1E5376695158936C26aD8ffD48DF25'
 /** 配った区画。台帳から取引を探すときの起点 */
-export const GREEN_FEE_DEPLOY_BLOCK = 11880222
+export const GREEN_FEE_DEPLOY_BLOCK = 12077842
+/** 型 3・型 4 だけだった前の版（2026-10-09〜11-06）。台帳はチェーンに残っている */
+export const GREEN_FEE_PREVIOUS = '0xF1C2738b41ACf84708e611ebe7883f4D51E158f6'
 /** 誰でも使える既定の仕組み */
 export const DEFAULT_SCHEME_ID = 1
 
 const RULES =
-  'tuple(uint16 surchargeBps, uint16 discountBps, uint64 lowUpToMgPerHour, uint64 highFromMgPerHour, uint16 subsidyBps, uint64 subsidyCapMicro)'
+  'tuple(uint16 surchargeBps, uint16 discountBps, uint64 lowUpToMgPerHour, uint64 highFromMgPerHour, uint16 subsidyBps, uint64 subsidyCapMicro, bool providerRebate, uint16 portalFeeBps, uint16 feeWaiverBps)'
 
 export const GREEN_FEE_ABI = [
   'function balanceOf(address) view returns (uint256)',
   'function faucet()',
   'function locationKeys() view returns (string[])',
-  'function locations(string) view returns (address provider, uint64 microPerHour, uint64 mgPerHour, bool active)',
+  'function locations(string) view returns (address provider, uint64 microPerHour, uint64 mgPerHour, bool active, uint16 rebateBps)',
   'function schemeCount() view returns (uint256)',
-  `function getScheme(uint256) view returns (tuple(address owner, string label, ${RULES} rules, uint256 pool, uint256 deposit, uint256 surchargesIn, uint256 discountsOut, uint256 depositsIn, uint256 subsidiesOut, uint256 withdrawn, uint32 payments))`,
+  `function getScheme(uint256) view returns (tuple(address owner, string label, ${RULES} rules, uint256 pool, uint256 deposit, uint256 surchargesIn, uint256 discountsOut, uint256 depositsIn, uint256 subsidiesOut, uint256 withdrawn, uint32 payments, uint256 rebatesGiven, uint256 feesIn, uint256 feesWaived))`,
   `function createScheme(string label, ${RULES} rules, uint8 gateKind) returns (uint256)`,
   `function setRules(uint256 schemeId, ${RULES} rules)`,
   'function deposit(uint256 schemeId, uint256 amount)',
@@ -45,7 +51,7 @@ export const GREEN_FEE_ABI = [
   'function memberSchema() view returns (bytes32)',
   'function memberAttester() view returns (address)',
   'function paymentsOf(uint256 schemeId) view returns (uint256[])',
-  'function getPayment(uint256) view returns (tuple(uint32 schemeId, address payer, uint40 paidAt, uint64 blockNumber, uint32 durationSeconds, uint64 mgCO2e, uint8 band, uint256 base, uint256 surcharge, uint256 discount, uint256 subsidy, uint256 payerPays, bytes32 ref, string locationKey, uint8 basis, bytes32 attestation))',
+  'function getPayment(uint256) view returns (tuple(uint32 schemeId, address payer, uint40 paidAt, uint64 blockNumber, uint32 durationSeconds, uint64 mgCO2e, uint8 band, uint256 base, uint256 surcharge, uint256 discount, uint256 subsidy, uint256 payerPays, bytes32 ref, string locationKey, uint8 basis, bytes32 attestation, uint256 rebate, uint256 portalFee, uint256 feeWaived))',
   'event SchemeCreated(uint256 indexed schemeId, address indexed owner, string label, uint8 gate)',
   'event Paid(uint256 indexed paymentId, uint256 indexed schemeId, address indexed payer, string locationKey, uint256 base, uint256 surcharge, uint256 discount, uint256 subsidy, uint256 payerPays)',
   'event Deposited(uint256 indexed schemeId, address indexed from, uint256 amount)'
@@ -146,6 +152,8 @@ export interface FeeLocation {
   key: string
   microPerHour: number
   mgPerHour: number
+  /** 型 1: 提供者が排出の少ない仕事で受け取らない割合（1 万分率）。提供者が決める */
+  rebateBps?: number
 }
 
 export interface FeeRules {
@@ -161,6 +169,12 @@ export interface FeeRules {
   subsidyBps: number
   /** 型 4: 1 件あたりの上限（PLAY の 100 万分の 1） */
   subsidyCapMicro: number
+  /** 型 1: 場所ごとの提供者の値引きを使うか */
+  providerRebate: boolean
+  /** 型 2: 全件にかけるポータルの手数料（1 万分率） */
+  portalFeeBps: number
+  /** 型 2: 排出の少ない場所で免除する、手数料の割合（1 万分率） */
+  feeWaiverBps: number
 }
 
 export interface FeeFunds {
@@ -176,6 +190,16 @@ export const bandFromCode = (n: number): Band => BANDS[n] ?? 'middle'
 
 export interface FeeQuote {
   base: number
+  /** 型 1: 提供者が受け取らない分 */
+  rebate: number
+  /** 型 2: 免除の前の手数料 */
+  portalFee: number
+  /** 型 2: 免除した手数料 */
+  feeWaived: number
+  /** 提供者が受け取る額（定価 − 型 1） */
+  providerGets: number
+  /** 仕組みの運営者が受け取る手数料（型 2） */
+  portalGets: number
   surcharge: number
   discount: number
   /** 決まりどおりならいくら値引きするか。原資が足りないと discount より大きい */
@@ -192,7 +216,76 @@ export const DEFAULT_RULES: FeeRules = {
   lowUpToMgPerHour: 5000,
   highFromMgPerHour: 20000,
   subsidyBps: 5000,
-  subsidyCapMicro: 5 * MICRO
+  subsidyCapMicro: 5 * MICRO,
+  providerRebate: false,
+  portalFeeBps: 0,
+  feeWaiverBps: 0
+}
+
+/** 型ごとの既定の値。画面で型を入れたときにこの値から始める */
+export const TYPE_DEFAULTS = {
+  1: { providerRebate: true },
+  2: { portalFeeBps: 1000, feeWaiverBps: 10000 },
+  3: { surchargeBps: 2000, discountBps: 2000 },
+  4: { subsidyBps: 5000, subsidyCapMicro: 5 * MICRO }
+} as const
+export type FeeType = 1 | 2 | 3 | 4
+export const FEE_TYPES: FeeType[] = [1, 2, 3, 4]
+
+/** その決まりで、どの型が入っているか */
+export function typesOn(r: FeeRules): Record<FeeType, boolean> {
+  return {
+    1: r.providerRebate,
+    2: r.portalFeeBps > 0,
+    3: r.surchargeBps > 0 || r.discountBps > 0,
+    4: r.subsidyBps > 0
+  }
+}
+
+/** 型を入れ切りした決まり。切った型の値は 0 にする（閾値は変えない） */
+export function withTypes(
+  base: FeeRules,
+  on: Record<FeeType, boolean>
+): FeeRules {
+  return {
+    ...base,
+    providerRebate: on[1],
+    portalFeeBps: on[2] ? base.portalFeeBps : 0,
+    feeWaiverBps: on[2] ? base.feeWaiverBps : 0,
+    surchargeBps: on[3] ? base.surchargeBps : 0,
+    discountBps: on[3] ? base.discountBps : 0,
+    subsidyBps: on[4] ? base.subsidyBps : 0,
+    subsidyCapMicro: on[4] ? base.subsidyCapMicro : 0
+  }
+}
+
+/**
+ * 相談用に並べる選択肢。Sepolia には、それぞれと同じ決まりの仕組みを
+ * 配ってある（DeployGreenFee.s.sol の #1、#3〜#7）。
+ */
+export interface FeeOption {
+  id: 'o1' | 'o2' | 'o3' | 'o4' | 'o34' | 'all'
+  types: FeeType[]
+}
+export const FEE_OPTIONS: FeeOption[] = [
+  { id: 'o1', types: [1] },
+  { id: 'o2', types: [2] },
+  { id: 'o3', types: [3] },
+  { id: 'o4', types: [4] },
+  { id: 'o34', types: [3, 4] },
+  { id: 'all', types: [1, 2, 3, 4] }
+]
+export const NO_TYPES: FeeRules = withTypes(DEFAULT_RULES, {
+  1: false,
+  2: false,
+  3: false,
+  4: false
+})
+export function optionRules(o: FeeOption): FeeRules {
+  return o.types.reduce<FeeRules>(
+    (r, t) => ({ ...r, ...TYPE_DEFAULTS[t] }),
+    NO_TYPES
+  )
 }
 
 /** コントラクトの quote と同じ計算（整数の切り捨てまで合わせる） */
@@ -213,14 +306,25 @@ export function quoteFee(
       : loc.mgPerHour >= rules.highFromMgPerHour
       ? 'high'
       : 'middle'
+  const low = band === 'low'
+  const rebate =
+    low && rules.providerRebate
+      ? Math.floor((base * (loc.rebateBps ?? 0)) / 10000)
+      : 0
+  const portalFee = Math.floor((base * rules.portalFeeBps) / 10000)
+  const feeWaived = low
+    ? Math.floor((portalFee * rules.feeWaiverBps) / 10000)
+    : 0
   const surcharge =
     band === 'high' ? Math.floor((base * rules.surchargeBps) / 10000) : 0
-  const discountWanted =
-    band === 'low' ? Math.floor((base * rules.discountBps) / 10000) : 0
-  const discount = Math.min(discountWanted, Math.max(0, funds.pool))
-  const due = base + surcharge - discount
+  let due = base - rebate + portalFee - feeWaived + surcharge
+  const discountWanted = low
+    ? Math.floor((base * rules.discountBps) / 10000)
+    : 0
+  const discount = Math.min(discountWanted, Math.max(0, funds.pool), due)
+  due -= discount
   const subsidy =
-    band === 'low' && eligible
+    low && eligible
       ? Math.min(
           Math.floor((due * rules.subsidyBps) / 10000),
           rules.subsidyCapMicro,
@@ -229,6 +333,11 @@ export function quoteFee(
       : 0
   return {
     base,
+    rebate,
+    portalFee,
+    feeWaived,
+    providerGets: base - rebate,
+    portalGets: portalFee - feeWaived,
     surcharge,
     discount,
     discountWanted,

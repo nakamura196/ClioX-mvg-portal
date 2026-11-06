@@ -405,3 +405,45 @@
   font-size: var(--font-size-small);
   font-weight: normal;
 }
+
+/* 選択肢（型の組み合わせ）を切り替える帯 */
+.optionBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin: calc(var(--spacer) / 3) 0;
+  font-size: var(--font-size-small);
+}
+
+.optionBar > span:first-child {
+  font-weight: var(--font-weight-bold);
+  color: var(--font-color-heading);
+}
+
+.optionBar button {
+  font: inherit;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  background: var(--background-body);
+  color: var(--font-color-text);
+  cursor: pointer;
+}
+
+.optionBar .optionActive {
+  background: var(--color-primary, #3f8f3a);
+  border-color: var(--color-primary, #3f8f3a);
+  color: #fff;
+  font-weight: var(--font-weight-bold);
+}
+
+.linkButton {
+  font: inherit;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-primary, #3f8f3a);
+  text-decoration: underline;
+  cursor: pointer;
+}

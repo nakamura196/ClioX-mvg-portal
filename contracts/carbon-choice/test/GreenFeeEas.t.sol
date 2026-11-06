@@ -51,7 +51,10 @@ contract GreenFeeEasTest is Test {
             lowUpToMgPerHour: 5_000,
             highFromMgPerHour: 20_000,
             subsidyBps: 5_000,
-            subsidyCapMicro: 5e6
+            subsidyCapMicro: 5e6,
+            providerRebate: false,
+            portalFeeBps: 0,
+            feeWaiverBps: 0
         });
         open = g.createScheme("open", r, 0);
         gated = g.createScheme("gated", r, 1);
@@ -220,7 +223,7 @@ contract GreenFeeEasTest is Test {
         // there is no setter: the only function that writes the gate is createScheme
         (bool ok,) = address(g).call(abi.encodeWithSignature("setGate(uint256,uint8)", open, 1));
         assertFalse(ok);
-        GreenFeeDemo.Rules memory r = GreenFeeDemo.Rules(0, 0, 5_000, 20_000, 0, 0);
+        GreenFeeDemo.Rules memory r = GreenFeeDemo.Rules(0, 0, 5_000, 20_000, 0, 0, false, 0, 0);
         vm.expectRevert(GreenFeeDemo.BadInput.selector);
         g.createScheme("x", r, 2);
     }

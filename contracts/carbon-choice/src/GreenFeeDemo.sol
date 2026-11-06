@@ -21,8 +21,18 @@ interface IEAS {
 }
 
 /// @title Clio-X green fee demo (prototype, play money)
-/// @notice Makes low-emission compute locations cheaper, in two ways that are
-///         described on cliox-docs.ldas.jp/project/green-choice:
+/// @notice Makes low-emission compute locations cheaper. The four ways are
+///         described on cliox-docs.ldas.jp/project/green-choice; each scheme
+///         turns each of them on or off:
+///
+///   Type 1, provider rebate: the provider of a location offers to take less
+///   than its list price for low-emission jobs. Only the provider (or, for the
+///   demo addresses, the operator) sets the share; a scheme only chooses
+///   whether to pass it on.
+///
+///   Type 2, portal fee waiver: the scheme charges a portal fee on every job,
+///   paid to the scheme owner, and waives part of it for low-emission jobs.
+///   The portal gives up that income.
 ///
 ///   Type 3, feebate (France's bonus-malus): a scheme adds a surcharge to
 ///   high-emission locations and pays a discount to low-emission ones. The
@@ -34,8 +44,8 @@ interface IEAS {
 ///   deposit pays a share of the price, up to a cap per job. Every payout is
 ///   stored here, so a sponsor can show where its money went.
 ///
-/// In every payment the provider receives its full list price. Only the
-/// payer's share changes. The money is PLAY, a token with a free faucet and no
+/// The provider receives its list price, less its own rebate (type 1) when
+/// that is turned on. Types 2 to 4 change only the payer's share. The money is PLAY, a token with a free faucet and no
 /// value. Prices and emissions are the portal's per-hour estimates, registered
 /// by the operator; this contract does not verify them.
 contract GreenFeeDemo {
@@ -60,6 +70,7 @@ contract GreenFeeDemo {
         uint64 microPerHour; // list price, PLAY micro-units per hour
         uint64 mgPerHour; // portal's emission estimate, mgCO2e per hour
         bool active;
+        uint16 rebateBps; // type 1: share of the list price the provider gives up on low-emission jobs
     }
 
     address public immutable operator;
@@ -101,6 +112,7 @@ contract GreenFeeDemo {
     string[] private _locationKeys;
 
     event LocationSet(string key, address provider, uint64 microPerHour, uint64 mgPerHour);
+    event RebateSet(string key, uint16 rebateBps);
 
     // ------------------------------------------------------------- schemes
 
@@ -111,6 +123,9 @@ contract GreenFeeDemo {
         uint64 highFromMgPerHour; // at or above: high-emission (surcharge)
         uint16 subsidyBps; // type 4: share of the price paid from the deposit
         uint64 subsidyCapMicro; // type 4: at most this much per job
+        bool providerRebate; // type 1: pass on each location's own rebate to low-emission jobs
+        uint16 portalFeeBps; // type 2: portal fee on every job, paid to the scheme owner
+        uint16 feeWaiverBps; // type 2: share of that fee waived on low-emission jobs
     }
 
     struct Scheme {
@@ -125,10 +140,16 @@ contract GreenFeeDemo {
         uint256 subsidiesOut;
         uint256 withdrawn;
         uint32 payments;
+        uint256 rebatesGiven; // type 1: what providers gave up
+        uint256 feesIn; // type 2: portal fees received by the owner
+        uint256 feesWaived; // type 2: portal fees not charged
     }
 
     struct Quote {
         uint256 base; // provider's list price
+        uint256 rebate; // type 1: taken off by the provider
+        uint256 portalFee; // type 2: the fee before the waiver
+        uint256 feeWaived; // type 2: the part of the fee not charged
         uint256 surcharge;
         uint256 discount; // what the pool actually pays (may be less than the rule)
         uint256 discountWanted; // what the rule asks for
@@ -155,6 +176,9 @@ contract GreenFeeDemo {
         string locationKey;
         uint8 basis; // why a gated subsidy was allowed: 0 none (or open scheme), 1 EAS attestation
         bytes32 attestation; // the EAS attestation id used, or zero
+        uint256 rebate;
+        uint256 portalFee;
+        uint256 feeWaived;
     }
 
     Scheme[] private _schemes; // id = index + 1
@@ -271,8 +295,21 @@ contract GreenFeeDemo {
         if (msg.sender != operator) revert NotOperator();
         if (bytes(key).length == 0 || provider == address(0) || microPerHour == 0) revert BadInput();
         if (!locations[key].active) _locationKeys.push(key);
-        locations[key] = Location(provider, microPerHour, mgPerHour, true);
+        Location storage l = locations[key];
+        (l.provider, l.microPerHour, l.mgPerHour, l.active) = (provider, microPerHour, mgPerHour, true);
         emit LocationSet(key, provider, microPerHour, mgPerHour);
+    }
+
+    /// @notice Type 1: the provider's own offer for low-emission jobs. Only the
+    ///         location's provider, or the operator (who holds the demo
+    ///         providers), may set it. Schemes cannot.
+    function setRebate(string calldata key, uint16 rebateBps) external {
+        Location storage l = locations[key];
+        if (!l.active) revert NoSuchLocation();
+        if (msg.sender != l.provider && msg.sender != operator) revert NotOperator();
+        if (rebateBps > 10_000) revert BadInput();
+        l.rebateBps = rebateBps;
+        emit RebateSet(key, rebateBps);
     }
 
     function locationKeys() external view returns (string[] memory) {
@@ -376,12 +413,17 @@ contract GreenFeeDemo {
         q.mgCO2e = uint64((uint256(loc.mgPerHour) * durationSeconds) / 3600);
         q.band = loc.mgPerHour <= r.lowUpToMgPerHour ? 0 : loc.mgPerHour >= r.highFromMgPerHour ? 2 : 1;
 
+        if (q.band == 0 && r.providerRebate) q.rebate = (q.base * loc.rebateBps) / 10_000;
+        q.portalFee = (q.base * r.portalFeeBps) / 10_000;
+        if (q.band == 0) q.feeWaived = (q.portalFee * r.feeWaiverBps) / 10_000;
         if (q.band == 2) q.surcharge = (q.base * r.surchargeBps) / 10_000;
+        uint256 due = q.base - q.rebate + q.portalFee - q.feeWaived + q.surcharge;
         if (q.band == 0) {
             q.discountWanted = (q.base * r.discountBps) / 10_000;
-            q.discount = q.discountWanted < s.pool ? q.discountWanted : s.pool;
+            uint256 d = q.discountWanted < s.pool ? q.discountWanted : s.pool;
+            q.discount = d < due ? d : due;
         }
-        uint256 due = q.base + q.surcharge - q.discount;
+        due -= q.discount;
         if (q.band == 0 && (member || gate[schemeId] == GATE_OPEN)) {
             uint256 sub = (due * r.subsidyBps) / 10_000;
             if (sub > r.subsidyCapMicro) sub = r.subsidyCapMicro;
@@ -454,8 +496,12 @@ contract GreenFeeDemo {
         s.surchargesIn += q.surcharge;
         s.discountsOut += q.discount;
         s.subsidiesOut += q.subsidy;
+        s.rebatesGiven += q.rebate;
+        s.feesIn += q.portalFee - q.feeWaived;
+        s.feesWaived += q.feeWaived;
         s.payments += 1;
-        _transfer(address(this), locations[key].provider, q.base);
+        _transfer(address(this), locations[key].provider, q.base - q.rebate);
+        if (q.portalFee > q.feeWaived) _transfer(address(this), s.owner, q.portalFee - q.feeWaived);
 
         _payments.push(
             Payment({
@@ -474,7 +520,10 @@ contract GreenFeeDemo {
                 ref: ref,
                 locationKey: key,
                 basis: member && q.subsidy > 0 ? 1 : 0,
-                attestation: member ? uid : bytes32(0)
+                attestation: member ? uid : bytes32(0),
+                rebate: q.rebate,
+                portalFee: q.portalFee,
+                feeWaived: q.feeWaived
             })
         );
         paymentId = _payments.length;
@@ -504,6 +553,7 @@ contract GreenFeeDemo {
 
     function _checkRules(Rules calldata r) private pure {
         if (r.surchargeBps > 10_000 || r.discountBps > 10_000 || r.subsidyBps > 10_000) revert BadInput();
+        if (r.portalFeeBps > 10_000 || r.feeWaiverBps > 10_000) revert BadInput();
         if (r.lowUpToMgPerHour >= r.highFromMgPerHour) revert BadInput();
     }
 
