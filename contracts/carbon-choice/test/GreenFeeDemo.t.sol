@@ -32,7 +32,10 @@ contract GreenFeeDemoTest is Test {
             lowUpToMgPerHour: 5_000,
             highFromMgPerHour: 20_000,
             subsidyBps: sub,
-            subsidyCapMicro: cap
+            subsidyCapMicro: cap,
+            providerRebate: false,
+            portalFeeBps: 0,
+            feeWaiverBps: 0
         });
     }
 

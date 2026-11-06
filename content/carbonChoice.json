@@ -32,7 +32,7 @@
   },
   "fee": {
     "heading": "3. How the fee is set (prototype)",
-    "intro": "Try rules that make low-emission locations cheaper. The money is PLAY, play money on a test network (Sepolia), with no value. In every case the provider receives its full list price. Only your share changes.",
+    "intro": "Try rules that make low-emission locations cheaper. The money is PLAY, play money on a test network (Sepolia), with no value. There are four ways to fund the difference. Under types 2 to 4 the provider receives its full list price; under type 1 the provider itself gives up part of it.",
     "scheme": "Scheme",
     "schemeOption": "#{id} {label} (run by {owner})",
     "schemeDefault": "the Clio-X trial wallet",
@@ -101,7 +101,9 @@
       "pays": "Paid",
       "tx": "Tx",
       "job": "Job",
-      "member": "Subsidy basis"
+      "member": "Subsidy basis",
+      "rebate": "Rebate",
+      "fee": "Portal fee"
     },
     "deposits": "Deposits",
     "depositRow": "{from} deposited {v} PLAY.",
@@ -116,10 +118,7 @@
     "helpJob": "The ledger stores only a fingerprint (SHA-256) of the job ID, not the ID itself.",
     "gate": {
       "label": "Who may receive the subsidy",
-      "name": [
-        "Anyone",
-        "People with an EAS membership attestation"
-      ],
+      "name": ["Anyone", "People with an EAS membership attestation"],
       "fixed": "Chosen when the scheme is created. It cannot be changed afterwards.",
       "unreadable": "Cannot be checked. You cannot pay in this scheme.",
       "createLabel": "Who may receive the subsidy in the new scheme",
@@ -150,6 +149,49 @@
       "lookupFailed": "Could not search easscan. Enter the attestation number below.",
       "link": "easscan",
       "ledgerMark": "EAS"
+    },
+    "t1": {
+      "name": "Type 1: provider rebate",
+      "hint": "The provider of a location offers to take less than its list price when the job is in a low-emission place. Only the provider sets the share; a scheme only chooses whether to pass it on. In this demo nobody holds the providers' keys, so the operator set 10 % for every place.",
+      "offers": "Each provider's offer: {list}",
+      "minus": "provider rebate −{v}"
+    },
+    "t2": {
+      "name": "Type 2: portal fee waiver",
+      "hint": "The scheme adds a portal fee to every job, paid to whoever runs the scheme. For low-emission places part or all of it is waived. The portal gives up that income; low-emission jobs are not cheaper than the list price, only cheaper than the others.",
+      "fee": "Portal fee (%)",
+      "waiver": "Waived on low (%)",
+      "received": "Fees received so far: {v} PLAY",
+      "plus": "portal fee +{v}",
+      "waived": "fee waived {v}",
+      "waivedShort": "{v} waived"
+    },
+    "totals12": "Provider rebates {rebate}, portal fees {fee} (waived {waived}).",
+    "previous": "The earlier version (types 3 and 4 only, used 9 October to 6 November 2026) is {address}; its payments stay on the chain.",
+    "options": {
+      "label": "Options:",
+      "hint": "Each button turns on one way of funding the difference, or a combination. Where the same rules were deployed as a scheme on Sepolia, the page switches to that scheme, so you can pay under it and see its ledger. Otherwise only the settings on this page change, and you can create a scheme with them.",
+      "name": {
+        "o1": "1 Provider",
+        "o2": "2 Portal",
+        "o3": "3 Surcharge/discount",
+        "o4": "4 Sponsor",
+        "o34": "3 + 4",
+        "all": "All four"
+      },
+      "compareHeading": "Who pays for the difference, by option",
+      "compareHint": "The same job at {place}, under each option. The pool and deposit are the current balances of the scheme with the same rules. The last column shows what the same job costs at the highest-emission place, {high}.",
+      "col": {
+        "option": "Option",
+        "payer": "User pays",
+        "provider": "Provider gets",
+        "portal": "Portal gets",
+        "pool": "From pool",
+        "deposit": "From deposit",
+        "high": "User pays at {place}",
+        "scheme": "Scheme"
+      },
+      "listPrice": "List price: {place} {base}, {high} {hbase}. Figures in PLAY."
     }
   },
   "record": {

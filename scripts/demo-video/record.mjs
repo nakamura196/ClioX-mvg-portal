@@ -6,7 +6,11 @@
 // language, so players can also show them as a selectable track.
 //
 // Usage: see build.zsh (it installs Playwright and converts to MP4).
-//   node record.mjs <baseUrl> <outDir>
+//   node record.mjs <baseUrl> <outDir> [script.json] [en|ja]
+//
+// The language picks the captions drawn into the picture, the page locale
+// (/ja prefix) and, where a target or cover gives { en, ja }, which text to use.
+// Copied from branch proto/demo-video (2026-09-26) and generalised.
 
 import { createRequire } from 'node:module'
 import {
@@ -24,15 +28,44 @@ const here = dirname(fileURLToPath(import.meta.url))
 const require = createRequire(join(process.env.PLAYWRIGHT_DIR || here, 'x.js'))
 const { chromium } = require('playwright')
 
-const [baseUrl = 'http://localhost:8140', outDir = join(here, 'out')] =
-  process.argv.slice(2)
-const script = JSON.parse(readFileSync(join(here, 'script.json'), 'utf8'))
+const [
+  baseUrl = 'http://localhost:8140',
+  outDir = join(here, 'out'),
+  scriptPath = join(here, 'script.json'),
+  lang = 'en'
+] = process.argv.slice(2)
+const script = JSON.parse(readFileSync(scriptPath, 'utf8'))
+const pick = (v) =>
+  v && typeof v === 'object' && !Array.isArray(v) && 'en' in v ? v[lang] : v
+const pickAll = (o) =>
+  Object.fromEntries(Object.entries(o).map(([k, v]) => [k, pick(v)]))
+const prefix = lang === 'ja' ? '/ja' : ''
+// Narration (optional): <outDir>/<name>.<lang>.voice.json from voice.py.
+// Each step with a voice is held until the voice ends; the voice is mixed in at the step's start.
+const voicePath = join(
+  outDir,
+  `${script.name || 'clio-x-first-look'}.${lang}.voice.json`
+)
+const voices = (() => {
+  try {
+    return JSON.parse(readFileSync(voicePath, 'utf8'))
+  } catch {
+    return {}
+  }
+})()
+const spoken = [] // { t, wav }
 const { width, height } = script.viewport
+// A smaller viewport drawn at 2x makes the page's text larger in the video.
+const dsf = script.deviceScaleFactor || 1
+const captionPx = script.captionPx || 28
 
 // Reading time: about 3 words a second, never shorter than 3 s.
-const readingTime = (text) => Math.max(3, text.split(/\s+/).length / 3 + 1.2)
+const readingTime = (text) =>
+  lang === 'ja'
+    ? Math.max(3, text.length / 7 + 1.2)
+    : Math.max(3, text.split(/\s+/).length / 3 + 1.2)
 
-const overlay = () => {
+const overlay = ({ captionPx }) => {
   const css = `
     #demo-cover { position: fixed; inset: 0; z-index: 2147483646;
       background: #2b211c; color: #f6efe9; display: flex; flex-direction: column;
@@ -43,10 +76,10 @@ const overlay = () => {
     #demo-cover p { margin: 0; opacity: .85; }
     #demo-cover p + p { font-size: 20px; opacity: .7; }
     #demo-cover.gone { opacity: 0; pointer-events: none; }
-    #demo-caption { position: fixed; left: 50%; bottom: 36px; z-index: 2147483647;
-      transform: translateX(-50%); max-width: 1040px; padding: 12px 22px;
+    #demo-caption { position: fixed; left: 50%; bottom: 18px; z-index: 2147483647;
+      transform: translateX(-50%); max-width: min(1040px, 88vw); padding: 0.4em 0.8em;
       background: rgba(20, 16, 14, .86); color: #fff; border-radius: 8px;
-      font: 500 28px/1.35 system-ui, sans-serif; text-align: center;
+      font: 500 ${captionPx}px/1.35 system-ui, sans-serif; text-align: center;
       transition: opacity .3s; }
     #demo-caption:empty { opacity: 0; }
     #demo-box { position: absolute; z-index: 2147483645; pointer-events: none;
@@ -104,7 +137,8 @@ const overlay = () => {
   else document.addEventListener('DOMContentLoaded', mount)
 }
 
-const locate = (page, t) => {
+const locate = (page, t0) => {
+  const t = pickAll(t0)
   if (t.role) return page.getByRole(t.role, { name: t.name, exact: !!t.exact })
   if (t.css) return page.locator(t.css)
   return page.getByText(t.text, { exact: !!t.exact })
@@ -159,16 +193,31 @@ async function highlight(page, targets) {
 const exe =
   process.env.CHROMIUM_PATH ||
   `${process.env.HOME}/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell`
-const browser = await chromium.launch({ executablePath: exe })
+// Headless screencasts are taken in CSS pixels and ignore the context's
+// deviceScaleFactor; the browser-wide flag makes the frames really dsf times larger
+// (same fix as ~/git/blog/common/kakeai/recorder.mjs, 2026-09-20).
+const browser = await chromium.launch({
+  executablePath: exe,
+  args: dsf !== 1 ? [`--force-device-scale-factor=${dsf}`] : []
+})
 const context = await browser.newContext({
   viewport: { width, height },
-  deviceScaleFactor: 1,
-  locale: 'en-CA'
+  deviceScaleFactor: dsf,
+  locale: lang === 'ja' ? 'ja-JP' : 'en-CA'
 })
 await context.addCookies([
   { name: 'allowExternalContent', value: 'true', url: baseUrl }
 ])
-await context.addInitScript(overlay)
+await context.addInitScript(overlay, { captionPx })
+// No first-run tour in the recording.
+await context.addInitScript(() => {
+  try {
+    localStorage.setItem(
+      'cliox.firstRunTour.v1',
+      JSON.stringify({ status: 'dismissed', step: 0 })
+    )
+  } catch {}
+})
 const page = await context.newPage()
 
 // Frames come from the browser's own screencast. Each frame carries the
@@ -188,22 +237,23 @@ cdp.on('Page.screencastFrame', ({ data, metadata, sessionId }) => {
 await cdp.send('Page.startScreencast', {
   format: 'jpeg',
   quality: 92,
-  maxWidth: width,
-  maxHeight: height
+  maxWidth: width * dsf,
+  maxHeight: height * dsf
 })
 const now = () => Date.now() / 1000
 const t0 = now()
 const cuts = []
 const cues = []
 
-for (const step of script.steps) {
+for (const [index, step] of script.steps.entries()) {
+  const voice = voices[String(index)]
   const cover = () =>
     page.evaluate((c) => {
       if (!window.__demo) return
       window.__demo.box(null)
       window.__demo.caption('')
       window.__demo.cover(c.title, c.lines)
-    }, step.cover)
+    }, step.cover && pickAll(step.cover))
   if (step.cover) {
     await cover().catch(() => {}) // about:blank has no overlay
     await page.waitForTimeout(700)
@@ -211,15 +261,22 @@ for (const step of script.steps) {
   if (step.goto) {
     // Loading time is not part of the story: it is cut out below.
     const started = now()
-    await page.goto(baseUrl + step.goto.replace('{asset}', script.asset), {
-      waitUntil: 'networkidle',
-      timeout: 180000
-    })
+    await page.goto(
+      baseUrl + prefix + step.goto.replace('{asset}', script.asset),
+      {
+        waitUntil: 'networkidle',
+        timeout: 180000
+      }
+    )
     if (step.cover) await cover()
     await page.waitForTimeout(1500)
     cuts.push([started, now()])
   }
-  if (step.hold) await page.waitForTimeout(step.hold * 1000)
+  if (step.cover && voice && !step.en) {
+    // A cover with narration: hold it until the voice ends.
+    spoken.push({ t: now(), wav: voice.wav })
+    await page.waitForTimeout(Math.max(step.hold || 0, voice.sec + 0.8) * 1000)
+  } else if (step.hold) await page.waitForTimeout(step.hold * 1000)
   if (step.uncover) {
     await page.evaluate(() => window.__demo.uncover())
     await page.waitForTimeout(700)
@@ -227,9 +284,12 @@ for (const step of script.steps) {
   if (step.highlight) await highlight(page, step.highlight)
   let cue
   if (step.en) {
-    await page.evaluate((t) => window.__demo.caption(t), step.en)
+    await page.evaluate((t) => window.__demo.caption(t), step[lang])
     cue = { start: now(), en: step.en, ja: step.ja }
-    await page.waitForTimeout(readingTime(step.en) * 1000)
+    if (voice) spoken.push({ t: cue.start, wav: voice.wav })
+    await page.waitForTimeout(
+      Math.max(readingTime(step[lang]), voice ? voice.sec + 0.6 : 0) * 1000
+    )
   }
   if (step.then?.click) {
     // The caption stays up while the viewer sees what the click did; the
@@ -239,7 +299,7 @@ for (const step of script.steps) {
     await locate(page, step.then.click).first().click()
     if (step.then.waitText)
       await page
-        .getByText(step.then.waitText)
+        .getByText(pick(step.then.waitText))
         .first()
         .waitFor({ timeout: 180000 })
     await page.waitForTimeout(800)
@@ -288,20 +348,49 @@ const fmt = (t) => {
   const s = String(Math.floor(ms / 1000) % 60).padStart(2, '0')
   return `${h}:${m}:${s}.${String(ms % 1000).padStart(3, '0')}`
 }
-for (const lang of ['en', 'ja']) {
+// Caption timings differ between the en and ja recordings, so each video has its own pair.
+const base = `${script.name || 'clio-x-first-look'}.${lang}`
+const vtt = (l) => join(outDir, `${base}.captions.${l}.vtt`)
+for (const l of ['en', 'ja']) {
   const body = cues
     .map(
       (c, i) =>
-        `${i + 1}\n${fmt(shift(c.start))} --> ${fmt(shift(c.end))}\n${
-          c[lang]
-        }\n`
+        `${i + 1}\n${fmt(shift(c.start))} --> ${fmt(shift(c.end))}\n${c[l]}\n`
     )
     .join('\n')
-  writeFileSync(join(outDir, `captions.${lang}.vtt`), `WEBVTT\n\n${body}`)
+  writeFileSync(vtt(l), `WEBVTT\n\n${body}`)
 }
-// The English captions are already in the picture. Both languages are also
-// added as selectable tracks, off by default so English is not shown twice.
-const mp4 = join(outDir, 'clio-x-first-look.mp4')
+// One language's captions are already in the picture. Both languages are also
+// added as selectable tracks, off by default so the text is not shown twice.
+const mp4 = join(outDir, `${base}.mp4`)
+let audio = []
+if (spoken.length) {
+  const wav = join(outDir, `${base}.narration.wav`)
+  const ins = spoken.flatMap((v) => ['-i', v.wav])
+  const chains = spoken.map((v, i) => {
+    const ms = Math.max(0, Math.round(shift(v.t) * 1000))
+    return `[${i}:a]adelay=${ms}|${ms}[a${i}]`
+  })
+  const filter = `${chains.join(';')};${spoken
+    .map((_, i) => `[a${i}]`)
+    .join('')}amix=inputs=${spoken.length}:normalize=0,apad,atrim=0:${shift(
+    end
+  ).toFixed(3)}[out]`
+  execFileSync('ffmpeg', [
+    '-y',
+    '-loglevel',
+    'error',
+    ...ins,
+    '-filter_complex',
+    filter,
+    '-map',
+    '[out]',
+    '-ar',
+    '48000',
+    wav
+  ])
+  audio = ['-i', wav]
+}
 execFileSync(
   'ffmpeg',
   [
@@ -313,17 +402,21 @@ execFileSync(
     '-i',
     join(seqDir, '%06d.jpg'),
     '-i',
-    join(outDir, 'captions.en.vtt'),
+    vtt('en'),
     '-i',
-    join(outDir, 'captions.ja.vtt'),
+    vtt('ja'),
+    ...audio,
     '-map',
     '0:v',
     '-map',
     '1',
     '-map',
     '2',
+    ...(audio.length ? ['-map', '3:a', '-c:a', 'aac', '-b:a', '192k'] : []),
     '-vf',
-    'format=yuv420p',
+    `scale=${Math.round((width * dsf) / 2) * 2}:${
+      Math.round((height * dsf) / 2) * 2
+    },format=yuv420p`,
     '-c:v',
     'libx264',
     '-crf',

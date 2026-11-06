@@ -4,4 +4,5 @@ out = "out"
 libs = ["lib"]
 solc_version = "0.8.26"
 optimizer = true
+via_ir = true
 fs_permissions = [{ access = "read", path = "./cache/green-fee-locations.json" }]

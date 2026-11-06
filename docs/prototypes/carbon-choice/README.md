@@ -50,3 +50,56 @@ Open points:
 - Who actually funds this (which type, which money, share and cap) is for Vicki and the group to decide.
 - Bands rest on estimates, not measurement. A discount or subsidy is not proof of reduced emissions.
 - Payments are not linked to a real compute job yet (same next step as the record).
+
+## Added 2026-11-06: types 1 and 2, and switching between options
+
+All four ways of funding the difference ([decision note](./funding-decision-2026-10.md)) now run, so each option can be paid under and compared before the discussion.
+
+- **Type 1 (provider rebate)**: the provider of a location takes less than its list price for low-emission jobs. Only the provider (or the operator) sets the share, through `setRebate`; a scheme only chooses whether to pass it on. Nobody holds the demo providers' keys, so the operator set 10 % for every location.
+- **Type 2 (portal fee waiver)**: the scheme charges a portal fee on every job (10 % by default), paid to the scheme owner, and waives it for low-emission locations (100 % by default). Low-emission jobs are not cheaper than the list price, only cheaper than the others.
+- Order: list price − type 1 + fee − waiver + surcharge − discount (from the pool, never more than what is left) − subsidy (from the deposit).
+- Page: an "Options" bar turns on one type, "3 + 4" or "All four". Where a scheme with the same rules is on Sepolia, the page switches to it. Each type can still be turned on and off and tuned. A table "Who pays for the difference, by option" shows the same job at the chosen location and at the highest-emission one (Tokyo). The ledger has new "Rebate" and "Portal fee" columns.
+- Contract: `GreenFeeDemo` [`0xd8748AeedE1E5376695158936C26aD8ffD48DF25`](https://sepolia.etherscan.io/address/0xd8748AeedE1E5376695158936C26aD8ffD48DF25) (Sepolia, block 12077842, tx `0x41ae2caf…`, 33 transactions all successful, about 0.0023 ETH of gas). The ledger of the previous version `0xF1C2738b…58f6` stays on chain.
+- Tests: 41 in forge (7 new for types 1 and 2), 13 for the page's calculation (each option checked against `getPayment` on the deployed contract).
+
+Schemes and the worked payments made at deployment (a 20-hour job, PLAY; list price Tokyo 23.34, Stockholm 11.16):
+
+| Scheme | Option                              | Tokyo, user pays | Stockholm, user pays | Who covered the difference                    |
+| ------ | ----------------------------------- | ---------------- | -------------------- | --------------------------------------------- |
+| #1     | 3 + 4 (the earlier default)         | 28.01            | (not paid)           | —                                             |
+| #2     | 3 + 4, subsidy for EAS members only | —                | —                    | —                                             |
+| #3     | 1 Provider                          | 23.34            | 10.04                | the provider gave up 1.12                     |
+| #4     | 2 Portal                            | 25.68            | 11.16                | portal fee 2.33 in Tokyo, waived in Stockholm |
+| #5     | 3 Surcharge/discount                | 28.01            | 8.93                 | 2.23 discount from Tokyo's 4.67 surcharge     |
+| #6     | 4 Sponsor                           | 23.34            | 6.16                 | 5.00 from the deposit (the cap)               |
+| #7     | All four                            | 30.35            | 3.91                 | provider 1.12, pool 2.23, deposit 3.91        |
+
+Checked on 6 November 2026:
+
+1. The deployment was first run on a local copy of Sepolia (anvil). The first run put all four types on every scheme: the script reused one memory struct, and in Solidity assigning a memory struct copies only the reference. Not a contract bug; the script now builds a new struct each time.
+2. The 11 payments on Sepolia, read with `getPayment`, match the local run.
+3. The owner's EAS member attestation is valid for the new contract's `isMember` too (it lives in EAS, so changing the contract does not need new attestations).
+4. On a local build of the page: the options bar, the comparison table, switching scheme (#1 → #4) and the portal fee on each candidate row, checked by eye. No console errors.
+
+Not yet checked:
+
+- A person paying from MetaMask on the new contract (the worked payments were sent by the operator wallet from a script).
+- The public cliox.ldas.jp (after branch proto/green-options is merged into deploy/hosting).
+- The 10 % for type 1 is a placeholder set by the operator, not an offer from a real provider.
+
+### Demo video (6 November 2026)
+
+A narrated walk through the four options, the comparison table and the ledger, with captions in the picture. English about 2 min 44 s, Japanese about 3 min 35 s, both 3840×2160 (4K). No wallet is connected; it shows only the worked payments made at deployment.
+
+- Voice: Kokoro for both languages (ja `jf_alpha`, en `af_heart`), through `~/git/blog/common/kokoro/kokoro_core.py` with its reading rules. What is read aloud is the script's `say` (numbers spelled out where Kokoro misreads them).
+- Checked by transcribing the narration with whisper.cpp (large-v3-turbo): both languages read as scripted.
+- Script: `scripts/demo-video/green-fee.json`
+- Rebuild:
+  1. voice: `~/git/zenn/scripts/media/kokoro-ja/.venv/bin/python scripts/demo-video/voice.py scripts/demo-video/green-fee.json docs/prototypes/carbon-choice/video ja` (and `en`)
+  2. run the page: `npx next dev -p 3011`
+  3. record: `zsh scripts/demo-video/build.zsh scripts/demo-video/green-fee.json http://localhost:3011 docs/prototypes/carbon-choice/video`
+- Each step is held until its voice ends; the voice is placed at the caption's start.
+- 4K: an 800×450 page drawn at 4.8x. ~/git/blog's rule is 1920×1080 at 2x, but this page is narrow and its text is too small at 1920.
+- Headless screencasts ignore the device scale factor, so the browser gets `--force-device-scale-factor` (same fix as ~/git/blog).
+- Output: `docs/prototypes/carbon-choice/video/clio-x-green-fee-options.{en,ja}.mp4` (not in git, 30–40 MB) and the caption files (in git).
+- Scheme names (e.g. "Option 1: provider rebate") are on-chain values, so they stay in English on the Japanese page.

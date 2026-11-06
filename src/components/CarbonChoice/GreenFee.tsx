@@ -10,7 +10,16 @@ import {
   Band,
   DEFAULT_RULES,
   DEFAULT_SCHEME_ID,
+  FEE_OPTIONS,
+  FEE_TYPES,
   FeeLocation,
+  FeeOption,
+  FeeType,
+  GREEN_FEE_PREVIOUS,
+  TYPE_DEFAULTS,
+  optionRules,
+  typesOn,
+  withTypes,
   FeeQuote,
   FeeRules,
   GATES,
@@ -71,6 +80,9 @@ interface SchemeView {
   discountsOut: number
   subsidiesOut: number
   payments: number
+  rebatesGiven: number
+  feesIn: number
+  feesWaived: number
   /** 補助を受けられる人の決め方。読めないときは undefined（払えなくする） */
   gate?: Gate
 }
@@ -93,6 +105,9 @@ interface PaymentView {
   paidAt: Date
   locationKey: string
   base: number
+  rebate: number
+  portalFee: number
+  feeWaived: number
   surcharge: number
   discount: number
   subsidy: number
@@ -118,7 +133,10 @@ function toRules(r: ethers.utils.Result): FeeRules {
     lowUpToMgPerHour: num(r.lowUpToMgPerHour),
     highFromMgPerHour: num(r.highFromMgPerHour),
     subsidyBps: num(r.subsidyBps),
-    subsidyCapMicro: num(r.subsidyCapMicro)
+    subsidyCapMicro: num(r.subsidyCapMicro),
+    providerRebate: Boolean(r.providerRebate),
+    portalFeeBps: num(r.portalFeeBps),
+    feeWaiverBps: num(r.feeWaiverBps)
   }
 }
 
@@ -139,7 +157,10 @@ async function loadScheme(c: ethers.Contract, id: number): Promise<SchemeView> {
     surchargesIn: num(s.surchargesIn),
     discountsOut: num(s.discountsOut),
     subsidiesOut: num(s.subsidiesOut),
-    payments: s.payments
+    payments: s.payments,
+    rebatesGiven: num(s.rebatesGiven),
+    feesIn: num(s.feesIn),
+    feesWaived: num(s.feesWaived)
   }
 }
 
@@ -168,6 +189,9 @@ async function loadLedger(
         paidAt: new Date(Number(p.paidAt) * 1000),
         locationKey: p.locationKey,
         base: num(p.base),
+        rebate: num(p.rebate),
+        portalFee: num(p.portalFee),
+        feeWaived: num(p.feeWaived),
         surcharge: num(p.surcharge),
         discount: num(p.discount),
         subsidy: num(p.subsidy),
@@ -218,8 +242,7 @@ export function useGreenFee(durationSeconds: number) {
   const [loadError, setLoadError] = useState(false)
   const [schemeId, setSchemeId] = useState(DEFAULT_SCHEME_ID)
   const [draft, setDraft] = useState<FeeRules>(DEFAULT_RULES)
-  const [use3, setUse3] = useState(true)
-  const [use4, setUse4] = useState(true)
+  const [on, setOn] = useState<Record<FeeType, boolean>>(typesOn(DEFAULT_RULES))
   const [ledger, setLedger] = useState<PaymentView[]>()
   const [deposits, setDeposits] = useState<DepositView[]>()
   const { address } = useAccount()
@@ -245,7 +268,8 @@ export function useGreenFee(durationSeconds: number) {
           return {
             key,
             microPerHour: num(l.microPerHour),
-            mgPerHour: num(l.mgPerHour)
+            mgPerHour: num(l.mgPerHour),
+            rebateBps: num(l.rebateBps)
           }
         })
       )
@@ -348,8 +372,7 @@ export function useGreenFee(durationSeconds: number) {
   const resetDraft = useCallback(() => {
     if (!scheme) return
     setDraft(scheme.rules)
-    setUse3(scheme.rules.surchargeBps > 0 || scheme.rules.discountBps > 0)
-    setUse4(scheme.rules.subsidyBps > 0)
+    setOn(typesOn(scheme.rules))
   }, [scheme])
   const schemeKey = scheme ? `${scheme.id}:${JSON.stringify(scheme.rules)}` : ''
   useEffect(resetDraft, [schemeKey]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -366,15 +389,47 @@ export function useGreenFee(durationSeconds: number) {
   }, [schemeId])
   useEffect(refreshLedger, [refreshLedger])
 
-  const rules: FeeRules = useMemo(
-    () => ({
-      ...draft,
-      surchargeBps: use3 ? draft.surchargeBps : 0,
-      discountBps: use3 ? draft.discountBps : 0,
-      subsidyBps: use4 ? draft.subsidyBps : 0
-    }),
-    [draft, use3, use4]
-  )
+  const rules: FeeRules = useMemo(() => withTypes(draft, on), [draft, on])
+
+  /** 型を入れ切りする。値が 0 の型を入れたら、型ごとの既定の値から始める */
+  const setType = (t: FeeType, v: boolean) => {
+    setOn((o) => ({ ...o, [t]: v }))
+    if (!v) return
+    const d = TYPE_DEFAULTS[t] as Partial<FeeRules>
+    setDraft((cur) => {
+      const next = { ...cur }
+      for (const [k, val] of Object.entries(d) as [keyof FeeRules, never][])
+        if (!cur[k]) next[k] = val
+      return next
+    })
+  }
+
+  /** 選択肢と同じ決まりの仕組み（試用ウォレットが配ったもの）。無ければ undefined */
+  const schemeFor = (o: FeeOption) =>
+    schemes?.find(
+      (s) =>
+        s.gate === 0 &&
+        s.owner.toLowerCase() === TRIAL_WALLET.toLowerCase() &&
+        sameRules(s.rules, optionRules(o))
+    )
+
+  /** 選択肢を選ぶ。同じ決まりの仕組みがあればそれに切り替え、無ければ画面の設定だけ変える */
+  const applyOption = (o: FeeOption) => {
+    const s = schemeFor(o)
+    if (s) {
+      setSchemeId(s.id)
+      setDraft(s.rules)
+      setOn(typesOn(s.rules))
+      return
+    }
+    const r = optionRules(o)
+    setDraft({
+      ...r,
+      lowUpToMgPerHour: draft.lowUpToMgPerHour,
+      highFromMgPerHour: draft.highFromMgPerHour
+    })
+    setOn(typesOn(r))
+  }
   const isDraft = !!scheme && !sameRules(rules, scheme.rules)
   const funds = { pool: scheme?.pool ?? 0, deposit: scheme?.deposit ?? 0 }
   const seconds = Math.min(
@@ -396,10 +451,10 @@ export function useGreenFee(durationSeconds: number) {
     loadError,
     draft,
     setDraft,
-    use3,
-    setUse3,
-    use4,
-    setUse4,
+    on,
+    setType,
+    schemeFor,
+    applyOption,
     rules,
     isDraft,
     resetDraft,
@@ -433,6 +488,10 @@ export function FeeLine({
   if (!priced) return <small className={styles.feeNone}>{f.notPriced}</small>
   if (!q) return null
   const parts = [
+    q.rebate > 0 && fill(f.t1.minus, { v: formatPlay(q.rebate) }),
+    q.portalFee - q.feeWaived > 0 &&
+      fill(f.t2.plus, { v: formatPlay(q.portalFee - q.feeWaived) }),
+    q.feeWaived > 0 && fill(f.t2.waived, { v: formatPlay(q.feeWaived) }),
     q.surcharge > 0 && fill(f.plus, { v: formatPlay(q.surcharge) }),
     q.discount > 0 && fill(f.minusDiscount, { v: formatPlay(q.discount) }),
     q.subsidy > 0 && fill(f.minusSubsidy, { v: formatPlay(q.subsidy) })
@@ -484,6 +543,105 @@ function NumberField({
         onChange={(e) => onChange(Number(e.target.value))}
       />
     </label>
+  )
+}
+
+/**
+ * 選択肢ごとに、同じ仕事を同じ場所で払ったとき、誰がいくら出すかを並べる。
+ * 残高（原資・預け入れ）は、その選択肢と同じ決まりの仕組みの今の値を使う。
+ */
+function OptionCompare({
+  fee,
+  f,
+  chosenKey,
+  placeName
+}: {
+  fee: GreenFee
+  f: Fee
+  chosenKey?: string
+  placeName: (key: string) => string
+}): ReactElement {
+  const locs = fee.locations ? Object.values(fee.locations) : []
+  if (!locs.length) return null
+  const byMg = [...locs].sort((a, b) => a.mgPerHour - b.mgPerHour)
+  const here = (chosenKey && fee.locations?.[chosenKey]) || byMg[0]
+  const high = byMg[byMg.length - 1]
+  const c = f.options.col
+  return (
+    <>
+      <h3>{f.options.compareHeading}</h3>
+      <p className={styles.hint}>
+        {fill(f.options.compareHint, {
+          place: placeName(here.key),
+          high: placeName(high.key)
+        })}
+      </p>
+      <div className={styles.tableWrap}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th>{c.option}</th>
+              <th>{c.payer}</th>
+              <th>{c.provider}</th>
+              <th>{c.portal}</th>
+              <th>{c.pool}</th>
+              <th>{c.deposit}</th>
+              <th>{fill(c.high, { place: placeName(high.key) })}</th>
+              <th>{c.scheme}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {FEE_OPTIONS.map((o) => {
+              const s = fee.schemeFor(o)
+              const r = optionRules(o)
+              const funds = { pool: s?.pool ?? 0, deposit: s?.deposit ?? 0 }
+              const q = quoteFee(here, r, funds, fee.seconds)
+              const qh = quoteFee(high, r, funds, fee.seconds)
+              return (
+                <tr key={o.id}>
+                  <td>{f.options.name[o.id]}</td>
+                  <td>
+                    <strong>{formatPlay(q.payerPays)}</strong>
+                  </td>
+                  <td>{formatPlay(q.providerGets)}</td>
+                  <td>{formatPlay(q.portalGets)}</td>
+                  <td>{q.discount ? formatPlay(q.discount) : ''}</td>
+                  <td>{q.subsidy ? formatPlay(q.subsidy) : ''}</td>
+                  <td>{formatPlay(qh.payerPays)}</td>
+                  <td>
+                    {s ? (
+                      <button
+                        type="button"
+                        className={styles.linkButton}
+                        onClick={() => fee.applyOption(o)}
+                      >
+                        {`#${s.id}`}
+                      </button>
+                    ) : (
+                      '—'
+                    )}
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
+      <p className={styles.hint}>
+        {fill(f.options.listPrice, {
+          place: placeName(here.key),
+          base: formatPlay(
+            quoteFee(here, DEFAULT_RULES, { pool: 0, deposit: 0 }, fee.seconds)
+              .base
+          ),
+          high: placeName(high.key),
+          hbase: formatPlay(
+            quoteFee(high, DEFAULT_RULES, { pool: 0, deposit: 0 }, fee.seconds)
+              .base
+          )
+        })}
+      </p>
+    </>
   )
 }
 
@@ -646,6 +804,13 @@ export default function GreenFeePanel({
         .join(ja ? '、' : '; ')
     : ''
 
+  const rebateList = fee.locations
+    ? Object.values(fee.locations)
+        .sort((a, b) => a.mgPerHour - b.mgPerHour)
+        .map((l) => `${placeName(l.key)} ${pct(l.rebateBps ?? 0)} %`)
+        .join(ja ? '、' : ', ')
+    : ''
+
   const dateFmt = (d: Date) =>
     d.toLocaleString(ja ? 'ja-JP' : 'en-CA', {
       dateStyle: 'medium',
@@ -694,14 +859,83 @@ export default function GreenFeePanel({
             <Help label={f.helpLabel} text={`${f.gate.fixed} ${f.gate.help}`} />
           </p>
 
+          <div className={styles.optionBar}>
+            <span>{f.options.label}</span>
+            {FEE_OPTIONS.map((o) => {
+              const active = FEE_TYPES.every(
+                (t) => fee.on[t] === o.types.includes(t)
+              )
+              return (
+                <button
+                  key={o.id}
+                  type="button"
+                  className={active ? styles.optionActive : undefined}
+                  aria-pressed={active}
+                  onClick={() => fee.applyOption(o)}
+                >
+                  {f.options.name[o.id]}
+                </button>
+              )
+            })}
+            <Help label={f.helpLabel} text={f.options.hint} />
+          </div>
+
           <div className={styles.feeTypes}>
             <fieldset className={styles.feeType}>
               <legend>
                 <label>
                   <input
                     type="checkbox"
-                    checked={fee.use3}
-                    onChange={(e) => fee.setUse3(e.target.checked)}
+                    checked={fee.on[1]}
+                    onChange={(e) => fee.setType(1, e.target.checked)}
+                  />{' '}
+                  {f.t1.name}
+                </label>
+              </legend>
+              <p className={styles.hint}>{f.t1.hint}</p>
+              <p className={styles.fund}>
+                {fill(f.t1.offers, { list: rebateList })}
+              </p>
+            </fieldset>
+
+            <fieldset className={styles.feeType}>
+              <legend>
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={fee.on[2]}
+                    onChange={(e) => fee.setType(2, e.target.checked)}
+                  />{' '}
+                  {f.t2.name}
+                </label>
+              </legend>
+              <p className={styles.hint}>{f.t2.hint}</p>
+              <div className={styles.row}>
+                <NumberField
+                  text={f.t2.fee}
+                  value={pct(draft.portalFeeBps)}
+                  onChange={setBps('portalFeeBps')}
+                  disabled={!fee.on[2]}
+                />
+                <NumberField
+                  text={f.t2.waiver}
+                  value={pct(draft.feeWaiverBps)}
+                  onChange={setBps('feeWaiverBps')}
+                  disabled={!fee.on[2]}
+                />
+              </div>
+              <p className={styles.fund}>
+                {fill(f.t2.received, { v: formatPlay(scheme.feesIn) })}
+              </p>
+            </fieldset>
+
+            <fieldset className={styles.feeType}>
+              <legend>
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={fee.on[3]}
+                    onChange={(e) => fee.setType(3, e.target.checked)}
                   />{' '}
                   {f.type3}
                 </label>
@@ -712,13 +946,13 @@ export default function GreenFeePanel({
                   text={f.surcharge}
                   value={pct(draft.surchargeBps)}
                   onChange={setBps('surchargeBps')}
-                  disabled={!fee.use3}
+                  disabled={!fee.on[3]}
                 />
                 <NumberField
                   text={f.discount}
                   value={pct(draft.discountBps)}
                   onChange={setBps('discountBps')}
-                  disabled={!fee.use3}
+                  disabled={!fee.on[3]}
                 />
               </div>
               <p className={styles.fund}>
@@ -732,8 +966,8 @@ export default function GreenFeePanel({
                 <label>
                   <input
                     type="checkbox"
-                    checked={fee.use4}
-                    onChange={(e) => fee.setUse4(e.target.checked)}
+                    checked={fee.on[4]}
+                    onChange={(e) => fee.setType(4, e.target.checked)}
                   />{' '}
                   {f.type4}
                 </label>
@@ -744,7 +978,7 @@ export default function GreenFeePanel({
                   text={f.share}
                   value={pct(draft.subsidyBps)}
                   onChange={setBps('subsidyBps')}
-                  disabled={!fee.use4}
+                  disabled={!fee.on[4]}
                 />
                 <NumberField
                   text={f.cap}
@@ -756,7 +990,7 @@ export default function GreenFeePanel({
                     })
                   }
                   step={0.5}
-                  disabled={!fee.use4}
+                  disabled={!fee.on[4]}
                 />
               </div>
               <p className={styles.fund}>
@@ -791,8 +1025,20 @@ export default function GreenFeePanel({
               in: formatPlay(scheme.surchargesIn),
               out: formatPlay(scheme.discountsOut),
               sub: formatPlay(scheme.subsidiesOut)
+            })}{' '}
+            {fill(f.totals12, {
+              rebate: formatPlay(scheme.rebatesGiven),
+              fee: formatPlay(scheme.feesIn),
+              waived: formatPlay(scheme.feesWaived)
             })}
           </p>
+
+          <OptionCompare
+            fee={fee}
+            f={f}
+            chosenKey={chosenKey}
+            placeName={placeName}
+          />
 
           {fee.isDraft && (
             <div className={styles.draft}>
@@ -1064,6 +1310,8 @@ export default function GreenFeePanel({
                     <th>{f.col.payer}</th>
                     <th>{f.col.place}</th>
                     <th>{f.col.base}</th>
+                    <th>{f.col.rebate}</th>
+                    <th>{f.col.fee}</th>
                     <th>{f.col.surcharge}</th>
                     <th>{f.col.discount}</th>
                     <th>{f.col.subsidy}</th>
@@ -1081,6 +1329,17 @@ export default function GreenFeePanel({
                       <td>{ownerName(p.payer)}</td>
                       <td>{placeName(p.locationKey)}</td>
                       <td>{formatPlay(p.base)}</td>
+                      <td>{p.rebate ? `−${formatPlay(p.rebate)}` : ''}</td>
+                      <td>
+                        {p.portalFee
+                          ? `+${formatPlay(p.portalFee - p.feeWaived)}` +
+                            (p.feeWaived
+                              ? ` (${fill(f.t2.waivedShort, {
+                                  v: formatPlay(p.feeWaived)
+                                })})`
+                              : '')
+                          : ''}
+                      </td>
                       <td>
                         {p.surcharge ? `+${formatPlay(p.surcharge)}` : ''}
                       </td>
@@ -1156,7 +1415,21 @@ export default function GreenFeePanel({
             >
               <code>{short(GREEN_FEE_ADDRESS)}</code>
             </a>
-            {f.contract.split('{address}')[1]}
+            {f.contract.split('{address}')[1]}{' '}
+            {GREEN_FEE_PREVIOUS.toLowerCase() !==
+              GREEN_FEE_ADDRESS.toLowerCase() && (
+              <>
+                {f.previous.split('{address}')[0]}
+                <a
+                  href={`${EXPLORER}/address/${GREEN_FEE_PREVIOUS}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <code>{short(GREEN_FEE_PREVIOUS)}</code>
+                </a>
+                {f.previous.split('{address}')[1]}
+              </>
+            )}
           </p>
         </>
       )}
