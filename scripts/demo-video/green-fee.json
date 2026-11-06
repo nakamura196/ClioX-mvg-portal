@@ -1,0 +1,291 @@
+{
+  "name": "clio-x-green-fee-options",
+  "title": "Rewarding the greener choice: four ways to fund it",
+  "viewport": {
+    "width": 800,
+    "height": 450
+  },
+  "steps": [
+    {
+      "cover": {
+        "title": "Clio-X",
+        "lines": {
+          "en": [
+            "Rewarding the greener choice: four ways to fund it",
+            "Prototype on a test network (Sepolia) · play money, no value · about 2 minutes"
+          ],
+          "ja": [
+            "環境にやさしい選択に利益を戻す: 差額の出し方 4 通り",
+            "試験用ネットワーク（Sepolia）上の試作 · 価値の無い架空のお金 · 約 2 分"
+          ]
+        }
+      },
+      "goto": "/carbon-choice",
+      "hold": 4.5
+    },
+    {
+      "uncover": true,
+      "highlight": [
+        {
+          "text": "AWS Stockholm",
+          "exact": true
+        }
+      ],
+      "en": "The same analysis can run in several data centres. In Stockholm it emits about 14 g of CO2.",
+      "ja": "同じ分析を、いくつかのデータセンターで動かせます。ストックホルムでは、排出は約 14 g です。"
+    },
+    {
+      "highlight": [
+        {
+          "text": "AWS Tokyo",
+          "exact": true
+        }
+      ],
+      "en": "In Tokyo the same job emits about 618 g.",
+      "ja": "東京では、同じ仕事で約 618 g です。"
+    },
+    {
+      "en": "The aim: whoever picks the lower-emission place should pay less. The question is who covers the difference.",
+      "ja": "ねらいは、排出の少ない場所を選んだ人の負担を軽くすることです。問題は、その差額を誰が出すかです。"
+    },
+    {
+      "highlight": [
+        {
+          "role": "button",
+          "name": {
+            "en": "1 Provider",
+            "ja": "1 提供者"
+          },
+          "exact": true
+        },
+        {
+          "role": "button",
+          "name": {
+            "en": "All four",
+            "ja": "4 つすべて"
+          },
+          "exact": true
+        }
+      ],
+      "en": "There are four options. Each can be switched on alone or combined. Each was deployed as its own scheme.",
+      "ja": "選択肢は 4 つあります。1 つずつでも、組み合わせても使えます。それぞれを、別々の仕組みとして配ってあります。"
+    },
+    {
+      "highlight": [
+        {
+          "role": "button",
+          "name": {
+            "en": "1 Provider",
+            "ja": "1 提供者"
+          },
+          "exact": true
+        }
+      ],
+      "en": "Option 1: the provider itself takes 10 % less for low-emission jobs.",
+      "ja": "選択肢 1: 排出の少ない仕事では、提供者が自分で 10 % 受け取りを減らします。",
+      "then": {
+        "click": {
+          "role": "button",
+          "name": {
+            "en": "1 Provider",
+            "ja": "1 提供者"
+          },
+          "exact": true
+        },
+        "hold": 2
+      }
+    },
+    {
+      "highlight": [
+        {
+          "text": {
+            "en": "Type 1: provider rebate",
+            "ja": "型 1: 提供者の値引き"
+          },
+          "exact": true
+        }
+      ],
+      "en": "Only the provider can set this share. A scheme can only choose whether to pass it on.",
+      "ja": "この割合を決められるのは提供者だけです。仕組みの側は、使うかどうかだけを選びます。"
+    },
+    {
+      "highlight": [
+        {
+          "role": "button",
+          "name": {
+            "en": "2 Portal",
+            "ja": "2 ポータル"
+          },
+          "exact": true
+        }
+      ],
+      "en": "Option 2: the portal charges a 10 % fee on every job and waives it for low-emission places.",
+      "ja": "選択肢 2: ポータルがすべての仕事に 10 % の手数料をかけ、排出の少ない場所では免除します。",
+      "then": {
+        "click": {
+          "role": "button",
+          "name": {
+            "en": "2 Portal",
+            "ja": "2 ポータル"
+          },
+          "exact": true
+        },
+        "hold": 2
+      }
+    },
+    {
+      "highlight": [
+        {
+          "text": {
+            "en": "Type 2: portal fee waiver",
+            "ja": "型 2: ポータル手数料の免除"
+          },
+          "exact": true
+        }
+      ],
+      "en": "Note: Stockholm stays at the list price. It is only cheaper than the others, because they pay the fee.",
+      "ja": "注意: ストックホルムは定価のままです。ほかの場所が手数料を払うので、相対的に安くなるだけです。"
+    },
+    {
+      "highlight": [
+        {
+          "role": "button",
+          "name": {
+            "en": "3 Surcharge/discount",
+            "ja": "3 上乗せと値引き"
+          },
+          "exact": true
+        }
+      ],
+      "en": "Option 3: high-emission places pay a surcharge into a pool, which pays the discount. No outside money.",
+      "ja": "選択肢 3: 排出の多い場所の上乗せを原資に貯め、そこから値引きします。外からのお金は要りません。",
+      "then": {
+        "click": {
+          "role": "button",
+          "name": {
+            "en": "3 Surcharge/discount",
+            "ja": "3 上乗せと値引き"
+          },
+          "exact": true
+        },
+        "hold": 2
+      }
+    },
+    {
+      "highlight": [
+        {
+          "role": "button",
+          "name": {
+            "en": "4 Sponsor",
+            "ja": "4 預け入れ"
+          },
+          "exact": true
+        }
+      ],
+      "en": "Option 4: a funder deposits money in advance, and it pays half of a low-emission job, up to 5 per job.",
+      "ja": "選択肢 4: 資金の出し手が先にお金を預け、排出の少ない仕事の半分を払います。1 件 5 まで。",
+      "then": {
+        "click": {
+          "role": "button",
+          "name": {
+            "en": "4 Sponsor",
+            "ja": "4 預け入れ"
+          },
+          "exact": true
+        },
+        "hold": 2
+      }
+    },
+    {
+      "highlight": [
+        {
+          "text": {
+            "en": "Who pays for the difference, by option",
+            "ja": "選択肢ごとに、差額を誰が出すか"
+          },
+          "exact": true
+        },
+        {
+          "role": "row",
+          "name": {
+            "en": "All four",
+            "ja": "4 つすべて"
+          },
+          "exact": false
+        }
+      ],
+      "en": "This table puts the options side by side for the same job: what the user pays, and who covers the rest.",
+      "ja": "この表で、同じ仕事について選択肢を並べられます。利用者の負担と、残りを誰が出すかです。"
+    },
+    {
+      "highlight": [
+        {
+          "role": "row",
+          "name": {
+            "en": "1 Provider",
+            "ja": "1 提供者"
+          }
+        },
+        {
+          "role": "row",
+          "name": {
+            "en": "4 Sponsor",
+            "ja": "4 預け入れ"
+          }
+        }
+      ],
+      "en": "In Stockholm, against a list price of 11.16: option 1 gives 10.04, option 3 gives 8.93, option 4 gives 6.16.",
+      "ja": "ストックホルムの定価 11.16 に対し、選択肢 1 で 10.04、選択肢 3 で 8.93、選択肢 4 で 6.16 になります。"
+    },
+    {
+      "highlight": [
+        {
+          "role": "row",
+          "name": {
+            "en": "All four",
+            "ja": "4 つすべて"
+          },
+          "exact": false
+        }
+      ],
+      "en": "With all four together the user pays 3.91, while a Tokyo job costs 30.35.",
+      "ja": "4 つすべてを合わせると、利用者の負担は 3.91 です。東京の仕事は 30.35 になります。"
+    },
+    {
+      "highlight": [
+        {
+          "text": {
+            "en": "Ledger: payments under scheme #6",
+            "ja": "台帳: 仕組み #6 の支払い"
+          },
+          "exact": true
+        }
+      ],
+      "en": "Every payment stays on the public ledger, with a link to its transaction. A funder can show where its money went.",
+      "ja": "支払いはすべて公開の台帳に残り、取引へのリンクが付きます。資金の出し手は、お金の行き先を示せます。"
+    },
+    {
+      "cover": {
+        "title": {
+          "en": "To decide together",
+          "ja": "一緒に決めたいこと"
+        },
+        "lines": {
+          "en": [
+            "Which option, or which combination?",
+            "Who could fund option 4, and with what share and cap?",
+            "Emissions are the portal's estimates, not measurements. A discount is not proof of a reduction."
+          ],
+          "ja": [
+            "どの選択肢を、どう組み合わせるか",
+            "選択肢 4 の資金を誰が出せそうか。割合と上限はどのくらいか",
+            "排出は見積もりで、測った値ではありません。値引きは排出を減らした証明ではありません"
+          ]
+        }
+      },
+      "hold": 7
+    }
+  ],
+  "deviceScaleFactor": 2.4,
+  "captionPx": 17
+}

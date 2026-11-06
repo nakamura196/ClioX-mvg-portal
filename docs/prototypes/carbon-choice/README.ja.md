@@ -86,3 +86,13 @@
 - 新しい契約で、人が MetaMask から払うこと（配布の実例は、運営の財布でスクリプトから払いました）。
 - 公開の cliox.ldas.jp への反映（このブランチ proto/green-options を deploy/hosting にマージしてから）。
 - 型 1 の割合は運営が仮に置いた 10 % で、実在の提供者が申し出た値ではありません。
+
+### デモ動画（2026-11-06）
+
+4 通りの選択肢を順に切り替え、比べ表と台帳を見せる字幕つきの無音動画（英語版 約 140 秒、日本語版 約 153 秒）。財布はつながず、配布のときに払った実例だけを見せます。
+
+- 台本: `scripts/demo-video/green-fee.json`（字幕は英日を並べて書く）
+- 作り直し: このブランチの画面を `npx next dev -p 3011` で立ち上げ、`zsh scripts/demo-video/build.zsh scripts/demo-video/green-fee.json http://localhost:3011 docs/prototypes/carbon-choice/video`
+- 出力: `docs/prototypes/carbon-choice/video/clio-x-green-fee-options.{en,ja}.mp4`（git の外）と字幕ファイル（git に入れる）
+- 録画の道具は proto/demo-video（2026-09-26）のものを写し、台本と言語を選べるようにしました。字を大きくするため、800×450 の画面を 2.4 倍で描き、1920×1080 で書き出します。
+- 仕組みの名前（「Option 1: provider rebate」など）はチェーン上の値なので、日本語の画面でも英語のまま出ます。

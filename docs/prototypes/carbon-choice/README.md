@@ -86,3 +86,13 @@ Not yet checked:
 - A person paying from MetaMask on the new contract (the worked payments were sent by the operator wallet from a script).
 - The public cliox.ldas.jp (after branch proto/green-options is merged into deploy/hosting).
 - The 10 % for type 1 is a placeholder set by the operator, not an offer from a real provider.
+
+### Demo video (6 November 2026)
+
+A silent, captioned walk through the four options, the comparison table and the ledger (English about 140 s, Japanese about 153 s). No wallet is connected; it shows only the worked payments made at deployment.
+
+- Script: `scripts/demo-video/green-fee.json` (each caption in en and ja)
+- Rebuild: run this branch with `npx next dev -p 3011`, then `zsh scripts/demo-video/build.zsh scripts/demo-video/green-fee.json http://localhost:3011 docs/prototypes/carbon-choice/video`
+- Output: `docs/prototypes/carbon-choice/video/clio-x-green-fee-options.{en,ja}.mp4` (not in git) and the caption files (in git)
+- The recorder is copied from proto/demo-video (2026-09-26) and now takes a script and a language. To make the text larger it draws an 800×450 page at 2.4x and writes 1920×1080.
+- Scheme names (e.g. "Option 1: provider rebate") are on-chain values, so they stay in English on the Japanese page.
