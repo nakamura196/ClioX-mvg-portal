@@ -143,6 +143,7 @@ All three are in Stockholm (list price 11.16).
 
 - **Type 3 stops discounting when the pool runs out.** The pool is filled by surcharges on people who pay in high-emission places.
   If almost everyone chooses low-emission places, it cannot last. This actually happened with #14.
+  The "Will the type 3 pool last? (estimate)" section on the page calculates how lopsided use can be before it runs out (portal commit `0498f6f6`, PR #11). For a 20-hour job, the pool shrinks unless at least 32.4 % of jobs run in Tokyo: one Tokyo surcharge (4.67) covers only about two Stockholm discounts (2.23 each).
 - **Type 2 alone leaves low-emission places at the list price.** They do not get cheaper; the others get more expensive (Stockholm stays at 11.16, Tokyo 25.68).
 - **Stacking all four widens the gap a lot.** Stockholm pays 3.91 and Tokyo 30.35 (list prices 11.16 and 23.34).
 - The 10 % for type 1 is a provisional value set by the operator, not one offered by a real provider.
