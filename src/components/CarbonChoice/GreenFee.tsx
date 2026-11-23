@@ -1,6 +1,7 @@
 import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/router'
 import { ethers } from 'ethers'
+import useActiveLocale from '../../i18n/useActiveLocale'
 import { useAccount, useNetwork, useSigner, useSwitchNetwork } from 'wagmi'
 import { useModal } from 'connectkit'
 import contentEn from '../../../content/carbonChoice.json'
@@ -668,8 +669,8 @@ export default function GreenFeePanel({
   jobId?: string
   jobHash?: string
 }): ReactElement {
-  const router = useRouter()
-  const ja = router.locale === 'ja'
+  const locale = useActiveLocale()
+  const ja = locale === 'ja'
   const { address } = useAccount()
   const { chain } = useNetwork()
   const { switchNetwork } = useSwitchNetwork({

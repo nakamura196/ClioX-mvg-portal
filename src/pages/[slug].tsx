@@ -48,17 +48,24 @@ export async function getStaticProps({
 export async function getStaticPaths({
   locales
 }: {
-  locales: string[]
+  locales?: string[]
 }): Promise<{
   paths: {
     params: {
       slug: string
     }
-    locale: string
+    locale?: string
   }[]
   fallback: boolean
 }> {
   const pages = getAllPages()
+
+  if (!locales || locales.length === 0) {
+    return {
+      paths: pages.map((page) => ({ params: { slug: page.slug } })),
+      fallback: false
+    }
+  }
 
   // With locale routing enabled, emit every markdown page once per locale.
   // Without the explicit `locale`, only the default locale gets prerendered and

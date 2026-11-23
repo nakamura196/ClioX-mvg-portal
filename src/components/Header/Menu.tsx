@@ -16,6 +16,7 @@ import NetworkMenu from './NetworkMenu'
 import LanguageSwitcher from './LanguageSwitcher'
 import TourLauncher from '../FirstRunTour/Launcher'
 import ArchivistModeToggle from '@components/ArchivistMode/Toggle'
+import LdasIdButton from './LdasIdButton'
 const Wallet = loadable(() => import('./Wallet'))
 
 const cx = classNames.bind(styles)
@@ -90,6 +91,7 @@ export default function Menu(): ReactElement {
           {appConfig.chainIdsSupported.length > 1 && <Networks />}
           <NetworkMenu />
         </span>
+        <LdasIdButton />
         <Wallet />
         {appConfig.automationConfig.enableAutomation === 'true' && (
           <span data-jargon style={{ display: 'contents' }}>

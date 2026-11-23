@@ -1,0 +1,141 @@
+.wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid var(--border-color, #d0d7de);
+  background: var(--background-body, #fff);
+  color: var(--font-color-text, #1f2328);
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.button:hover {
+  border-color: var(--color-primary, #734b3d);
+}
+
+.buttonActive {
+  border-color: #2da44e;
+}
+
+.name {
+  max-width: 9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dotOff,
+.dotOn {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dotOff {
+  background: #8c959f;
+}
+
+.dotOn {
+  background: #2da44e;
+}
+
+.popover {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  width: 19rem;
+  padding: 0.9rem;
+  border-radius: 10px;
+  border: 1px solid var(--border-color, #d0d7de);
+  background: var(--background-body, #fff);
+  color: var(--font-color-text, #1f2328);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  text-align: left;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.65rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-color, #e5e7eb);
+}
+
+.badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  background: #dafbe1;
+  color: #116329;
+}
+
+.meta {
+  margin: 0;
+  font-size: 0.78rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.meta dt {
+  font-size: 0.68rem;
+  opacity: 0.65;
+  margin: 0;
+}
+
+.meta dd {
+  margin: 0;
+  word-break: break-all;
+}
+
+.matchOk {
+  color: #1a7f37;
+  font-weight: 600;
+}
+
+.matchWarn {
+  color: #9a6700;
+  font-weight: 600;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.8rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--border-color, #e5e7eb);
+  font-size: 0.78rem;
+}
+
+.linkBtn {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.logoutBtn {
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid var(--border-color, #d0d7de);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-size: 0.78rem;
+}

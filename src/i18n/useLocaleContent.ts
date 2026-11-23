@@ -1,6 +1,6 @@
-import { useRouter } from 'next/router'
 import { useMemo } from 'react'
 import mergeLocaleContent from './mergeLocaleContent'
+import useActiveLocale from './useActiveLocale'
 
 /**
  * Picks the locale variant of a `content/*.json` file.
@@ -17,7 +17,7 @@ import mergeLocaleContent from './mergeLocaleContent'
  * directly with a locale you already have in hand.
  */
 export function useLocaleContent<T>(base: T, ja: unknown): T {
-  const { locale } = useRouter()
+  const locale = useActiveLocale()
 
   return useMemo(
     () => (locale === 'ja' ? mergeLocaleContent(base, ja) : base),

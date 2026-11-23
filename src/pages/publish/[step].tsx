@@ -21,3 +21,14 @@ export default function PagePublish(): ReactElement {
     </Page>
   )
 }
+
+export async function getStaticPaths() {
+  return {
+    paths: ['1', '2', '3', '4', '5'].map((step) => ({ params: { step } })),
+    fallback: false
+  }
+}
+
+export async function getStaticProps() {
+  return { props: {} }
+}

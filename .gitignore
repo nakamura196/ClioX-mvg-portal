@@ -19,3 +19,5 @@ tsconfig.tsbuildinfo
 __snapshots__
 storybook-static
 .env.local
+.cf-build-stash
+.wrangler

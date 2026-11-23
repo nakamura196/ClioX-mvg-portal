@@ -1,6 +1,7 @@
 import { ReactElement, useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/router'
 import useLocaleContent from '../../i18n/useLocaleContent'
+import useActiveLocale from '../../i18n/useActiveLocale'
 import contentEn from '../../../content/experiment.json'
 import contentJa from '../../../content/experiment.ja.json'
 import trialsJson from '../../../content/experiment/trials.json'
@@ -78,7 +79,7 @@ function QuantityRow({
 export default function Experiment(): ReactElement {
   const c = useLocaleContent(contentEn, contentJa)
   const router = useRouter()
-  const ja = router.locale === 'ja'
+  const ja = useActiveLocale() === 'ja'
   const view = typeof router.query.view === 'string' ? router.query.view : ''
 
   const [ready, setReady] = useState(false)

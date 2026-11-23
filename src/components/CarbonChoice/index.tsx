@@ -4,6 +4,7 @@ import { ethers } from 'ethers'
 import { useAccount, useNetwork, useSigner, useSwitchNetwork } from 'wagmi'
 import { useModal } from 'connectkit'
 import useLocaleContent from '../../i18n/useLocaleContent'
+import useActiveLocale from '../../i18n/useActiveLocale'
 import contentEn from '../../../content/carbonChoice.json'
 import contentJa from '../../../content/carbonChoice.ja.json'
 import {
@@ -93,7 +94,7 @@ async function loadRecords(holder: string): Promise<OnChainRecord[]> {
 export default function CarbonChoice(): ReactElement {
   const c = useLocaleContent(contentEn, contentJa)
   const router = useRouter()
-  const ja = router.locale === 'ja'
+  const ja = useActiveLocale() === 'ja'
 
   const locName = (loc?: ComputeLocation) =>
     loc && (ja ? loc.label : loc.en?.label ?? loc.label)

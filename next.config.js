@@ -1,18 +1,27 @@
 module.exports = (phase, { defaultConfig }) => {
+  const isStaticExport = process.env.NEXT_STATIC_EXPORT === 'true'
   /**
    * @type {import('next').NextConfig}
    */
   const nextConfig = {
+    ...(isStaticExport
+      ? {
+          output: 'export',
+          trailingSlash: true,
+          images: { unoptimized: true }
+        }
+      : {
+          // Locale routing: English stays on the unprefixed paths, Japanese lives
+          // under /ja/*. Keep in sync with `src/i18n/index.ts`, which needs the same
+          // values at runtime for `appWithTranslation`.
+          i18n: {
+            locales: ['en', 'ja'],
+            defaultLocale: 'en',
+            localeDetection: false
+          }
+        }),
     env: {
       CHATBOT_API_URL: process.env.CHATBOT_API_URL
-    },
-    // Locale routing: English stays on the unprefixed paths, Japanese lives
-    // under /ja/*. Keep in sync with `src/i18n/index.ts`, which needs the same
-    // values at runtime for `appWithTranslation`.
-    i18n: {
-      locales: ['en', 'ja'],
-      defaultLocale: 'en',
-      localeDetection: false
     },
     // Server-only runtime config (not exposed to browser)
     serverRuntimeConfig: {
@@ -74,35 +83,39 @@ module.exports = (phase, { defaultConfig }) => {
         ? defaultConfig.webpack(config, options)
         : config
     },
-    async redirects() {
-      return [
-        {
-          source: '/publish',
-          destination: '/publish/1',
-          permanent: true
-        },
-        {
-          source: '/signup',
-          destination: '/coming-soon',
-          permanent: false
-        },
-        {
-          source: '/documentation',
-          destination: '/coming-soon',
-          permanent: false
-        },
-        {
-          source: '/docs',
-          destination: '/coming-soon',
-          permanent: false
-        },
-        {
-          source: '/newsletter',
-          destination: '/coming-soon',
-          permanent: false
+    ...(!isStaticExport
+      ? {
+          async redirects() {
+            return [
+              {
+                source: '/publish',
+                destination: '/publish/1',
+                permanent: true
+              },
+              {
+                source: '/signup',
+                destination: '/coming-soon',
+                permanent: false
+              },
+              {
+                source: '/documentation',
+                destination: '/coming-soon',
+                permanent: false
+              },
+              {
+                source: '/docs',
+                destination: '/coming-soon',
+                permanent: false
+              },
+              {
+                source: '/newsletter',
+                destination: '/coming-soon',
+                permanent: false
+              }
+            ]
+          }
         }
-      ]
-    }
+      : {})
 
     // Prefer loading of ES Modules over CommonJS
     // https://nextjs.org/blog/next-11-1#es-modules-support

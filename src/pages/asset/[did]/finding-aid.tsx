@@ -5,6 +5,7 @@ import Alert from '@shared/atoms/Alert'
 import Loader from '@shared/atoms/Loader'
 import AssetProvider, { useAsset } from '@context/Asset'
 import FindingAid from '@components/FindingAid'
+import { useDynamicParam } from '@utils/useDynamicParam'
 
 function FindingAidPage({ uri }: { uri: string }): ReactElement {
   const { asset, title, error, isInPurgatory, loading } = useAsset()
@@ -32,10 +33,18 @@ function FindingAidPage({ uri }: { uri: string }): ReactElement {
 
 export default function PageFindingAid(): ReactElement {
   const router = useRouter()
-  const { did } = router.query
+  const did = useDynamicParam('did', 'asset')
   return (
     <AssetProvider did={did as string}>
       <FindingAidPage uri={router.asPath} />
     </AssetProvider>
   )
+}
+
+export async function getStaticPaths() {
+  return { paths: [{ params: { did: '_' } }], fallback: false }
+}
+
+export async function getStaticProps() {
+  return { props: {} }
 }
