@@ -238,6 +238,30 @@ On 2026-09-30 it was set to `300` (deploy/hosting `4ccc0598`); after the redeplo
 With the portal switched to Japanese (`/ja/…`, or "EN / 日本語" at the top right), these two pages still show "Compute Jobs", "No visualization data available", "Clear Data" and so on in English.
 The text in `src/components/TextAnalysis/`, `ChatbotUnified/` and `ChatbotTrial/` does not go through `src/i18n/locales/{en,ja}.json`. The asset page (including job status) is translated.
 
+## The catalogue lists assets nobody can use from this portal
+
+**Where:** Ocean (the node indexes every asset on the chain) and the Clio-X portal (it listed them all). **Status:** fixed on `proto/paper-fig` in `e3c63f7f`; live on cliox.ldas.jp since 2026-11-25 (`deploy/cf-paper-fig`, `cd07f8bc`). Not yet on `deploy/hosting`.
+
+Our node indexes every Ocean asset published on Sepolia, not only the ones it serves.
+So search and the tag lists also showed assets published by other people, whose files are served by a provider this portal cannot reach.
+Counted on 2026-11-25 from the node's metadata (by the `serviceEndpoint` of each asset's services):
+
+| Provider                                | Assets   | What they are                                                                                                                               |
+| --------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `https://cliox-node.ldas.jp` (our node) | 11       | the trial's assets                                                                                                                          |
+| `http://127.0.0.1:8001`                 | 32       | owner `0x1ad7…6958`; names such as `surtin-proj-matlab-test10`. Likely tests by the upstream team (a guess from the names and author field) |
+| `https://provider.oceanprotocol.com`    | 5        | Ocean's public provider                                                                                                                     |
+| `ipfs://…`                              | about 60 | owner `0xA787b1…`, one asset per chapter of the Tale of Genji collation                                                                     |
+
+A `127.0.0.1` provider is the publisher's own machine, so downloads and jobs on those assets cannot work from anywhere else.
+Note that the `?demo=1` asset `ee03ec…` ("release anonymized") is one of the `0x1ad7` assets.
+
+The portal now keeps an asset in search results and tag lists only when all of its services are served by one of the providers in `NEXT_PUBLIC_CATALOGUE_PROVIDERS` (comma-separated origins).
+The default is the node the portal reads (`NEXT_PUBLIC_METADATACACHE_URI`); `*` turns the filter off.
+Direct links (`/asset/<did>`) still open any asset.
+Code: `catalogueProviders` in `app.config.js`, applied in `src/@utils/aquarius/index.ts` (tests in `index.test.ts`).
+Checked on the live site: the catalogue shows 11 assets.
+
 ## Smaller things
 
 - The profile sales counter showed the raw key `profile.sales`: before the count loads there is no number, so the translation could not be chosen. Fixed in 02abf67c.
