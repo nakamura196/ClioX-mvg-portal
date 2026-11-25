@@ -214,6 +214,11 @@ The Sepolia entry in `chains.config.js` points to the two hostnames
 (`providerUri`, `providers`, `metadataCacheUri`, `subgraphUri`). Its provider
 address must be the node's (`GET /` on the node returns `providerAddress`).
 
+Since 2026-11-24, `cliox.ldas.jp` is a static export on Cloudflare Workers +
+Assets (free plan), deployed from `deploy/hosting` with `npm run deploy:cf`.
+See `docs/cloudflare-id-ldas.md`. The Vercel steps below are how it ran
+before, and still work for a Vercel setup.
+
 On Vercel (Hobby plan):
 
 1. Import the repository (your fork). Framework: Next.js, detected.

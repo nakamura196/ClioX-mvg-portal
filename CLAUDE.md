@@ -4,6 +4,10 @@ This fork runs Clio-X on Sepolia: portal on branch `deploy/hosting`
 (https://cliox.ldas.jp), documentation site on branch `docs/site`
 (https://cliox-docs.ldas.jp, sources in `docs-site/`).
 
+The portal is a static export served by Cloudflare Workers + Assets
+(`npm run deploy:cf`, see `docs/cloudflare-id-ldas.md`). It moved off Vercel
+on 2026-11-24.
+
 ## Questions become documentation
 
 When someone asks "what is this?", "why does it do that?" or "should we turn it
@@ -37,6 +41,10 @@ same thing. So the answer does not stay in the conversation.
 
 - Portal fixes go on `deploy/hosting`; documentation on `docs/site`.
   Mention the portal commit hash in the documentation.
+- Deploy the portal only from `deploy/hosting` (worktree
+  `cliox.worktrees/hosting`). Merge a feature or prototype branch into
+  `deploy/hosting` first. Each deploy replaces the whole site, so deploying
+  from another branch removes whatever that branch lacks.
 - Never push to or open PRs against upstream `ciferresearch`.
 
 ## Where our code goes
