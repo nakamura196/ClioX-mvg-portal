@@ -144,6 +144,21 @@ describe('isServedByCatalogueProvider', () => {
     )
     expect(isServedByCatalogueProvider(asset(), [node])).toBe(false)
   })
+  it('matches a whole scheme with an entry ending in ":"', () => {
+    const list = [node, 'ipfs:']
+    expect(isServedByCatalogueProvider(asset('ipfs://bafyabc'), list)).toBe(
+      true
+    )
+    expect(isServedByCatalogueProvider(asset(node, 'ipfs://x'), list)).toBe(
+      true
+    )
+    expect(
+      isServedByCatalogueProvider(asset('http://127.0.0.1:8001'), list)
+    ).toBe(false)
+    expect(
+      isServedByCatalogueProvider(asset('https://example.org/ipfs:'), list)
+    ).toBe(false)
+  })
   it('does not filter when the list is empty or *', () => {
     expect(
       isServedByCatalogueProvider(asset('http://127.0.0.1:8001'), [])
