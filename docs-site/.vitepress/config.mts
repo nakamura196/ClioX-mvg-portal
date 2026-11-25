@@ -46,6 +46,10 @@ function sidebarEn(): DefaultTheme.Sidebar {
           },
           { text: 'The Verify page', link: '/developers/verify' },
           {
+            text: 'Applying as a verified provider',
+            link: '/developers/verified-provider-apply'
+          },
+          {
             text: 'Visualizations and Chatbot',
             link: '/developers/usecases'
           }
@@ -115,6 +119,10 @@ function sidebarJa(): DefaultTheme.Sidebar {
             link: '/ja/developers/gaia-x-credential'
           },
           { text: '「検証」ページ', link: '/ja/developers/verify' },
+          {
+            text: '認証済みプロバイダーの申請',
+            link: '/ja/developers/verified-provider-apply'
+          },
           {
             text: '「可視化」と「チャットボット」',
             link: '/ja/developers/usecases'
