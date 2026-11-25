@@ -10,7 +10,7 @@ Asked for at the meeting of 30 September 2026 ("return emissions to users as tok
 - (b) The record (JSON: every option, figures, quality labels, sources, method, assumptions) is downloaded by the user. Its SHA-256 is written on Sepolia by the user's own wallet as a token of `CarbonChoiceRecord` (ERC-721 + ERC-5192 "locked"). Transfers and approvals revert with `Soulbound()`.
 - Section 4 lists the tokens of the connected wallet, or of `?holder=0x…` (shareable link). "Check a record file" hashes a local file and says which token it matches.
 - Contract: [`0x5919f54c6b36f3543eEe5f94133Ec8c58637F258`](https://sepolia.etherscan.io/address/0x5919f54c6b36f3543eEe5f94133Ec8c58637F258) (Sepolia, deployed 2026-09-30 by the trial wallet, tx `0x547d3a09…`). Source, 6 tests and deploy script in `contracts/carbon-choice/`.
-- Code: `src/@utils/carbonChoice.ts` (7 tests), `src/components/CarbonChoice/`, text in `content/carbonChoice(.ja).json`.
+- Code: `src/experiment/carbon-choice/lib/carbonChoice.ts` (7 tests), `src/experiment/carbon-choice/`, text in `content/carbonChoice(.ja).json`.
 
 Checked on 2026-09-30: token #1 was recorded with the trial wallet from `sample-record-token-1.json` (tx `0xdb24dc9c…`). The page listed it; the file matched; the same file with one digit changed did not. A `transferFrom` call reverted with `Soulbound()`. On 2026-10-01 the browser-wallet path was run end to end: the trial wallet was injected in place of MetaMask and signed from the page's "Record this choice" button. It became token #2 (Montreal, tx `0x2535a149…`, block 11821470). It was listed; the exported file matched; the file with the job count changed did not. Reading the chain directly, the stored fingerprint equals the file's SHA-256 and `locked(2)` is true. Signing with a real MetaMask by a person is still untested.
 
@@ -33,9 +33,9 @@ Plan: "[Giving something back for greener choices](https://cliox-docs.ldas.jp/pr
 - Default scheme #1 (run by the trial wallet): surcharge 20 %, discount 20 %, subsidy 50 %, cap 5 PLAY. At deployment it deposited 200 PLAY and paid one Tokyo job, so the pool starts at 4.67 PLAY (ledger #1).
 - Changing the settings updates every option's amounts at once (an estimate). When they differ from the scheme on Sepolia the page says so, and "Create my own scheme with these settings" makes a scheme the visitor runs.
 - Ledger: per scheme, every payment (list, surcharge, discount, subsidy, paid, transaction link) and every deposit. A payment also stores the fingerprint of the record in step 4.
-- The price and emission table is generated from the portal's registry (`src/@utils/computeFootprint.ts`) by `script/green-fee-locations.ts`, so page and contract use the same numbers. Provider addresses are made-up addresses derived from the key; nobody holds their keys.
+- The price and emission table is generated from the portal's registry (`src/experiment/footprint/lib/computeFootprint.ts`) by `script/green-fee-locations.ts`, so page and contract use the same numbers. Provider addresses are made-up addresses derived from the key; nobody holds their keys.
 - Contract: `GreenFeeDemo` [`0xa497eDb2e5B86a223737C66002cb24896AC9c932`](https://sepolia.etherscan.io/address/0xa497eDb2e5B86a223737C66002cb24896AC9c932) (Sepolia, 2026-10-01, block 11821626, tx `0xc916b30f…`). It is also the PLAY token (ERC-20, 6 decimals, faucet up to 1,000). Source and 11 tests in `contracts/carbon-choice/`; deploy with `zsh deploy-green-fee.zsh`.
-- Code: `src/@utils/greenFee.ts` (same arithmetic as the contract's `quote`; 3 tests against values read from the chain), `src/components/CarbonChoice/GreenFee.tsx`.
+- Code: `src/experiment/carbon-choice/lib/greenFee.ts` (same arithmetic as the contract's `quote`; 3 tests against values read from the chain), `src/experiment/carbon-choice/GreenFee.tsx`.
 
 Checked 2026-10-01 (trial wallet injected into the page in place of MetaMask, driven through the page's buttons):
 

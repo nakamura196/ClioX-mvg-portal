@@ -1,3 +1,4 @@
+// [local patch] Ocean Node 4.x support (compute jobs). Not in upstream; see scripts/local-patches.txt.
 import { LoggerInstance } from '@oceanprotocol/lib'
 
 /**

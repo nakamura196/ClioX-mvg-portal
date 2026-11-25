@@ -1,3 +1,4 @@
+// [local patch] Cloudflare static export and LDAS ID sign-in. Not in upstream; see scripts/local-patches.txt.
 import { useRouter } from 'next/router'
 
 /**

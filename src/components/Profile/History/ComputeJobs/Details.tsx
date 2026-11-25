@@ -101,7 +101,11 @@ export default function Details({
 
         {job.jobId && (
           <p>
-            <Link href={`/carbon-choice?job=${encodeURIComponent(job.jobId)}`}>
+            <Link
+              href={`/experiment/carbon-choice?job=${encodeURIComponent(
+                job.jobId
+              )}`}
+            >
               {t('compute.payGreenFee')}
             </Link>
           </p>

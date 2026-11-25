@@ -23,6 +23,7 @@
       "@context/*": ["./src/@context/*"],
       "@images/*": ["./src/@images/*"],
       "@utils/*": ["./src/@utils/*"],
+      "@experiment/*": ["./src/experiment/*"],
       "@content/*": ["./@content/*"]
     }
   },

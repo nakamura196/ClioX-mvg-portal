@@ -7,7 +7,8 @@ import {
   getFilterTerm,
   generateBaseQuery,
   getWhitelistShould,
-  queryStringMatches
+  queryStringMatches,
+  isServedByCatalogueProvider
 } from '.'
 
 const defaultBaseQueryReturn: SearchQuery = {
@@ -120,5 +121,35 @@ describe('queryStringMatches (search on Ocean Node)', () => {
   test('escaped and wildcard-only queries', () => {
     expect(hit('TEI\\/XML*')).toBe(true)
     expect(hit('**')).toBe(true)
+  })
+})
+
+describe('isServedByCatalogueProvider', () => {
+  const node = 'https://cliox-node.ldas.jp'
+  const asset = (...endpoints: string[]) =>
+    ({
+      services: endpoints.map((serviceEndpoint) => ({ serviceEndpoint }))
+    } as any)
+
+  it('keeps assets served by a listed provider', () => {
+    expect(isServedByCatalogueProvider(asset(node), [node])).toBe(true)
+    expect(isServedByCatalogueProvider(asset(`${node}/`), [node])).toBe(true)
+  })
+  it('drops assets served from elsewhere or from a local machine', () => {
+    expect(
+      isServedByCatalogueProvider(asset('http://127.0.0.1:8001'), [node])
+    ).toBe(false)
+    expect(isServedByCatalogueProvider(asset(node, 'ipfs://x'), [node])).toBe(
+      false
+    )
+    expect(isServedByCatalogueProvider(asset(), [node])).toBe(false)
+  })
+  it('does not filter when the list is empty or *', () => {
+    expect(
+      isServedByCatalogueProvider(asset('http://127.0.0.1:8001'), [])
+    ).toBe(true)
+    expect(
+      isServedByCatalogueProvider(asset('http://127.0.0.1:8001'), ['*'])
+    ).toBe(true)
   })
 })

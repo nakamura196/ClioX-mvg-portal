@@ -1,6 +1,6 @@
 /**
  * Prints the GreenFeeDemo price table from the portal's own location registry
- * (src/@utils/computeFootprint.ts), so the contract and the page use the same
+ * (src/experiment/footprint/lib/computeFootprint.ts), so the contract and the page use the same
  * numbers. Only locations with both a price and an emission estimate are
  * included; the others cannot be priced by a feebate.
  *
@@ -18,7 +18,7 @@ import {
 import {
   computeFootprintForKey,
   listKnownLocations
-} from '../../../src/@utils/computeFootprint'
+} from '../../../src/experiment/footprint/lib/computeFootprint'
 
 const rows = listKnownLocations()
   .map(({ key }) => {

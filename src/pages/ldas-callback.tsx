@@ -1,3 +1,4 @@
+// [local patch] Cloudflare static export and LDAS ID sign-in. Not in upstream; see scripts/local-patches.txt.
 import { ReactElement, useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import Page from '@shared/Page'

@@ -1,3 +1,4 @@
+// [local patch] Japanese / English interface (react-i18next). Not in upstream; see scripts/local-patches.txt.
 import { ReactElement } from 'react'
 import { useRouter } from 'next/router'
 import { useTranslation } from 'react-i18next'

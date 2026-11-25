@@ -1,3 +1,4 @@
+// [local patch] Japanese / English interface (react-i18next). Not in upstream; see scripts/local-patches.txt.
 /**
  * Deep-merges a sparse locale override on top of the English content JSON in
  * `content/`.

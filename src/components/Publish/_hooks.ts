@@ -1,3 +1,4 @@
+// [local patch] Publish form helpers. Not in upstream; see scripts/local-patches.txt.
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import * as Yup from 'yup'

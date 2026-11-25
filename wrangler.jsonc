@@ -29,9 +29,12 @@
   },
   "workers_dev": true,
   "preview_urls": false,
-  // Staging custom domain under *.ldas.jp so id.ldas.jp OID4VP works end-to-end
-  // before cutting over cliox.ldas.jp from Vercel.
-  "routes": [{ "pattern": "cliox-cf.ldas.jp", "custom_domain": true }],
+  // cliox.ldas.jp was cut over from Vercel on 2026-11-24. cliox-cf.ldas.jp is kept
+  // as a staging alias.
+  "routes": [
+    { "pattern": "cliox.ldas.jp", "custom_domain": true },
+    { "pattern": "cliox-cf.ldas.jp", "custom_domain": true }
+  ],
   "vars": {
     "LDAS_ID_ORIGIN": "https://id.ldas.jp",
     "CHATBOT_API_URL": "https://cliox-chatbot.ldas.jp",

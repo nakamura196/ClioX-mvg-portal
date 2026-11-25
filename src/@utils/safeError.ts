@@ -1,3 +1,4 @@
+// [local patch] Error messages shown to users. Not in upstream; see scripts/local-patches.txt.
 import { getErrorMessage } from '@oceanprotocol/lib'
 
 /**

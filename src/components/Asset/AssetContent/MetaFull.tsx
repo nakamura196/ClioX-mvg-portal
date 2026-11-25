@@ -1,6 +1,6 @@
 import { ReactElement, useState, useEffect } from 'react'
 import MetaItem from './MetaItem'
-import ArchivistTerm from '@shared/ArchivistTerm'
+import ArchivistTerm from '@experiment/archivist/Term' // [prototype]
 import styles from './MetaFull.module.css'
 import { useTranslation } from 'react-i18next'
 import Publisher from '@shared/Publisher'

@@ -64,7 +64,15 @@ function UserPreferencesProvider({
     getCookieValue('bookmarks')?.split(',') || []
   )
   const [chainIds, setChainIds] = useState(
-    getCookieValue('chainIds')?.split(',').map(Number) || appConfig.chainIds
+    // [prototype] drop saved chains that are no longer offered (e.g. Pontus-X
+    // after it was hidden on 2026-11-25), so an old cookie cannot leave an
+    // empty catalogue.
+    (() => {
+      const saved = (
+        getCookieValue('chainIds')?.split(',').map(Number) || []
+      ).filter((id) => appConfig.chainIdsSupported.includes(id))
+      return saved.length > 0 ? saved : appConfig.chainIds
+    })()
   )
   const {
     defaultPrivacyPolicySlug,

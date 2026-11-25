@@ -5,6 +5,8 @@ import Button from '../../../@shared/atoms/Button'
 import Loader from '../../../@shared/atoms/Loader'
 import { PAYMENT_MODES, PaymentMode } from '../Download/ContractingProvider'
 import styles from './index.module.css'
+import { useRouter } from 'next/router'
+import { isComputeDemo } from '@experiment/footprint/demoEnvs' // [prototype]
 
 export interface ButtonBuyProps {
   action: 'download' | 'compute'
@@ -216,6 +218,9 @@ export default function ButtonBuy({
   isAccountConnected
 }: ButtonBuyProps): ReactElement {
   const { t } = useTranslation('common')
+  // [prototype] 論文の図・デモ（?demo=1）では「C2D の資源は無料」の一文を出さない
+  const router = useRouter()
+  const demo = isComputeDemo(router.query)
 
   const buttonText = retry
     ? t('actions.retry')
@@ -287,6 +292,7 @@ export default function ButtonBuy({
         isAccountConnected,
         hasProviderFee
       )
+      if (demo) message = message.replace(t('buy.providerFeeFree'), '').trim()
     }
     if (priceType === 'free' || algorithmPriceType === 'free') {
       message += ` ${t('buy.gasFeeNote')}`

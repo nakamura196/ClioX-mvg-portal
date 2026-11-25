@@ -11,7 +11,9 @@ import Tooltip from '@components/@shared/atoms/Tooltip'
 import { useTranslation } from 'react-i18next'
 import useDateFnsLocale from '../../../../../i18n/useDateFnsLocale'
 import ComputeEnvDetails from './ComputeEnvDetails'
-import { useArchivistMode } from '@context/ArchivistMode'
+import { Fragment, useEffect } from 'react'
+import { setDemoSelected } from '@experiment/footprint/demoEnvs' // [prototype]
+import { useArchivistMode } from '@experiment/archivist/context' // [prototype]
 
 export default function ComputeEnvSelection({
   computeEnvs,
@@ -30,6 +32,12 @@ export default function ComputeEnvSelection({
     approvedBaseTokens,
     appConfig: { defaultTokenSymbol }
   } = useMarketMetadata()
+  // [prototype] デモの見本環境（?demo=1）を選んだら、情報カードの下の比較表に伝える
+  useEffect(() => {
+    if (computeEnvs?.some((e) => (e as any).trialOption && e.id === selected))
+      setDemoSelected(selected)
+  }, [computeEnvs, selected])
+
   const styleClassesWrapper = `${styles.selection} ${
     disabled ? assetSelectionStyles.disabled : ''
   }`
@@ -43,63 +51,74 @@ export default function ComputeEnvSelection({
           <Empty message={t('compute.noEnvironment')} />
         ) : (
           computeEnvs.map((env) => (
-            <div className={styles.row} key={env.id}>
-              <input
-                id={slugify(env.id)}
-                className={`${assetSelectionStyles.input} ${assetSelectionStyles.radio}`}
-                {...props}
-                checked={selected && env.id === selected}
-                type="radio"
-                value={env.id}
-              />
-              <label
-                className={assetSelectionStyles.label}
-                htmlFor={slugify(env.description || env.desc || env.id)}
-                title={env.description || env.desc || env.id}
-              >
-                {/* 3.2.0 は description、3.1.3 は desc。両方見ないと id(ハッシュ)が出る。 */}
-                <h3 className={assetSelectionStyles.title}>
-                  <Dotdotdot clamp={1} tagName="span">
-                    {env.description || env.desc || env.id}
+            <Fragment key={env.id}>
+              <div className={styles.row}>
+                <input
+                  id={slugify(env.id)}
+                  className={`${assetSelectionStyles.input} ${assetSelectionStyles.radio}`}
+                  {...props}
+                  checked={selected && env.id === selected}
+                  type="radio"
+                  value={env.id}
+                />
+                <label
+                  className={assetSelectionStyles.label}
+                  htmlFor={slugify(env.description || env.desc || env.id)}
+                  title={env.description || env.desc || env.id}
+                >
+                  {/* 3.2.0 は description、3.1.3 は desc。両方見ないと id(ハッシュ)が出る。 */}
+                  <h3 className={assetSelectionStyles.title}>
+                    <Dotdotdot clamp={1} tagName="span">
+                      {env.description || env.desc || env.id}
+                    </Dotdotdot>
+                    <Tooltip content={<ComputeEnvDetails computeEnv={env} />} />
+                  </h3>
+                  <Dotdotdot
+                    clamp={1}
+                    tagName="code"
+                    className={styles.details}
+                  >
+                    {env?.cpuNumber > 0 && 'CPU | '}
+                    {env?.gpuNumber > 0 && 'GPU | '}
+                    {t('compute.maxDuration')}
+                    {formatDuration(
+                      intervalToDuration({
+                        start: 0,
+                        end: env?.maxJobDuration * 1000
+                      }),
+                      { locale: dateFnsLocale }
+                    )}
                   </Dotdotdot>
-                  <Tooltip content={<ComputeEnvDetails computeEnv={env} />} />
-                </h3>
-                <Dotdotdot clamp={1} tagName="code" className={styles.details}>
-                  {env?.cpuNumber > 0 && 'CPU | '}
-                  {env?.gpuNumber > 0 && 'GPU | '}
-                  {t('compute.maxDuration')}
-                  {formatDuration(
-                    intervalToDuration({
-                      start: 0,
-                      end: env?.maxJobDuration * 1000
-                    }),
-                    { locale: dateFnsLocale }
+                  {/* [prototype] ?demo=1 の見本の環境は、左の比較表と同じ見本の費用を出す */}
+                  {(env as any).trialOption ? (
+                    <span className={assetSelectionStyles.price}>
+                      USD {(env as any).trialOption.costUSD.toFixed(2)}
+                    </span>
+                  ) : archivistMode && !(Number(env.priceMin) > 0) ? (
+                    <span className={assetSelectionStyles.price}>
+                      {t('price.free')}
+                    </span>
+                  ) : (
+                    <PriceUnit
+                      price={env.priceMin}
+                      size="small"
+                      className={assetSelectionStyles.price}
+                      symbol={`${
+                        // [local patch] 無償のみの実行環境（fees 未設定）では feeToken が
+                        // 存在せず、toLowerCase() で全体がクラッシュする。既定シンボルに退避する。
+                        (env.feeToken &&
+                          approvedBaseTokens?.find(
+                            (token) =>
+                              token.address?.toLowerCase() ===
+                              env.feeToken.toLowerCase()
+                          )?.symbol) ||
+                        defaultTokenSymbol
+                      }${t('compute.perMinute')}`}
+                    />
                   )}
-                </Dotdotdot>
-                {archivistMode && !(Number(env.priceMin) > 0) ? (
-                  <span className={assetSelectionStyles.price}>
-                    {t('price.free')}
-                  </span>
-                ) : (
-                  <PriceUnit
-                    price={env.priceMin}
-                    size="small"
-                    className={assetSelectionStyles.price}
-                    symbol={`${
-                      // [local patch] 無償のみの実行環境（fees 未設定）では feeToken が
-                      // 存在せず、toLowerCase() で全体がクラッシュする。既定シンボルに退避する。
-                      (env.feeToken &&
-                        approvedBaseTokens?.find(
-                          (token) =>
-                            token.address?.toLowerCase() ===
-                            env.feeToken.toLowerCase()
-                        )?.symbol) ||
-                      defaultTokenSymbol
-                    }${t('compute.perMinute')}`}
-                  />
-                )}
-              </label>
-            </div>
+                </label>
+              </div>
+            </Fragment>
           ))
         )}
       </div>

@@ -58,6 +58,13 @@ import {
 } from '@utils/provider'
 import { useUserPreferences } from '@context/UserPreferences'
 import { getDummySigner } from '@utils/wallet'
+import { useRouter } from 'next/router'
+import {
+  DEMO_DEFAULT_ENV,
+  demoEnvId,
+  getDemoComputeEnvs,
+  isComputeDemo
+} from '@experiment/footprint/demoEnvs' // [prototype]
 import useNetworkMetadata from '@hooks/useNetworkMetadata'
 import { useAsset } from '@context/Asset'
 import WhitelistIndicator from './WhitelistIndicator'
@@ -115,6 +122,12 @@ export default function Compute({
   consumableFeedback?: string
 }): ReactElement {
   const { t } = useTranslation('common')
+  // [prototype] ?demo=1 のときだけ、計算環境を見本の 4 社に差し替える
+  // （論文の図 1・デモ用。値は説明用のダミー）。本番には配らない。
+  const router = useRouter()
+  const isDemo = isComputeDemo(router.query)
+  const demoPick =
+    typeof router.query.env === 'string' ? router.query.env : DEMO_DEFAULT_ENV
   const { address } = useAccount()
   const { chainIds } = useUserPreferences()
 
@@ -331,6 +344,8 @@ export default function Compute({
 
   useEffect(() => {
     if (!selectedAlgorithmAsset?.accessDetails || !selectedComputeEnv) return
+    // 見本の環境はノードに存在しないので、価格の問い合わせをしない
+    if (isDemo) return
 
     setIsRequestingAlgoOrderPrice(true)
     setIsConsumableAlgorithmPrice(
@@ -364,12 +379,20 @@ export default function Compute({
   }, [accountId, asset, isUnsupportedPricing])
 
   const initializeComputeEnvironment = useCallback(async () => {
+    if (isDemo) {
+      const demoEnvs = getDemoComputeEnvs() as ComputeEnvironment[]
+      setComputeEnvs(demoEnvs)
+      setSelectedComputeEnv(
+        demoEnvs.find((env) => env.id === demoEnvId(demoPick)) || demoEnvs[0]
+      )
+      return
+    }
     const computeEnvs = await getComputeEnvironments(
       asset.services[0].serviceEndpoint,
       asset.chainId
     )
     setComputeEnvs(computeEnvs || [])
-  }, [asset])
+  }, [asset, isDemo, demoPick])
 
   useEffect(() => {
     initializeComputeEnvironment()

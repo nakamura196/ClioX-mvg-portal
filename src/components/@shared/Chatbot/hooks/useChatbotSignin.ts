@@ -1,3 +1,4 @@
+// [local patch] Chatbot sign-in and shared key. Not in upstream; see scripts/local-patches.txt.
 import { useCallback, useEffect, useState } from 'react'
 import { useAccount, useSigner } from 'wagmi'
 

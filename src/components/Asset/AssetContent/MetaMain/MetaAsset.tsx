@@ -6,7 +6,7 @@ import { ReactElement } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAccount } from 'wagmi'
 import ExplorerTokenLink from '../../../@shared/ExplorerLink/ExplorerTokenLink'
-import ArchivistTerm from '@shared/ArchivistTerm'
+import ArchivistTerm from '@experiment/archivist/Term' // [prototype]
 import styles from './MetaAsset.module.css'
 
 export default function MetaAsset({

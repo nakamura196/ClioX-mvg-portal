@@ -14,7 +14,7 @@ with the page dimmed and clicks paused, so nothing can happen by accident.
 - Each step explains the screen in archival terms; three steps carry a green
   "is it safe?" note. ja/en. Phones get a bottom sheet.
 - Text: `content/firstRunTour.json` / `.ja.json`. Code:
-  `src/components/FirstRunTour/`. Highlight targets are `data-tour`
+  `src/experiment/tour/`. Highlight targets are `data-tour`
   attributes added to 7 existing components (no hashed class names).
 - Sample dataset: `did:op:88084b2a…4a9c`, the Federalist Papers on the trial
   node (Sepolia). It must exist on the node the portal reads. The first

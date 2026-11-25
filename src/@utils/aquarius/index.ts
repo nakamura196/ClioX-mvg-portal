@@ -5,7 +5,8 @@ import { OrdersData_orders as OrdersData } from '../../@types/subgraph/OrdersDat
 import {
   metadataCacheUri,
   metadataCacheIsOceanNode,
-  allowDynamicPricing
+  allowDynamicPricing,
+  catalogueProviders
 } from '../../../app.config'
 import {
   FilterByTypeOptions,
@@ -110,6 +111,14 @@ FilterTerm | undefined {
     ? undefined
     : getFilterTerm('price.type', 'pool')
 }
+
+// Ocean Node answers queries at assets/metadata/query; an Aquarius (e.g.
+// aquarius.pontus-x.eu) only at assets/query and returns 405 for the other
+// path, which left the algorithm list empty when developing against Pontus-X
+// (measured 2026-11-04).
+const METADATA_QUERY_PATH = metadataCacheIsOceanNode
+  ? 'assets/metadata/query'
+  : 'assets/query'
 
 export function getIndexForChainIds(chainIds: number[]): string[] {
   const indexes: string[] = []
@@ -459,6 +468,20 @@ function matchesEsQuery(asset: any, query: any): boolean {
   return esClauseMatches(asset, query)
 }
 
+// [local patch] Keep only assets whose services are all served by a provider
+// in `catalogueProviders` (app.config.js). Empty list or '*' = no filter.
+export function isServedByCatalogueProvider(
+  asset: Asset,
+  providers: string[] = catalogueProviders
+): boolean {
+  if (!providers?.length || providers.includes('*')) return true
+  const services = asset?.services || []
+  if (services.length === 0) return false
+  return services.every((service) =>
+    providers.includes((service?.serviceEndpoint || '').replace(/\/+$/, ''))
+  )
+}
+
 export async function queryMetadata(
   query: SearchQuery,
   cancelToken: CancelToken
@@ -474,7 +497,7 @@ export async function queryMetadata(
     const isLocalNode = metadataCacheIsOceanNode
 
     const response: AxiosResponse<SearchResponse> = await axios.post(
-      `${metadataCacheUri}/api/aquarius/assets/metadata/query`,
+      `${metadataCacheUri}/api/aquarius/${METADATA_QUERY_PATH}`,
       isLocalNode ? { query: { bool: { filter: [] } } } : { ...query },
       { cancelToken }
     )
@@ -486,8 +509,10 @@ export async function queryMetadata(
       query.size
     )
     if (isLocalNode && transformed?.results) {
-      transformed.results = transformed.results.filter((a) =>
-        matchesEsQuery(a, (query as any)?.query)
+      transformed.results = transformed.results.filter(
+        (a) =>
+          matchesEsQuery(a, (query as any)?.query) &&
+          isServedByCatalogueProvider(a)
       )
       transformed.totalResults = transformed.results.length
       // 絞り込んだ後の件数でページ数を数え直す（全件のままだと空のページが出る）
@@ -855,7 +880,7 @@ export async function getTagsList(
 
   try {
     const response: AxiosResponse<SearchResponse> = await axios.post(
-      `${metadataCacheUri}/api/aquarius/assets/metadata/query`,
+      `${metadataCacheUri}/api/aquarius/${METADATA_QUERY_PATH}`,
       { ...query },
       { cancelToken }
     )
@@ -866,6 +891,7 @@ export async function getTagsList(
     if (!response.data.aggregations?.tags) {
       const hits: any[] = (response.data as any)?.hits?.hits || []
       const tags = hits
+        .filter((h) => isServedByCatalogueProvider(h?._source || h))
         .map((h) => h?._source?.metadata?.tags || h?.metadata?.tags || [])
         .flat()
         .filter((t: string) => t && t !== '')

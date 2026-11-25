@@ -11,13 +11,13 @@
 - `/experiment?view=design`: 全課題の計算結果と「最小」の印を並べます。「design.json を保存」で MATLAB のシミュレーション用に書き出せます。参加者の画面からはリンクしていません（対照の人に処理の数値が見えてしまうため）。
 - `/experiment?view=receipt`: 受領証の見本です（形式 `clio-x-transaction-receipt/0.2`）。ハッシュ 2 つ、署名なしの JSON と元データの保存、「事業者として署名する」ボタン、「署名付き受領証を確かめる」欄があります。署名は「だれが出したか、書き換えられていないか」を示すだけで、事業者のセンサーが正しいことは示さない、と画面に書いています。下の「受領証のハッシュと署名」を見てください。
 
-## 計算方法（`src/@utils/transactionFootprint.ts`、テスト 19 件）
+## 計算方法（`src/experiment/footprint/lib/transactionFootprint.ts`、テスト 19 件）
 
 IT 電力量 E = Σ P·Δt·s。電力が IT のみなら、施設電力量 = E × PUE。水は 2 通りです。流量なら Σ Q·Δt·r（r は既定で s。「計算シェアで割り振った会計上の推定で、実測の消費量ではない」と表示）。WUE なら IT 電力量 × WUE。炭素は、施設電力量 × 系統排出係数（location-based）です。参照用の計算例（90 秒、25%、4 kW、12 L/h）は、0.025 kWh と 0.075 L にぴったり一致します（テストあり）。入力が欠けた値は「算出不可」と理由を出し、0 にはしません。割り当ての根拠は `dedicated`、`reserved-share`、`measured-per-job` です。割り振った値を「実測」とは表示しません。受領証には、区間、シェア、根拠、方法のバージョン、値ごとの区分、元データの参照が入ります。既存の `computeFootprint` のコードとテストは変えていません。
 
 ## 課題の設計（`content/experiment/trials.json`。コードを触らずに直せます）
 
-「正解」は、1 件あたりの施設電力量が最小の選択肢です（同値は全部正解）。水が最小のもの、炭素が最小のものも同じ規則で計算して記録します。電力最小と水最小が一致したかも、課題ごとに記録します（水の数値がない選択肢があるときは null）。テスト（`src/@utils/experiment.test.ts`）で次を保証しています。電力最小が最安なのは多くて 1 課題。電力最小の所在地は 3 か所以上に分かれる。一致、不一致、水が不明の課題がそれぞれある。
+「正解」は、1 件あたりの施設電力量が最小の選択肢です（同値は全部正解）。水が最小のもの、炭素が最小のものも同じ規則で計算して記録します。電力最小と水最小が一致したかも、課題ごとに記録します（水の数値がない選択肢があるときは null）。テスト（`src/experiment/two-condition/lib/experiment.test.ts`）で次を保証しています。電力最小が最安なのは多くて 1 課題。電力最小の所在地は 3 か所以上に分かれる。一致、不一致、水が不明の課題がそれぞれある。
 
 | 課題                                | 最安       | 電力最小             | 水最小                                         | 炭素最小       |
 | ----------------------------------- | ---------- | -------------------- | ---------------------------------------------- | -------------- |
@@ -32,7 +32,7 @@ IT 電力量 E = Σ P·Δt·s。電力が IT のみなら、施設電力量 = E 
 
 ## ファイル
 
-`src/@utils/transactionFootprint.ts`、`src/@utils/experiment.ts`（テストつき）、`src/components/Experiment/`、`src/pages/experiment.tsx`、`content/experiment.json`（と `.ja.json`）、`content/experiment/trials.json`。このフォルダに、`sample-design.json`、`sample-receipt.json`、`sample-results.csv`、画面の `en-*.png`、`ja-treatment-trial1.png` があります。
+`src/experiment/footprint/lib/transactionFootprint.ts`、`src/experiment/two-condition/lib/experiment.ts`（テストつき）、`src/experiment/two-condition/`、`src/pages/experiment.tsx`、`content/experiment.json`（と `.ja.json`）、`content/experiment/trials.json`。このフォルダに、`sample-design.json`、`sample-receipt.json`、`sample-results.csv`、画面の `en-*.png`、`ja-treatment-trial1.png` があります。
 
 ## 確かめたこと（2026-10-09、開発サーバーと Playwright）
 
@@ -51,7 +51,7 @@ IT 電力量 E = Σ P·Δt·s。電力が IT のみなら、施設電力量 = E 
 
 ## 受領証のハッシュと署名（2026-10-09）
 
-コード: `src/@utils/canonicalJson.ts`、`src/@utils/receiptAttestation.ts`（テスト付き）、`src/components/Experiment/Sign.tsx`、`Verify.tsx`。依存は増やしていません。
+コード: `src/experiment/shell/canonicalJson.ts`、`src/experiment/two-condition/lib/receiptAttestation.ts`（テスト付き）、`src/experiment/two-condition/Sign.tsx`、`Verify.tsx`。依存は増やしていません。
 
 - 正規化: RFC 8785（JCS）。キーを UTF-16 コード単位で並べ、空白なし、数値は ECMAScript の表記、NaN と Infinity は拒否、値のないキーは捨てます。
 - `source.sha256` は、元データを正規化した JSON の SHA-256 です。元データ（`sample-source.json`）には、処理 ID、事業者、場所、時刻と、計算の入力（区間、電力、シェア、PUE、水の流量か WUE、系統排出係数）がすべて入っています。このファイルがあれば、誰でも同じ値を計算し直せます。参照用の計算例（90 秒、25%、4 kW、12 L/h）の値をテストに固定しました（`4eeceaab…d598b`）。別実装（Python）でも同じ値になることを確かめました。

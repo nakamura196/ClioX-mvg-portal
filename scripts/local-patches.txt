@@ -1,0 +1,39 @@
+# Files this fork adds under src/ that fix or extend the portal itself
+# (not prototypes). Checked by scripts/check-experiment-layout.js.
+# Prototype code goes in src/experiment/<feature>/ instead; do not list it here.
+# A line ending in / covers a whole folder. Keep a reason for each entry.
+
+# Japanese / English interface (react-i18next)
+src/i18n/
+src/@types/next-i18next.d.ts
+src/components/Header/LanguageSwitcher.tsx
+src/components/Header/LanguageSwitcher.module.css
+
+# Ocean Node 4.x support (auth, endpoints, compute results, free compute)
+src/@utils/oceanNodeAuth.ts
+src/@utils/oceanNodeEndpoints.ts
+src/@utils/computeResultFiles.ts
+src/@utils/computeResultFiles.test.ts
+src/@utils/freeCompute.ts
+src/@utils/jobAlgorithmMemory.ts
+
+# Error messages and token symbols shown to users
+src/@utils/safeError.ts
+src/@utils/tokenSymbol.ts
+
+# Publish form helpers
+src/components/Publish/_hooks.ts
+
+# Chatbot: wallet sign-in and the shared key to the chatbot service
+src/@utils/chatbot/signin.ts
+src/@utils/chatbot/upstreamAuth.ts
+src/pages/api/chatbot/signin.ts
+src/components/@shared/Chatbot/hooks/useChatbotSignin.ts
+src/components/@shared/Chatbot/ui/SigninBar.tsx
+
+# Cloudflare static export and LDAS ID (id.ldas.jp) sign-in
+src/@utils/useDynamicParam.ts
+src/@context/LdasAuth.tsx
+src/components/Header/LdasIdButton.tsx
+src/components/Header/LdasIdButton.module.css
+src/pages/ldas-callback.tsx

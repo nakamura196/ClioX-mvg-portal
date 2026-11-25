@@ -23,7 +23,7 @@ publisher" or "not recorded".
   the site header and footer.
 - Text: `content/findingAid.json` / `.ja.json`. Data values (title, author,
   licence, tags, description) are shown as they are, not translated.
-  Code: `src/components/FindingAid/`, `src/pages/asset/[did]/finding-aid.tsx`.
+  Code: `src/experiment/finding-aid/`, `src/experiment/finding-aid/Page.tsx`.
 
 Known limits: the Japanese ISAD(G) element names are Claude's rendering and
 should be checked against the published Japanese translation. Extent (3.1.5)

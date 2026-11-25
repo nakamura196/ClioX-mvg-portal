@@ -8,7 +8,7 @@
  *   - /api/chatbot/*     (proxy to mdx chatbot service)
  *   - /api/contact*      (Resend / CF7 contact form)
  *   - /robots.txt, /sitemap.xml, legacy redirects
- *   - SPA-style rewrites for /ja/*, /asset/*, /profile/*
+ *   - SPA-style rewrites for /ja/*, /asset/*, /profile/*, /experiment/finding-aid/*
  */
 
 import {
@@ -43,6 +43,36 @@ const LEGACY_REDIRECTS: Record<string, { to: string; status: number }> = {
   '/documentation': { to: '/coming-soon/', status: 307 },
   '/docs': { to: '/coming-soon/', status: 307 },
   '/newsletter': { to: '/coming-soon/', status: 307 }
+}
+
+// [prototype] Prototype pages moved under /experiment/<name> (2026-11-25).
+// Same rules as the redirects in next.config.js, which a static export ignores.
+const MOVED_PROTOTYPES = [
+  'carbon-choice',
+  'carbon-report',
+  'archivist-qa',
+  'sample-collection',
+  'paper-fig',
+  'glossary'
+]
+
+function prototypeRedirect(url: URL): string | null {
+  const ja = url.pathname === '/ja' || url.pathname.startsWith('/ja/')
+  const prefix = ja ? '/ja' : ''
+  const p = (ja ? url.pathname.slice(3) : url.pathname).replace(/\/+$/, '')
+  const name = p.slice(1)
+  if (MOVED_PROTOTYPES.includes(name)) {
+    return `${prefix}/experiment/${name}/${url.search}`
+  }
+  if (
+    p === '/experiment' &&
+    ['view', 'condition', 'sample'].some((k) => url.searchParams.has(k))
+  ) {
+    return `${prefix}/experiment/two-condition/${url.search}`
+  }
+  const fa = /^\/asset\/([^/]+)\/finding-aid$/.exec(p)
+  if (fa) return `${prefix}/experiment/finding-aid/${fa[1]}/${url.search}`
+  return null
 }
 
 const ROBOTS_TXT = `# ClioX Privacy-Focused Robots.txt
@@ -267,11 +297,9 @@ async function handleLdasStart(
   )
 
   if (url.searchParams.get('mode') === 'json') {
-    return json(
-      { authorizeUrl: authUrl.toString(), state },
-      200,
-      { 'Set-Cookie': setCookie }
-    )
+    return json({ authorizeUrl: authUrl.toString(), state }, 200, {
+      'Set-Cookie': setCookie
+    })
   }
   return new Response(null, {
     status: 302,
@@ -378,18 +406,14 @@ async function handleLdasMe(
 }
 
 async function handleLdasLogout(url: URL): Promise<Response> {
-  return json(
-    { authenticated: false, user: null },
-    200,
-    {
-      'Set-Cookie': makeCookie(
-        LDAS_SESSION_COOKIE,
-        '',
-        0,
-        url.protocol === 'https:'
-      )
-    }
-  )
+  return json({ authenticated: false, user: null }, 200, {
+    'Set-Cookie': makeCookie(
+      LDAS_SESSION_COOKIE,
+      '',
+      0,
+      url.protocol === 'https:'
+    )
+  })
 }
 
 // ---------------------------------------------------------------------------
@@ -397,10 +421,7 @@ async function handleLdasLogout(url: URL): Promise<Response> {
 //    Verifies an id.ldas.jp VC and checks wallet binding against consumerAddress
 // ---------------------------------------------------------------------------
 
-async function handlePolicyServer(
-  req: Request,
-  env: Env
-): Promise<Response> {
+async function handlePolicyServer(req: Request, env: Env): Promise<Response> {
   if (req.method === 'GET') {
     return json({
       ok: true,
@@ -408,7 +429,8 @@ async function handlePolicyServer(
       issuer: env.LDAS_ID_ORIGIN || 'https://id.ldas.jp'
     })
   }
-  if (req.method !== 'POST') return json({ success: false, message: 'Method not allowed' }, 405)
+  if (req.method !== 'POST')
+    return json({ success: false, message: 'Method not allowed' }, 405)
 
   const body = (await req.json().catch(() => ({}))) as Record<string, any>
   const consumerAddress = String(
@@ -536,7 +558,9 @@ async function handleChatbot(
         })
       }
       return json(
-        { error: 'Please sign in with LDAS ID (id.ldas.jp) to use the chatbot' },
+        {
+          error: 'Please sign in with LDAS ID (id.ldas.jp) to use the chatbot'
+        },
         401
       )
     }
@@ -598,7 +622,9 @@ async function handleChatbot(
     }
     if (!body.sessionId || !Array.isArray(body.knowledgeChunks)) {
       return json(
-        { error: 'Invalid payload: sessionId and knowledgeChunks are required' },
+        {
+          error: 'Invalid payload: sessionId and knowledgeChunks are required'
+        },
         400
       )
     }
@@ -681,7 +707,11 @@ async function handleChatbot(
     if (isStream) {
       if (!upstream.ok || !upstream.body) {
         return json(
-          { error: `Upstream error: ${await upstream.text().catch(() => upstream.statusText)}` },
+          {
+            error: `Upstream error: ${await upstream
+              .text()
+              .catch(() => upstream.statusText)}`
+          },
           upstream.status || 502
         )
       }
@@ -757,7 +787,11 @@ async function handleContactResend(req: Request, env: Env): Promise<Response> {
       to: [env.CONTACT_EMAIL || 'info@cliox.org'],
       reply_to: body.email,
       subject: `New Contact Form Message from ${body.name}`,
-      html: `<p><strong>Name:</strong> ${esc(body.name)}</p><p><strong>Email:</strong> ${esc(body.email)}</p><pre>${esc(body.message)}</pre>`
+      html: `<p><strong>Name:</strong> ${esc(
+        body.name
+      )}</p><p><strong>Email:</strong> ${esc(body.email)}</p><pre>${esc(
+        body.message
+      )}</pre>`
     })
   })
   if (!res.ok) {
@@ -791,12 +825,12 @@ function rewriteDynamicPath(pathname: string): string | null {
     pathname === '/ja' || pathname === '/ja/'
       ? '/'
       : pathname.startsWith('/ja/')
-        ? pathname.slice(3)
-        : pathname
+      ? pathname.slice(3)
+      : pathname
 
   if (/^\/asset\/[^/]+\/edit\/?$/.test(stripped)) return '/asset/_/edit/'
-  if (/^\/asset\/[^/]+\/finding-aid\/?$/.test(stripped)) {
-    return '/asset/_/finding-aid/'
+  if (/^\/experiment\/finding-aid\/[^/]+\/?$/.test(stripped)) {
+    return '/experiment/finding-aid/_/'
   }
   if (/^\/asset\/[^/]+\/?$/.test(stripped)) return '/asset/_/'
   if (/^\/profile\/[^/]+\/?$/.test(stripped)) return '/profile/_/'
@@ -815,6 +849,11 @@ export default {
     if (redirect) {
       return Response.redirect(`${url.origin}${redirect.to}`, redirect.status)
     }
+    const moved = prototypeRedirect(url)
+    if (moved) {
+      // Relative Location: correct behind any host name or proxy.
+      return new Response(null, { status: 307, headers: { Location: moved } })
+    }
 
     // Robots & Sitemap
     if (pathname === '/robots.txt') {
@@ -832,7 +871,7 @@ export default {
   <url><loc>${url.origin}/</loc></url>
   <url><loc>${url.origin}/ja/</loc></url>
   <url><loc>${url.origin}/search/</loc></url>
-  <url><loc>${url.origin}/carbon-choice/</loc></url>
+  <url><loc>${url.origin}/experiment/</loc></url>
   <url><loc>${url.origin}/resources/</loc></url>
 </urlset>`
       return new Response(xml, {

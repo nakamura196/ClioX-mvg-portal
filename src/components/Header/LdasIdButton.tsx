@@ -1,3 +1,4 @@
+// [local patch] Cloudflare static export and LDAS ID sign-in. Not in upstream; see scripts/local-patches.txt.
 import { ReactElement, useEffect, useRef, useState } from 'react'
 import { useAccount } from 'wagmi'
 import { useLdasAuth } from '@context/LdasAuth'

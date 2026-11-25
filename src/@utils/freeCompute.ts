@@ -1,3 +1,4 @@
+// [local patch] Ocean Node 4.x support (free compute). Not in upstream; see scripts/local-patches.txt.
 import { Signer, ethers } from 'ethers'
 import { LoggerInstance } from '@oceanprotocol/lib'
 

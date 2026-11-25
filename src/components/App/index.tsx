@@ -11,9 +11,11 @@ import contentPurgatory from '../../../content/purgatory.json'
 import { useMarketMetadata } from '@context/MarketMetadata'
 import { useAccount } from 'wagmi'
 import { useRouter } from 'next/router'
-import FirstRunTour from '../FirstRunTour'
-import { FirstRunTourProvider } from '../FirstRunTour/context'
-import ArchivistModeBanner from '../ArchivistMode/Banner'
+import FirstRunTour from '@experiment/tour' // [prototype]
+import { FirstRunTourProvider } from '@experiment/tour/context' // [prototype]
+import ArchivistModeBanner from '@experiment/archivist/Mode/Banner' // [prototype]
+import PrototypeBanner from '@experiment/shell/PrototypeBanner' // [prototype]
+import { isComputeDemo } from '@experiment/footprint/demoEnvs' // [prototype]
 
 export default function App({
   children
@@ -29,9 +31,11 @@ export default function App({
   // 参加者が条件と関係のない情報（料金、案内、他のページ）を見ないようにするため。
   // 研究者向けの ?view=design / ?view=receipt は通常の枠で出す。
   const isExperimentParticipant =
-    router.pathname === '/experiment' && !router.query.view
+    router.pathname === '/experiment/two-condition' && !router.query.view
   // 研究者向けの画面でも案内ツアーは出さない（ツアーの題材と関係がなく、ボタンも覆ってしまう）。
-  const isExperiment = router.pathname === '/experiment'
+  // ?demo=1 の見本の資料ページも同じ（図 1 の撮影・説明の邪魔になるため）。
+  const isExperiment =
+    router.pathname.startsWith('/experiment') || isComputeDemo(router.query)
 
   if (isExperimentParticipant) {
     return (
@@ -61,6 +65,7 @@ export default function App({
           devPreviewAnnouncementText !== '' && (
             <AnnouncementBanner text={devPreviewAnnouncementText} />
           )}
+        <PrototypeBanner />
         <Header />
         <ArchivistModeBanner />
 

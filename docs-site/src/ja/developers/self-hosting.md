@@ -41,7 +41,7 @@ Clio-X がノードと subgraph に送る HTTP と GraphQL の呼び出しは、
 | 自前の Ocean Node と subgraph                                                                  | Sepolia には Clio-X から使える公開の Ocean Node も subgraph も無いため                                                        | `deploy/ocean-node/`                                                |
 | ブロック 11,459,550 から始める subgraph（Dispenser を固定のデータ源にし、`templateId` を補う） | Ocean の配備ブロックからの同期は、無料の RPC だと数日かかります。近道を成り立たせるのにこの 2 つの修正が要ります（4 節）      | `deploy/ocean-node/subgraph/`（上流の `ocean-subgraph` へのパッチ） |
 | 計算の方針: 無償のジョブのみ、アドレスの一覧 1 つ、ネットワーク無し、2 CPU / 2 GiB             | ノードが仮想マシンの Docker を操作するので、公式の選択肢の中からこう選びました。Ocean の既定値ではありません                  | `DOCKER_COMPUTE_ENVIRONMENTS`                                       |
-| 処理場所と、炭素量・費用の見積もり                                                             | Clio-X の持続可能性の取り組み。場所は計算環境の説明文から読み取ります                                                         | `src/@utils/computeFootprint.ts`                                    |
+| 処理場所と、炭素量・費用の見積もり                                                             | Clio-X の持続可能性の取り組み。場所は計算環境の説明文から読み取ります                                                         | `src/experiment/footprint/lib/computeFootprint.ts`                  |
 | mdx の仮想マシン、Cloudflare Tunnel、配備と秘密情報のスクリプト                                | 私たちのホスティングの方法です。ご自身の環境に置き換えてください                                                              | `deploy/ocean-node/scripts/`                                        |
 
 ## 計算を動かせる人
@@ -190,5 +190,5 @@ Vercel（Hobby プラン）では:
 ## 7. 炭素量の見積もりに使う処理場所
 
 ポータルは、計算環境の説明文から処理場所を割り出します。Ocean Node は環境の ID をハッシュで公開するので、ID は使えません。
-`src/@utils/computeFootprint.ts` は、説明文に `mdx` を含むものを「mdx, Kashiwa II campus, Japan」に対応づけています。
+`src/experiment/footprint/lib/computeFootprint.ts` は、説明文に `mdx` を含むものを「mdx, Kashiwa II campus, Japan」に対応づけています。
 ただし、まだ炭素量の数値は出していません。それには仮想マシンの電力の実測値が要ります。私たちは、実測の値か、区分をはっきり示した値しか入れないことにしています。

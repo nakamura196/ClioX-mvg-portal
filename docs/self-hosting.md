@@ -43,7 +43,7 @@ its configuration for the Pontus-X networks.
 | Running our own Ocean Node and subgraph                                                                | Sepolia has no public Ocean Node or subgraph we can use for Clio-X                                                          | `deploy/ocean-node/`                                               |
 | Subgraph starting at block 11,459,550, with a static Dispenser data source and a `templateId` fallback | Syncing from the Ocean deployment block takes days on free RPCs. The two fixes are needed for the shortcut to work (step 4) | `deploy/ocean-node/subgraph/` (patch to upstream `ocean-subgraph`) |
 | Compute policy: free jobs only, one address list, no network, 2 CPU / 2 GiB                            | Our choice of the official options, because the node controls the VM's Docker. It is not an Ocean default                   | `DOCKER_COMPUTE_ENVIRONMENTS`                                      |
-| Processing location and carbon/cost estimate                                                           | Clio-X's sustainability work; the location is read from the environment's description text                                  | `src/@utils/computeFootprint.ts`                                   |
+| Processing location and carbon/cost estimate                                                           | Clio-X's sustainability work; the location is read from the environment's description text                                  | `src/experiment/footprint/lib/computeFootprint.ts`                 |
 | mdx VM, Cloudflare Tunnel, deploy and secret scripts                                                   | How we host it; replace with your own infrastructure                                                                        | `deploy/ocean-node/scripts/`                                       |
 
 ## Who may run compute
@@ -243,7 +243,7 @@ On Vercel (Hobby plan):
 
 The portal derives the processing location from the compute environment's
 description text; Ocean Node publishes environment ids as hashes, so the id
-cannot be used. `src/@utils/computeFootprint.ts` already maps any description
+cannot be used. `src/experiment/footprint/lib/computeFootprint.ts` already maps any description
 containing `mdx` to "mdx, Kashiwa II campus, Japan". No carbon figure is shown
 for it yet: that needs the VM's measured power draw, and we only enter
 measured or clearly labelled values.
