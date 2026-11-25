@@ -15,7 +15,7 @@ energy, CO2 and cost for one or more places, and keep the estimate as a report
 - Uses the existing `computeFootprint` registry (commit fe33bc82). Added English
   versions of the source notes so the English report has no Japanese notes.
 - Text in `content/carbonReport(.ja).json`; model and exports in
-  `src/@utils/carbonReport.ts` (tests: `carbonReport.test.ts`).
+  `src/experiment/carbon-report/lib/carbonReport.ts` (tests: `carbonReport.test.ts`).
 
 Files: `report-en-compare.png`, `report-en-combined.png`, `print-ja-page1.png`,
 `page-en-full.png`, `sample-report-en.pdf`, `sample-ja.csv`.

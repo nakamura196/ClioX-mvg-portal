@@ -21,8 +21,8 @@ import {
   TRIAL_CHATBOT_DATASET_DIDS,
   CHATBOT_NAMESPACE as TRIAL_NAMESPACE,
   TRIAL_CHATBOT_SAMPLE
-} from '../ChatbotTrial/_constants'
-import type { ChatbotSample } from '../@shared/Chatbot/SampleKnowledge'
+} from '@experiment/chatbot-trial/_constants' // [prototype]
+import type { ChatbotSample } from '@experiment/chatbot-trial/SampleKnowledge' // [prototype]
 
 export interface ChatbotProject {
   id: string

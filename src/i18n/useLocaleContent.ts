@@ -1,3 +1,4 @@
+// [local patch] Japanese / English interface (react-i18next). Not in upstream; see scripts/local-patches.txt.
 import { useRouter } from 'next/router'
 import { useMemo } from 'react'
 import mergeLocaleContent from './mergeLocaleContent'

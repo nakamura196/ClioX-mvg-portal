@@ -1,3 +1,4 @@
+// [local patch] Ocean Node 4.x support. Not in upstream; see scripts/local-patches.txt.
 import { ProviderInstance } from '@oceanprotocol/lib'
 
 /**

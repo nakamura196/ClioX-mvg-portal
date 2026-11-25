@@ -1,3 +1,4 @@
+// [local patch] Ocean Node 4.x support. Not in upstream; see scripts/local-patches.txt.
 import { ethers } from 'ethers'
 import { LoggerInstance } from '@oceanprotocol/lib'
 import { chains } from '../../chains.config'

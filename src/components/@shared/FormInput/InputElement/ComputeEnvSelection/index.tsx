@@ -12,8 +12,8 @@ import { useTranslation } from 'react-i18next'
 import useDateFnsLocale from '../../../../../i18n/useDateFnsLocale'
 import ComputeEnvDetails from './ComputeEnvDetails'
 import { Fragment, useEffect } from 'react'
-import { setDemoSelected } from '@shared/ComputeFootprint/demoEnvs'
-import { useArchivistMode } from '@context/ArchivistMode'
+import { setDemoSelected } from '@experiment/footprint/demoEnvs' // [prototype]
+import { useArchivistMode } from '@experiment/archivist/context' // [prototype]
 
 export default function ComputeEnvSelection({
   computeEnvs,

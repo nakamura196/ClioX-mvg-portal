@@ -1,3 +1,4 @@
+// [local patch] Ocean Node 4.x support (compute results). Not in upstream; see scripts/local-patches.txt.
 import { execFileSync } from 'child_process'
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync } from 'fs'
 import { tmpdir } from 'os'

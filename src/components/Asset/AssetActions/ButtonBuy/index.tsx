@@ -6,7 +6,7 @@ import Loader from '../../../@shared/atoms/Loader'
 import { PAYMENT_MODES, PaymentMode } from '../Download/ContractingProvider'
 import styles from './index.module.css'
 import { useRouter } from 'next/router'
-import { isComputeDemo } from '@shared/ComputeFootprint/demoEnvs'
+import { isComputeDemo } from '@experiment/footprint/demoEnvs' // [prototype]
 
 export interface ButtonBuyProps {
   action: 'download' | 'compute'

@@ -8,7 +8,7 @@
 - 細部: `data-jargon` の印を付けた要素を、`<html data-view="archivist">` のときに CSS の規則 1 つで隠します。印を付けたもの: ネットワーク名、所有者と収益のアドレス、「published by 0x…」、データトークンのリンクと記号、veOCEAN、ネットワークと自動化のメニュー、Gaia-X サービスクレデンシャルのボタン。
 - 料金が 0 の計算の部屋は「0 EURAU / minute」ではなく「無料」と出します。
 - 何を隠しているかを帯で知らせ、「技術的な表示をすべて見る」を用意しています。費用は隠しません。ネットワーク手数料の注記は、言い方を変えて残しています。
-- 選んだ表示はこのブラウザにだけ残ります。`?view=archivist` / `?view=full` をリンクに付けると、その表示で開きます（説明会用）。コード: `src/@context/ArchivistMode.tsx`、`src/components/ArchivistMode/`。
+- 選んだ表示はこのブラウザにだけ残ります。`?view=archivist` / `?view=full` をリンクに付けると、その表示で開きます（説明会用）。コード: `src/experiment/archivist/context.tsx`、`src/experiment/archivist/Mode/`。
 
 分かっている限界: 部品の中に英語で直書きされている文字列（紹介カードの "sales" / "views"、Gaia-X の画面）は対象外です。
 トップページには「Web3」が 5 か所あります。これは Clio-X 自身のメッセージなので変えていません。Vicki さんに相談したい点です。

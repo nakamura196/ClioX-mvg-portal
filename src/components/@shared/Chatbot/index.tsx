@@ -1,7 +1,9 @@
 import { ReactElement, useCallback, useEffect, useRef, useState } from 'react'
 import JobList from './JobList'
 import ChatShell from './ChatShell'
-import SampleKnowledge, { ChatbotSample } from './SampleKnowledge'
+import SampleKnowledge, {
+  ChatbotSample
+} from '@experiment/chatbot-trial/SampleKnowledge' // [prototype]
 import { ChatbotUseCaseData } from '../../../@context/UseCases/models/Chatbot.model'
 import { chatbotApi, KnowledgeStatus } from '../../../@utils/chatbot'
 

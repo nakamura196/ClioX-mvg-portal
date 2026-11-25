@@ -11,11 +11,11 @@ import contentPurgatory from '../../../content/purgatory.json'
 import { useMarketMetadata } from '@context/MarketMetadata'
 import { useAccount } from 'wagmi'
 import { useRouter } from 'next/router'
-import FirstRunTour from '../FirstRunTour'
-import { FirstRunTourProvider } from '../FirstRunTour/context'
-import ArchivistModeBanner from '../ArchivistMode/Banner'
-import PrototypeBanner from '@shared/PrototypeBanner'
-import { isComputeDemo } from '@shared/ComputeFootprint/demoEnvs'
+import FirstRunTour from '@experiment/tour' // [prototype]
+import { FirstRunTourProvider } from '@experiment/tour/context' // [prototype]
+import ArchivistModeBanner from '@experiment/archivist/Mode/Banner' // [prototype]
+import PrototypeBanner from '@experiment/shell/PrototypeBanner' // [prototype]
+import { isComputeDemo } from '@experiment/footprint/demoEnvs' // [prototype]
 
 export default function App({
   children

@@ -9,7 +9,7 @@ import PriceOutput from './PriceOutput'
 import { useAsset } from '@context/Asset'
 import contentEn from '../../../../../content/pages/startComputeDataset.json'
 import contentJa from '../../../../../content/pages/startComputeDataset.ja.json'
-import { useArchivistContent } from '@context/ArchivistMode'
+import { useArchivistContent } from '@experiment/archivist/context' // [prototype]
 import { Asset, ComputeEnvironment, ZERO_ADDRESS } from '@oceanprotocol/lib'
 import { getAccessDetails } from '@utils/accessDetailsAndPricing'
 import { getApprovedTokenBalanceFromSymbol } from '@utils/wallet'
@@ -23,7 +23,7 @@ import { ComputeDatasetForm } from './_constants'
 import { useAutomation } from '../../../../@context/Automation/AutomationProvider'
 import TermsAndConditionsCheckbox from '../TermsAndConditionsCheckbox'
 import { useMarketMetadata } from '@context/MarketMetadata'
-import { useDemoSelected } from '@shared/ComputeFootprint/demoEnvs'
+import { useDemoSelected } from '@experiment/footprint/demoEnvs' // [prototype]
 
 export default function FormStartCompute({
   algorithms,

@@ -20,7 +20,7 @@ import { connectKitTheme, wagmiClient } from '@utils/wallet'
 import AutomationProvider from '../@context/Automation/AutomationProvider'
 import { FilterProvider } from '@context/Filter'
 import { UseCasesProvider } from '../@context/UseCases'
-import { ArchivistModeProvider } from '@context/ArchivistMode'
+import { ArchivistModeProvider } from '@experiment/archivist/context' // [prototype]
 import { Analytics } from '@vercel/analytics/react'
 import Script from 'next/script'
 import { plausibleDataDomain } from 'app.config'

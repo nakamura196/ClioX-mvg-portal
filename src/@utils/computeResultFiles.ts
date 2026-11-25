@@ -1,3 +1,4 @@
+// [local patch] Ocean Node 4.x support (compute results). Not in upstream; see scripts/local-patches.txt.
 import { ComputeResult, ProviderInstance } from '@oceanprotocol/lib'
 import { Signer } from 'ethers'
 import {

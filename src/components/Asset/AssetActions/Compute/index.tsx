@@ -64,7 +64,7 @@ import {
   demoEnvId,
   getDemoComputeEnvs,
   isComputeDemo
-} from '@shared/ComputeFootprint/demoEnvs'
+} from '@experiment/footprint/demoEnvs' // [prototype]
 import useNetworkMetadata from '@hooks/useNetworkMetadata'
 import { useAsset } from '@context/Asset'
 import WhitelistIndicator from './WhitelistIndicator'

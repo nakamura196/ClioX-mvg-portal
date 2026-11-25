@@ -1,3 +1,4 @@
+// [local patch] Chatbot sign-in and shared key. Not in upstream; see scripts/local-patches.txt.
 import { createHmac, randomBytes, timingSafeEqual } from 'crypto'
 import getConfig from 'next/config'
 import { utils } from 'ethers'

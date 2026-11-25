@@ -1,3 +1,4 @@
+// [local patch] Chatbot sign-in and shared key. Not in upstream; see scripts/local-patches.txt.
 import getConfig from 'next/config'
 
 // サーバー側（/api/chatbot/*）からチャットボットを呼ぶときの共有鍵。

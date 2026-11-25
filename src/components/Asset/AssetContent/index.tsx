@@ -16,7 +16,7 @@ import content from '../../../../content/purgatory.json'
 import Button from '@shared/atoms/Button'
 import RelatedAssets from '../RelatedAssets'
 // [prototype] 論文の図 1・デモ用: ?demo=1 のときだけ計算環境の比較表を出す
-import CompareTable from '@shared/ComputeFootprint/CompareTable'
+import CompareTable from '@experiment/footprint/CompareTable'
 import {
   getFormattedCodeString,
   getServiceCredential
@@ -25,7 +25,7 @@ import ServiceCredentialVisualizer from '@components/@shared/ServiceCredentialVi
 import Web3Feedback from '@components/@shared/Web3Feedback'
 import { useAccount } from 'wagmi'
 import DDODownloadButton from '@components/@shared/DDODownloadButton'
-import useFindingAid from '@components/FindingAid/useFindingAid'
+import useFindingAid from '@experiment/finding-aid/useFindingAid' // [prototype]
 
 // Gaia-X Service Credentials only mean something on networks that belong to
 // the Gaia-X ecosystem (Pontus-X devnet/testnet, the old Gaia-X testnet).
@@ -133,7 +133,7 @@ export default function AssetContent({
             <Button
               style="text"
               size="small"
-              to={`/asset/${asset?.id}/finding-aid`}
+              to={`/experiment/finding-aid/${asset?.id}`}
             >
               {findingAid.openLink} →
             </Button>

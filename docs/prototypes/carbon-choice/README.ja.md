@@ -10,7 +10,7 @@
 - (b) 記録（すべての候補、数値、区分、出典、計算方法、仮定を入れた JSON）は利用者が書き出して保管します。その SHA-256 を、利用者自身のウォレットで Sepolia に書きます。トークンは `CarbonChoiceRecord`（ERC-721 と、移転不可を表す ERC-5192）です。譲渡や承認は `Soulbound()` で拒まれます。
 - 4 番の欄に、つないだウォレット、または `?holder=0x…` で指定したアドレスの記録を並べます（リンクで共有できます）。「記録のファイルを確かめる」で手元のファイルの指紋を取り、どのトークンと一致するかを示します。
 - コントラクト: [`0x5919f54c6b36f3543eEe5f94133Ec8c58637F258`](https://sepolia.etherscan.io/address/0x5919f54c6b36f3543eEe5f94133Ec8c58637F258)（Sepolia。2026-09-30 に試用ウォレットで配布。tx `0x547d3a09…`）。ソース、テスト 6 件、配布スクリプトは `contracts/carbon-choice/`。
-- コード: `src/@utils/carbonChoice.ts`（テスト 7 件）、`src/components/CarbonChoice/`、文章は `content/carbonChoice(.ja).json`。
+- コード: `src/experiment/carbon-choice/lib/carbonChoice.ts`（テスト 7 件）、`src/experiment/carbon-choice/`、文章は `content/carbonChoice(.ja).json`。
 
 2026-09-30 に確かめたこと: `sample-record-token-1.json` から、試用ウォレットでトークン #1 を記録しました（tx `0xdb24dc9c…`）。画面の一覧に出て、ファイルは一致し、数字を 1 か所変えたファイルは一致しませんでした。`transferFrom` は `Soulbound()` で拒まれました。2026-10-01、ブラウザのウォレット経由の流れも通しました。画面に試用ウォレットを MetaMask の代わりとして持たせ、ページの「この選択を記録する」から署名しています。トークン #2（モントリオール、tx `0x2535a149…`、ブロック 11821470）として記録されました。一覧に出て、書き出したファイルは一致し、ジョブ数を 1 か所変えたファイルは一致しませんでした。チェーンを直接読んでも、書き込まれた指紋はファイルの SHA-256 と同じで、`locked(2)` は true でした。本物の MetaMask で人が署名する確認は、まだです。
 
@@ -33,9 +33,9 @@
 - 既定の仕組み #1（試用ウォレットが管理）: 上乗せ 20%、値引き 20%、補助 50%、上限 5 PLAY。配布のときに 200 PLAY を預け、東京の仕事を 1 件払って、原資を 4.67 PLAY にしてあります（台帳の #1）。
 - 画面で設定を変えると、各候補の行の金額がその場で変わります（試算）。Sepolia 上の設定と違うときはそう表示し、「この設定で自分の仕組みを作る」で、自分が管理する仕組みを作れます。
 - 台帳: 仕組みごとに、すべての支払い（定価・上乗せ・値引き・補助・負担・取引へのリンク）と預け入れを並べます。支払いには、手順 4 の記録の指紋も一緒に残します。
-- 料金と排出の表は、ポータルの登録簿（`src/@utils/computeFootprint.ts`）から `script/green-fee-locations.ts` で作って配っています。画面とコントラクトで同じ数字になります。事業者の受取口座は、キーから作った架空の宛先です（鍵は誰も持っていません）。
+- 料金と排出の表は、ポータルの登録簿（`src/experiment/footprint/lib/computeFootprint.ts`）から `script/green-fee-locations.ts` で作って配っています。画面とコントラクトで同じ数字になります。事業者の受取口座は、キーから作った架空の宛先です（鍵は誰も持っていません）。
 - コントラクト: `GreenFeeDemo` [`0xa497eDb2e5B86a223737C66002cb24896AC9c932`](https://sepolia.etherscan.io/address/0xa497eDb2e5B86a223737C66002cb24896AC9c932)（Sepolia、2026-10-01、ブロック 11821626、tx `0xc916b30f…`）。PLAY（ERC-20、小数 6 桁、蛇口で 1,000 まで）を兼ねます。ソースとテスト 11 件は `contracts/carbon-choice/`、配布は `zsh deploy-green-fee.zsh`。
-- コード: `src/@utils/greenFee.ts`（コントラクトの `quote` と同じ計算。テスト 3 件はチェーンから読んだ値と突き合わせ）、`src/components/CarbonChoice/GreenFee.tsx`。
+- コード: `src/experiment/carbon-choice/lib/greenFee.ts`（コントラクトの `quote` と同じ計算。テスト 3 件はチェーンから読んだ値と突き合わせ）、`src/experiment/carbon-choice/GreenFee.tsx`。
 
 2026-10-01 に確かめたこと（試用ウォレットを MetaMask の代わりとしてページに持たせ、画面のボタンから操作）:
 

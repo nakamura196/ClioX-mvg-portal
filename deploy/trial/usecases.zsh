@@ -7,7 +7,7 @@
 #
 # The pages list only jobs whose algorithm and dataset DIDs are in the portal's
 # allowlists (src/components/TextAnalysis/_constants.ts,
-# src/components/ChatbotTrial/_constants.ts), so add the printed DIDs there.
+# src/experiment/chatbot-trial/_constants.ts), so add the printed DIDs there.
 # The jobs belong to the trial wallet; connect that wallet to see them, or
 # start your own jobs from the portal.
 #

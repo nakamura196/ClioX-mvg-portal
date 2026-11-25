@@ -4,7 +4,7 @@
 #
 # Needs: forge, op (1Password CLI), forge-std in lib/, node_modules in the repo
 # Usage: zsh deploy-green-fee.zsh          (DRY=1 to simulate without sending)
-# Prints the contract address; put it in src/@utils/greenFee.ts.
+# Prints the contract address; put it in src/experiment/carbon-choice/lib/greenFee.ts.
 set -euo pipefail
 cd "${0:A:h}"
 RPC="${RPC:-https://ethereum-sepolia-rpc.publicnode.com}"

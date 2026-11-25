@@ -98,6 +98,12 @@ module.exports = (phase, { defaultConfig }) => {
           destination: `/experiment/${name}`,
           permanent: false
         })),
+        // [prototype] The finding aid is a prototype like the others (2026-11-25).
+        {
+          source: '/asset/:did/finding-aid',
+          destination: '/experiment/finding-aid/:did',
+          permanent: false
+        },
         {
           source: '/publish',
           destination: '/publish/1',

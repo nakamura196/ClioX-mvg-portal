@@ -12,7 +12,7 @@ import styles from './index.module.css'
 import classNames from 'classnames/bind'
 import { useTranslation } from 'react-i18next'
 import { useRouter } from 'next/router'
-import { isComputeDemo } from '@shared/ComputeFootprint/demoEnvs'
+import { isComputeDemo } from '@experiment/footprint/demoEnvs' // [prototype]
 
 const cx = classNames.bind(styles)
 

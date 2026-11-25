@@ -17,8 +17,8 @@ identifier, description history, "analyse in place", "request the analysis",
 - A banner says what is hidden and offers "Show the full technical view".
   Costs are not hidden: the network-fee note stays, reworded.
 - The choice is kept in this browser only. `?view=archivist` / `?view=full`
-  set it from a link (for demos). Code: `src/@context/ArchivistMode.tsx`,
-  `src/components/ArchivistMode/`.
+  set it from a link (for demos). Code: `src/experiment/archivist/context.tsx`,
+  `src/experiment/archivist/Mode/`.
 
 Known limits: strings hard-coded in English in components (teaser
 "sales"/"views", the Gaia-X modal) are not covered. The home page copy says
