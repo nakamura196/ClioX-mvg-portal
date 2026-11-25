@@ -257,10 +257,10 @@ A `127.0.0.1` provider is the publisher's own machine, so downloads and jobs on 
 Note that the `?demo=1` asset `ee03ec…` ("release anonymized") is one of the `0x1ad7` assets.
 
 The portal now keeps an asset in search results and tag lists only when all of its services are served by one of the providers in `NEXT_PUBLIC_CATALOGUE_PROVIDERS` (comma-separated origins).
-The default is the node the portal reads (`NEXT_PUBLIC_METADATACACHE_URI`); `*` turns the filter off.
+An entry ending in `:` matches a whole scheme. The default is the node the portal reads (`NEXT_PUBLIC_METADATACACHE_URI`) plus `ipfs:`, so our Genji collation stays listed (`3aacfe5a`); `*` turns the filter off.
 Direct links (`/asset/<did>`) still open any asset.
 Code: `catalogueProviders` in `app.config.js`, applied in `src/@utils/aquarius/index.ts` (tests in `index.test.ts`).
-Checked on the live site: the catalogue shows 11 assets.
+Checked on the live site on 2026-11-25 (version `965039d0`): the catalogue shows 67 assets, "genji" finds 60, and "surtin" finds none.
 
 ## Smaller things
 

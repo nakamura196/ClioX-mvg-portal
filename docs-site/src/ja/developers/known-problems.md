@@ -256,10 +256,10 @@ Ocean Node 4.x はジョブの成果物を `outputs.tar` 1 つ（とログ 3 つ
 なお、`?demo=1` で使う資料 `ee03ec…`（"release anonymized"）も `0x1ad7` の資料です。
 
 いまのポータルは、資料のサービスがすべて `NEXT_PUBLIC_CATALOGUE_PROVIDERS`（提供元のオリジンをカンマ区切り）のどれかから配られているときだけ、検索とタグの一覧に出します。
-既定はポータルが読んでいるノード（`NEXT_PUBLIC_METADATACACHE_URI`）です。`*` にすると絞り込みをやめます。
+末尾が `:` の項目は、その方式の資料をまとめて通します。既定はポータルが読んでいるノード（`NEXT_PUBLIC_METADATACACHE_URI`）と `ipfs:` で、私たちの校異源氏物語は一覧に残ります（`3aacfe5a`）。`*` にすると絞り込みをやめます。
 直リンク（`/asset/<did>`）なら、どの資料も開けます。
 コード: `app.config.js` の `catalogueProviders`。`src/@utils/aquarius/index.ts` で当てています（テストは `index.test.ts`）。
-本番で、カタログが 11 件になったことを確かめました。
+2026-11-25 に本番（版 `965039d0`）で確かめました。カタログは 67 件、「genji」で 60 件、「surtin」で 0 件です。
 
 ## 小さなこと
 
