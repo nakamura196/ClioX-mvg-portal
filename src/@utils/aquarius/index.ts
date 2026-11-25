@@ -5,7 +5,8 @@ import { OrdersData_orders as OrdersData } from '../../@types/subgraph/OrdersDat
 import {
   metadataCacheUri,
   metadataCacheIsOceanNode,
-  allowDynamicPricing
+  allowDynamicPricing,
+  catalogueProviders
 } from '../../../app.config'
 import {
   FilterByTypeOptions,
@@ -467,6 +468,20 @@ function matchesEsQuery(asset: any, query: any): boolean {
   return esClauseMatches(asset, query)
 }
 
+// [local patch] Keep only assets whose services are all served by a provider
+// in `catalogueProviders` (app.config.js). Empty list or '*' = no filter.
+export function isServedByCatalogueProvider(
+  asset: Asset,
+  providers: string[] = catalogueProviders
+): boolean {
+  if (!providers?.length || providers.includes('*')) return true
+  const services = asset?.services || []
+  if (services.length === 0) return false
+  return services.every((service) =>
+    providers.includes((service?.serviceEndpoint || '').replace(/\/+$/, ''))
+  )
+}
+
 export async function queryMetadata(
   query: SearchQuery,
   cancelToken: CancelToken
@@ -494,8 +509,10 @@ export async function queryMetadata(
       query.size
     )
     if (isLocalNode && transformed?.results) {
-      transformed.results = transformed.results.filter((a) =>
-        matchesEsQuery(a, (query as any)?.query)
+      transformed.results = transformed.results.filter(
+        (a) =>
+          matchesEsQuery(a, (query as any)?.query) &&
+          isServedByCatalogueProvider(a)
       )
       transformed.totalResults = transformed.results.length
       // 絞り込んだ後の件数でページ数を数え直す（全件のままだと空のページが出る）
@@ -874,6 +891,7 @@ export async function getTagsList(
     if (!response.data.aggregations?.tags) {
       const hits: any[] = (response.data as any)?.hits?.hits || []
       const tags = hits
+        .filter((h) => isServedByCatalogueProvider(h?._source || h))
         .map((h) => h?._source?.metadata?.tags || h?.metadata?.tags || [])
         .flat()
         .filter((t: string) => t && t !== '')

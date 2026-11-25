@@ -44,6 +44,21 @@ module.exports = {
 
   customProviderUrl: process.env.NEXT_PUBLIC_PROVIDER_URL,
 
+  // [local patch] Catalogue filter (2026-11-25). The node indexes every Ocean
+  // asset on the chain, including ones whose provider is someone's own machine
+  // (http://127.0.0.1:8001) and cannot be used from here. List only assets
+  // served by these providers. Comma-separated origins; '*' lists everything.
+  // Default: the node this portal reads (NEXT_PUBLIC_METADATACACHE_URI).
+  // Direct links (/asset/<did>) still open any asset.
+  catalogueProviders: (
+    process.env.NEXT_PUBLIC_CATALOGUE_PROVIDERS ||
+    process.env.NEXT_PUBLIC_METADATACACHE_URI ||
+    ''
+  )
+    .split(',')
+    .map((s) => s.trim().replace(/\/+$/, ''))
+    .filter(Boolean),
+
   infuraProjectId: process.env.NEXT_PUBLIC_INFURA_PROJECT_ID || 'xxx',
 
   defaultDatatokenTemplateIndex: 2,
