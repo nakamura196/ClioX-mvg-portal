@@ -470,6 +470,7 @@ function matchesEsQuery(asset: any, query: any): boolean {
 
 // [local patch] Keep only assets whose services are all served by a provider
 // in `catalogueProviders` (app.config.js). Empty list or '*' = no filter.
+// An entry ending in ':' (such as 'ipfs:') matches that scheme.
 export function isServedByCatalogueProvider(
   asset: Asset,
   providers: string[] = catalogueProviders
@@ -477,9 +478,12 @@ export function isServedByCatalogueProvider(
   if (!providers?.length || providers.includes('*')) return true
   const services = asset?.services || []
   if (services.length === 0) return false
-  return services.every((service) =>
-    providers.includes((service?.serviceEndpoint || '').replace(/\/+$/, ''))
-  )
+  return services.every((service) => {
+    const endpoint = (service?.serviceEndpoint || '').replace(/\/+$/, '')
+    return providers.some((p) =>
+      p.endsWith(':') ? endpoint.startsWith(p) : endpoint === p
+    )
+  })
 }
 
 export async function queryMetadata(
