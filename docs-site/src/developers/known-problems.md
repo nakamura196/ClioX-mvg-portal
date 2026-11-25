@@ -251,7 +251,7 @@ Counted on 2026-11-25 from the node's metadata (by the `serviceEndpoint` of each
 | `https://cliox-node.ldas.jp` (our node) | 11       | the trial's assets                                                                                                                          |
 | `http://127.0.0.1:8001`                 | 32       | owner `0x1ad7…6958`; names such as `surtin-proj-matlab-test10`. Likely tests by the upstream team (a guess from the names and author field) |
 | `https://provider.oceanprotocol.com`    | 5        | Ocean's public provider                                                                                                                     |
-| `ipfs://…`                              | about 60 | owner `0xA787b1…`, one asset per chapter of the Tale of Genji collation                                                                     |
+| `ipfs://…`                              | about 60 | owner `0xA787…A3aA`: our own Tale of Genji collation, one asset per chapter, published on purpose without a provider (genji-witness)        |
 
 A `127.0.0.1` provider is the publisher's own machine, so downloads and jobs on those assets cannot work from anywhere else.
 Note that the `?demo=1` asset `ee03ec…` ("release anonymized") is one of the `0x1ad7` assets.
