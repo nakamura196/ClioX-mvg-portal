@@ -4,6 +4,7 @@ import { useRouter } from 'next/router'
 import Page from '@shared/Page'
 import Container from '@shared/atoms/Container'
 import { consumeLdasReturnPath, useLdasAuth } from '@context/LdasAuth'
+import { APPLY_RETURN_KEY, APPLY_RESULT_KEY } from '@utils/providerApply'
 import useActiveLocale from '../i18n/useActiveLocale'
 
 export default function LdasCallbackPage(): ReactElement {
@@ -32,6 +33,42 @@ export default function LdasCallbackPage(): ReactElement {
           ? 'id.ldas.jp からの証明書が受け取れませんでした。もう一度サインインしてください。'
           : 'No credential was returned from id.ldas.jp. Please try signing in again.'
       )
+      return
+    }
+
+    // Provider application started from /apply-provider: submit it instead of signing in.
+    const applyReturn = window.sessionStorage.getItem(APPLY_RETURN_KEY)
+    if (applyReturn && vpToken) {
+      window.sessionStorage.removeItem(APPLY_RETURN_KEY)
+      ;(async () => {
+        let result: { ok: boolean; error?: string }
+        try {
+          const res = await fetch('/api/provider-application/submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify({
+              vp_token: vpToken,
+              state: state || undefined
+            })
+          })
+          const data = await res.json().catch(() => ({}))
+          result = res.ok
+            ? { ok: true }
+            : { ok: false, error: data.error || res.statusText }
+        } catch (err) {
+          result = {
+            ok: false,
+            error: err instanceof Error ? err.message : 'Request failed'
+          }
+        }
+        window.sessionStorage.setItem(APPLY_RESULT_KEY, JSON.stringify(result))
+        router.replace(
+          applyReturn.startsWith('/') && !applyReturn.startsWith('//')
+            ? applyReturn
+            : '/apply-provider'
+        )
+      })()
       return
     }
 

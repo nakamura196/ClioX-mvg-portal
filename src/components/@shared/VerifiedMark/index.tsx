@@ -1,3 +1,4 @@
+// [local patch] Verified-provider mark and application (id.ldas.jp). Not in upstream; see scripts/local-patches.txt.
 import { ReactElement } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLdasRegistry } from '@hooks/useLdasRegistry'
@@ -19,9 +20,11 @@ export function useVerifiedMarkTitle(): (provider: LdasProvider) => string {
     const method = methods.length
       ? methods.join(', ')
       : t('verifiedMark.methodUnknown')
-    return provider.selfDeclaredName
+    const date = (provider.verifiedAt || '').slice(0, 10)
+    const base = provider.selfDeclaredName
       ? t('verifiedMark.tooltipSelfDeclared', { method })
       : t('verifiedMark.tooltip', { method })
+    return date ? `${base} ${t('verifiedMark.verifiedOn', { date })}` : base
   }
 }
 

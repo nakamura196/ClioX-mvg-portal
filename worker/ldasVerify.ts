@@ -18,6 +18,8 @@ export interface VerifiedLdasUser {
   format: 'dc+sd-jwt' | 'vc+jwt'
   statusIndex?: string
   verifiedAt: string
+  /** Issuer's `ldas_verification` evidence (not part of the session) */
+  verification?: Record<string, unknown>
 }
 
 export interface VerifyOptions {
@@ -107,11 +109,13 @@ async function fetchIssuerPublicKey(
     false,
     ['verify']
   )
-  keyCache.set(issuerOrigin, {
-    key,
-    did: doc.id,
-    expiresAt: now + 10 * 60 * 1000
-  })
+  if (useCache) {
+    keyCache.set(issuerOrigin, {
+      key,
+      did: doc.id,
+      expiresAt: now + 10 * 60 * 1000
+    })
+  }
   return { key, did: doc.id }
 }
 
@@ -333,7 +337,11 @@ export async function verifyLdasCredential(
     }
   } else {
     // Fallback mode (without kb+jwt): check nonce/aud directly on issuer JWT
-    if (options.expectedAud && payload.aud && payload.aud !== options.expectedAud) {
+    if (
+      options.expectedAud &&
+      payload.aud &&
+      payload.aud !== options.expectedAud
+    ) {
       throw new Error('Credential audience mismatch')
     }
     if (
@@ -374,9 +382,12 @@ export async function verifyLdasCredential(
     emailDomain:
       typeof subject.emailDomain === 'string' ? subject.emailDomain : undefined,
     issuer: expectedDid,
-    format:
-      header.typ === 'dc+sd-jwt' || isSdJwt ? 'dc+sd-jwt' : 'vc+jwt',
+    format: header.typ === 'dc+sd-jwt' || isSdJwt ? 'dc+sd-jwt' : 'vc+jwt',
     statusIndex,
-    verifiedAt: new Date().toISOString()
+    verifiedAt: new Date().toISOString(),
+    verification:
+      payload.ldas_verification && typeof payload.ldas_verification === 'object'
+        ? payload.ldas_verification
+        : undefined
   }
 }

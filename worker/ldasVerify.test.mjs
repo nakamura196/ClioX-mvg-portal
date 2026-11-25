@@ -29,20 +29,35 @@ async function signEd25519Jwt(header, payload, privateKey) {
   return `${h}.${p}.${bytesToB64url(sig)}`
 }
 
-async function makeFixture({ revoked = false, aud = 'https://cliox.ldas.jp', nonce = 'n-123' } = {}) {
-  const issuerKeys = await crypto.subtle.generateKey(
-    { name: 'Ed25519' },
-    true,
-    ['sign', 'verify']
+let sharedIssuerKeys
+async function makeFixture({
+  revoked = false,
+  aud = 'https://cliox.ldas.jp',
+  nonce = 'n-123',
+  shareKeys = false,
+  evidence
+} = {}) {
+  const issuerKeys =
+    (shareKeys && sharedIssuerKeys) ||
+    (await crypto.subtle.generateKey({ name: 'Ed25519' }, true, [
+      'sign',
+      'verify'
+    ]))
+  if (shareKeys) sharedIssuerKeys = issuerKeys
+  const issuerPubJwk = await crypto.subtle.exportKey(
+    'jwk',
+    issuerKeys.publicKey
   )
-  const issuerPubJwk = await crypto.subtle.exportKey('jwk', issuerKeys.publicKey)
 
   const holderKeys = await crypto.subtle.generateKey(
     { name: 'ECDSA', namedCurve: 'P-256' },
     true,
     ['sign', 'verify']
   )
-  const holderPubJwk = await crypto.subtle.exportKey('jwk', holderKeys.publicKey)
+  const holderPubJwk = await crypto.subtle.exportKey(
+    'jwk',
+    holderKeys.publicKey
+  )
   const cnfJwk = {
     kty: holderPubJwk.kty,
     crv: holderPubJwk.crv,
@@ -57,9 +72,7 @@ async function makeFixture({ revoked = false, aud = 'https://cliox.ldas.jp', non
     ['s4', 'affiliation', 'The University of Tokyo'],
     ['s5', 'emailDomain', 'u-tokyo.ac.jp'],
     ['s6', 'wallet', '0x6E430000000000000000000000000000000032C3']
-  ].map((arr) =>
-    bytesToB64url(new TextEncoder().encode(JSON.stringify(arr)))
-  )
+  ].map((arr) => bytesToB64url(new TextEncoder().encode(JSON.stringify(arr))))
   const sdHashes = await Promise.all(disclosures.map((d) => sha256B64url(d)))
 
   const now = Math.floor(Date.now() / 1000)
@@ -71,6 +84,7 @@ async function makeFixture({ revoked = false, aud = 'https://cliox.ldas.jp', non
       iat: now,
       exp: now + 3600,
       vct: 'https://id.ldas.jp/credentials/member/v1',
+      ...(evidence ? { ldas_verification: evidence } : {}),
       cnf: { jwk: cnfJwk },
       credentialSubject: {
         id: 'did:pkh:eip155:11155111:0x6E430000000000000000000000000000000032C3',
@@ -93,9 +107,7 @@ async function makeFixture({ revoked = false, aud = 'https://cliox.ldas.jp', non
     new TextEncoder().encode(JSON.stringify({ alg: 'ES256', typ: 'kb+jwt' }))
   )
   const kbP = bytesToB64url(
-    new TextEncoder().encode(
-      JSON.stringify({ iat: now, aud, nonce, sd_hash })
-    )
+    new TextEncoder().encode(JSON.stringify({ iat: now, aud, nonce, sd_hash }))
   )
   const kbSig = new Uint8Array(
     await crypto.subtle.sign(
@@ -139,7 +151,7 @@ async function makeFixture({ revoked = false, aud = 'https://cliox.ldas.jp', non
     return new Response('not found', { status: 404 })
   }
 
-  return { vpToken, mockFetch }
+  return { vpToken, mockFetch, didDoc, statusJwt }
 }
 
 test('verifies valid OID4VP dc+sd-jwt + kb+jwt + signed status list', async () => {
@@ -198,4 +210,170 @@ test('rejects mismatched nonce in kb+jwt', async () => {
       }),
     /nonce mismatch/i
   )
+})
+
+// --- provider application ---------------------------------------------------
+import {
+  toChecksumAddress,
+  deriveMethods,
+  buildEntry,
+  signApplication,
+  composeEmailBody,
+  allowApplication,
+  resetApplicationLimit
+} from './providerApplication.ts'
+import {
+  verifySnippet,
+  addToRegistry
+} from '../scripts/registry/add-provider.mjs'
+
+test('toChecksumAddress matches EIP-55 test vectors', () => {
+  for (const a of [
+    '0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed',
+    '0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359',
+    '0xedAa08237554bBafC218f0EaA86704e1aDe9262E'
+  ]) {
+    assert.equal(toChecksumAddress(a.toLowerCase()), a)
+  }
+})
+
+test('deriveMethods reads ldas_verification evidence', () => {
+  const evidence = {
+    method: 'ORCID sign-in only (anyone with an ORCID iD)',
+    affiliationVerification:
+      'Institutional email domain verified by one-time code (raw email not stored)'
+  }
+  assert.deepEqual(
+    deriveMethods(
+      { orcid: 'https://orcid.org/x', emailDomain: 'U-Tokyo.ac.jp' },
+      evidence
+    ),
+    ['domain:u-tokyo.ac.jp', 'orcid']
+  )
+  assert.deepEqual(
+    deriveMethods({}, { method: 'Approved by an administrator' }),
+    ['admin-approved']
+  )
+  assert.deepEqual(deriveMethods({}, undefined), [])
+})
+
+test('signed application verifies in the CLI; tampering and a wrong key fail', async () => {
+  const user = {
+    name: 'A Provider',
+    orcid: 'https://orcid.org/x',
+    emailDomain: 'example.org',
+    verifiedAt: '2026-11-25T00:00:00.000Z'
+  }
+  const entry = buildEntry(user, {
+    affiliationVerification:
+      'Institutional email domain verified by one-time code'
+  })
+  const wallet = toChecksumAddress('0xedaa08237554bbafc218f0eaa86704e1ade9262e')
+  const sig = await signApplication('k1', wallet, entry)
+  const body = composeEmailBody(wallet, entry, sig)
+  assert.match(body, /Signature \(HMAC-SHA256\)/)
+  assert.ok(!/vp_token|eyJ/.test(body))
+
+  const snippet = JSON.stringify({ [wallet]: entry })
+  const ok = verifySnippet(snippet, sig, 'k1')
+  assert.equal(ok.wallet, wallet)
+  assert.throws(() => verifySnippet(snippet, sig, 'other'), /Signature/)
+  const forged = JSON.stringify({ [wallet]: { ...entry, name: 'Evil' } })
+  assert.throws(() => verifySnippet(forged, sig, 'k1'), /Signature/)
+  assert.throws(() => verifySnippet(snippet, sig, ''), /not set/)
+
+  const next = addToRegistry({ issuer: 'x', updated: '', providers: {} }, ok)
+  assert.equal(next.providers[wallet].verifiedAt, entry.verifiedAt)
+})
+
+test('one application per wallet per window', () => {
+  resetApplicationLimit()
+  assert.equal(allowApplication('0xAbc', 1000), true)
+  assert.equal(allowApplication('0xabc', 2000), false)
+  assert.equal(allowApplication('0xabc', 1000 + 11 * 60 * 1000), true)
+})
+
+// --- Worker endpoints (start -> submit) -------------------------------------
+import worker from './index.ts'
+
+const FIXTURE_WALLET = '0x6E430000000000000000000000000000000032C3'
+
+async function applyRoundTrip({ connected, evidence }) {
+  const origin = 'http://localhost:8148'
+  const env = {} // local dev: no binding, no secrets
+  const start = await worker.fetch(
+    new Request(`${origin}/api/provider-application/start`, {
+      method: 'POST',
+      body: JSON.stringify({ wallet: connected })
+    }),
+    env
+  )
+  assert.equal(start.status, 200)
+  const cookie = start.headers.get('Set-Cookie').split(';')[0]
+  const { authorizeUrl } = await start.json()
+  const q = new URL(authorizeUrl).searchParams
+  const { vpToken, didDoc, statusJwt } = await makeFixture({
+    aud: origin,
+    nonce: q.get('nonce'),
+    shareKeys: true,
+    evidence
+  })
+  const realFetch = globalThis.fetch
+  globalThis.fetch = async (u) => {
+    const s = String(u)
+    if (s.endsWith('/.well-known/did.json'))
+      return new Response(JSON.stringify(didDoc))
+    if (s.endsWith('/status/1')) return new Response(statusJwt)
+    return new Response('nf', { status: 404 })
+  }
+  const logs = []
+  const realLog = console.log
+  console.log = (...a) => logs.push(a.join(' '))
+  try {
+    const res = await worker.fetch(
+      new Request(`${origin}/api/provider-application/submit`, {
+        method: 'POST',
+        headers: { Cookie: cookie },
+        body: JSON.stringify({ vp_token: vpToken, state: q.get('state') })
+      }),
+      env
+    )
+    return { res, logs }
+  } finally {
+    globalThis.fetch = realFetch
+    console.log = realLog
+  }
+}
+
+test('application endpoint: matching wallet is accepted and logged in local dev', async () => {
+  resetApplicationLimit()
+  const { res, logs } = await applyRoundTrip({
+    connected: FIXTURE_WALLET.toLowerCase(),
+    evidence: {
+      affiliationVerification:
+        'Institutional email domain verified by one-time code'
+    }
+  })
+  assert.equal(res.status, 200)
+  const body = await res.json()
+  assert.equal(body.submitted, true)
+  assert.deepEqual(body.method, ['domain:u-tokyo.ac.jp', 'orcid'])
+  assert.equal(logs.length, 1)
+  assert.match(logs[0], /Signature \(HMAC-SHA256\): [0-9a-f]{64}/)
+  assert.ok(!logs[0].includes('~'))
+})
+
+test('application endpoint: a different connected wallet is rejected', async () => {
+  resetApplicationLimit()
+  const { res } = await applyRoundTrip({
+    connected: '0x1111111111111111111111111111111111111111'
+  })
+  assert.equal(res.status, 403)
+})
+
+test('application endpoint: second application within the window is limited', async () => {
+  resetApplicationLimit()
+  await applyRoundTrip({ connected: FIXTURE_WALLET })
+  const { res } = await applyRoundTrip({ connected: FIXTURE_WALLET })
+  assert.equal(res.status, 429)
 })

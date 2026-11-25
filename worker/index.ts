@@ -15,7 +15,15 @@ import {
   verifyLdasCredential,
   bytesToB64url,
   type VerifiedLdasUser
-} from './ldasVerify'
+} from './ldasVerify.ts'
+import {
+  allowApplication,
+  buildEntry,
+  buildMime,
+  composeEmailBody,
+  signApplication,
+  toChecksumAddress
+} from './providerApplication.ts'
 
 export interface Env {
   ASSETS: { fetch: (req: Request | URL | string) => Promise<Response> }
@@ -29,12 +37,21 @@ export interface Env {
   RESEND_FROM_EMAIL?: string
   CONTACT_EMAIL?: string
   POLICY_REQUIRE_MEMBER?: string
+  /** Cloudflare Email Routing send_email binding (absent in local dev) */
+  APPLICATION_EMAIL?: { send: (message: unknown) => Promise<void> }
+  /** Where applications are sent (secret/var; never hardcoded) */
+  OPERATOR_EMAIL?: string
+  /** Sender address on a domain with Email Routing enabled */
+  APPLICATION_FROM_EMAIL?: string
+  /** HMAC key that signs each application email */
+  APPLICATION_SIGNING_KEY?: string
 }
 
 const LDAS_SESSION_COOKIE = 'cliox_ldas_session'
 const LDAS_AUTH_STATE_COOKIE = 'cliox_ldas_state'
 const SESSION_TTL_SEC = 24 * 60 * 60
 const STATE_TTL_SEC = 10 * 60
+const APPLY_STATE_COOKIE = 'cliox_ldas_apply'
 
 const LEGACY_REDIRECTS: Record<string, { to: string; status: number }> = {
   '/publish': { to: '/publish/1/', status: 308 },
@@ -348,12 +365,15 @@ async function handleLdasVerify(
     ''
   )
   try {
-    const user = await verifyLdasCredential(rawToken, {
-      issuerOrigin,
-      expectedAud: url.origin,
-      expectedNonce: saved.nonce,
-      requireKeyBinding: Boolean(body.vp_token)
-    })
+    const { verification: _evidence, ...user } = await verifyLdasCredential(
+      rawToken,
+      {
+        issuerOrigin,
+        expectedAud: url.origin,
+        expectedNonce: saved.nonce,
+        requireKeyBinding: Boolean(body.vp_token)
+      }
+    )
 
     const exp = Math.floor(Date.now() / 1000) + SESSION_TTL_SEC
     const sealedSession = await sealPayload(secret, { user, exp })
@@ -414,6 +434,204 @@ async function handleLdasLogout(url: URL): Promise<Response> {
       url.protocol === 'https:'
     )
   })
+}
+
+// ---------------------------------------------------------------------------
+// 1b. Verified-provider application (reuses the id.ldas.jp OID4VP flow)
+// ---------------------------------------------------------------------------
+
+function issuerOriginOf(env: Env): string {
+  return (env.LDAS_ID_ORIGIN || 'https://id.ldas.jp').replace(/\/+$/, '')
+}
+
+/** POST {wallet}: starts presentation; returns the id.ldas.jp authorize URL. */
+async function handleApplyStart(
+  req: Request,
+  env: Env,
+  url: URL
+): Promise<Response> {
+  if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405)
+  const body = (await req.json().catch(() => ({}))) as { wallet?: string }
+  if (!body.wallet || !/^0x[0-9a-fA-F]{40}$/.test(body.wallet)) {
+    return json({ error: 'Connect your wallet first' }, 400)
+  }
+  const issuerOrigin = issuerOriginOf(env)
+  const state = crypto.randomUUID()
+  const nonce = crypto.randomUUID()
+  const dcqlQuery = JSON.stringify({
+    credentials: [
+      {
+        id: 'cliox-ldas-member',
+        format: 'dc+sd-jwt',
+        meta: { vct_values: [`${issuerOrigin}/credentials/member/v1`] },
+        claims: [
+          { path: ['credentialSubject', 'name'] },
+          { path: ['credentialSubject', 'wallet'] },
+          { path: ['credentialSubject', 'orcid'] },
+          { path: ['credentialSubject', 'affiliation'] },
+          { path: ['credentialSubject', 'emailDomain'] }
+        ]
+      }
+    ]
+  })
+  const authUrl = new URL(`${issuerOrigin}/authorize`)
+  authUrl.search = new URLSearchParams({
+    response_type: 'vp_token',
+    client_id: url.origin,
+    redirect_uri: `${url.origin}/ldas-callback/`,
+    nonce,
+    state,
+    dcql_query: dcqlQuery
+  }).toString()
+  const sealed = await sealPayload(sessionSecret(env, url), {
+    state,
+    nonce,
+    wallet: body.wallet,
+    exp: Math.floor(Date.now() / 1000) + STATE_TTL_SEC
+  })
+  return json({ authorizeUrl: authUrl.toString() }, 200, {
+    'Set-Cookie': makeCookie(
+      APPLY_STATE_COOKIE,
+      sealed,
+      STATE_TTL_SEC,
+      url.protocol === 'https:'
+    )
+  })
+}
+
+/** POST {vp_token, state}: verifies, checks wallet, emails the operator. */
+async function handleApplySubmit(
+  req: Request,
+  env: Env,
+  url: URL
+): Promise<Response> {
+  if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405)
+  const body = (await req.json().catch(() => ({}))) as {
+    vp_token?: string
+    state?: string
+  }
+  if (!body.vp_token || typeof body.vp_token !== 'string') {
+    return json({ error: 'vp_token is required' }, 400)
+  }
+  const secret = sessionSecret(env, url)
+  const saved = await unsealPayload<{
+    state: string
+    nonce: string
+    wallet: string
+    exp: number
+  }>(secret, parseCookies(req)[APPLY_STATE_COOKIE])
+  if (!saved || saved.exp < Math.floor(Date.now() / 1000)) {
+    return json(
+      { error: 'Application session expired; please start again' },
+      400
+    )
+  }
+  if (!body.state || !timingSafeEqualStr(body.state, saved.state)) {
+    return json({ error: 'OID4VP state mismatch' }, 400)
+  }
+  const clearState = {
+    'Set-Cookie': makeCookie(
+      APPLY_STATE_COOKIE,
+      '',
+      0,
+      url.protocol === 'https:'
+    )
+  }
+
+  let user: VerifiedLdasUser
+  try {
+    user = await verifyLdasCredential(body.vp_token, {
+      issuerOrigin: issuerOriginOf(env),
+      expectedAud: url.origin,
+      expectedNonce: saved.nonce,
+      requireKeyBinding: true
+    })
+  } catch (err) {
+    return json(
+      { error: err instanceof Error ? err.message : 'Verification failed' },
+      401
+    )
+  }
+
+  if (!user.wallet || !/^0x[0-9a-fA-F]{40}$/.test(user.wallet)) {
+    return json(
+      { error: 'The credential does not contain a wallet address' },
+      422,
+      clearState
+    )
+  }
+  if (user.wallet.toLowerCase() !== saved.wallet.toLowerCase()) {
+    return json(
+      {
+        error:
+          'The wallet in your id.ldas.jp credential is not the wallet you connected'
+      },
+      403,
+      clearState
+    )
+  }
+  if (!allowApplication(user.wallet)) {
+    return json(
+      {
+        error:
+          'An application for this wallet was sent recently. Please wait a few minutes.'
+      },
+      429,
+      clearState
+    )
+  }
+
+  const wallet = toChecksumAddress(user.wallet)
+  const entry = buildEntry(user, user.verification)
+  const signingKey =
+    env.APPLICATION_SIGNING_KEY ||
+    (url.hostname === 'localhost' || url.hostname === '127.0.0.1'
+      ? 'cliox-local-dev-application-key'
+      : '')
+  if (!signingKey)
+    return json({ error: 'Applications are not configured' }, 503)
+  const signature = await signApplication(signingKey, wallet, entry)
+  const text = composeEmailBody(wallet, entry, signature)
+
+  if (
+    env.APPLICATION_EMAIL &&
+    env.OPERATOR_EMAIL &&
+    env.APPLICATION_FROM_EMAIL
+  ) {
+    try {
+      const { EmailMessage } = await import('cloudflare:email')
+      await env.APPLICATION_EMAIL.send(
+        new EmailMessage(
+          env.APPLICATION_FROM_EMAIL,
+          env.OPERATOR_EMAIL,
+          buildMime(
+            env.APPLICATION_FROM_EMAIL,
+            env.OPERATOR_EMAIL,
+            'Clio-X verified-provider application',
+            text
+          )
+        )
+      )
+    } catch (err) {
+      console.error('application email failed', err)
+      return json(
+        { error: 'Could not send the application. Please try again later.' },
+        502,
+        clearState
+      )
+    }
+  } else if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
+    // Local dev: no send_email binding, so print what would be sent.
+    console.log(`[provider application] (local dev, not sent)\n${text}`)
+  } else {
+    return json({ error: 'Applications are not configured' }, 503, clearState)
+  }
+
+  return json(
+    { submitted: true, wallet, name: entry.name, method: entry.method },
+    200,
+    clearState
+  )
 }
 
 // ---------------------------------------------------------------------------
@@ -895,6 +1113,12 @@ export default {
     }
     if (pathname === '/api/auth/ldas/logout') {
       return handleLdasLogout(url)
+    }
+    if (pathname === '/api/provider-application/start') {
+      return handleApplyStart(req, env, url)
+    }
+    if (pathname === '/api/provider-application/submit') {
+      return handleApplySubmit(req, env, url)
     }
 
     // Ocean Node policy server
