@@ -9,6 +9,9 @@
  * or pipe the snippet:
  *   pbpaste | APPLICATION_SIGNING_KEY=... node scripts/registry/add-provider.mjs - <signature>
  *
+ * Remove a provider (case-insensitive wallet); no key needed:
+ *   node scripts/registry/add-provider.mjs remove <wallet>
+ *
  * <snippet.json> holds the "Registry snippet" block from the email, i.e.
  * {"0xChecksumWallet": {"name", "method", "selfDeclaredName", "verifiedAt"}}.
  */
@@ -75,7 +78,41 @@ export function addToRegistry(registry, { wallet, entry }, now = new Date()) {
   return { ...registry, updated: now.toISOString(), providers }
 }
 
+/** Returns { registry, removed } where removed is the deleted entry (or undefined). */
+export function removeFromRegistry(registry, wallet, now = new Date()) {
+  const providers = { ...registry.providers }
+  const key = Object.keys(providers).find(
+    (k) => k.toLowerCase() === String(wallet).toLowerCase()
+  )
+  if (!key) return { registry, removed: undefined }
+  const removed = { wallet: key, entry: providers[key] }
+  delete providers[key]
+  return {
+    registry: { ...registry, updated: now.toISOString(), providers },
+    removed
+  }
+}
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  if (process.argv[2] === 'remove') {
+    const wallet = process.argv[3]
+    if (!/^0x[0-9a-fA-F]{40}$/.test(wallet || '')) {
+      console.error(
+        'Usage: node scripts/registry/add-provider.mjs remove <wallet>'
+      )
+      process.exit(2)
+    }
+    const current = JSON.parse(fs.readFileSync(REGISTRY, 'utf8'))
+    const { registry, removed } = removeFromRegistry(current, wallet)
+    if (!removed) {
+      console.error(`${wallet} is not in the registry`)
+      process.exit(1)
+    }
+    fs.writeFileSync(REGISTRY, `${JSON.stringify(registry, null, 2)}\n`)
+    console.log(`Removed ${removed.wallet}: ${JSON.stringify(removed.entry)}`)
+    console.log('Commit and deploy to take it off the site.')
+    process.exit(0)
+  }
   const [file, signature] = process.argv.slice(2)
   if (!file || !signature) {
     console.error(

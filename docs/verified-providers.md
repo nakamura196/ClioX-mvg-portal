@@ -64,6 +64,27 @@ Method tags are derived best-effort from the credential's `ldas_verification`
 evidence, so review them. `selfDeclaredName` is `true` unless the evidence shows
 `gakunin` or `admin-approved`.
 
+## Operator duties (privacy)
+
+The apply page promises the applicant the following, so the operator must keep it:
+
+- Delete application emails that you do not approve within 30 days.
+- A listing lasts until it expires or the provider asks for removal. Expiry is
+  automatic in the portal (the mark disappears after the max age), but remove
+  expired entries from the file when convenient.
+- Removal requests arrive by email at the contact shown on the page (kept in
+  `content/verifiedProvider.json`). Handle them promptly:
+
+  ```sh
+  node scripts/registry/add-provider.mjs remove <wallet>
+  git diff public/registry/providers.json
+  ```
+
+  Then commit and deploy; the entry is only gone from the site after the deploy.
+
+- Only the wallet, name, method tags, `selfDeclaredName` and `verifiedAt` are kept.
+  Do not add email addresses or ORCID iDs to the registry.
+
 ## Worker configuration
 
 | Name                      | Kind                                       | Purpose                                                    |

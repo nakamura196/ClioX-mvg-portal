@@ -86,6 +86,15 @@ export default function ApplyProviderPage(): ReactElement {
             ))}
           </ul>
           <p>{c.notPublished}</p>
+          <h3>{c.privacyTitle}</h3>
+          <ul>
+            {c.privacyItems.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+          <p>
+            {c.contactLabel}: {c.contact}
+          </p>
           <p>{address ? fill(c.connected, { address }) : c.needWallet}</p>
           <label style={{ display: 'block', margin: '1rem 0' }}>
             <input

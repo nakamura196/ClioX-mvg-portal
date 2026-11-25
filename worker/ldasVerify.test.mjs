@@ -224,7 +224,8 @@ import {
 } from './providerApplication.ts'
 import {
   verifySnippet,
-  addToRegistry
+  addToRegistry,
+  removeFromRegistry
 } from '../scripts/registry/add-provider.mjs'
 
 test('toChecksumAddress matches EIP-55 test vectors', () => {
@@ -376,4 +377,27 @@ test('application endpoint: second application within the window is limited', as
   await applyRoundTrip({ connected: FIXTURE_WALLET })
   const { res } = await applyRoundTrip({ connected: FIXTURE_WALLET })
   assert.equal(res.status, 429)
+})
+
+test('removeFromRegistry deletes by wallet, case-insensitively', () => {
+  const w = '0xedAa08237554bBafC218f0EaA86704e1aDe9262E'
+  const reg = {
+    issuer: 'x',
+    updated: '',
+    providers: {
+      [w]: { name: 'A' },
+      '0x1111111111111111111111111111111111111111': { name: 'B' }
+    }
+  }
+  const out = removeFromRegistry(reg, w.toLowerCase())
+  assert.equal(out.removed.wallet, w)
+  assert.equal(out.removed.entry.name, 'A')
+  assert.deepEqual(Object.keys(out.registry.providers), [
+    '0x1111111111111111111111111111111111111111'
+  ])
+  assert.equal(
+    removeFromRegistry(reg, '0x2222222222222222222222222222222222222222')
+      .removed,
+    undefined
+  )
 })

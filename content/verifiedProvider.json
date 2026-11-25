@@ -26,7 +26,7 @@
     "publishedMethod": "How you were verified (for example \"u-tokyo.ac.jp domain\" or \"ORCID\") and whether the name is self-declared",
     "publishedDate": "The date of the check",
     "notPublished": "Your credential itself is not stored or sent anywhere. Only the items above are passed to the operator.",
-    "consent": "I understand that applying means I agree to the items above being published in the provider registry.",
+    "consent": "I understand that applying means I agree to the items above being published in the provider registry, and that anyone can then link this wallet's on-chain activity to my name.",
     "needWallet": "Connect your wallet first (button in the page header). The wallet in your credential must be the wallet you connect here.",
     "connected": "Connected wallet: {{address}}",
     "start": "Present my id.ldas.jp credential",
@@ -34,6 +34,16 @@
     "submittedTitle": "Application submitted",
     "submittedBody": "Your credential was checked and your application was sent to the operator. You will be listed after the operator has reviewed it. Nothing is published yet.",
     "errorTitle": "The application could not be completed",
-    "tryAgain": "Try again"
+    "tryAgain": "Try again",
+    "privacyTitle": "Privacy notice",
+    "privacyItems": [
+      "Purpose: to show a \"Verified by id.ldas.jp\" mark next to your data on this trial portal.",
+      "Collected and published: your wallet address, your display name, how id.ldas.jp verified you, and the verification date. Nothing else: no email address, no ORCID iD, and not the credential itself.",
+      "Important: once you are listed, anyone can link this wallet's on-chain activity to your name. We recommend a wallet used only for publishing on this portal, separate from your everyday wallet.",
+      "Keeping: the operator reviews your application by email. Applications that are not approved are deleted within 30 days. A listing lasts until it expires (365 days after verification) or until you ask for removal.",
+      "Removal: email the contact below and your entry is removed from the registry."
+    ],
+    "contactLabel": "Contact",
+    "contact": "Satoru Nakamura (The University of Tokyo), nakamura.satoru@mail.u-tokyo.ac.jp"
   }
 }
