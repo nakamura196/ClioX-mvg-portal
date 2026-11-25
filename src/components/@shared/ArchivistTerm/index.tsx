@@ -9,7 +9,7 @@ import styles from './index.module.css'
  *
  * The word gets a dotted underline; hovering or focusing it shows the short
  * definition and the closest archival practice, with a link to the full entry
- * on /glossary. Text comes from content/archivistGlossary(.ja).json.
+ * on /experiment/glossary. Text comes from content/archivistGlossary(.ja).json.
  *
  * Without children it renders a small "?" badge instead, for places where the
  * word itself sits inside a button or link and cannot be wrapped.
@@ -33,7 +33,7 @@ export default function ArchivistTerm({
         <span className={styles.label}>{glossary.labels.archival}</span>
         {entry.archival}
       </p>
-      <Link href={`/glossary#${id}`} className={styles.more}>
+      <Link href={`/experiment/glossary#${id}`} className={styles.more}>
         {glossary.labels.more} →
       </Link>
     </div>

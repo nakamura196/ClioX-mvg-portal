@@ -9,7 +9,7 @@ export default function ArchivistGlossary(): ReactElement {
   const glossary = useArchivistGlossary()
   const { labels } = glossary
 
-  // Tooltips link to /glossary#<term>. The browser's own jump can fire before
+  // Tooltips link to /experiment/glossary#<term>. The browser's own jump can fire before
   // hydration settles the layout, so scroll again once we are mounted.
   useEffect(() => {
     const id = window.location.hash.slice(1)

@@ -13,9 +13,6 @@ import Button from '@components/@shared/atoms/Button'
 import UserPreferences from './UserPreferences'
 import Automation from './UserPreferences/Automation'
 import NetworkMenu from './NetworkMenu'
-import LanguageSwitcher from './LanguageSwitcher'
-import TourLauncher from '../FirstRunTour/Launcher'
-import ArchivistModeToggle from '@components/ArchivistMode/Toggle'
 const Wallet = loadable(() => import('./Wallet'))
 
 const cx = classNames.bind(styles)
@@ -82,9 +79,6 @@ export default function Menu(): ReactElement {
       </ul>
 
       <div className={styles.actions}>
-        <TourLauncher />
-        <ArchivistModeToggle />
-        <LanguageSwitcher />
         <SearchButton />
         <span data-jargon style={{ display: 'contents' }}>
           {appConfig.chainIdsSupported.length > 1 && <Networks />}

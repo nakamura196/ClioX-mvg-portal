@@ -53,10 +53,12 @@ export function FirstRunTourProvider({
 }): ReactElement {
   const [state, setState] = useState<TourState>({ status: 'idle', step: 0 })
 
-  // First visit: open the welcome card. A paused tour resumes where it was.
+  // [prototype] 2026-11-25: the tour no longer opens on first visit, so the
+  // entry looks the same as upstream Clio-X. It is started from /experiment.
+  // A paused tour still resumes where it was.
   useEffect(() => {
     const saved = readState()
-    setState(saved ?? { status: 'active', step: 0 })
+    if (saved) setState(saved)
   }, [])
 
   const update = useCallback((next: TourState) => {

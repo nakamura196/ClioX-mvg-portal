@@ -76,6 +76,28 @@ module.exports = (phase, { defaultConfig }) => {
     },
     async redirects() {
       return [
+        // [prototype] 試作のページは /experiment/<名前> にまとめた（2026-11-25）。
+        // 報告書や連絡に書いた古い URL を新しい場所へ送る。
+        // /experiment に ?view= や ?condition= が付いたものは、一覧ではなく
+        // 2 条件の実験のページへ送る（クエリはそのまま引き継がれる）。
+        ...['view', 'condition', 'sample'].map((key) => ({
+          source: '/experiment',
+          has: [{ type: 'query', key }],
+          destination: '/experiment/two-condition',
+          permanent: false
+        })),
+        ...[
+          'carbon-choice',
+          'carbon-report',
+          'archivist-qa',
+          'sample-collection',
+          'paper-fig',
+          'glossary'
+        ].map((name) => ({
+          source: `/${name}`,
+          destination: `/experiment/${name}`,
+          permanent: false
+        })),
         {
           source: '/publish',
           destination: '/publish/1',
