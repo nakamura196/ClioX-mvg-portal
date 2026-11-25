@@ -1,0 +1,93 @@
+/* [prototype] 論文の図 1・デモ用 */
+/* 情報カードと同じ箱の見た目にする */
+.wrapper {
+  composes: box from '@shared/atoms/Box.module.css';
+  margin-top: var(--spacer);
+}
+
+.heading {
+  font-size: var(--font-size-large);
+  margin: 0 0 calc(var(--spacer) / 2);
+}
+
+.table tbody tr {
+  cursor: pointer;
+}
+
+/* 全体の表は display: block で中身の幅にしかならないので、表に戻す */
+.table {
+  display: table;
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-small);
+}
+
+.table th {
+  font-size: var(--font-size-mini);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-secondary);
+  text-align: left;
+  padding: calc(var(--spacer) / 6) calc(var(--spacer) / 6);
+  border-bottom: 1px solid var(--border-color);
+  vertical-align: bottom;
+}
+
+.table td {
+  padding: calc(var(--spacer) / 4) calc(var(--spacer) / 6);
+  border-bottom: 1px solid var(--border-color);
+  vertical-align: middle;
+}
+
+.table tbody tr:hover {
+  background: var(--background-highlight, rgba(0, 0, 0, 0.03));
+}
+
+.selected td {
+  background: var(--background-highlight, rgba(0, 0, 0, 0.04));
+}
+
+.num {
+  text-align: right !important;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.unit {
+  display: block;
+  font-weight: normal;
+}
+
+.min {
+  font-weight: var(--font-weight-bold);
+  color: var(--font-color-heading, inherit);
+}
+
+.envCell {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--spacer) / 4);
+  cursor: pointer;
+  margin: 0;
+}
+
+.radio {
+  accent-color: var(--color-primary);
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.name {
+  display: block;
+  font-weight: var(--font-weight-bold);
+  line-height: 1.3;
+}
+
+.place {
+  color: var(--color-secondary);
+}
+
+.note {
+  font-size: var(--font-size-mini);
+  color: var(--color-secondary);
+  margin: calc(var(--spacer) / 6) 0 0;
+}

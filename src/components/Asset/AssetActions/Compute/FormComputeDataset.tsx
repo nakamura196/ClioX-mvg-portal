@@ -23,6 +23,7 @@ import { ComputeDatasetForm } from './_constants'
 import { useAutomation } from '../../../../@context/Automation/AutomationProvider'
 import TermsAndConditionsCheckbox from '../TermsAndConditionsCheckbox'
 import { useMarketMetadata } from '@context/MarketMetadata'
+import { useDemoSelected } from '@shared/ComputeFootprint/demoEnvs'
 
 export default function FormStartCompute({
   algorithms,
@@ -174,6 +175,16 @@ export default function FormStartCompute({
     }
     fetchAlgorithmAssetExtended()
   }, [values.algorithm, accountId, isConsumable])
+
+  // [prototype] 情報カードの下の比較表（?demo=1）で行を選んだら、この欄の選択も替える
+  // 表の側が変わったときだけ動かす（右の欄で選び直したときに表の古い値で戻さない）
+  const demoSelected = useDemoSelected()
+  useEffect(() => {
+    if (!demoSelected) return
+    if (!computeEnvs?.some((env) => env.id === demoSelected)) return
+    setFieldValue('computeEnv', demoSelected, true)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [demoSelected])
 
   useEffect(() => {
     if (!values.computeEnv) return

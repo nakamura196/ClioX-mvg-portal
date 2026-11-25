@@ -12,6 +12,7 @@ import styles from './index.module.css'
 import classNames from 'classnames/bind'
 import { useTranslation } from 'react-i18next'
 import { useRouter } from 'next/router'
+import { isComputeDemo } from '@shared/ComputeFootprint/demoEnvs'
 
 const cx = classNames.bind(styles)
 
@@ -47,6 +48,8 @@ export default function AssetSelection({
   const [searchValue, setSearchValue] = useState('')
   const router = useRouter()
   const isOnEditPage = router.pathname.includes('/edit')
+  // [prototype] 論文の図・デモ（?demo=1）では、財布未接続で出る Access denied を出さない
+  const demo = isComputeDemo(router.query)
   const styleClassesWrapper = `${styles.selection} ${
     disabled ? styles.disabled : ''
   }`
@@ -146,7 +149,7 @@ export default function AssetSelection({
                     })}
                     symbol={asset.tokenSymbol}
                   />
-                  {!asset.isAccountIdWhitelisted && (
+                  {!asset.isAccountIdWhitelisted && !demo && (
                     <Tooltip
                       content={
                         <WhitelistIndicator

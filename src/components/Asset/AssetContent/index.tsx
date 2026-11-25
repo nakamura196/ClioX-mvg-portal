@@ -15,6 +15,8 @@ import NetworkName from '@shared/NetworkName'
 import content from '../../../../content/purgatory.json'
 import Button from '@shared/atoms/Button'
 import RelatedAssets from '../RelatedAssets'
+// [prototype] 論文の図 1・デモ用: ?demo=1 のときだけ計算環境の比較表を出す
+import CompareTable from '@shared/ComputeFootprint/CompareTable'
 import {
   getFormattedCodeString,
   getServiceCredential
@@ -137,6 +139,7 @@ export default function AssetContent({
             </Button>
             {debug === true && <DebugOutput title="DDO" output={asset} />}
           </div>
+          <CompareTable />
         </div>
 
         <div className={styles.actions}>

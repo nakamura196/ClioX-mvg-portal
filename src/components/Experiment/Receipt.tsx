@@ -18,8 +18,21 @@ import styles from './index.module.css'
 const TRIALS = trialsJson as unknown as TrialsFile
 
 // 見本のジョブ: 課題 t5 の選択肢 d(2 区間・流量方式の水)。時刻は固定。
+// ?sample=<課題><選択肢>(例: t4a)で別の選択肢を見本にできる。
+// 年平均 WUE の計算を見せたいとき(論文の図)に使う。
 const SAMPLE_TRIAL = 't5'
 const SAMPLE_OPTION = 'd'
+
+function findSample(sample: unknown) {
+  const m = typeof sample === 'string' ? /^(t\d+)([a-z])$/.exec(sample) : null
+  const pickOption = (trial: string, option: string) =>
+    TRIALS.trials
+      .find((t) => t.id === trial)
+      ?.options.find((o) => o.id === option)
+  return (
+    (m && pickOption(m[1], m[2])) || pickOption(SAMPLE_TRIAL, SAMPLE_OPTION)!
+  )
+}
 
 export default function ExperimentReceipt({
   c,
@@ -41,9 +54,7 @@ export default function ExperimentReceipt({
       scroll: false
     })
   }
-  const option = TRIALS.trials
-    .find((t) => t.id === SAMPLE_TRIAL)!
-    .options.find((o) => o.id === SAMPLE_OPTION)!
+  const option = findSample(router.query.sample)
   const { receipt, source } = useMemo(() => {
     const input = optionInput(option)
     const footprint = optionFootprint(option)
@@ -66,10 +77,16 @@ export default function ExperimentReceipt({
           ref: 'demo://telemetry/pool-power/2026-10-09T09:00Z-10:00Z',
           description: 'Pool power samples (demo placeholder, no real source)'
         },
-        {
-          ref: 'demo://telemetry/water-flow/2026-10-09T09:00Z-10:00Z',
-          description: 'Cooling water flow samples (demo placeholder)'
-        }
+        option.compute.water?.kind === 'wue'
+          ? {
+              ref: 'demo://provider/annual-wue',
+              description:
+                'Provider annual-average WUE report (demo placeholder)'
+            }
+          : {
+              ref: 'demo://telemetry/water-flow/2026-10-09T09:00Z-10:00Z',
+              description: 'Cooling water flow samples (demo placeholder)'
+            }
       ]
     })
     return { receipt, source: buildSourceData(common) }
