@@ -294,62 +294,117 @@ test('one application per wallet per window', () => {
   assert.equal(allowApplication('0xabc', 1000 + 11 * 60 * 1000), true)
 })
 
-// --- Worker endpoints (start -> submit) -------------------------------------
+// --- Worker endpoints (plan B: start -> signature -> present -> credential -> submit)
 import worker from './index.ts'
+import { resetUsedNonces } from './applicationFlow.ts'
+import { hashPersonalMessage } from './walletSignature.ts'
+import { secp256k1 } from '@noble/curves/secp256k1'
+import { keccak_256 } from '@noble/hashes/sha3'
 
-const FIXTURE_WALLET = '0x6E430000000000000000000000000000000032C3'
+// Throwaway test key (never used anywhere else)
+const TEST_PRIV =
+  '4c0883a69102937d6231471b5dbb6204fe5129617082792ae468d01a3f362318'
+const hex = (b) =>
+  Array.from(b, (x) => x.toString(16).padStart(2, '0')).join('')
+const TEST_WALLET = toChecksumAddress(
+  '0x' +
+    hex(
+      keccak_256(secp256k1.getPublicKey(TEST_PRIV, false).slice(1)).slice(-20)
+    )
+)
+function personalSign(message, priv = TEST_PRIV) {
+  const sig = secp256k1.sign(hashPersonalMessage(message), priv)
+  return '0x' + sig.toCompactHex() + (27 + sig.recovery).toString(16)
+}
 
-async function applyRoundTrip({ connected, evidence }) {
-  const origin = 'http://localhost:8148'
-  const env = {} // local dev: no binding, no secrets
-  const start = await worker.fetch(
-    new Request(`${origin}/api/provider-application/start`, {
-      method: 'POST',
-      body: JSON.stringify({ wallet: connected })
-    }),
-    env
-  )
-  assert.equal(start.status, 200)
-  const cookie = start.headers.get('Set-Cookie').split(';')[0]
-  const { authorizeUrl } = await start.json()
-  const q = new URL(authorizeUrl).searchParams
-  const { vpToken, didDoc, statusJwt } = await makeFixture({
-    aud: origin,
-    nonce: q.get('nonce'),
-    shareKeys: true,
-    evidence
-  })
+const ORIGIN = 'http://localhost:8148'
+const ENV = {} // local dev: no binding, no secrets
+
+function cookieJar() {
+  let cookie = ''
+  const call = async (path, body, method = 'POST') => {
+    const res = await worker.fetch(
+      new Request(`${ORIGIN}/api/provider-application/${path}`, {
+        method,
+        headers: cookie ? { Cookie: cookie } : {},
+        body: method === 'GET' ? undefined : JSON.stringify(body ?? {})
+      }),
+      ENV
+    )
+    const set = res.headers.get('Set-Cookie')
+    if (set) cookie = set.split(';')[0]
+    return res
+  }
+  call.cookie = () => cookie
+  return call
+}
+
+async function withIssuerFetch(fixture, fn) {
   const realFetch = globalThis.fetch
   globalThis.fetch = async (u) => {
     const s = String(u)
     if (s.endsWith('/.well-known/did.json'))
-      return new Response(JSON.stringify(didDoc))
-    if (s.endsWith('/status/1')) return new Response(statusJwt)
+      return new Response(JSON.stringify(fixture.didDoc))
+    if (s.endsWith('/status/1')) return new Response(fixture.statusJwt)
     return new Response('nf', { status: 404 })
   }
+  try {
+    return await fn()
+  } finally {
+    globalThis.fetch = realFetch
+  }
+}
+
+/**
+ * Runs the four stages. `sign(message)` returns the signature to send;
+ * `credentialNonce(nonce)` picks the nonce the presentation is bound to.
+ */
+async function applyRoundTrip({
+  connected = TEST_WALLET,
+  sign = (m) => personalSign(m),
+  credentialNonce = (n) => n,
+  evidence
+} = {}) {
+  const call = cookieJar()
+  const start = await call('start', { wallet: connected, consent: true })
+  assert.equal(start.status, 200)
+  const { message, nonce } = await start.json()
+  assert.ok(message.includes(`Nonce: ${nonce}`))
+
+  const signed = await call('signature', { signature: sign(message) })
+  if (signed.status !== 200) return { res: signed, logs: [] }
+
+  const present = await call('present')
+  assert.equal(present.status, 200)
+  const q = new URL((await present.json()).authorizeUrl).searchParams
+  assert.equal(q.get('nonce'), nonce) // one nonce for both proofs
+
+  const fixture = await makeFixture({
+    aud: ORIGIN,
+    nonce: credentialNonce(nonce),
+    shareKeys: true,
+    evidence
+  })
+  const cred = await withIssuerFetch(fixture, () =>
+    call('credential', { vp_token: fixture.vpToken, state: q.get('state') })
+  )
+  if (cred.status !== 200) return { res: cred, logs: [] }
+
   const logs = []
   const realLog = console.log
   console.log = (...a) => logs.push(a.join(' '))
   try {
-    const res = await worker.fetch(
-      new Request(`${origin}/api/provider-application/submit`, {
-        method: 'POST',
-        headers: { Cookie: cookie },
-        body: JSON.stringify({ vp_token: vpToken, state: q.get('state') })
-      }),
-      env
-    )
-    return { res, logs }
+    const res = await call('submit', { consent: true })
+    return { res, logs, call }
   } finally {
-    globalThis.fetch = realFetch
     console.log = realLog
   }
 }
 
-test('application endpoint: matching wallet is accepted and logged in local dev', async () => {
+test('application endpoint: signature + credential on one nonce is accepted', async () => {
   resetApplicationLimit()
+  resetUsedNonces()
   const { res, logs } = await applyRoundTrip({
-    connected: FIXTURE_WALLET.toLowerCase(),
     evidence: {
       affiliationVerification:
         'Institutional email domain verified by one-time code'
@@ -358,25 +413,90 @@ test('application endpoint: matching wallet is accepted and logged in local dev'
   assert.equal(res.status, 200)
   const body = await res.json()
   assert.equal(body.submitted, true)
+  assert.equal(body.wallet, TEST_WALLET) // from the signature, not the credential
   assert.deepEqual(body.method, ['domain:u-tokyo.ac.jp', 'orcid'])
   assert.equal(logs.length, 1)
   assert.match(logs[0], /Signature \(HMAC-SHA256\): [0-9a-f]{64}/)
+  assert.ok(logs[0].includes(`Wallet: ${TEST_WALLET}`))
   assert.ok(!logs[0].includes('~'))
 })
 
-test('application endpoint: a different connected wallet is rejected', async () => {
+test('application endpoint: a signature from another key is rejected', async () => {
   resetApplicationLimit()
+  resetUsedNonces()
+  const other =
+    '0123456789012345678901234567890123456789012345678901234567890123'
+  const { res } = await applyRoundTrip({ sign: (m) => personalSign(m, other) })
+  assert.equal(res.status, 403)
+})
+
+test("application endpoint: claiming someone else's wallet is rejected", async () => {
+  resetApplicationLimit()
+  resetUsedNonces()
   const { res } = await applyRoundTrip({
     connected: '0x1111111111111111111111111111111111111111'
   })
   assert.equal(res.status, 403)
 })
 
+test('application endpoint: credential bound to another nonce is rejected', async () => {
+  resetApplicationLimit()
+  resetUsedNonces()
+  const { res } = await applyRoundTrip({ credentialNonce: () => 'other-nonce' })
+  assert.equal(res.status, 401)
+  assert.match((await res.json()).error, /nonce mismatch/i)
+})
+
+test('application endpoint: submit needs consent, and a nonce is single use', async () => {
+  resetApplicationLimit()
+  resetUsedNonces()
+  const call = cookieJar()
+  const start = await call('start', { wallet: TEST_WALLET, consent: true })
+  const { message, nonce } = await start.json()
+  await call('signature', { signature: personalSign(message) })
+  const q = new URL((await (await call('present')).json()).authorizeUrl)
+    .searchParams
+  const fixture = await makeFixture({ aud: ORIGIN, nonce, shareKeys: true })
+  await withIssuerFetch(fixture, () =>
+    call('credential', { vp_token: fixture.vpToken, state: q.get('state') })
+  )
+  const status = await (await call('status', undefined, 'GET')).json()
+  assert.equal(status.signer, TEST_WALLET)
+  assert.ok(status.credential)
+
+  assert.equal((await call('submit', { consent: false })).status, 400)
+
+  // Keep the sealed state so it can be replayed after submit clears it.
+  const saved = call.cookie()
+  const realLog = console.log
+  console.log = () => {}
+  try {
+    assert.equal((await call('submit', { consent: true })).status, 200)
+    const again = await worker.fetch(
+      new Request(`${ORIGIN}/api/provider-application/submit`, {
+        method: 'POST',
+        headers: { Cookie: saved },
+        body: JSON.stringify({ consent: true })
+      }),
+      ENV
+    )
+    assert.equal(again.status, 409)
+  } finally {
+    console.log = realLog
+  }
+})
+
 test('application endpoint: second application within the window is limited', async () => {
   resetApplicationLimit()
-  await applyRoundTrip({ connected: FIXTURE_WALLET })
-  const { res } = await applyRoundTrip({ connected: FIXTURE_WALLET })
-  assert.equal(res.status, 429)
+  resetUsedNonces()
+  const realLog = console.log
+  console.log = () => {}
+  try {
+    assert.equal((await applyRoundTrip()).res.status, 200)
+    assert.equal((await applyRoundTrip()).res.status, 429)
+  } finally {
+    console.log = realLog
+  }
 })
 
 test('removeFromRegistry deletes by wallet, case-insensitively', () => {

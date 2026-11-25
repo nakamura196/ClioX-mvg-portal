@@ -6,7 +6,7 @@ import Container from '@shared/atoms/Container'
 import { consumeLdasReturnPath, useLdasAuth } from '@context/LdasAuth'
 import {
   takeApplyReturn,
-  submitApplication
+  sendApplicationCredential
 } from '@experiment/verified-provider/lib/providerApply' // [prototype]
 import useActiveLocale from '../i18n/useActiveLocale'
 
@@ -39,11 +39,11 @@ export default function LdasCallbackPage(): ReactElement {
       return
     }
 
-    // [prototype] An application started on /experiment/apply-provider is submitted instead of signing in.
+    // [prototype] An application started on /experiment/apply-provider gets its credential checked instead of signing in.
     const applyReturn = vpToken ? takeApplyReturn() : null
     if (applyReturn) {
-      submitApplication(vpToken, state || undefined, applyReturn).then((path) =>
-        router.replace(path)
+      sendApplicationCredential(vpToken, state || undefined, applyReturn).then(
+        (path) => router.replace(path)
       )
       return
     }

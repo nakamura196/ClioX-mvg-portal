@@ -9,7 +9,7 @@ function shortAddr(addr: string): string {
   return addr.length > 12 ? `${addr.slice(0, 6)}…${addr.slice(-4)}` : addr
 }
 
-export default function LdasIdButton(): ReactElement {
+export default function LdasIdButton(): ReactElement | null {
   const { user, authenticated, loading, issuerOrigin, login, logout } =
     useLdasAuth()
   const { address: connectedWallet } = useAccount()
@@ -17,6 +17,23 @@ export default function LdasIdButton(): ReactElement {
   const ja = locale === 'ja'
   const [open, setOpen] = useState(false)
   const wrapRef = useRef<HTMLDivElement>(null)
+  // The header button exists only for chatbot sign-in. When the Worker does
+  // not require it (CHATBOT_REQUIRE_SIGNIN off, as in production), hide it;
+  // pages that need LDAS ID (e.g. /experiment/apply-provider) have their own step.
+  const [chatbotSigninRequired, setChatbotSigninRequired] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+    fetch('/api/chatbot/signin')
+      .then((r) => r.json())
+      .then((d) => {
+        if (!cancelled) setChatbotSigninRequired(Boolean(d?.required))
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   useEffect(() => {
     if (!open) return
@@ -28,6 +45,8 @@ export default function LdasIdButton(): ReactElement {
     document.addEventListener('mousedown', onDocClick)
     return () => document.removeEventListener('mousedown', onDocClick)
   }, [open])
+
+  if (!chatbotSigninRequired) return null
 
   if (loading) {
     return (

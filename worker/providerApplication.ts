@@ -204,7 +204,7 @@ export function composeEmailBody(
   signature: string
 ): string {
   return [
-    'New verified-provider application (credential checked by the Worker).',
+    'New verified-provider application (wallet signature and credential checked by the Worker).',
     '',
     `Wallet: ${wallet}`,
     `Name: ${entry.name}`,

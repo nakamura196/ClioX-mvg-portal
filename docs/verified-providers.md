@@ -35,17 +35,43 @@ repository, maintained by the operator.
 
 ## How a provider is added
 
-1. The provider opens `/apply-provider` (`/ja/apply-provider`), connects their
-   wallet, ticks the consent box (it lists exactly what is published) and
-   presents their id.ldas.jp credential (the existing OID4VP flow, `dc+sd-jwt` +
-   `kb+jwt`).
-2. The Worker (`worker/index.ts`, `/api/provider-application/*`) verifies the
-   credential (signature, key binding, nonce, revocation) and rejects it if the
-   credential's wallet differs from the connected wallet.
-3. The Worker emails the operator (Cloudflare Email Routing `send_email`). The
-   email has the wallet, name, method tags, `selfDeclaredName`, verification
-   time, a registry snippet, and an HMAC-SHA256 signature. The credential itself
-   is neither stored nor emailed.
+Plan B (2026-11-25): the wallet is proven by a wallet signature, not by the
+credential. Connecting a wallet in the browser is only a claim the browser
+makes; a signature is a proof the Worker checks itself. id.ldas.jp is turning
+wallet linking off, so credentials will no longer carry a wallet.
+
+1. The provider opens `/experiment/apply-provider` (`/ja/experiment/apply-provider`),
+   connects their wallet (header button) and ticks the consent box (it lists
+   exactly what is published).
+2. **Start + wallet signature.** "Sign with wallet" calls
+   `POST /api/provider-application/start` `{wallet, consent: true}`. The Worker
+   issues a random 128-bit nonce and returns the EIP-191 message to sign
+   (bilingual text, then `Address`, `Nonce`, `URI` = portal origin,
+   `Issued At`). The page asks the wallet for `personal_sign`, then sends only
+   the signature to `POST .../signature`. The Worker rebuilds the message from
+   its own state, recovers the signer (`worker/walletSignature.ts`,
+   `@noble/curves` secp256k1) and rejects it unless it equals the address in
+   the message.
+3. **LDAS ID.** "Verify with LDAS ID" calls `POST .../present`, which returns
+   the id.ldas.jp authorize URL whose OID4VP nonce **is the same application
+   nonce**. `/ldas-callback` posts the presentation to `POST .../credential`.
+   The Worker verifies it as before (issuer signature, `kb+jwt` key binding,
+   nonce, audience, revocation) and keeps only the derived entry (name, method
+   tags, `selfDeclaredName`, `verifiedAt`). No wallet claim is requested; a
+   `did:pkh` in the credential, if present, is ignored.
+4. **Send.** `POST .../submit` `{consent: true}` checks that the signature and
+   the credential carry the same nonce and that consent was given, uses the
+   nonce up (a replay gets 409), then emails the operator (Cloudflare Email
+   Routing `send_email`). The email has the wallet (from the signature), name,
+   method tags, `selfDeclaredName`, verification time, a registry snippet, and
+   an HMAC-SHA256 seal. Neither the signature nor the credential is stored or
+   emailed.
+
+Between the steps, the state lives in one HMAC-sealed, HttpOnly cookie
+(`cliox_ldas_apply`, sealed with `SESSION_SECRET`, 10 minutes). `GET .../status`
+lets the page show where the application stands. Code: `worker/applicationFlow.ts`
+(state machine), `/api/provider-application/*` in `worker/index.ts`.
+
 4. The operator reviews the application. If it is acceptable, save the snippet
    from the email to a file (or pipe it) and run the CLI. It checks the
    signature and only then edits the registry:
@@ -100,6 +126,13 @@ to the console instead and still shows the "submitted" screen; a throwaway
 signing key is used. In production, a missing binding or key returns 503.
 
 Abuse limit: one application per wallet per 10 minutes, and at most 200
-distinct wallets in the window, kept in Worker memory (per isolate). It is a
-best-effort brake, not a guarantee; the real gate is that a valid, unrevoked
-id.ldas.jp credential is required and that the operator reviews every entry.
+distinct wallets in the window, kept in Worker memory (per isolate). Used
+nonces are kept the same way until they expire, and the cookie is cleared on
+submit, so a replay is refused within an isolate; a replay that reaches another
+isolate within the 10 minutes would only send the operator a duplicate email.
+These are best-effort brakes, not guarantees; the real gate is that a wallet
+signature and a valid, unrevoked id.ldas.jp credential are both required and
+that the operator reviews every entry.
+
+Tests: `node --test worker/*.test.mjs` (signature recovery, wrong signer,
+tampered nonce, nonce reuse, credential nonce mismatch, the whole flow).
