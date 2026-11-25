@@ -111,6 +111,14 @@ FilterTerm | undefined {
     : getFilterTerm('price.type', 'pool')
 }
 
+// Ocean Node answers queries at assets/metadata/query; an Aquarius (e.g.
+// aquarius.pontus-x.eu) only at assets/query and returns 405 for the other
+// path, which left the algorithm list empty when developing against Pontus-X
+// (measured 2026-11-04).
+const METADATA_QUERY_PATH = metadataCacheIsOceanNode
+  ? 'assets/metadata/query'
+  : 'assets/query'
+
 export function getIndexForChainIds(chainIds: number[]): string[] {
   const indexes: string[] = []
   for (const chainId of chainIds) {
@@ -474,7 +482,7 @@ export async function queryMetadata(
     const isLocalNode = metadataCacheIsOceanNode
 
     const response: AxiosResponse<SearchResponse> = await axios.post(
-      `${metadataCacheUri}/api/aquarius/assets/metadata/query`,
+      `${metadataCacheUri}/api/aquarius/${METADATA_QUERY_PATH}`,
       isLocalNode ? { query: { bool: { filter: [] } } } : { ...query },
       { cancelToken }
     )
@@ -855,7 +863,7 @@ export async function getTagsList(
 
   try {
     const response: AxiosResponse<SearchResponse> = await axios.post(
-      `${metadataCacheUri}/api/aquarius/assets/metadata/query`,
+      `${metadataCacheUri}/api/aquarius/${METADATA_QUERY_PATH}`,
       { ...query },
       { cancelToken }
     )
