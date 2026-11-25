@@ -345,5 +345,21 @@
     "sampleLoading": "Loading…",
     "sampleLoaded": "Sample loaded: {{name}}. Ask a question below.",
     "sampleError": "Could not load the sample"
+  },
+  "verifiedMark": {
+    "label": "Verified by id.ldas.jp",
+    "tooltip": "Verified by id.ldas.jp: {{method}}",
+    "tooltipSelfDeclared": "Verified by id.ldas.jp: {{method}}. The name shown is self-declared by the provider.",
+    "methodDomain": "{{domain}} domain",
+    "methodOrcid": "ORCID",
+    "methodGakunin": "GakuNin",
+    "methodUnknown": "identity check",
+    "selfDeclared": "self-declared name"
+  },
+  "verifiedFilter": {
+    "label": "Verified providers only",
+    "hint": "Showing only providers verified by id.ldas.jp. Turn this off to see everything that has been published.",
+    "hintAll": "Showing all providers, including those not verified by id.ldas.jp.",
+    "unavailable": "The list of verified providers could not be loaded, so all providers are shown."
   }
 }

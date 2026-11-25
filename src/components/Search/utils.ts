@@ -31,6 +31,22 @@ export function updateQueryStringParameter(
   }
 }
 
+const NO_ADDRESS = '0x0000000000000000000000000000000000000000'
+
+/**
+ * Restricts results to assets whose NFT owner (the publisher) is one of the
+ * given addresses. An empty list matches nothing (the registry is loaded but
+ * lists no provider); do not call this when the registry is unavailable.
+ * Both lower-case and the original spelling are sent because Elasticsearch
+ * term matching is case-sensitive.
+ */
+export function getVerifiedOwnersFilter(owners: string[]): FilterTerm {
+  const list = owners.length > 0 ? owners : [NO_ADDRESS]
+  return getFilterTerm('nft.owner', [
+    ...new Set(list.flatMap((a) => [a.toLowerCase(), a]))
+  ])
+}
+
 export function getSearchQuery(
   chainIds: number[],
   text?: string,
@@ -43,7 +59,8 @@ export function getSearchQuery(
   serviceType?: string | string[],
   accessType?: string | string[],
   filterSet?: string | string[],
-  showSaas?: boolean
+  showSaas?: boolean,
+  verifiedOwners?: string[]
 ): SearchQuery {
   text = escapeEsReservedCharacters(text)
   const emptySearchTerm = text === undefined || text === ''
@@ -124,6 +141,7 @@ export function getSearchQuery(
     ['accessType', 'serviceType', 'filterSet']
   )
   parseFilters(filtersList, filterSets).forEach((term) => filters.push(term))
+  if (verifiedOwners) filters.push(getVerifiedOwnersFilter(verifiedOwners))
 
   const baseQueryParams = {
     chainIds,
@@ -156,7 +174,8 @@ export async function getResults(
     filterSet?: string[]
   },
   chainIds: number[],
-  cancelToken?: CancelToken
+  cancelToken?: CancelToken,
+  verifiedOwners?: string[]
 ): Promise<PagedAssets> {
   const {
     text,
@@ -199,7 +218,8 @@ export async function getResults(
     sanitizedServiceType,
     accessType,
     filterSet,
-    showSaas
+    showSaas,
+    verifiedOwners
   )
 
   const queryResult = await queryMetadata(searchQuery, cancelToken)

@@ -341,5 +341,21 @@
     "sampleLoading": "読み込んでいます…",
     "sampleLoaded": "見本を読み込みました: {{name}}。下の欄から質問してください。",
     "sampleError": "見本を読み込めませんでした"
+  },
+  "verifiedMark": {
+    "label": "id.ldas.jp で確認済み",
+    "tooltip": "id.ldas.jp で確認済み: {{method}}",
+    "tooltipSelfDeclared": "id.ldas.jp で確認済み: {{method}}。表示している名前は提供者の自己申告です。",
+    "methodDomain": "{{domain}} ドメイン",
+    "methodOrcid": "ORCID",
+    "methodGakunin": "学認",
+    "methodUnknown": "本人確認",
+    "selfDeclared": "自己申告の名前"
+  },
+  "verifiedFilter": {
+    "label": "確認済みの提供者のみ",
+    "hint": "id.ldas.jp で確認済みの提供者だけを表示しています。オフにすると、公開されているものをすべて表示します。",
+    "hintAll": "id.ldas.jp で確認されていない提供者も含め、すべて表示しています。",
+    "unavailable": "確認済みの提供者の一覧を取得できなかったため、すべての提供者を表示しています。"
   }
 }
