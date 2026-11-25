@@ -341,42 +341,5 @@
     "sampleLoading": "読み込んでいます…",
     "sampleLoaded": "見本を読み込みました: {{name}}。下の欄から質問してください。",
     "sampleError": "見本を読み込めませんでした"
-  },
-  "verifiedMark": {
-    "label": "id.ldas.jp で確認済み",
-    "tooltip": "id.ldas.jp で確認済み: {{method}}",
-    "tooltipSelfDeclared": "id.ldas.jp で確認済み: {{method}}。表示している名前は提供者の自己申告です。",
-    "methodDomain": "{{domain}} ドメイン",
-    "methodOrcid": "ORCID",
-    "methodGakunin": "学認",
-    "verifiedOn": "確認日: {{date}}",
-    "methodUnknown": "本人確認",
-    "selfDeclared": "自己申告の名前"
-  },
-  "verifiedFilter": {
-    "label": "確認済みの提供者のみ",
-    "hint": "id.ldas.jp で確認済みの提供者だけを表示しています。オフにすると、公開されているものをすべて表示します。",
-    "hintAll": "id.ldas.jp で確認されていない提供者も含め、すべて表示しています。",
-    "unavailable": "確認済みの提供者の一覧を取得できなかったため、すべての提供者を表示しています。"
-  },
-  "providerApply": {
-    "title": "認証済みプロバイダーの申請",
-    "description": "id.ldas.jp の証明書を提示して、認証済みプロバイダーとして登録を申請します。",
-    "intro": "登録されたプロバイダーには、カタログで「id.ldas.jp で確認済み」のマークが付きます。申請は id.ldas.jp の証明書を提示して行います。ポータルが証明書を確認し、運営者が内容を見てから登録します。",
-    "publishedTitle": "登録されたときに公開される内容",
-    "publishedWallet": "あなたのウォレットアドレス",
-    "publishedName": "id.ldas.jp の証明書にある名前",
-    "publishedMethod": "どのように確認されたか（例:「u-tokyo.ac.jp ドメイン」「ORCID」）と、名前が自己申告かどうか",
-    "publishedDate": "確認した日",
-    "notPublished": "証明書そのものは保存も送信もされません。運営者に渡るのは上の項目だけです。",
-    "consent": "申請することは、上の内容をプロバイダー登録簿に公開することに同意するという意味だと理解しました。",
-    "needWallet": "先にウォレットを接続してください（ページ上部のボタン）。証明書にあるウォレットと、ここで接続したウォレットが同じである必要があります。",
-    "connected": "接続中のウォレット: {{address}}",
-    "start": "id.ldas.jp の証明書を提示する",
-    "starting": "id.ldas.jp を開いています…",
-    "submittedTitle": "申請を送りました",
-    "submittedBody": "証明書を確認し、申請を運営者に送りました。運営者が内容を確認してから登録されます。まだ何も公開されていません。",
-    "errorTitle": "申請を完了できませんでした",
-    "tryAgain": "もう一度試す"
   }
 }

@@ -3,7 +3,7 @@ import styles from './index.module.css'
 import Link from 'next/link'
 import { accountTruncate } from '@utils/wallet'
 import { useIsMounted } from '@hooks/useIsMounted'
-import VerifiedMark from '@shared/VerifiedMark'
+import VerifiedMark from '@experiment/verified-provider/VerifiedMark' // [prototype]
 import addresses from '../../../../pontusxAddresses.json'
 
 export interface PublisherProps {

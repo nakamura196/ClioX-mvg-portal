@@ -1,11 +1,10 @@
-// [local patch] Verified-provider mark and application (id.ldas.jp). Not in upstream; see scripts/local-patches.txt.
 import {
   describeMethod,
   findProvider,
   isVerificationCurrent,
   parseRegistry
 } from './ldasRegistry'
-import { getVerifiedOwnersFilter } from '../components/Search/utils'
+import { getVerifiedOwnersFilter } from './filter'
 
 const raw = {
   issuer: 'did:web:id.ldas.jp',

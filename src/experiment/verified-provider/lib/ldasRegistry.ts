@@ -1,4 +1,3 @@
-// [local patch] Verified-provider mark and application (id.ldas.jp). Not in upstream; see scripts/local-patches.txt.
 /**
  * Registry of providers (publishers) verified by id.ldas.jp.
  *

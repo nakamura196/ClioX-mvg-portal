@@ -1,4 +1,3 @@
-/* [local patch] Verified-provider mark and application (id.ldas.jp). Not in upstream; see scripts/local-patches.txt. */
 .apply {
   max-width: 44rem;
   line-height: 1.7;

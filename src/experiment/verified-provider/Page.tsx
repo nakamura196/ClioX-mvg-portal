@@ -1,18 +1,17 @@
-// [local patch] Verified-provider mark and application (id.ldas.jp). Not in upstream; see scripts/local-patches.txt.
 import { ReactElement, useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { useAccount } from 'wagmi'
-import { useTranslation } from 'react-i18next'
 import Page from '@shared/Page'
 import Button from '@shared/atoms/Button'
-import styles from './apply-provider.module.css'
-import { APPLY_RETURN_KEY, APPLY_RESULT_KEY } from '@utils/providerApply'
+import styles from './Page.module.css'
+import { useVerifiedProviderContent, fill } from './content'
+import { APPLY_RETURN_KEY, APPLY_RESULT_KEY } from './lib/providerApply'
 
 type Result = { ok: boolean; error?: string }
 
 export default function ApplyProviderPage(): ReactElement {
   const router = useRouter()
-  const { t } = useTranslation('common')
+  const { apply: c } = useVerifiedProviderContent()
   const { address } = useAccount()
   const [consent, setConsent] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -62,15 +61,11 @@ export default function ApplyProviderPage(): ReactElement {
   ]
 
   return (
-    <Page
-      title={t('providerApply.title')}
-      description={t('providerApply.description')}
-      uri={router.route}
-    >
+    <Page title={c.title} description={c.description} uri={router.route}>
       {result?.ok ? (
         <section className={styles.apply} data-testid="apply-submitted">
-          <h2>{t('providerApply.submittedTitle')}</h2>
-          <p>{t('providerApply.submittedBody')}</p>
+          <h2>{c.submittedTitle}</h2>
+          <p>{c.submittedBody}</p>
         </section>
       ) : (
         <section className={styles.apply}>
@@ -79,30 +74,26 @@ export default function ApplyProviderPage(): ReactElement {
               role="alert"
               style={{ color: '#c0392b', marginBottom: '1rem' }}
             >
-              <strong>{t('providerApply.errorTitle')}</strong>
+              <strong>{c.errorTitle}</strong>
               <p>{result.error}</p>
             </div>
           )}
-          <p>{t('providerApply.intro')}</p>
-          <h3>{t('providerApply.publishedTitle')}</h3>
+          <p>{c.intro}</p>
+          <h3>{c.publishedTitle}</h3>
           <ul>
             {published.map((key) => (
-              <li key={key}>{t(`providerApply.${key}`)}</li>
+              <li key={key}>{c[key as keyof typeof c]}</li>
             ))}
           </ul>
-          <p>{t('providerApply.notPublished')}</p>
-          <p>
-            {address
-              ? t('providerApply.connected', { address })
-              : t('providerApply.needWallet')}
-          </p>
+          <p>{c.notPublished}</p>
+          <p>{address ? fill(c.connected, { address }) : c.needWallet}</p>
           <label style={{ display: 'block', margin: '1rem 0' }}>
             <input
               type="checkbox"
               checked={consent}
               onChange={(e) => setConsent(e.target.checked)}
             />{' '}
-            {t('providerApply.consent')}
+            {c.consent}
           </label>
           {error && (
             <p role="alert" style={{ color: '#c0392b' }}>
@@ -114,7 +105,7 @@ export default function ApplyProviderPage(): ReactElement {
             onClick={() => start()}
             disabled={!address || !consent || busy}
           >
-            {busy ? t('providerApply.starting') : t('providerApply.start')}
+            {busy ? c.starting : c.start}
           </Button>
         </section>
       )}

@@ -37,13 +37,3 @@ src/@context/LdasAuth.tsx
 src/components/Header/LdasIdButton.tsx
 src/components/Header/LdasIdButton.module.css
 src/pages/ldas-callback.tsx
-
-# Verified-provider mark, catalogue filter and application page (id.ldas.jp)
-src/@hooks/useLdasRegistry.ts
-src/@utils/ldasRegistry.ts
-src/@utils/ldasRegistry.test.ts
-src/@utils/providerApply.ts
-src/components/@shared/VerifiedMark/index.module.css
-src/components/@shared/VerifiedMark/index.tsx
-src/pages/apply-provider.tsx
-src/pages/apply-provider.module.css

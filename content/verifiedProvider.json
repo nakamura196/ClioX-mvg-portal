@@ -1,0 +1,39 @@
+{
+  "mark": {
+    "label": "Verified by id.ldas.jp",
+    "tooltip": "Verified by id.ldas.jp: {{method}}",
+    "tooltipSelfDeclared": "Verified by id.ldas.jp: {{method}}. The name shown is self-declared by the provider.",
+    "methodDomain": "{{domain}} domain",
+    "methodOrcid": "ORCID",
+    "methodGakunin": "GakuNin",
+    "verifiedOn": "Verified on {{date}}.",
+    "methodUnknown": "identity check",
+    "selfDeclared": "self-declared name"
+  },
+  "filter": {
+    "label": "Verified providers only",
+    "hint": "Showing only providers verified by id.ldas.jp. Turn this off to see everything that has been published.",
+    "hintAll": "Showing all providers, including those not verified by id.ldas.jp.",
+    "unavailable": "The list of verified providers could not be loaded, so all providers are shown."
+  },
+  "apply": {
+    "title": "Apply to become a verified provider",
+    "description": "Present your id.ldas.jp credential to be listed as a verified provider.",
+    "intro": "Providers listed here get a \"Verified by id.ldas.jp\" mark in the catalogue. You apply by presenting your id.ldas.jp credential. The portal checks it, and the operator then reviews your application before listing you.",
+    "publishedTitle": "What will be published if you are listed",
+    "publishedWallet": "Your wallet address",
+    "publishedName": "Your name, as it appears in your id.ldas.jp credential",
+    "publishedMethod": "How you were verified (for example \"u-tokyo.ac.jp domain\" or \"ORCID\") and whether the name is self-declared",
+    "publishedDate": "The date of the check",
+    "notPublished": "Your credential itself is not stored or sent anywhere. Only the items above are passed to the operator.",
+    "consent": "I understand that applying means I agree to the items above being published in the provider registry.",
+    "needWallet": "Connect your wallet first (button in the page header). The wallet in your credential must be the wallet you connect here.",
+    "connected": "Connected wallet: {{address}}",
+    "start": "Present my id.ldas.jp credential",
+    "starting": "Opening id.ldas.jp…",
+    "submittedTitle": "Application submitted",
+    "submittedBody": "Your credential was checked and your application was sent to the operator. You will be listed after the operator has reviewed it. Nothing is published yet.",
+    "errorTitle": "The application could not be completed",
+    "tryAgain": "Try again"
+  }
+}

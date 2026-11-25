@@ -9,7 +9,7 @@ import styles from './Account.module.css'
 import { accountTruncate } from '@utils/wallet'
 import { useAutomation } from '../../../@context/Automation/AutomationProvider'
 import Transaction from '../../../@images/transaction.svg'
-import VerifiedMark from '@shared/VerifiedMark'
+import VerifiedMark from '@experiment/verified-provider/VerifiedMark' // [prototype]
 import { useAddressConfig } from '@hooks/useAddressConfig'
 
 export default function Account({

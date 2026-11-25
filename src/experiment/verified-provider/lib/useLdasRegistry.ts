@@ -1,11 +1,10 @@
-// [local patch] Verified-provider mark and application (id.ldas.jp). Not in upstream; see scripts/local-patches.txt.
 import { useEffect, useState } from 'react'
 import {
   fetchRegistry,
   findProvider,
   LdasProvider,
   LdasRegistry
-} from '@utils/ldasRegistry'
+} from './ldasRegistry'
 
 export type LdasRegistryStatus = 'loading' | 'ready' | 'failed'
 
