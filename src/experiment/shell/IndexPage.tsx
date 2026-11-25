@@ -1,4 +1,4 @@
-import { ReactElement } from 'react'
+import { ReactElement, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useTranslation } from 'react-i18next'
@@ -200,6 +200,17 @@ export default function PageExperimentIndex(): ReactElement {
   const { i18n } = useTranslation('common')
   const i = (i18n?.language || 'en').startsWith('ja') ? 1 : 0
   const tour = useFirstRunTour()
+
+  // Old links to the two-condition exercise were /experiment?view=…. The
+  // production static export serves /experiment/ before the Worker can
+  // redirect, so forward them here as well (next.config.js does it in dev).
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const params = new URLSearchParams(window.location.search)
+    if (['view', 'condition', 'sample'].some((k) => params.has(k))) {
+      router.replace(`/experiment/two-condition?${params.toString()}`)
+    }
+  }, [router])
 
   return (
     <Page title={L.title[i]} description={L.lead[i]} uri={router.route}>

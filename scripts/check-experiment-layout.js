@@ -108,13 +108,16 @@ for (const f of tracked) {
 }
 
 // Rule 4
+const REEXPORT_RE =
+  /^(export\s*\{[^}]*\}\s*from\s*'@experiment\/[^']+'\s*;?\s*)+$/
 for (const f of tracked.filter((t) => t.startsWith('src/pages/experiment/'))) {
   const code = fs
     .readFileSync(path.join(ROOT, f), 'utf8')
     .split('\n')
-    .map((l) => l.trim())
-    .filter((l) => l && !l.startsWith('//'))
-  if (!code.every((l) => /^export .* from '@experiment\//.test(l))) {
+    .filter((l) => !l.trim().startsWith('//'))
+    .join('\n')
+    .trim()
+  if (!REEXPORT_RE.test(code)) {
     errors.push(
       `${f}: pages under src/pages/experiment/ only re-export from @experiment/ (put the page in src/experiment/<feature>/).`
     )
