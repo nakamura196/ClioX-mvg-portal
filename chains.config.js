@@ -115,14 +115,29 @@ const chains = [
   }
 ]
 
+// [prototype] 2026-11-25: this trial's node (cliox-node.ldas.jp) indexes Sepolia
+// only, so on Pontus-X the catalogue is empty and nothing can be published or
+// run. The Pontus-X entries stay defined but are hidden from the network menu
+// unless NEXT_PUBLIC_ENABLE_PONTUSX=true (set together with a Pontus-X
+// NEXT_PUBLIC_METADATACACHE_URI when building against Pontus-X).
+const PONTUSX_CHAIN_IDS = [32456, 32457]
+const enabledChains = () =>
+  process.env.NEXT_PUBLIC_ENABLE_PONTUSX === 'true'
+    ? chains
+    : chains.filter((c) => !PONTUSX_CHAIN_IDS.includes(c.chainId))
+
 const getDefaultChainIds = () => {
   return [
-    ...new Set(chains.filter((chain) => chain.isDefault).map((c) => c.chainId))
+    ...new Set(
+      enabledChains()
+        .filter((chain) => chain.isDefault)
+        .map((c) => c.chainId)
+    )
   ]
 }
 
 const getSupportedChainIds = () => {
-  return [...new Set(chains.map((c) => c.chainId))]
+  return [...new Set(enabledChains().map((c) => c.chainId))]
 }
 
 const getCustomChainIds = () => {
