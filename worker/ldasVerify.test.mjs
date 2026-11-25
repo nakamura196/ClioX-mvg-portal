@@ -35,7 +35,8 @@ async function makeFixture({
   aud = 'https://cliox.ldas.jp',
   nonce = 'n-123',
   shareKeys = false,
-  evidence
+  evidence,
+  flat = false
 } = {}) {
   const issuerKeys =
     (shareKeys && sharedIssuerKeys) ||
@@ -86,17 +87,29 @@ async function makeFixture({
       vct: 'https://id.ldas.jp/credentials/member/v1',
       ...(evidence ? { ldas_verification: evidence } : {}),
       cnf: { jwk: cnfJwk },
-      credentialSubject: {
-        id: 'did:pkh:eip155:11155111:0x6E430000000000000000000000000000000032C3',
-        _sd: sdHashes
-      },
-      credentialStatus: {
-        id: 'https://id.ldas.jp/status/1#7',
-        type: 'BitstringStatusListEntry',
-        statusPurpose: 'revocation',
-        statusListIndex: '7',
-        statusListCredential: 'https://id.ldas.jp/status/1'
-      }
+      // flat: the IETF SD-JWT VC shape id.ldas.jp issues since 2026-11-24
+      ...(flat
+        ? {
+            sub: 'urn:ldas:user:test-user',
+            _sd: sdHashes,
+            _sd_alg: 'sha-256',
+            status: {
+              status_list: { idx: 7, uri: 'https://id.ldas.jp/status/token/1' }
+            }
+          }
+        : {
+            credentialSubject: {
+              id: 'did:pkh:eip155:11155111:0x6E430000000000000000000000000000000032C3',
+              _sd: sdHashes
+            },
+            credentialStatus: {
+              id: 'https://id.ldas.jp/status/1#7',
+              type: 'BitstringStatusListEntry',
+              statusPurpose: 'revocation',
+              statusListIndex: '7',
+              statusListCredential: 'https://id.ldas.jp/status/1'
+            }
+          })
     },
     issuerKeys.privateKey
   )
@@ -133,6 +146,25 @@ async function makeFixture({
     issuerKeys.privateKey
   )
 
+  const tokenBits = new Uint8Array(16384)
+  if (revoked) tokenBits[7 >> 3] |= 1 << (7 & 7)
+  const deflated = new Uint8Array(
+    await new Response(
+      new Blob([tokenBits])
+        .stream()
+        .pipeThrough(new CompressionStream('deflate'))
+    ).arrayBuffer()
+  )
+  const tokenStatusJwt = await signEd25519Jwt(
+    { alg: 'EdDSA', typ: 'statuslist+jwt', kid: 'did:web:id.ldas.jp#key-1' },
+    {
+      sub: 'https://id.ldas.jp/status/token/1',
+      iat: now,
+      status_list: { bits: 1, lst: bytesToB64url(deflated) }
+    },
+    issuerKeys.privateKey
+  )
+
   const didDoc = {
     id: 'did:web:id.ldas.jp',
     verificationMethod: [
@@ -144,6 +176,9 @@ async function makeFixture({
     const s = String(url)
     if (s.endsWith('/.well-known/did.json')) {
       return new Response(JSON.stringify(didDoc), { status: 200 })
+    }
+    if (s.endsWith('/status/token/1')) {
+      return new Response(tokenStatusJwt, { status: 200 })
     }
     if (s.endsWith('/status/1')) {
       return new Response(statusJwt, { status: 200 })
@@ -519,5 +554,41 @@ test('removeFromRegistry deletes by wallet, case-insensitively', () => {
     removeFromRegistry(reg, '0x2222222222222222222222222222222222222222')
       .removed,
     undefined
+  )
+})
+
+test('verifies the flat SD-JWT VC (top-level _sd, Token Status List)', async () => {
+  const { vpToken, mockFetch } = await makeFixture({
+    flat: true,
+    nonce: 'n-flat'
+  })
+  const user = await verifyLdasCredential(vpToken, {
+    issuerOrigin: 'https://id.ldas.jp',
+    expectedAud: 'https://cliox.ldas.jp',
+    expectedNonce: 'n-flat',
+    requireKeyBinding: true,
+    fetchFn: mockFetch
+  })
+  assert.equal(user.name, 'Satoru Nakamura')
+  assert.equal(user.emailDomain, 'u-tokyo.ac.jp')
+  assert.equal(user.sub, 'urn:ldas:user:test-user')
+  assert.equal(user.statusIndex, '7')
+})
+
+test('rejects a revoked flat SD-JWT VC via Token Status List', async () => {
+  const { vpToken, mockFetch } = await makeFixture({
+    flat: true,
+    revoked: true,
+    nonce: 'n-flat'
+  })
+  await assert.rejects(
+    verifyLdasCredential(vpToken, {
+      issuerOrigin: 'https://id.ldas.jp',
+      expectedAud: 'https://cliox.ldas.jp',
+      expectedNonce: 'n-flat',
+      requireKeyBinding: true,
+      fetchFn: mockFetch
+    }),
+    /revoked/
   )
 })

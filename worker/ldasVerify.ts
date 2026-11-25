@@ -59,8 +59,11 @@ async function sha256B64url(text: string): Promise<string> {
   return bytesToB64url(new Uint8Array(digest))
 }
 
-async function gunzip(bytes: Uint8Array): Promise<Uint8Array> {
-  const ds = new DecompressionStream('gzip')
+async function gunzip(
+  bytes: Uint8Array,
+  format: 'gzip' | 'deflate' = 'gzip'
+): Promise<Uint8Array> {
+  const ds = new DecompressionStream(format)
   const stream = new Blob([bytes as unknown as BlobPart])
     .stream()
     .pipeThrough(ds)
@@ -194,6 +197,54 @@ async function checkBitstringStatus(
 }
 
 /**
+ * IETF Token Status List (draft-ietf-oauth-status-list), used by the flat
+ * SD-JWT VC that id.ldas.jp issues since 2026-11-24 (id-ldas 9ce1810):
+ * `status.status_list = { idx, uri }`, the list is a `statuslist+jwt` whose
+ * `status_list.lst` is zlib-deflated and read least-significant bit first.
+ */
+async function checkTokenStatus(
+  statusList: Record<string, any> | undefined,
+  issuerOrigin: string,
+  publicKey: CryptoKey,
+  fetchFn: typeof fetch
+): Promise<string | undefined> {
+  if (!statusList) return undefined
+  const listUrl = String(statusList.uri || '')
+  const idx = Number(statusList.idx)
+  if (!listUrl || !Number.isInteger(idx) || idx < 0) {
+    throw new Error('Malformed status_list entry')
+  }
+  if (!listUrl.startsWith(`${issuerOrigin}/`)) {
+    throw new Error('Untrusted status list origin')
+  }
+  const res = await fetchFn(listUrl, {
+    headers: { Accept: 'application/statuslist+jwt' }
+  })
+  if (!res.ok) {
+    throw new Error(`Failed to fetch status list (${res.status})`)
+  }
+  const raw = (await res.text()).trim()
+  const { header, payload } = await verifyEd25519Jwt(raw, publicKey)
+  if (header.typ !== 'statuslist+jwt' || payload.sub !== listUrl) {
+    throw new Error('Status list token mismatch')
+  }
+  const bits = Number(payload.status_list?.bits)
+  const lst = String(payload.status_list?.lst || '')
+  if (bits !== 1 || !lst) {
+    throw new Error('Unsupported Token Status List encoding')
+  }
+  const list = await gunzip(b64urlToBytes(lst), 'deflate')
+  const byteIndex = idx >> 3
+  if (byteIndex >= list.length) {
+    throw new Error('Status list index out of range')
+  }
+  if ((list[byteIndex] & (1 << (idx & 7))) !== 0) {
+    throw new Error('Credential has been revoked')
+  }
+  return String(idx)
+}
+
+/**
  * Extracts a single credential string from an OID4VP 1.0 vp_token (DCQL JSON
  * object `{ "<query_id>": ["<sd-jwt+kb>"] }`) or a raw JWT / SD-JWT string.
  */
@@ -266,11 +317,17 @@ export async function verifyLdasCredential(
   }
 
   // Merge selectively disclosed claims into credentialSubject
-  const subject: Record<string, any> = { ...(payload.credentialSubject || {}) }
+  // Two shapes: the older W3C-style credential keeps claims and `_sd` under
+  // `credentialSubject`; the flat IETF SD-JWT VC (id.ldas.jp since 2026-11-24)
+  // keeps `_sd` and `sub` at the top level.
+  const subject: Record<string, any> = payload.credentialSubject
+    ? { ...payload.credentialSubject }
+    : { id: typeof payload.sub === 'string' ? payload.sub : undefined }
   if (isSdJwt && disclosures.length > 0) {
-    const allowedHashes = new Set<string>(
-      Array.isArray(subject._sd) ? subject._sd : []
-    )
+    const allowedHashes = new Set<string>([
+      ...(Array.isArray(subject._sd) ? subject._sd : []),
+      ...(Array.isArray(payload._sd) ? payload._sd : [])
+    ])
     for (const d of disclosures) {
       const digest = await sha256B64url(d)
       if (!allowedHashes.has(digest)) {
@@ -354,13 +411,20 @@ export async function verifyLdasCredential(
   }
 
   // Verify W3C Bitstring Status List v1.0 revocation status
-  const statusIndex = await checkBitstringStatus(
-    payload.credentialStatus,
-    issuerOrigin,
-    issuerKey,
-    expectedDid,
-    fetchFn
-  )
+  const statusIndex = payload.status?.status_list
+    ? await checkTokenStatus(
+        payload.status.status_list,
+        issuerOrigin,
+        issuerKey,
+        fetchFn
+      )
+    : await checkBitstringStatus(
+        payload.credentialStatus,
+        issuerOrigin,
+        issuerKey,
+        expectedDid,
+        fetchFn
+      )
 
   // Extract wallet address from disclosed `wallet` or `did:pkh:eip155:<chain>:<addr>`
   let wallet: string | undefined =
