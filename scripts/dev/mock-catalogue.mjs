@@ -9,7 +9,8 @@
  *
  *   node scripts/dev/mock-catalogue.mjs [port]      (default 8793)
  *   NEXT_PUBLIC_METADATACACHE_URI=http://localhost:8793
- *   NEXT_PUBLIC_METADATACACHE_OCEAN_NODE=false
+ *   NEXT_PUBLIC_METADATACACHE_OCEAN_NODE=true   (default response is Ocean Node style: all
+ *   assets, filtered client-side; MOCK_ES=1 gives Elasticsearch style + owner filtering)
  *   NEXT_PUBLIC_LDAS_REGISTRY_URL=http://localhost:8793/registry/providers.json
  */
 import http from 'node:http'
@@ -23,11 +24,12 @@ const registryFile = path.join(dir, 'fixtures', 'ldas-providers.sample.json')
 
 // 0xedAa… is a real Sepolia publisher address (kept lower-case here on
 // purpose: the portal must compare case-insensitively).
+const BASE = `http://localhost:${port}`
 const VERIFIED = '0xedaa08237554bbafc218f0eaa86704e1ade9262e'
 const SELF_DECLARED = '0xc2679fbd37d54388ce493f1db75320d236e1815e'
 const UNVERIFIED = '0x1111111111111111111111111111111111111111'
 
-function asset(n, name, owner, type = 'dataset') {
+function asset(n, name, owner, type = 'dataset', endpoint = BASE) {
   const id = `did:op:${String(n).padStart(64, '0')}`
   return {
     '@context': ['https://w3id.org/did/v1'],
@@ -51,7 +53,7 @@ function asset(n, name, owner, type = 'dataset') {
         type: 'access',
         files: '',
         datatokenAddress: `0x${String(n).padStart(40, 'b')}`,
-        serviceEndpoint: 'https://cliox-node.ldas.jp',
+        serviceEndpoint: endpoint,
         timeout: 0
       }
     ],
@@ -81,7 +83,16 @@ const assets = [
   asset(2, 'Kotenseki Page Images (verified owner)', VERIFIED),
   asset(3, 'Self-declared Provider Dataset', SELF_DECLARED),
   asset(4, 'Anonymous Upload A (not verified)', UNVERIFIED),
-  asset(5, 'Anonymous Upload B (not verified)', UNVERIFIED, 'algorithm')
+  asset(5, 'Anonymous Upload B (not verified)', UNVERIFIED, 'algorithm'),
+  // verified owner, but served from someone's own machine: the portal's
+  // node/provider filter must still hide it
+  asset(
+    6,
+    'Verified owner, foreign provider',
+    VERIFIED,
+    'dataset',
+    'http://127.0.0.1:8001'
+  )
 ]
 
 function ownersFromQuery(body) {
@@ -132,12 +143,17 @@ http
         const hits = assets.filter((a) =>
           constraints.every((list) => list.includes(a.nft.owner.toLowerCase()))
         )
-        send(200, {
-          hits: {
-            total: { value: hits.length },
-            hits: hits.map((a) => ({ _source: a }))
-          }
-        })
+        if (process.env.MOCK_ES === '1')
+          send(200, {
+            hits: {
+              total: { value: hits.length },
+              hits: hits.map((a) => ({ _source: a }))
+            }
+          })
+        else
+          send(200, [
+            { found: assets.length, hits: assets.map((a) => ({ document: a })) }
+          ])
       })
       return
     }
