@@ -24,7 +24,7 @@ export default function PagePublish(): ReactElement {
 
 export async function getStaticPaths() {
   return {
-    paths: ['1', '2', '3', '4', '5'].map((step) => ({ params: { step } })),
+    paths: ['1', '2', '3', '4', '5', '6'].map((step) => ({ params: { step } })),
     fallback: false
   }
 }
