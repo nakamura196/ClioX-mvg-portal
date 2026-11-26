@@ -34,7 +34,10 @@ export default function FilesInput(props: InputProps): ReactElement {
   const query = field.value[0].query || undefined
   const abi = field.value[0].abi || undefined
   const headers = field.value[0].headers || undefined
-  const method = field.value[0].method || undefined
+  // [local patch] Ocean Node 4.x rejects a URL file without a method
+  // ("URL or method are missing"); the URL tab has no method selector.
+  const method =
+    field.value[0].method || (storageType === 'url' ? 'get' : undefined)
   const [paymentModeField] = useField(`${props.fieldFormPrefix}.paymentMode`)
 
   async function handleValidation(e: React.SyntheticEvent, url: string) {

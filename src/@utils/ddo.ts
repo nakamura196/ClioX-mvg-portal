@@ -174,7 +174,8 @@ export function normalizeFile(
         index: 0,
         url: file ? file[0]?.url || file?.url : null,
         headers: headersProvider,
-        method: file.method
+        // [local patch] Ocean Node 4.x needs a method for URL files
+        method: file.method || 'get'
       } as UrlFile
       break
     }
