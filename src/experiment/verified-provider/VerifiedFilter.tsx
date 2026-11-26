@@ -15,8 +15,8 @@ export interface VerifiedFilterState {
 }
 
 /**
- * "Verified providers only" for the catalogue search. On unless the URL says
- * `verified=all`. If the registry could not be loaded, nothing can be
+ * "Verified providers only" for the catalogue search. Off by default (the
+ * catalogue shows everything); on when the URL says `verified=only`. If the registry could not be loaded, nothing can be
  * filtered: all providers are shown and the checkbox is disabled.
  */
 export function useVerifiedFilter(
@@ -26,7 +26,7 @@ export function useVerifiedFilter(
   const registry = useLdasRegistry()
   const { filter: c } = useVerifiedProviderContent()
 
-  const requested = parsed?.verified !== 'all'
+  const requested = parsed?.verified === 'only'
   const failed = registry.status === 'failed'
   const owners =
     requested && registry.status === 'ready' ? registry.addresses : undefined
@@ -34,8 +34,8 @@ export function useVerifiedFilter(
   function setVerifiedOnly(on: boolean) {
     const query = { ...router.query }
     delete query.page
-    if (on) delete query.verified
-    else query.verified = 'all'
+    if (on) query.verified = 'only'
+    else delete query.verified
     router.push({ pathname: router.pathname, query }, undefined, {
       shallow: true
     })
