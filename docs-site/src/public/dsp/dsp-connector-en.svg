@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" width="1200" height="600" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" role="img" aria-label="Ocean node">
+<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M0 0L10 5L0 10z" fill="#c2410c"/></marker><marker id="ag" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M0 0L10 5L0 10z" fill="#15803d"/></marker><marker id="am" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M0 0L10 5L0 10z" fill="#475569"/></marker></defs>
+<rect width="1200" height="600" rx="12" fill="#f8fafc" stroke="#cbd5e1"/>
+<rect x="40" y="40" width="300" height="130" rx="10" fill="#eef2ff" stroke="#6366f1" stroke-width="2" />
+<text x="190" y="78" text-anchor="middle" font-size="17" font-weight="600" fill="#1b2430">DSP connector</text>
+<text x="190" y="98" text-anchor="middle" font-size="15" font-weight="400" fill="#1b2430">catalog, ODRL policy,</text>
+<text x="190" y="118" text-anchor="middle" font-size="15" font-weight="400" fill="#1b2430">contract, transfer</text>
+<text x="190" y="138" text-anchor="middle" font-size="15" font-weight="400" fill="#1b2430">(ds.ldas.jp, Eclipse EDC, ...)</text>
+<rect x="40" y="300" width="300" height="130" rx="10" fill="#fff7ed" stroke="#c2410c" stroke-width="2" stroke-dasharray="6 4"/>
+<text x="190" y="338" text-anchor="middle" font-size="17" font-weight="600" fill="#1b2430">Provider's storage</text>
+<text x="190" y="358" text-anchor="middle" font-size="15" font-weight="400" fill="#1b2430">non-public</text>
+<text x="190" y="378" text-anchor="middle" font-size="15" font-weight="400" fill="#1b2430">e.g. cliox-files.ldas.jp</text>
+<text x="190" y="398" text-anchor="middle" font-size="15" font-weight="400" fill="#1b2430">(behind Cloudflare Access)</text>
+<rect x="480" y="40" width="240" height="110" rx="10" fill="#ecfeff" stroke="#0e7490" stroke-width="2" />
+<text x="600" y="78" text-anchor="middle" font-size="17" font-weight="600" fill="#1b2430">Clio-X portal</text>
+<text x="600" y="98" text-anchor="middle" font-size="15" font-weight="400" fill="#1b2430">publish / buy</text>
+<text x="600" y="118" text-anchor="middle" font-size="15" font-weight="400" fill="#1b2430">(cliox.ldas.jp)</text>
+<rect x="450" y="260" width="300" height="190" rx="10" fill="#f0fdf4" stroke="#15803d" stroke-width="2" />
+<text x="600" y="296" text-anchor="middle" font-size="17" font-weight="600" fill="#1b2430">Ocean node</text>
+<text x="600" y="320" text-anchor="middle" font-size="15" font-weight="400" fill="#1b2430">holds no dataset</text>
+<text x="600" y="344" text-anchor="middle" font-size="15" font-weight="400" fill="#1b2430">1. fetch the file (per job)</text>
+<text x="600" y="368" text-anchor="middle" font-size="15" font-weight="400" fill="#1b2430">2. run algorithm in an isolated</text>
+<text x="600" y="392" text-anchor="middle" font-size="15" font-weight="400" fill="#1b2430">container, no network</text>
+<text x="600" y="416" text-anchor="middle" font-size="15" font-weight="400" fill="#1b2430">3. return results only</text>
+<rect x="860" y="300" width="300" height="110" rx="10" fill="#f1f5f9" stroke="#475569" stroke-width="2" />
+<text x="1010" y="340" text-anchor="middle" font-size="17" font-weight="600" fill="#1b2430">Consumer</text>
+<text x="1010" y="360" text-anchor="middle" font-size="15" font-weight="400" fill="#1b2430">gets results only,</text>
+<text x="1010" y="380" text-anchor="middle" font-size="15" font-weight="400" fill="#1b2430">never the file</text>
+<path d="M340 95 H478" fill="none" stroke="#475569" stroke-width="2.5" marker-end="url(#am)" stroke-dasharray="7 5"/>
+<text x="410" y="56" text-anchor="middle" font-size="14" font-weight="600" fill="#1b2430">data address</text>
+<text x="410" y="72" text-anchor="middle" font-size="12" font-weight="400" fill="#1b2430">+ credential</text>
+<text x="410" y="88" text-anchor="middle" font-size="12" font-weight="400" fill="#1b2430">(metadata, no file)</text>
+<path d="M190 170 V298" fill="none" stroke="#475569" stroke-width="2.5" marker-end="url(#am)" stroke-dasharray="7 5"/>
+<text x="200" y="238" text-anchor="start" font-size="15" font-weight="600" fill="#475569">guards access</text>
+<path d="M600 150 V258" fill="none" stroke="#475569" stroke-width="2.5" marker-end="url(#am)" stroke-dasharray="7 5"/>
+<text x="612" y="196" text-anchor="start" font-size="15" font-weight="600" fill="#475569">DDO: file URL + headers,</text>
+<text x="612" y="214" text-anchor="start" font-size="13" font-weight="400" fill="#475569">encrypted</text>
+<path d="M340 365 H448" fill="none" stroke="#c2410c" stroke-width="5" marker-end="url(#ah)" />
+<text x="394" y="462" text-anchor="middle" font-size="14" font-weight="600" fill="#1b2430"></text>
+<path d="M750 355 H858" fill="none" stroke="#15803d" stroke-width="5" marker-end="url(#ag)" />
+<text x="804" y="338" text-anchor="middle" font-size="15" font-weight="600" fill="#15803d">results only</text>
+<path d="M1010 298 V95 H722" fill="none" stroke="#475569" stroke-width="2.5" marker-end="url(#am)" stroke-dasharray="7 5"/>
+<text x="1020" y="200" text-anchor="start" font-size="15" font-weight="600" fill="#475569">buys, starts a job</text>
+<text x="395" y="500" text-anchor="middle" font-size="15" font-weight="600" fill="#c2410c">file, once per compute job</text>
+<text x="395" y="520" text-anchor="middle" font-size="13" font-weight="400" fill="#c2410c">(URL + headers from the DDO)</text>
+<path d="M395 480 V372" stroke="#c2410c" stroke-width="1.5" stroke-dasharray="3 3" fill="none"/>
+<line x1="40" y1="548" x2="80" y2="548" stroke="#c2410c" stroke-width="5"/>
+<text x="90" y="553" text-anchor="start" font-size="15" font-weight="600" fill="#1b2430">File data (stays between storage and node)</text>
+<line x1="470" y1="548" x2="510" y2="548" stroke="#15803d" stroke-width="5"/>
+<text x="520" y="553" text-anchor="start" font-size="15" font-weight="600" fill="#1b2430">Results only</text>
+<line x1="640" y1="548" x2="680" y2="548" stroke="#475569" stroke-width="2.5" stroke-dasharray="7 5"/>
+<text x="690" y="553" text-anchor="start" font-size="15" font-weight="600" fill="#1b2430">Metadata, credentials, requests (no file)</text>
+<text x="40" y="583" text-anchor="start" font-size="14" font-weight="600" fill="#475569">Ocean only fetches by URL + headers. Speaking DSP is our design, not Ocean's.</text>
+</svg>

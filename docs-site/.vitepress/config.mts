@@ -46,6 +46,10 @@ function sidebarEn(): DefaultTheme.Sidebar {
           },
           { text: 'Test money', link: '/developers/test-money' },
           {
+            text: 'Clio-X and a DSP connector',
+            link: '/developers/dsp-connector'
+          },
+          {
             text: 'The Gaia-X Service Credential button',
             link: '/developers/gaia-x-credential'
           },
@@ -125,6 +129,10 @@ function sidebarJa(): DefaultTheme.Sidebar {
           { text: '分かっている問題', link: '/ja/developers/known-problems' },
           { text: '価格の通貨の決まり方', link: '/ja/developers/price-tokens' },
           { text: '試験用のお金', link: '/ja/developers/test-money' },
+          {
+            text: 'Clio-X と DSP コネクタ',
+            link: '/ja/developers/dsp-connector'
+          },
           {
             text: 'Gaia-X サービスクレデンシャル',
             link: '/ja/developers/gaia-x-credential'
