@@ -273,6 +273,31 @@ The cause is in our hosting, not in Ocean or Clio-X.
 Fixed on `deploy/hosting` in `9a3cf172`: under `next dev` these pages are rendered on request (`fallback: 'blocking'`); the export still builds only `_`.
 Checked on 2026-11-25: the Fig. 1 asset page with `?demo=1&env=a` and the finding-aid page open on `localhost:8012`, with the comparison table.
 
+## Header, menu and footer stay in English on `/ja/` pages (fixed)
+
+**Where:** our hosting (the static export). **Status:** fixed and deployed on `deploy/hosting` in `f4ad71f9`.
+
+With Japanese selected, `/ja/publish/5/` showed the page body in Japanese but the menu (Catalogue, Publish, …), the tab title and the footer in English.
+These parts read the language from Next's `router.locale`.
+In the static export served by the Cloudflare Worker, `router.locale` is always undefined, so they always fell back to English.
+The page body uses `useActiveLocale()` (`src/i18n/useActiveLocale.ts`), which also looks at i18next and the `/ja/` prefix, and so was right.
+The same pattern was in eight files: the site menu and title (`MarketMetadata`), the landing page copy, the contact form, the footer's privacy link, and four prototype files.
+All now call `useActiveLocale()`.
+Checked on 2026-11-25 on a local `wrangler dev`: `/ja/publish/5/` has a Japanese menu, title and footer; `/publish/5/` stays English.
+
+## Publish preview raises "[Initialize check file did] Error: … is not valid JSON" (fixed)
+
+**Where:** Clio-X (upstream code). **Status:** fixed and deployed on `deploy/hosting` in `a539c7fd`.
+
+Opening `/publish/5/` (Preview) with a wallet connected but no file entered on step 2, for example by going to the address directly, showed four red error notices.
+The preview asset is not on chain yet.
+With no file URL, `AssetActions` falls back to asking the node about the asset's DID (`getFileDidInfo`).
+The node answers with the plain text `Invalid request parameters`, which the Ocean library tries to read as JSON.
+Measured on 2026-11-25 against `https://cliox-node.ldas.jp/api/services/fileInfo`: an empty DID returns `Invalid request parameters`; a URL file without `method` returns `Error validating the URL file: URL or method are missing`; with `"method":"get"` it returns the file info.
+The notice repeats because the check runs again whenever the form values change.
+The preview now skips the check when it has no file URL (`src/components/Asset/AssetActions/index.tsx`).
+The missing-method case was fixed earlier in `357abc99`.
+
 ## Smaller things
 
 - Every page scrolled sideways by 8px on a phone (390px wide): the header's menu row bleeds by 1rem, more than the menu's padding at 480px and narrower. Cause in the portal's header (upstream). Fixed on `deploy/hosting` in `2b65e793`; checked on nine pages at 390px.

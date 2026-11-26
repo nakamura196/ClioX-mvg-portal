@@ -273,6 +273,31 @@ Cloudflare に移ってから（`242e0054`）、ポータルは静的に書き�
 `deploy/hosting` の `9a3cf172` で直しました。`next dev` のときだけ、開いたときにページを描きます（`fallback: 'blocking'`）。書き出しは今までどおり `_` だけです。
 2026-11-25 に確かめました。図 1 の資料ページ（`?demo=1&env=a`）と目録の形のページが `localhost:8012` で開き、比較表も出ます。
 
+## `/ja/` の頁で、ヘッダー・メニュー・フッターが英語のまま（修正済み）
+
+**原因の場所:** こちらの配り方（静的書き出し）。**状態:** `deploy/hosting` の `f4ad71f9` で修正し、本番に反映済み。
+
+日本語を選んだ状態で `/ja/publish/5/` を開くと、本文は日本語なのに、メニュー（Catalogue、Publish など）、タブの題名、フッターが英語でした。
+これらは Next の `router.locale` で言語を見ていました。
+Cloudflare の Worker から配る静的書き出しでは `router.locale` が常に空なので、いつも英語になっていました。
+本文は `useActiveLocale()`（`src/i18n/useActiveLocale.ts`）を使っていて、i18next と `/ja/` の接頭辞も見るので正しく出ていました。
+同じ書き方が 8 ファイルにありました。サイトのメニューと題名（`MarketMetadata`）、トップページの文言、お問い合わせ欄、フッターのプライバシーポリシーへのリンク、試作の 4 ファイルです。
+すべて `useActiveLocale()` に揃えました。
+2026-11-25 に手元の `wrangler dev` で確認: `/ja/publish/5/` でメニュー・題名・フッターが日本語、`/publish/5/` は英語のまま。
+
+## 公開のプレビューで「[Initialize check file did] Error: … is not valid JSON」が出る（修正済み）
+
+**原因の場所:** Clio-X（本家のコード）。**状態:** `deploy/hosting` の `a539c7fd` で修正し、本番に反映済み。
+
+ウォレットをつないだまま、手順 2 でファイルを入れずに `/publish/5/`（プレビュー）を開くと（アドレスを直接開いた場合など）、赤いエラーの通知が 4 つ出ました。
+プレビューの資料はまだチェーンに載っていません。
+ファイルの URL が無いと、`AssetActions` は資料の DID についてノードに問い合わせます（`getFileDidInfo`）。
+ノードは `Invalid request parameters` という素の文字列を返し、Ocean のライブラリがそれを JSON として読もうとして失敗します。
+2026-11-25 に `https://cliox-node.ldas.jp/api/services/fileInfo` で実測: DID が空だと `Invalid request parameters`、URL のファイルで `method` が無いと `Error validating the URL file: URL or method are missing`、`"method":"get"` を付けるとファイルの情報が返る。
+フォームの値が変わるたびに確認が走り直すので、通知が何度も出ます。
+プレビューでファイルの URL が無いときは、確認をしないようにしました（`src/components/Asset/AssetActions/index.tsx`）。
+`method` が無い場合の失敗は、先に `357abc99` で直っています。
+
 ## 小さなこと
 
 - スマートフォンの幅（390px）で、どのページも 8px 横にずれて動いた。ヘッダーのメニュー行が画面の端まで 1rem はみ出す作りで、480px 以下ではメニューの余白のほうが狭いため。原因はポータルのヘッダー（upstream）。`deploy/hosting` の `2b65e793` で修正し、390px で 9 ページを確かめた。
