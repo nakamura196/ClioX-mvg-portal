@@ -75,3 +75,24 @@
 .settings dd > * {
   margin: 0 !important;
 }
+
+.withThumb {
+  display: grid;
+  grid-template-columns: 16rem 1fr;
+  gap: calc(var(--spacer) / 1.5);
+  align-items: start;
+}
+
+.thumb img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--border-color);
+  border-radius: calc(var(--border-radius) / 2);
+}
+
+@media (max-width: 40rem) {
+  .withThumb {
+    grid-template-columns: 1fr;
+  }
+}

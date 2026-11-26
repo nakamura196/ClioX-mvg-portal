@@ -8,7 +8,7 @@ what is illustrative. Rules: `CLAUDE.md`, "Where our code goes".
 | Folder               | Pages                                              | What it is                                                                                |
 | -------------------- | -------------------------------------------------- | ----------------------------------------------------------------------------------------- |
 | `two-condition/`     | `/experiment/two-condition`                        | Decision exercise with and without footprint labels; receipt, signing and verifying (EAS) |
-| `footprint/`         | `/experiment/paper-fig`, `?demo=1` on asset pages  | Energy, water and carbon of a compute job; illustrative environments; comparison table    |
+| `footprint/`         | `?demo=1` on asset pages (Fig. 1)                  | Energy, water and carbon of a compute job; illustrative environments; comparison table    |
 | `carbon-choice/`     | `/experiment/carbon-choice`                        | Choose where to run and record the choice on Sepolia; green-fee variants                  |
 | `carbon-report/`     | `/experiment/carbon-report`                        | Estimate energy, carbon and cost before running an analysis                               |
 | `sample-collection/` | `/experiment/sample-collection`                    | Try fixity or OCR on eight public-domain images, replayed from a stored run               |

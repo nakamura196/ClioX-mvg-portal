@@ -102,11 +102,19 @@ module.exports = (phase, { defaultConfig }) => {
                 'carbon-report',
                 'archivist-qa',
                 'sample-collection',
-                'paper-fig',
                 'glossary'
               ].map((name) => ({
                 source: `/${name}`,
                 destination: `/experiment/${name}`,
+                permanent: false
+              })),
+              // [prototype] Fig. 1 moved from /experiment/paper-fig to a real asset
+              // page with ?demo=1 (2026-11-25). ?env= is carried over.
+              ...['/paper-fig', '/experiment/paper-fig'].map((source) => ({
+                source,
+                destination:
+                  // colons encoded: Next reads ":op" as a parameter
+                  '/asset/did%3Aop%3A04f79245ba012ab323600b60bb537c865560ca18867025a3d31b38f4560b9787?demo=1',
                 permanent: false
               })),
               // [prototype] The finding aid is a prototype like the others (2026-11-25).

@@ -52,15 +52,24 @@ const MOVED_PROTOTYPES = [
   'carbon-report',
   'archivist-qa',
   'sample-collection',
-  'paper-fig',
   'glossary'
 ]
+
+// [prototype] Fig. 1 moved from /experiment/paper-fig to a real asset page
+// with ?demo=1 (2026-11-25); same rule as in next.config.js.
+const FIG1_ASSET =
+  '/asset/did:op:04f79245ba012ab323600b60bb537c865560ca18867025a3d31b38f4560b9787/'
 
 function prototypeRedirect(url: URL): string | null {
   const ja = url.pathname === '/ja' || url.pathname.startsWith('/ja/')
   const prefix = ja ? '/ja' : ''
   const p = (ja ? url.pathname.slice(3) : url.pathname).replace(/\/+$/, '')
   const name = p.slice(1)
+  if (name === 'paper-fig' || name === 'experiment/paper-fig') {
+    const q = new URLSearchParams(url.search)
+    q.set('demo', '1')
+    return `${prefix}${FIG1_ASSET}?${q.toString()}`
+  }
   if (MOVED_PROTOTYPES.includes(name)) {
     return `${prefix}/experiment/${name}/${url.search}`
   }

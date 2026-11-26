@@ -23,6 +23,14 @@ type Item = {
   paper?: Bi
 }
 
+// Thumbnails in public/images/experiment/<slug>.jpg, taken by
+// scripts/capture-experiment-thumbnails.js; the slug is the first path
+// segment after /experiment/.
+const thumbOf = (href: string) => href.split(/[/?]/)[2]
+
+const DEMO_HREF =
+  '/asset/did:op:04f79245ba012ab323600b60bb537c865560ca18867025a3d31b38f4560b9787?demo=1&env=a'
+
 const ITEMS: Item[] = [
   {
     href: '/experiment/two-condition',
@@ -46,23 +54,6 @@ const ITEMS: Item[] = [
       'Fig. 2: ?view=receipt&sample=t4a&steps=1',
       '図 2: ?view=receipt&sample=t4a&steps=1'
     ]
-  },
-  {
-    href: '/experiment/paper-fig?env=a',
-    title: [
-      'Paper figure: comparing compute environments',
-      '論文の図: 計算環境を比べる'
-    ],
-    what: [
-      'An asset page built with the real portal components, listing four compute environments side by side.',
-      '本物の資料ページと同じ部品で作ったページに、4 つの計算環境を並べたものです。'
-    ],
-    real: ['The page components and the calculation.', '画面の部品と計算。'],
-    illustrative: [
-      'The asset, the algorithm, the four providers and every value (same as task t4 of the two-condition exercise).',
-      '資料・アルゴリズム・4 つの事業者・すべての値（2 条件の実験の課題 t4 と同じ）。'
-    ],
-    paper: ['Fig. 1 (?env=a|b|c|d)', '図 1（?env=a|b|c|d）']
   },
   {
     href: '/experiment/carbon-report',
@@ -243,28 +234,55 @@ export default function PageExperimentIndex(): ReactElement {
           </dl>
         </section>
         {ITEMS.map((it) => (
-          <section key={it.href} className={styles.item}>
-            <h2 className={styles.title}>
-              <Link href={it.href}>{it.title[i]}</Link>
-            </h2>
-            <p className={styles.what}>{it.what[i]}</p>
-            <dl className={styles.grid}>
-              <dt className={styles.real}>{L.real[i]}</dt>
-              <dd>{it.real[i]}</dd>
-              <dt className={styles.illustrative}>{L.illustrative[i]}</dt>
-              <dd>{it.illustrative[i]}</dd>
-              {it.paper && (
-                <>
-                  <dt>{L.paper[i]}</dt>
-                  <dd>{it.paper[i]}</dd>
-                </>
-              )}
-            </dl>
+          <section
+            key={it.href}
+            className={`${styles.item} ${styles.withThumb}`}
+          >
+            <Link href={it.href} className={styles.thumb} tabIndex={-1}>
+              <img
+                src={`/images/experiment/${thumbOf(it.href)}.jpg`}
+                alt=""
+                loading="lazy"
+                width={1280}
+                height={720}
+              />
+            </Link>
+            <div>
+              <h2 className={styles.title}>
+                <Link href={it.href}>{it.title[i]}</Link>
+              </h2>
+              <p className={styles.what}>{it.what[i]}</p>
+              <dl className={styles.grid}>
+                <dt className={styles.real}>{L.real[i]}</dt>
+                <dd>{it.real[i]}</dd>
+                <dt className={styles.illustrative}>{L.illustrative[i]}</dt>
+                <dd>{it.illustrative[i]}</dd>
+                {it.paper && (
+                  <>
+                    <dt>{L.paper[i]}</dt>
+                    <dd>{it.paper[i]}</dd>
+                  </>
+                )}
+              </dl>
+            </div>
           </section>
         ))}
-        <section className={styles.item}>
-          <h2 className={styles.title}>{L.demoTitle[i]}</h2>
-          <p className={styles.what}>{L.demo[i]}</p>
+        <section className={`${styles.item} ${styles.withThumb}`}>
+          <Link href={DEMO_HREF} className={styles.thumb} tabIndex={-1}>
+            <img
+              src="/images/experiment/asset-demo.jpg"
+              alt=""
+              loading="lazy"
+              width={1280}
+              height={720}
+            />
+          </Link>
+          <div>
+            <h2 className={styles.title}>
+              <Link href={DEMO_HREF}>{L.demoTitle[i]}</Link>
+            </h2>
+            <p className={styles.what}>{L.demo[i]}</p>
+          </div>
         </section>
       </div>
     </Page>

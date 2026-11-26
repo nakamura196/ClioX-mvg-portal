@@ -12,10 +12,7 @@ import styles from './index.module.css'
 // - trial: ふつうのページ。このサイト全体が Sepolia の試験版であることと、
 //   /experiment（試作と設定）への入口を細い 1 行で示す。言語・アーキビスト表示が
 //   既定と違うときは、その旨を同じ行に足す（ヘッダーに切り替えが無いため、戻し方を示す）
-const ILLUSTRATIVE_PATHS = [
-  '/experiment/two-condition',
-  '/experiment/paper-fig'
-]
+const ILLUSTRATIVE_PATHS = ['/experiment/two-condition']
 
 const TEXT = {
   illustrative: [
