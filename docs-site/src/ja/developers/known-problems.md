@@ -298,6 +298,22 @@ Cloudflare の Worker から配る静的書き出しでは `router.locale` が�
 プレビューでファイルの URL が無いときは、確認をしないようにしました（`src/components/Asset/AssetActions/index.tsx`）。
 `method` が無い場合の失敗は、先に `357abc99` で直っています。
 
+## 「Switch Wallet」を押しても何も起きない（修正済み） {#kp-switch-wallet}
+
+**原因の場所:** Clio-X（本家のコード）。**状態:** `deploy/hosting` の `de9b67b6` で修正し、本番に反映済み（Version `8b0045a7`、2026-11-25）。
+
+別のアカウントから資料を買う試験のため、MetaMask に 2 つ目のアカウントを足しましたが、ポータルには 1 つ目のアカウントが出たままでした。
+アカウントのメニューの「Switch Wallet」を押しても、何も起きませんでした。
+2 つの原因が重なっていました（2026-11-25 にコードを読み、ブラウザで確認）。
+
+- ボタンは wagmi の `connect()` を、どのウォレットかを指定せずに呼んでいたため、何もしていなかった（`src/components/Header/Wallet/Details.tsx`）。
+- MetaMask は、そのサイトに許可したアカウントしか見せない。cliox.ldas.jp で `eth_accounts` を呼ぶと `0x6E43…32C3` だけが返り、MetaMask の中でアカウントを切り替えても、ポータルには届かなかった。
+
+ボタンは `wallet_requestPermissions` を送るようにしました。MetaMask がアカウントを選ぶ画面を開き、ポータルは MetaMask の `accountsChanged` の知らせで、選んだアカウントに切り替わります。
+手元のポータルで確認: 2 つ目のアカウントを選ぶと、ヘッダーに `0x05f1…C085` が出ました。
+
+この修正の前の回避策: アカウントのメニューで「Disconnect」を押し、MetaMask で別のアカウントを選んでから、もう一度つなぎ、そのアカウントだけを許可する。
+
 ## 小さなこと
 
 - スマートフォンの幅（390px）で、どのページも 8px 横にずれて動いた。ヘッダーのメニュー行が画面の端まで 1rem はみ出す作りで、480px 以下ではメニューの余白のほうが狭いため。原因はポータルのヘッダー（upstream）。`deploy/hosting` の `2b65e793` で修正し、390px で 9 ページを確かめた。

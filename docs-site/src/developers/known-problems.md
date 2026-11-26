@@ -298,6 +298,22 @@ The notice repeats because the check runs again whenever the form values change.
 The preview now skips the check when it has no file URL (`src/components/Asset/AssetActions/index.tsx`).
 The missing-method case was fixed earlier in `357abc99`.
 
+## "Switch Wallet" does nothing (fixed) {#kp-switch-wallet}
+
+**Where:** Clio-X (upstream code). **Status:** fixed and deployed on `deploy/hosting` in `de9b67b6` (Version `8b0045a7`, 2026-11-25).
+
+To test buying an asset from a second account, we added a second account in MetaMask, but the portal kept showing the first one.
+Pressing "Switch Wallet" in the account menu did nothing.
+Two things combined (code read and checked in the browser on 2026-11-25):
+
+- The button called wagmi's `connect()` without naming a connector, so nothing happened (`src/components/Header/Wallet/Details.tsx`).
+- MetaMask shares only the accounts that were allowed for the site. `eth_accounts` on cliox.ldas.jp returned only `0x6E43…32C3`, so switching accounts inside MetaMask did not reach the portal either.
+
+The button now sends `wallet_requestPermissions`. MetaMask opens its account picker, and the portal follows the chosen account through MetaMask's `accountsChanged` event.
+Checked on a local portal: after choosing the second account, the header showed `0x05f1…C085`.
+
+Before this fix, the workaround was: in the account menu press "Disconnect", choose the other account in MetaMask, then connect again and allow only that account.
+
 ## Smaller things
 
 - Every page scrolled sideways by 8px on a phone (390px wide): the header's menu row bleeds by 1rem, more than the menu's padding at 480px and narrower. Cause in the portal's header (upstream). Fixed on `deploy/hosting` in `2b65e793`; checked on nine pages at 390px.
