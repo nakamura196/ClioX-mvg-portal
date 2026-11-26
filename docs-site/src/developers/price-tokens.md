@@ -4,10 +4,7 @@ When you publish a priced asset, the form asks for a price and a currency (the "
 **On the Sepolia trial the menu offers JPYC, USDC and WETH, and JPYC is preselected.**
 All three are test tokens with no real value; how to get them is on [Test money](/developers/test-money).
 
-::: warning Not live yet
-This describes branch `feat/price-tokens` (commit `6f3b9528`, 25 Nov 2026).
-It has been checked on a local portal but is not yet merged into `deploy/hosting`, so https://cliox.ldas.jp still behaves the old way.
-:::
+Live on https://cliox.ldas.jp since 25 Nov 2026 (commit `6f3b9528`, merged into `deploy/hosting` as `11f60898`).
 
 ## One list per network, in `chains.config.js`
 

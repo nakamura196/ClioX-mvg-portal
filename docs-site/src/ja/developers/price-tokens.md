@@ -4,10 +4,7 @@
 **Sepolia の試用では、JPYC・USDC・WETH の 3 つから選べ、最初は JPYC が選ばれています。**
 3 つとも試験用のトークンで、本物のお金ではありません。手に入れ方は [試験用のお金](/ja/developers/test-money) にあります。
 
-::: warning まだ本番には入っていません
-このページはブランチ `feat/price-tokens`（コミット `6f3b9528`、2026-11-25）の内容です。
-手元のポータルで確かめましたが、`deploy/hosting` にはまだ取り込んでいません。https://cliox.ldas.jp は、まだ前の動きのままです。
-:::
+2026-11-25 から https://cliox.ldas.jp に入っています（コミット `6f3b9528`、`deploy/hosting` への取り込みは `11f60898`）。
 
 ## ネットワークごとの一覧は `chains.config.js` にある
 
