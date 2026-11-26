@@ -252,7 +252,7 @@
     "accessToken": "Access Token",
     "priceTitle": "Price",
     "fees": {
-      "community": "Pontus-X Community Fee",
+      "community": "Community Fee",
       "marketplace": "Marketplace Fee",
       "earnings": "Earnings after fees"
     },

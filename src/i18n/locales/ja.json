@@ -249,7 +249,7 @@
     "accessToken": "アクセストークン",
     "priceTitle": "価格",
     "fees": {
-      "community": "Pontus-X コミュニティ手数料",
+      "community": "コミュニティ手数料",
       "marketplace": "マーケットプレイス手数料",
       "earnings": "手数料差引後の受取額"
     },

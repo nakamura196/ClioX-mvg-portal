@@ -2,7 +2,8 @@ import {
   allowFixedPricing,
   customProviderUrl,
   defaultTokenSymbol,
-  assetTitlePrefix
+  assetTitlePrefix,
+  chainIds
 } from '../../../app.config'
 import {
   FormPublishData,
@@ -77,7 +78,8 @@ const computeOptions: ServiceComputeOptions = {
 export const initialValues: FormPublishData = {
   user: {
     stepCurrent: 1,
-    chainId: 32457,
+    // [local patch] this portal's default chain, not Pontus-X
+    chainId: chainIds[0],
     accountId: ''
   },
   metadata: {

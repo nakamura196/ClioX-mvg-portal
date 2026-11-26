@@ -5,8 +5,7 @@ import { getOceanConfig } from './ocean'
 import { OrdersData_orders as OrdersData } from '../@types/subgraph/OrdersData'
 import { OpcFeesQuery as OpcFeesData } from '../@types/subgraph/OpcFeesQuery'
 import appConfig from '../../app.config'
-import { chains } from '../../chains.config'
-import { ethers } from 'ethers'
+import { getConfiguredBaseTokens } from './tokenSymbol'
 
 const UserTokenOrders = gql`
   query OrdersData($user: String!) {
@@ -56,14 +55,6 @@ const OpcsApprovedTokensQuery = gql`
     }
   }
 `
-
-export const tokenAddressesEUROe = {
-  100: '0xe974c4894996e012399dedbda0be7314a73bbff1',
-  137: '0x820802Fa8a99901F52e39acD21177b0BE6EE2974',
-  32456: '0x8A4826071983655805bF4f29828577Cd6b1aC0cB',
-  32457: '0xdd0a0278f6BAF167999ccd8Aa6C11A9e2fA37F0a',
-  80001: '0xA089a21902914C3f3325dBE2334E9B466071E5f1'
-}
 
 export function getSubgraphUri(chainId: number): string {
   const config = getOceanConfig(chainId)
@@ -169,45 +160,20 @@ export async function getUserTokenOrders(
   }
 }
 
+// [local patch] A chain that lists `baseTokens` in chains.config.js offers
+// exactly those (replaces the former mocked EUROe integration); otherwise the
+// subgraph's approved tokens are used, as upstream.
 export async function getOpcsApprovedTokens(
   chainId: number
 ): Promise<TokenInfo[]> {
-  const context = getQueryContext(chainId)
+  const configured = getConfiguredBaseTokens(chainId)
+  if (configured) return configured
 
+  const context = getQueryContext(chainId)
   try {
     const response = await fetchData(OpcsApprovedTokensQuery, null, context)
     if (!response?.data) return
-
-    // TODO: remove the mocked EUROe integration
-    const { approvedTokens } = response.data.opcs[0]
-    if (!Object.keys(tokenAddressesEUROe).includes(chainId.toString()))
-      return approvedTokens
-
-    const oceanTokenAddress = chains.find(
-      (chain) => chain.chainId === chainId
-    )?.oceanTokenAddress
-    const approvedTokensWithoutOcean = approvedTokens.filter(
-      (token) =>
-        ethers.utils.getAddress(token.address) !==
-        ethers.utils.getAddress(oceanTokenAddress)
-    )
-
-    return approvedTokensWithoutOcean.includes(
-      (token) =>
-        ethers.utils.getAddress(token.address) ===
-        ethers.utils.getAddress(tokenAddressesEUROe[chainId])
-    )
-      ? approvedTokensWithoutOcean
-      : [
-          ...approvedTokensWithoutOcean,
-          {
-            address: tokenAddressesEUROe[chainId],
-            // TODO: revert once decimals changed to 6 on pontus-x
-            decimals: chainId === 32456 ? 18 : 6,
-            name: 'EUROe',
-            symbol: 'EUROe'
-          }
-        ]
+    return response.data.opcs[0]?.approvedTokens
   } catch (error) {
     LoggerInstance.error('Error getOpcsApprovedTokens: ', error.message)
     throw Error(error.message)

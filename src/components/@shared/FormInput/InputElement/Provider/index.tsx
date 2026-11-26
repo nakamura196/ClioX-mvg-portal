@@ -13,6 +13,7 @@ import {
 import { FormPublishData } from '@components/Publish/_types'
 import { getOceanConfig } from '@utils/ocean'
 import { getProvidersForChain } from '../../../../../../chains.config'
+import { chainIds as defaultChainIds } from '../../../../../../app.config'
 import axios from 'axios'
 import { useCancelToken } from '@hooks/useCancelToken'
 import { useNetwork } from 'wagmi'
@@ -32,7 +33,8 @@ export default function CustomProvider(props: InputProps): ReactElement {
   const [pendingSelection, setPendingSelection] = useState<string | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
-  const chainId = chain?.id || 32457
+  // [local patch] fall back to this portal's default chain, not Pontus-X
+  const chainId = chain?.id || defaultChainIds[0]
   const providers = getProvidersForChain(chainId)
 
   useEffect(() => {

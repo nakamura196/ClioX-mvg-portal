@@ -10,6 +10,7 @@ import useLocaleContent from '../../../i18n/useLocaleContent'
 import styles from './index.module.css'
 import { useMarketMetadata } from '@context/MarketMetadata'
 import { useNetwork } from 'wagmi'
+import { pickDefaultBaseToken } from '@utils/tokenSymbol'
 
 export default function PricingFields(): ReactElement {
   const content = useLocaleContent(contentEn, contentJa)
@@ -24,10 +25,13 @@ export default function PricingFields(): ReactElement {
   const { pricing } = values
   const { type } = pricing
 
-  const defaultBaseToken =
-    approvedBaseTokens?.find((token) =>
-      token.name.toLowerCase().includes(defaultTokenSymbol.toLowerCase())
-    ) || approvedBaseTokens?.[0]
+  // [local patch] Preselect the chain's default price token
+  // (chains.config.js `defaultBaseTokenSymbol`).
+  const defaultBaseToken = pickDefaultBaseToken(
+    approvedBaseTokens,
+    chain?.id || values.user.chainId,
+    defaultTokenSymbol
+  )
 
   const isBaseTokenSet = !!approvedBaseTokens?.find(
     (token) => token?.address === values?.pricing?.baseToken?.address
@@ -56,7 +60,9 @@ export default function PricingFields(): ReactElement {
     setFieldValue('pricing.type', type)
     setFieldValue('pricing.price', 0)
     setFieldValue('pricing.freeAgreement', false)
-    setFieldValue('pricing.baseToken', defaultBaseToken)
+    // [local patch] keep the current token rather than storing undefined
+    // while the token list is still loading or empty
+    if (defaultBaseToken) setFieldValue('pricing.baseToken', defaultBaseToken)
     type !== 'free' && setFieldValue('pricing.amountDataToken', 1000)
   }
 
