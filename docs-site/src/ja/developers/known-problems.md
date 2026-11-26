@@ -261,6 +261,18 @@ Ocean Node 4.x はジョブの成果物を `outputs.tar` 1 つ（とログ 3 つ
 コード: `app.config.js` の `catalogueProviders`。`src/@utils/aquarius/index.ts` で当てています（テストは `index.test.ts`）。
 2026-11-25 に本番（版 `965039d0`）で確かめました。カタログは 67 件、「genji」で 60 件、「surtin」で 0 件です。
 
+## 手元の `next dev` で資料ページが 404 になる（修正済み）
+
+Cloudflare に移ってから（`242e0054`）、ポータルは静的に書き出しています。
+アドレスに ID を含むページ（`/asset/<did>`、`/asset/<did>/edit`、`/profile/<account>`、`/experiment/finding-aid/<did>`）は、`_` という 1 枚だけを作ります。
+本番では Cloudflare の Worker が、どの ID でもその 1 枚を返します（`worker/index.ts` の `rewriteDynamicPath`）。
+手元の `next dev` には Worker が無いため、こうしたページがすべて 404 になっていました。
+論文の README が `npm start` のあとに開くよう案内している図 1 の URL も、これに当たっていました。
+原因はこちらのホスティングの側にあり、Ocean や Clio-X の不具合ではありません。
+
+`deploy/hosting` の `9a3cf172` で直しました。`next dev` のときだけ、開いたときにページを描きます（`fallback: 'blocking'`）。書き出しは今までどおり `_` だけです。
+2026-11-25 に確かめました。図 1 の資料ページ（`?demo=1&env=a`）と目録の形のページが `localhost:8012` で開き、比較表も出ます。
+
 ## 小さなこと
 
 - プロフィールの販売数の欄に `profile.sales` がそのまま出ていました。件数を読み込む前は数が無く、訳語を引けなかったためです。02abf67c で修正済み。

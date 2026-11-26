@@ -262,6 +262,17 @@ Direct links (`/asset/<did>`) still open any asset.
 Code: `catalogueProviders` in `app.config.js`, applied in `src/@utils/aquarius/index.ts` (tests in `index.test.ts`).
 Checked on the live site on 2026-11-25 (version `965039d0`): the catalogue shows 67 assets, "genji" finds 60, and "surtin" finds none.
 
+## Asset pages answer 404 on a local `next dev` server (fixed)
+
+Since the move to Cloudflare (`242e0054`), the portal is a static export.
+Pages with an id in the address (`/asset/<did>`, `/asset/<did>/edit`, `/profile/<account>`, `/experiment/finding-aid/<did>`) are built once, as a `_` page, and the Cloudflare Worker serves that page for every id (`rewriteDynamicPath` in `worker/index.ts`).
+`next dev` has no Worker in front of it, so every such page answered 404 locally.
+This included the Fig. 1 URL that the paper's README tells readers to open after `npm start`.
+The cause is in our hosting, not in Ocean or Clio-X.
+
+Fixed on `deploy/hosting` in `9a3cf172`: under `next dev` these pages are rendered on request (`fallback: 'blocking'`); the export still builds only `_`.
+Checked on 2026-11-25: the Fig. 1 asset page with `?demo=1&env=a` and the finding-aid page open on `localhost:8012`, with the comparison table.
+
 ## Smaller things
 
 - The profile sales counter showed the raw key `profile.sales`: before the count loads there is no number, so the translation could not be chosen. Fixed in 02abf67c.
