@@ -70,6 +70,17 @@ const interparesUrl = (id: string) =>
               >
             </dd>
           </template>
+          <template v-if="g.terms[id].link">
+            <dt>{{ g.labels.seeIt }}</dt>
+            <dd>
+              <a
+                :href="portal + g.terms[id].link"
+                target="_blank"
+                rel="noopener"
+                >{{ portal.replace('https://', '') + g.terms[id].link }}</a
+              >
+            </dd>
+          </template>
         </dl>
       </div>
     </section>

@@ -113,6 +113,21 @@ fs.copyFileSync(
   path.join(pub, 'api/cliox-sepolia.openapi.yaml')
 )
 
+// The archivist glossary and Q&A are edited once, in the portal's content/
+// (the portal shows them too), and copied here under the names the
+// components import.
+const dataFiles = {
+  'content/archivistGlossary.json': 'archivistGlossary.json',
+  'content/archivistGlossary.ja.json': 'archivistGlossary.ja.json',
+  'content/archivistQa/qa.json': 'archivistQa.json',
+  'content/archivistQa/qa.ja.json': 'archivistQa.ja.json'
+}
+fs.mkdirSync(path.join(site, 'data'), { recursive: true })
+for (const [from, to] of Object.entries(dataFiles))
+  fs.copyFileSync(path.join(repo, from), path.join(site, 'data', to))
+
 console.log(
-  `synced ${Object.keys(pages).length} pages, ${topics.length} prototypes`
+  `synced ${Object.keys(pages).length} pages, ${topics.length} prototypes, ${
+    Object.keys(dataFiles).length
+  } data files`
 )

@@ -20,8 +20,10 @@ same thing. So the answer does not stay in the conversation.
     its own page under `developers/`, linked from the sidebar in
     `docs-site/.vitepress/config.mts`
   - a plain-language question an archivist would ask →
-    `archivists/` (FAQ data in `docs-site/data/archivistQa*.json`, terms in
-    `archivistGlossary*.json`)
+    `archivists/` (FAQ data in `content/archivistQa/qa*.json`, terms in
+    `content/archivistGlossary*.json`; the portal shows them too, and
+    `docs-site/scripts/sync-sources.mjs` copies them into `docs-site/data/`,
+    which is gitignored)
   - a decision for the project (Vicki and the group) → `project/open-questions.md`
 - Write from what was measured (code read, request made, screen checked) and
   say so. Mark guesses as guesses.
