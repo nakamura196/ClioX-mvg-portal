@@ -5,7 +5,6 @@ import {
   ComputeAlgorithm,
   ComputeAsset,
   ComputeEnvironment,
-  downloadFileBrowser,
   FileInfo,
   Ipfs,
   LoggerInstance,
@@ -26,7 +25,8 @@ import { safeErrorMessage } from './safeError'
 import {
   encryptViaOceanNode,
   isLocalOceanNode,
-  buildDownloadUrlViaOceanNode
+  buildDownloadUrlViaOceanNode,
+  downloadAssetUrl
 } from './oceanNodeAuth'
 
 export async function initializeProviderForCompute(
@@ -311,8 +311,16 @@ export async function downloadFile(
     const message = safeErrorMessage(error.message)
     LoggerInstance.error('[Provider Get download url] Error:', message)
     toast.error(message)
+    return
   }
-  await downloadFileBrowser(downloadUrl)
+  // [local patch] downloadFileBrowser saved the node's error reply as a file
+  try {
+    await downloadAssetUrl(downloadUrl)
+  } catch (error) {
+    const message = safeErrorMessage(error.message)
+    LoggerInstance.error('[Provider download] Error:', message)
+    toast.error(message)
+  }
 }
 
 export async function checkValidProvider(

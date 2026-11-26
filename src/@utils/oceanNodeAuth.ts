@@ -207,6 +207,47 @@ export async function downloadUrlAsFile(
 }
 
 /**
+ * 資産のダウンロード用。ocean.js の downloadFileBrowser() の代わりに使う。
+ *
+ * downloadFileBrowser() は応答の状態を見ずに中身を保存する。そのため
+ * ノードがエラー（CALL_EXCEPTION、TIMEOUT など）を返すと、エラーの文面が
+ * `file.json` や `file.html` として保存され、画面には何も出なかった
+ * （2026-11-25 に実際に起きた）。ここでは失敗の応答を保存せず、例外にする。
+ * 成功時のファイル名の決め方は downloadFileBrowser() と同じ。
+ */
+export async function downloadAssetUrl(url: string): Promise<void> {
+  const res = await fetch(url)
+  if (!res.ok) {
+    const body = await res.text()
+    let detail = body
+    try {
+      const json = JSON.parse(body)
+      detail = json?.error || json?.message || body
+    } catch {
+      // not JSON: keep the text
+    }
+    throw new Error(
+      `ダウンロードに失敗しました (${res.status}): ${String(detail).slice(
+        0,
+        200
+      )}`
+    )
+  }
+  const header = res.headers.get('content-disposition')
+  const match = header?.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/)
+  const filename = match?.[1] ? match[1].replace(/^['"]|['"]$/g, '') : 'file'
+  const blob = await res.blob()
+  const objectUrl = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = objectUrl
+  a.download = filename
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  URL.revokeObjectURL(objectUrl)
+}
+
+/**
  * 自分たちが運用する Ocean Node かどうか（認証必須の新しい API かの判定、
  * および無償ジョブ一覧をノードへ直接問い合わせてよいかの判定に使う）。
  *
