@@ -1,9 +1,10 @@
+import { withSepoliaDids } from '@utils/useCaseDids' // [local patch]
 import type { UseCaseConfig } from '../@shared/VizHub/types'
 
 /**
  * Mapping of { chainId: useCaseAlgorithmDID }
  */
-export const TEXT_ANALYSIS_ALGO_DIDS = {
+const TEXT_ANALYSIS_ALGO_DIDS_DEFAULT = {
   32456: [
     // "Text Analysis with Table" — live on Pontus-X
     'did:op:b0f6cccf8a8c1094e3b29c537271f2dcf025249e8b9324ae93c6b79b20db723c',
@@ -18,7 +19,13 @@ export const TEXT_ANALYSIS_ALGO_DIDS = {
   ]
 }
 
-export const TEXT_ANALYSIS_DATASET_DIDS: Record<number, string[]> = {
+// [local patch] NEXT_PUBLIC_SEPOLIA_TEXT_ANALYSIS_ALGO_DIDS replaces the Sepolia entry (see @utils/useCaseDids)
+export const TEXT_ANALYSIS_ALGO_DIDS = withSepoliaDids(
+  TEXT_ANALYSIS_ALGO_DIDS_DEFAULT,
+  process.env.NEXT_PUBLIC_SEPOLIA_TEXT_ANALYSIS_ALGO_DIDS
+)
+
+const TEXT_ANALYSIS_DATASET_DIDS_DEFAULT: Record<number, string[]> = {
   32456: [
     // "Enron dataset" — live on Pontus-X
     'did:op:9def794e38f50bec2201533b0d7556034a9d1c0e19210c40388cf27a0e801ddb',
@@ -33,6 +40,12 @@ export const TEXT_ANALYSIS_DATASET_DIDS: Record<number, string[]> = {
     'did:op:04f79245ba012ab323600b60bb537c865560ca18867025a3d31b38f4560b9787'
   ]
 }
+
+// [local patch] NEXT_PUBLIC_SEPOLIA_TEXT_ANALYSIS_DATASET_DIDS replaces the Sepolia entry (see @utils/useCaseDids)
+export const TEXT_ANALYSIS_DATASET_DIDS = withSepoliaDids(
+  TEXT_ANALYSIS_DATASET_DIDS_DEFAULT,
+  process.env.NEXT_PUBLIC_SEPOLIA_TEXT_ANALYSIS_DATASET_DIDS
+)
 
 export const TEXT_ANALYSIS_USECASE_NAME = 'textAnalysises'
 

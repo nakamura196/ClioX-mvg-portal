@@ -37,3 +37,7 @@ src/@context/LdasAuth.tsx
 src/components/Header/LdasIdButton.tsx
 src/components/Header/LdasIdButton.module.css
 src/pages/ldas-callback.tsx
+
+# Use-case DIDs on Sepolia from NEXT_PUBLIC_SEPOLIA_* variables (build time)
+src/@utils/useCaseDids.ts
+src/@utils/useCaseDids.test.ts

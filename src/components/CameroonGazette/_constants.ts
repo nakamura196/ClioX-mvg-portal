@@ -1,13 +1,20 @@
+import { withSepoliaDid } from '@utils/useCaseDids' // [local patch]
 import type { UseCaseConfig } from '../@shared/VizHub/types'
 
 /**
  * Mapping of { chainId: useCaseAlgorithmDID }
  * TODO: Update with correct CameroonGazette algorithm DID
  */
-export const CAMEROON_GAZETTE_ALGO_DIDS = {
+const CAMEROON_GAZETTE_ALGO_DIDS_DEFAULT: Record<number, string> = {
   32456:
     'did:op:81d57f431deebbd2e74561eac4875da42276afa3cbcf910d27ee8b2425193b0f'
 }
+
+// [local patch] NEXT_PUBLIC_SEPOLIA_CAMEROON_GAZETTE_ALGO_DID replaces the Sepolia entry (see @utils/useCaseDids)
+export const CAMEROON_GAZETTE_ALGO_DIDS = withSepoliaDid(
+  CAMEROON_GAZETTE_ALGO_DIDS_DEFAULT,
+  process.env.NEXT_PUBLIC_SEPOLIA_CAMEROON_GAZETTE_ALGO_DID
+)
 
 export const CAMEROON_GAZETTE_USECASE_NAME = 'cameroonGazette'
 
