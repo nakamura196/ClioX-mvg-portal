@@ -1,5 +1,12 @@
 {
   "issuer": "did:web:id.ldas.jp",
-  "updated": "2026-11-25T00:00:00Z",
-  "providers": {}
+  "updated": "2026-11-26T02:49:16.976Z",
+  "providers": {
+    "0x6E43f56B211d537C6B19Dc89414FE9506f5532C3": {
+      "name": "Satoru Nakamura",
+      "method": ["orcid", "gakunin"],
+      "selfDeclaredName": false,
+      "verifiedAt": "2026-11-26T02:47:11.159Z"
+    }
+  }
 }
