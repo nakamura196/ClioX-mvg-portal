@@ -41,7 +41,7 @@ services:
       # startBlock: just before our first Sepolia publish. Lower it only on a
       # fresh install (or after deleting the typesense-data and node-sqlite
       # volumes). Do not stop the node while it is catching up.
-      RPCS: '{"11155111":{"rpc":"${SEPOLIA_INDEXER_RPC:-https://sepolia.gateway.tenderly.co}","chainId":11155111,"network":"sepolia","chunkSize":1000,"startBlock":11459550}}'
+      RPCS: '{"11155111":{"rpc":"${SEPOLIA_INDEXER_RPC:-https://sepolia.gateway.tenderly.co}","chainId":11155111,"network":"sepolia","chunkSize":${SEPOLIA_INDEXER_CHUNK_SIZE:-1000},"startBlock":11459550}}'
       INDEXER_NETWORKS: '[11155111]'
       INDEXER_INTERVAL: '10000'
 
@@ -85,6 +85,8 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - node-sqlite:/usr/src/app/databases
+      # [local patch] smart-account orders (tx.to is a relay contract); see patches/
+      - ./patches/validateOrders.js:/usr/src/app/dist/components/core/utils/validateOrders.js:ro
     networks: [cliox]
     depends_on: [typesense]
     # Wait for typesense before starting. The node creates its collections
@@ -135,6 +137,15 @@ services:
       # long sync; with the truncated startBlock the backlog is small.
       ethereum: 'sepolia:${SEPOLIA_SUBGRAPH_RPC:-https://sepolia.gateway.tenderly.co}'
       GRAPH_LOG: info
+      # Production runs graph-node on Tenderly's gateway and the indexer on
+      # Alchemy, so the two no longer share one limit. On Alchemy (free:
+      # eth_getLogs over 10 blocks at most, shared key) graph-node stalled on
+      # 429s on 2026-11-25; set the range back to '10' if you point it there.
+      # Polling every 6 s (default 1 s) keeps the request rate low.
+      GRAPH_ETHEREUM_MAX_BLOCK_RANGE_SIZE: '500'
+      ETHEREUM_POLLING_INTERVAL: '6000'
+      # Alchemy free also limits requests per second; graph-node sends up to 64 at once by default.
+      ETHEREUM_RPC_MAX_PARALLEL_REQUESTS: '2'
     depends_on: [ipfs, postgres]
     networks: [cliox]
 
