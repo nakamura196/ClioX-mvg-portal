@@ -223,42 +223,6 @@ export function composeEmailBody(
 }
 
 // ---------------------------------------------------------------------------
-// Raw MIME for Cloudflare send_email (UTF-8 body as base64)
-// ---------------------------------------------------------------------------
-
-function b64Utf8(text: string): string {
-  const bytes = new TextEncoder().encode(text)
-  let bin = ''
-  for (const b of bytes) bin += String.fromCharCode(b)
-  return btoa(bin).replace(/(.{76})/g, '$1\r\n')
-}
-
-export function buildMime(
-  from: string,
-  to: string,
-  subject: string,
-  body: string
-): string {
-  const clean = (v: string): string => v.replace(/[\r\n<>]/g, '')
-  return [
-    `From: ${clean(from)}`,
-    `To: ${clean(to)}`,
-    `Subject: =?UTF-8?B?${btoa(
-      String.fromCharCode(...new TextEncoder().encode(subject))
-    )}?=`,
-    `Message-ID: <${crypto.randomUUID()}@${
-      clean(from).split('@')[1] || 'localhost'
-    }>`,
-    `Date: ${new Date().toUTCString()}`,
-    'MIME-Version: 1.0',
-    'Content-Type: text/plain; charset=UTF-8',
-    'Content-Transfer-Encoding: base64',
-    '',
-    b64Utf8(body)
-  ].join('\r\n')
-}
-
-// ---------------------------------------------------------------------------
 // Abuse limit: one application per wallet per window (per Worker isolate)
 // ---------------------------------------------------------------------------
 

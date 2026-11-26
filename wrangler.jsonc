@@ -40,14 +40,11 @@
     "CHATBOT_API_URL": "https://cliox-chatbot.ldas.jp",
     "CHATBOT_REQUIRE_SIGNIN": "false",
     "POLICY_REQUIRE_MEMBER": "false"
-  },
-  // Email Routing "send_email" binding for provider applications. No
-  // destination_address is pinned here: the recipient is the OPERATOR_EMAIL secret.
-  "send_email": [{ "name": "APPLICATION_EMAIL" }]
+  }
   // Secrets (set via `op read ... | tr -d '\n' | npx wrangler secret put <NAME>`):
   //   SESSION_SECRET    — HMAC key for cliox_ldas_session cookie
   //   CHATBOT_API_KEY   — shared key for mdx chatbot (optional)
   //   APPLICATION_SIGNING_KEY — HMAC key that signs application emails (see docs)
-  //   OPERATOR_EMAIL, APPLICATION_FROM_EMAIL — recipient / sender of application emails
-  //   RESEND_API_KEY    — Resend API key for /api/contact-resend (optional)
+  //   OPERATOR_EMAIL    — recipient of provider applications (sent via Resend)
+  //   RESEND_API_KEY, RESEND_FROM_EMAIL — Resend key and sender (contact form and applications)
 }

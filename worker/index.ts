@@ -20,7 +20,6 @@ import {
 import {
   allowApplication,
   buildEntry,
-  buildMime,
   composeEmailBody,
   signApplication,
   toChecksumAddress
@@ -48,12 +47,8 @@ export interface Env {
   RESEND_FROM_EMAIL?: string
   CONTACT_EMAIL?: string
   POLICY_REQUIRE_MEMBER?: string
-  /** Cloudflare Email Routing send_email binding (absent in local dev) */
-  APPLICATION_EMAIL?: { send: (message: unknown) => Promise<void> }
   /** Where applications are sent (secret/var; never hardcoded) */
   OPERATOR_EMAIL?: string
-  /** Sender address on a domain with Email Routing enabled */
-  APPLICATION_FROM_EMAIL?: string
   /** HMAC key that signs each application email */
   APPLICATION_SIGNING_KEY?: string
 }
@@ -694,35 +689,38 @@ async function handleApplySubmit(
   const signature = await signApplication(signingKey, wallet, entry)
   const text = composeEmailBody(wallet, entry, signature)
 
-  if (
-    env.APPLICATION_EMAIL &&
-    env.OPERATOR_EMAIL &&
-    env.APPLICATION_FROM_EMAIL
-  ) {
+  if (env.RESEND_API_KEY && env.OPERATOR_EMAIL && env.RESEND_FROM_EMAIL) {
+    // Same Resend account and sender as the contact form (upstream uses
+    // Resend too), so the only settings are the key, sender and recipient.
+    let sent = false
     try {
-      const { EmailMessage } = await import('cloudflare:email')
-      await env.APPLICATION_EMAIL.send(
-        new EmailMessage(
-          env.APPLICATION_FROM_EMAIL,
-          env.OPERATOR_EMAIL,
-          buildMime(
-            env.APPLICATION_FROM_EMAIL,
-            env.OPERATOR_EMAIL,
-            'Clio-X verified-provider application',
-            text
-          )
-        )
-      )
+      const res = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${env.RESEND_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          from: env.RESEND_FROM_EMAIL,
+          to: [env.OPERATOR_EMAIL],
+          subject: 'Clio-X verified-provider application',
+          text
+        })
+      })
+      sent = res.ok
+      if (!sent)
+        console.error('application email failed', res.status, await res.text())
     } catch (err) {
       console.error('application email failed', err)
+    }
+    if (!sent)
       return json(
         { error: 'Could not send the application. Please try again later.' },
         502,
         clearState
       )
-    }
   } else if (isLocalHost(url)) {
-    // Local dev: no send_email binding, so print what would be sent.
+    // Local dev without a Resend key: print what would be sent.
     console.log(`[provider application] (local dev, not sent)\n${text}`)
   } else {
     return json({ error: 'Applications are not configured' }, 503, clearState)

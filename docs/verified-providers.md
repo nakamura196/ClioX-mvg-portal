@@ -61,8 +61,8 @@ wallet linking off, so credentials will no longer carry a wallet.
    `did:pkh` in the credential, if present, is ignored.
 4. **Send.** `POST .../submit` `{consent: true}` checks that the signature and
    the credential carry the same nonce and that consent was given, uses the
-   nonce up (a replay gets 409), then emails the operator (Cloudflare Email
-   Routing `send_email`). The email has the wallet (from the signature), name,
+   nonce up (a replay gets 409), then emails the operator through Resend
+   (the same service and sender as the contact form, which upstream also uses). The email has the wallet (from the signature), name,
    method tags, `selfDeclaredName`, verification time, a registry snippet, and
    an HMAC-SHA256 seal. Neither the signature nor the credential is stored or
    emailed.
@@ -113,15 +113,15 @@ The apply page promises the applicant the following, so the operator must keep i
 
 ## Worker configuration
 
-| Name                      | Kind                                       | Purpose                                                    |
-| ------------------------- | ------------------------------------------ | ---------------------------------------------------------- |
-| `APPLICATION_EMAIL`       | `send_email` binding (in `wrangler.jsonc`) | Sends the email                                            |
-| `OPERATOR_EMAIL`          | secret                                     | Recipient; a verified Email Routing destination            |
-| `APPLICATION_FROM_EMAIL`  | var/secret                                 | Sender, an address on a domain with Email Routing          |
-| `APPLICATION_SIGNING_KEY` | secret                                     | HMAC key; also needed by the CLI                           |
-| `SESSION_SECRET`          | secret                                     | Already used for sign-in; also seals the application state |
+| Name                      | Kind       | Purpose                                                    |
+| ------------------------- | ---------- | ---------------------------------------------------------- |
+| `RESEND_API_KEY`          | secret     | Resend key; also used by the contact form                  |
+| `RESEND_FROM_EMAIL`       | var/secret | Sender, an address on a domain verified in Resend          |
+| `OPERATOR_EMAIL`          | secret     | Recipient                                                  |
+| `APPLICATION_SIGNING_KEY` | secret     | HMAC key; also needed by the CLI                           |
+| `SESSION_SECRET`          | secret     | Already used for sign-in; also seals the application state |
 
-Without the binding (local dev on localhost), the Worker prints the email body
+Without a Resend key (local dev on localhost), the Worker prints the email body
 to the console instead and still shows the "submitted" screen; a throwaway
 signing key is used. In production, a missing binding or key returns 503.
 
