@@ -27,6 +27,11 @@ import { customProviderUrl } from '../../../app.config'
 import { useAccount, useNetwork, useSigner } from 'wagmi'
 import { useAutomation } from '../../@context/Automation/AutomationProvider'
 import { safeErrorMessage } from '../../@utils/safeError'
+// [local patch] Ocean Node 4.x: encrypt needs a signed request
+import {
+  encryptViaOceanNode,
+  isLocalOceanNode
+} from '../../@utils/oceanNodeAuth'
 
 export default function PublishPage({
   content
@@ -179,15 +184,25 @@ export default function PublishPage({
 
       let ddoEncrypted: string
       try {
-        ddoEncrypted = await ProviderInstance.encrypt(
-          ddo,
-          ddo.chainId,
-          customProviderUrl || values.services[0].providerUrl.url,
-          newAbortController()
-        )
+        const providerUrl =
+          customProviderUrl || values.services[0].providerUrl.url
+        // [local patch] Ocean Node 4.x rejects an unsigned encrypt and
+        // ocean.js returns the error text as if it were the encrypted DDO.
+        // Sign the request, as getEncryptedFiles already does for the files.
+        ddoEncrypted = isLocalOceanNode(providerUrl)
+          ? await encryptViaOceanNode(ddo, providerUrl)
+          : await ProviderInstance.encrypt(
+              ddo,
+              ddo.chainId,
+              providerUrl,
+              newAbortController()
+            )
+        if (ddoEncrypted && !/^0x[0-9a-f]*$/i.test(ddoEncrypted))
+          throw new Error(ddoEncrypted)
       } catch (error) {
         const message = safeErrorMessage(error.message)
         LoggerInstance.error('[Provider Encrypt] Error:', message)
+        throw new Error(message)
       }
 
       if (!ddoEncrypted)
