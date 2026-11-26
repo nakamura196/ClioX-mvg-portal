@@ -2,7 +2,7 @@ import { ReactElement } from 'react'
 import { useAccount, useNetwork } from 'wagmi'
 import styles from './Details.module.css'
 import AddTokenList from './AddTokenList'
-import { getCustomChainIds } from 'chains.config'
+import { getCustomChainIds, getSupportedChainIds } from 'chains.config'
 import AddNetwork from '@components/@shared/AddNetwork'
 
 export default function Details(): ReactElement {
@@ -22,6 +22,10 @@ export default function Details(): ReactElement {
           {networksListToDisplay?.length > 0 &&
             networksListToDisplay.map((chain) => {
               if (!getCustomChainIds().includes(chain.id)) return false
+              // [local patch] 2026-11-25: offer only networks this trial
+              // supports (Sepolia); Pontus-X is hidden unless enabled in
+              // chains.config.js (NEXT_PUBLIC_ENABLE_PONTUSX).
+              if (!getSupportedChainIds().includes(chain.id)) return false
               // TEMP_DISABLE_TESTNET (RE-ENABLED): set to false to allow Testnet connect.
               const isDisabled = false
               return (

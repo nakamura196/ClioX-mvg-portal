@@ -6,7 +6,9 @@ import {
   escapeEsReservedCharacters,
   getFilterTerm,
   generateBaseQuery,
-  getWhitelistShould
+  getWhitelistShould,
+  queryStringMatches,
+  isServedByCatalogueProvider
 } from '.'
 
 const defaultBaseQueryReturn: SearchQuery = {
@@ -91,5 +93,78 @@ describe('@utils/aquarius', () => {
         'nft.created': 'asc'
       }
     })
+  })
+})
+
+describe('queryStringMatches (search on Ocean Node)', () => {
+  const asset = {
+    id: 'did:op:8e23',
+    metadata: {
+      name: '校異源氏物語 きりつぼ（第1帖）',
+      description: 'The Kōi Genji monogatari TEI/XML',
+      tags: ['genji', 'tei']
+    }
+  }
+  const fields = ['metadata.name^10', 'metadata.description', 'metadata.tags']
+  const hit = (query: string) => queryStringMatches(asset, { query, fields })
+
+  test('Japanese substring matches', () => {
+    expect(hit('*きりつぼ*')).toBe(true)
+    expect(hit('キリツボ')).toBe(true)
+    expect(hit('源氏物語')).toBe(true)
+  })
+  test('all words must match, OR-joined or not', () => {
+    expect(hit('genji OR tei')).toBe(true)
+    expect(hit('genji OR cameroon')).toBe(false)
+    expect(hit('*はしひめ*')).toBe(false)
+  })
+  test('escaped and wildcard-only queries', () => {
+    expect(hit('TEI\\/XML*')).toBe(true)
+    expect(hit('**')).toBe(true)
+  })
+})
+
+describe('isServedByCatalogueProvider', () => {
+  const node = 'https://cliox-node.ldas.jp'
+  const asset = (...endpoints: string[]) =>
+    ({
+      services: endpoints.map((serviceEndpoint) => ({ serviceEndpoint }))
+    } as any)
+
+  it('keeps assets served by a listed provider', () => {
+    expect(isServedByCatalogueProvider(asset(node), [node])).toBe(true)
+    expect(isServedByCatalogueProvider(asset(`${node}/`), [node])).toBe(true)
+  })
+  it('drops assets served from elsewhere or from a local machine', () => {
+    expect(
+      isServedByCatalogueProvider(asset('http://127.0.0.1:8001'), [node])
+    ).toBe(false)
+    expect(isServedByCatalogueProvider(asset(node, 'ipfs://x'), [node])).toBe(
+      false
+    )
+    expect(isServedByCatalogueProvider(asset(), [node])).toBe(false)
+  })
+  it('matches a whole scheme with an entry ending in ":"', () => {
+    const list = [node, 'ipfs:']
+    expect(isServedByCatalogueProvider(asset('ipfs://bafyabc'), list)).toBe(
+      true
+    )
+    expect(isServedByCatalogueProvider(asset(node, 'ipfs://x'), list)).toBe(
+      true
+    )
+    expect(
+      isServedByCatalogueProvider(asset('http://127.0.0.1:8001'), list)
+    ).toBe(false)
+    expect(
+      isServedByCatalogueProvider(asset('https://example.org/ipfs:'), list)
+    ).toBe(false)
+  })
+  it('does not filter when the list is empty or *', () => {
+    expect(
+      isServedByCatalogueProvider(asset('http://127.0.0.1:8001'), [])
+    ).toBe(true)
+    expect(
+      isServedByCatalogueProvider(asset('http://127.0.0.1:8001'), ['*'])
+    ).toBe(true)
   })
 })

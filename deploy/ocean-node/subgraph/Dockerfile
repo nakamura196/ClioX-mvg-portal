@@ -18,12 +18,21 @@ RUN git clone https://github.com/oceanprotocol/ocean-subgraph.git . \
  && npm ci --ignore-scripts
 
 # 1. Fall back to reading templateId from the chain (see the patch header).
-# 2. Use a Sepolia manifest whose startBlock is truncated to 11459550 and that
+# 2. Skip Dispenser / FixedRateExchange events for entities created before
+#    startBlock; otherwise the subgraph stops for good (see the patch header).
+# 3. Use a Sepolia manifest whose startBlock is truncated to 11459550 and that
 #    declares the Dispenser singleton as a static data source, so pricing is
 #    indexed without replaying from the Ocean deployment block (3722802).
-COPY template-id-fallback.patch subgraph.sepolia.yaml ./
-RUN git apply template-id-fallback.patch \
+# 4. Optional graft: continue from an existing deployment at a given block
+#    instead of re-indexing from startBlock (both build args must be set).
+ARG GRAFT_BASE=
+ARG GRAFT_BLOCK=
+COPY template-id-fallback.patch skip-unknown-singletons.patch subgraph.sepolia.yaml ./
+RUN git apply template-id-fallback.patch skip-unknown-singletons.patch \
  && cp subgraph.sepolia.yaml subgraph.yaml \
+ && if [ -n "$GRAFT_BASE" ] && [ -n "$GRAFT_BLOCK" ]; then \
+      sed -i "/^schema:/i features:\\n  - grafting\\ngraft:\\n  base: $GRAFT_BASE\\n  block: $GRAFT_BLOCK" subgraph.yaml; \
+    fi \
  && npx graph codegen --output-dir src/@types \
  && npx graph build
 

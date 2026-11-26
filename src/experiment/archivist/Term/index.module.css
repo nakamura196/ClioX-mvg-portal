@@ -1,0 +1,71 @@
+.trigger {
+  cursor: help;
+  text-decoration: underline dotted;
+  text-decoration-color: var(--color-secondary);
+  text-underline-offset: 0.2em;
+}
+
+.trigger:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.card {
+  max-width: 22rem;
+  text-transform: none;
+  font-weight: normal;
+  letter-spacing: normal;
+  text-align: left;
+  color: var(--font-color-text);
+}
+
+.card p {
+  margin: 0 0 calc(var(--spacer) / 4) 0 !important;
+}
+
+.term {
+  display: block;
+  margin-bottom: calc(var(--spacer) / 6);
+  color: var(--font-color-heading);
+}
+
+.archival {
+  border-left: 3px solid var(--color-primary);
+  padding-left: calc(var(--spacer) / 4);
+}
+
+.label {
+  display: block;
+  font-size: var(--font-size-mini);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-secondary);
+}
+
+.more {
+  font-size: var(--font-size-mini);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.3em;
+  height: 1.3em;
+  border-radius: 50%;
+  border: 1px dotted var(--color-secondary);
+  color: var(--color-secondary);
+  font-size: var(--font-size-mini);
+  font-weight: var(--font-weight-bold);
+  line-height: 1;
+  cursor: help;
+  vertical-align: middle;
+}
+
+.badge:hover,
+.badge:focus-visible {
+  border-style: solid;
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  outline: none;
+}

@@ -1,0 +1,76 @@
+{
+  "@context": ["https://w3id.org/did/v1"],
+  "id": "did:op",
+  "nftAddress": "",
+  "version": "4.1.0",
+  "chainId": 11155111,
+  "metadata": {
+    "created": "2026-09-27T00:00:00Z",
+    "updated": "2026-09-27T00:00:00Z",
+    "type": "algorithm",
+    "name": "Knowledge passages for the Chatbot page",
+    "description": "Splits each document into passages of about 250 words (400 characters for Japanese) and writes them to final_output.json, which the portal's Chatbot page (/usecases/chatbot) sends to its question-answering service. Note: unlike the other samples, this returns passages of the text itself, so use it only on material that may be quoted. Python standard library only; the source is public.",
+    "tags": ["clio-x-trial", "sample", "chatbot"],
+    "author": "Clio-X trial (UBC / University of Tokyo)",
+    "license": "MIT",
+    "additionalInformation": {
+      "termsAndConditions": true
+    },
+    "algorithm": {
+      "language": "python",
+      "format": "docker-image",
+      "version": "1.0",
+      "container": {
+        "entrypoint": "python $ALGO",
+        "image": "python",
+        "tag": "3.12-slim",
+        "checksum": "sha256:f77ac9e44ae96ef2c90b8053ea08c31f8be030f824196b0ae4db6d462c84e51f"
+      }
+    }
+  },
+  "services": [
+    {
+      "id": "4f7a6e41b716543ac1c6b4bb588bf6598bf3abeb24ebb502d94f3b334c58a23b",
+      "type": "access",
+      "files": {
+        "datatokenAddress": "0x0",
+        "nftAddress": "0x0",
+        "files": [
+          {
+            "type": "url",
+            "url": "https://raw.githubusercontent.com/nakamura196/ClioX-mvg-portal/dcf9388882cc321ad036758e3b0ac9001550bb14/deploy/trial/algorithm/chatbot_knowledge.py",
+            "method": "GET"
+          }
+        ]
+      },
+      "timeout": 86400,
+      "serviceEndpoint": "https://cliox-node.ldas.jp"
+    }
+  ],
+  "indexedMetadata": {
+    "event": {},
+    "nft": {
+      "address": "",
+      "name": "Clio-X trial",
+      "symbol": "CLIOX-TRIAL",
+      "state": 5,
+      "tokenURI": "",
+      "owner": "",
+      "created": ""
+    },
+    "purgatory": {
+      "state": false
+    },
+    "stats": [
+      {
+        "orders": 0,
+        "prices": [
+          {
+            "price": "0"
+          }
+        ]
+      }
+    ],
+    "datatokens": []
+  }
+}

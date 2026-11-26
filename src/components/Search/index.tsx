@@ -9,6 +9,7 @@ import { useCancelToken } from '@hooks/useCancelToken'
 import styles from './index.module.css'
 import { useRouter } from 'next/router'
 import { useDebouncedCallback } from 'use-debounce'
+import { useVerifiedFilter } from '@experiment/verified-provider/VerifiedFilter' // [prototype]
 
 export default function SearchPage({
   setTotalResults,
@@ -23,6 +24,10 @@ export default function SearchPage({
   const [queryResult, setQueryResult] = useState<PagedAssets>()
   const [loading, setLoading] = useState<boolean>(true)
   const newCancelToken = useCancelToken()
+  // [prototype] "Verified providers only" (id.ldas.jp)
+  const verified = useVerifiedFilter(parsed)
+  const verifiedOwners = verified.owners
+  const verifiedKey = verifiedOwners ? verifiedOwners.join(',') : ''
 
   useEffect(() => {
     const parsed = queryString.parse(location.search, {
@@ -50,10 +55,19 @@ export default function SearchPage({
   )
 
   const fetchAssets = useDebouncedCallback(
-    async (parsed: queryString.ParsedQuery<string>, chainIds: number[]) => {
+    async (
+      parsed: queryString.ParsedQuery<string>,
+      chainIds: number[],
+      verifiedOwners?: string[]
+    ) => {
       setLoading(true)
       setTotalResults(undefined)
-      const queryResult = await getResults(parsed, chainIds, newCancelToken())
+      const queryResult = await getResults(
+        parsed,
+        chainIds,
+        newCancelToken(),
+        verifiedOwners
+      )
       setQueryResult(queryResult)
 
       setTotalResults(queryResult?.totalResults || 0)
@@ -70,9 +84,13 @@ export default function SearchPage({
 
   useEffect(() => {
     if (!parsed || !chainIds) return
+    // wait for the registry so the first query is already filtered
+    if (verified.waiting) return
 
-    fetchAssets(parsed, chainIds)
-  }, [parsed, chainIds, fetchAssets])
+    fetchAssets(parsed, chainIds, verifiedOwners)
+    // verifiedKey stands in for the verifiedOwners array
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [parsed, chainIds, fetchAssets, verifiedKey, verified.waiting])
 
   return (
     <div className={styles.container}>
@@ -81,6 +99,7 @@ export default function SearchPage({
         <Sort expanded />
       </div>
       <div className={styles.results}>
+        {verified.control}
         <AssetList
           assets={queryResult?.results}
           showPagination

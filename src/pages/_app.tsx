@@ -1,7 +1,9 @@
-import { ReactElement } from 'react'
+import { ReactElement, useEffect } from 'react'
 import type { AppProps } from 'next/app'
 import { appWithTranslation } from 'next-i18next/pages'
+import { useTranslation } from 'react-i18next'
 import nextI18NextConfig from '../i18n'
+import { LdasAuthProvider } from '@context/LdasAuth'
 import { UserPreferencesProvider } from '@context/UserPreferences'
 import UrqlProvider from '@context/UrqlProvider'
 import ConsentProvider from '@context/CookieConsent'
@@ -20,12 +22,25 @@ import { connectKitTheme, wagmiClient } from '@utils/wallet'
 import AutomationProvider from '../@context/Automation/AutomationProvider'
 import { FilterProvider } from '@context/Filter'
 import { UseCasesProvider } from '../@context/UseCases'
+import { ArchivistModeProvider } from '@experiment/archivist/context' // [prototype]
 import { Analytics } from '@vercel/analytics/react'
 import Script from 'next/script'
 import { plausibleDataDomain } from 'app.config'
+import '@utils/oceanNodeEndpoints'
 
 function MyApp({ Component, pageProps }: AppProps): ReactElement {
   Decimal.set({ rounding: 1 })
+  const { i18n } = useTranslation('common')
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const isJaPath =
+      window.location.pathname === '/ja' ||
+      window.location.pathname.startsWith('/ja/')
+    if (isJaPath && i18n.language !== 'ja') {
+      i18n.changeLanguage('ja')
+    }
+  }, [i18n])
 
   return (
     <>
@@ -50,9 +65,13 @@ function MyApp({ Component, pageProps }: AppProps): ReactElement {
                       <ConsentProvider>
                         <SearchBarStatusProvider>
                           <FilterProvider>
-                            <App>
-                              <Component {...pageProps} />
-                            </App>
+                            <LdasAuthProvider>
+                              <ArchivistModeProvider>
+                                <App>
+                                  <Component {...pageProps} />
+                                </App>
+                              </ArchivistModeProvider>
+                            </LdasAuthProvider>
                           </FilterProvider>
                         </SearchBarStatusProvider>
                       </ConsentProvider>

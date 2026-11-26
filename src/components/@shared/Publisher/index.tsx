@@ -3,6 +3,7 @@ import styles from './index.module.css'
 import Link from 'next/link'
 import { accountTruncate } from '@utils/wallet'
 import { useIsMounted } from '@hooks/useIsMounted'
+import VerifiedMark from '@experiment/verified-provider/VerifiedMark' // [prototype]
 import addresses from '../../../../pontusxAddresses.json'
 
 export interface PublisherProps {
@@ -40,12 +41,16 @@ export default function Publisher({
   return (
     <div className={`${styles.publisher} ${className || ''}`}>
       {minimal ? (
-        name
+        <>
+          {name}
+          <VerifiedMark account={account} />
+        </>
       ) : (
         <>
           <Link href={`/profile/${account}`} title="Show profile page.">
             {name}
           </Link>
+          <VerifiedMark account={account} />
         </>
       )}
     </div>

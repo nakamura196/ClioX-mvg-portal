@@ -5,7 +5,8 @@ import { OrdersData_orders as OrdersData } from '../../@types/subgraph/OrdersDat
 import {
   metadataCacheUri,
   metadataCacheIsOceanNode,
-  allowDynamicPricing
+  allowDynamicPricing,
+  catalogueProviders
 } from '../../../app.config'
 import {
   FilterByTypeOptions,
@@ -15,6 +16,7 @@ import {
 import { transformAssetToAssetSelection } from '../assetConvertor'
 import addressConfig from '../../../address.config'
 import { isValidDid } from '@utils/ddo'
+import { getTokenSymbol } from '@utils/tokenSymbol'
 import { Filters } from '@context/Filter'
 import { filterSets } from '@components/Search/Filter'
 import { CHAIN_TO_INDEX_MAP, DEFAULT_INDEX } from './_constants'
@@ -109,6 +111,14 @@ FilterTerm | undefined {
     ? undefined
     : getFilterTerm('price.type', 'pool')
 }
+
+// Ocean Node answers queries at assets/metadata/query; an Aquarius (e.g.
+// aquarius.pontus-x.eu) only at assets/query and returns 405 for the other
+// path, which left the algorithm list empty when developing against Pontus-X
+// (measured 2026-11-04).
+const METADATA_QUERY_PATH = metadataCacheIsOceanNode
+  ? 'assets/metadata/query'
+  : 'assets/query'
 
 export function getIndexForChainIds(chainIds: number[]): string[] {
   const indexes: string[] = []
@@ -270,7 +280,12 @@ export function normalizeOceanNodeAsset(input: any): Asset {
         allocated: 0,
         price: {
           value: Number(rawStats?.[0]?.prices?.[0]?.price) || 0,
-          tokenSymbol: rawStats?.[0]?.prices?.[0]?.token || undefined
+          // token はアドレス。記号は chains.config.js から引く
+          tokenSymbol: getTokenSymbol(
+            doc.chainId,
+            rawStats?.[0]?.prices?.[0]?.token
+          ),
+          tokenAddress: rawStats?.[0]?.prices?.[0]?.token || undefined
         }
       }
     : rawStats || { orders: 0, allocated: 0, price: { value: 0 } }
@@ -366,6 +381,34 @@ function esFieldValues(asset: any, field: string): any[] {
   return values.flatMap((v) => (Array.isArray(v) ? v : [v]))
 }
 
+// 全角・半角、大文字・小文字、カタカナ・ひらがなの違いを無視して比べる
+export function normalizeForSearch(s: string): string {
+  return s
+    .normalize('NFKC')
+    .toLowerCase()
+    .replace(/[ァ-ヶ]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0x60))
+}
+
+// query_string を「語がすべて、どれかの欄に含まれる」で判定する。
+// 語は空白と OR で区切る。日本語は分かち書きしないので部分一致にする。
+export function queryStringMatches(
+  asset: any,
+  qs: { query: string; fields?: string[] }
+): boolean {
+  const words = String(qs.query)
+    .replace(/\\(.)/g, '$1')
+    .split(/\s+OR\s+|\s+/)
+    .map((w) => normalizeForSearch(w.replace(/\*/g, '')))
+    .filter((w) => w !== '')
+  if (words.length === 0) return true
+  const fields = (qs.fields || []).map((f) => f.replace(/\^.*$/, ''))
+  const haystack = fields
+    .flatMap((f) => esFieldValues(asset, f))
+    .map((v) => normalizeForSearch(String(v)))
+    .join('\n')
+  return words.every((w) => haystack.includes(w))
+}
+
 function esClauseMatches(asset: any, clause: any): boolean {
   if (!clause || typeof clause !== 'object') return true
 
@@ -410,7 +453,12 @@ function esClauseMatches(asset: any, clause: any): boolean {
   if (clause.exists?.field) {
     return esFieldValues(asset, clause.exists.field).length > 0
   }
-  // 未対応の節（range / query_string 等）は素通しにする。
+  // 検索語。Ocean Node は日本語を含め全文検索を正しく扱えないので、
+  // 以前はここも素通しになっていて、何を入れても全件が出ていた。
+  if (clause.query_string?.query !== undefined) {
+    return queryStringMatches(asset, clause.query_string)
+  }
+  // 未対応の節（range 等）は素通しにする。
   // 落として全件消すより、多めに返して表示側で弾く方が安全。
   return true
 }
@@ -418,6 +466,24 @@ function esClauseMatches(asset: any, clause: any): boolean {
 function matchesEsQuery(asset: any, query: any): boolean {
   if (!query) return true
   return esClauseMatches(asset, query)
+}
+
+// [local patch] Keep only assets whose services are all served by a provider
+// in `catalogueProviders` (app.config.js). Empty list or '*' = no filter.
+// An entry ending in ':' (such as 'ipfs:') matches that scheme.
+export function isServedByCatalogueProvider(
+  asset: Asset,
+  providers: string[] = catalogueProviders
+): boolean {
+  if (!providers?.length || providers.includes('*')) return true
+  const services = asset?.services || []
+  if (services.length === 0) return false
+  return services.every((service) => {
+    const endpoint = (service?.serviceEndpoint || '').replace(/\/+$/, '')
+    return providers.some((p) =>
+      p.endsWith(':') ? endpoint.startsWith(p) : endpoint === p
+    )
+  })
 }
 
 export async function queryMetadata(
@@ -435,7 +501,7 @@ export async function queryMetadata(
     const isLocalNode = metadataCacheIsOceanNode
 
     const response: AxiosResponse<SearchResponse> = await axios.post(
-      `${metadataCacheUri}/api/aquarius/assets/metadata/query`,
+      `${metadataCacheUri}/api/aquarius/${METADATA_QUERY_PATH}`,
       isLocalNode ? { query: { bool: { filter: [] } } } : { ...query },
       { cancelToken }
     )
@@ -447,10 +513,15 @@ export async function queryMetadata(
       query.size
     )
     if (isLocalNode && transformed?.results) {
-      transformed.results = transformed.results.filter((a) =>
-        matchesEsQuery(a, (query as any)?.query)
+      transformed.results = transformed.results.filter(
+        (a) =>
+          matchesEsQuery(a, (query as any)?.query) &&
+          isServedByCatalogueProvider(a)
       )
       transformed.totalResults = transformed.results.length
+      // 絞り込んだ後の件数でページ数を数え直す（全件のままだと空のページが出る）
+      const size = query.size || 21
+      transformed.totalPages = Math.ceil(transformed.totalResults / size)
     }
     return transformed
   } catch (error) {
@@ -548,10 +619,15 @@ export async function getAlgorithmDatasetsForCompute(
     nestedQuery: {
       must: [
         {
-          match_phrase: {
-            'services.compute.publisherTrustedAlgorithms.did': {
-              query: algorithmId
-            }
+          // A dataset that trusts "*" accepts every algorithm (see getQueryString)
+          bool: {
+            should: [algorithmId, '*'].map((did) => ({
+              match_phrase: {
+                'services.compute.publisherTrustedAlgorithms.did': {
+                  query: did
+                }
+              }
+            }))
           }
         }
       ]
@@ -808,7 +884,7 @@ export async function getTagsList(
 
   try {
     const response: AxiosResponse<SearchResponse> = await axios.post(
-      `${metadataCacheUri}/api/aquarius/assets/metadata/query`,
+      `${metadataCacheUri}/api/aquarius/${METADATA_QUERY_PATH}`,
       { ...query },
       { cancelToken }
     )
@@ -819,6 +895,7 @@ export async function getTagsList(
     if (!response.data.aggregations?.tags) {
       const hits: any[] = (response.data as any)?.hits?.hits || []
       const tags = hits
+        .filter((h) => isServedByCatalogueProvider(h?._source || h))
         .map((h) => h?._source?.metadata?.tags || h?.metadata?.tags || [])
         .flat()
         .filter((t: string) => t && t !== '')

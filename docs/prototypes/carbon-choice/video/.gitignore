@@ -1,0 +1,6 @@
+frames/
+seq/
+voice/
+*.mp4
+*.wav
+*.voice.json

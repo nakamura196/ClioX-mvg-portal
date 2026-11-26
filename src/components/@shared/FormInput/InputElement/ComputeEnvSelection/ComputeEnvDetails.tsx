@@ -1,7 +1,7 @@
 import styles from './ComputeEnvDetails.module.css'
 import CPU from '@images/cpu.svg'
 import GPU from '@images/gpu.svg'
-import ComputeFootprint from '@shared/ComputeFootprint'
+import ComputeFootprint from '@experiment/footprint' // [prototype]
 
 function Row({ label, value }: { label: string; value: string | number }) {
   return (

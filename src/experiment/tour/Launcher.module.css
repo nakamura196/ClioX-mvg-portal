@@ -1,0 +1,45 @@
+.launcher {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.35em;
+  height: 38px;
+  padding: 0 calc(var(--spacer) / 3);
+  background: var(--background-content);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--border-radius);
+  color: var(--color-primary);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-bold);
+  line-height: 1;
+  white-space: nowrap;
+  transition: 0.2s ease-out;
+}
+
+.launcher:hover,
+.launcher:focus-visible {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.3em;
+  height: 1.3em;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+  font-size: 0.85em;
+}
+
+/* The header is already crowded on phones: keep only the "?" mark there. */
+@media (max-width: 639px) {
+  .launcher {
+    padding: 0 0.5em;
+  }
+
+  .label {
+    display: none;
+  }
+}

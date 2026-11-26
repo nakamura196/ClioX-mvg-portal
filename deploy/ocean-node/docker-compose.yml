@@ -8,6 +8,7 @@
 # (the `cloudflared` service). Its routing is in cloudflared/config.yml:
 #     <node hostname>      -> http://ocean-node:8001
 #     <subgraph hostname>  -> http://graph-node:8000
+#     <chatbot hostname>   -> http://chatbot:8001   (profile chatbot, optional)
 #
 # Secrets live only in ./.env on the server (mode 600). See .env.example.
 #
@@ -65,7 +66,7 @@ services:
       #   - no network access from inside a job
       # The description must contain "mdx-kashiwa": the portal resolves the
       # processing location (for the carbon estimate) from this text.
-      DOCKER_COMPUTE_ENVIRONMENTS: '[{"socketPath":"/var/run/docker.sock","scanImages":false,"environments":[{"id":"mdx-kashiwa-cpu","description":"mdx (University of Tokyo, Kashiwa, Japan) mdx-kashiwa / CPU only","storageExpiry":604800,"minJobDuration":60,"maxJobDuration":900,"enableNetwork":false,"resources":[{"id":"cpu","total":2,"min":1,"max":2},{"id":"ram","total":2,"min":1,"max":2},{"id":"disk","total":20,"min":1,"max":10}],"free":{"maxJobDuration":600,"minJobDuration":10,"maxJobs":3,"access":{"addresses":${C2D_ALLOWED_ADDRESSES:?C2D_ALLOWED_ADDRESSES is required},"accessLists":[]},"resources":[{"id":"cpu","max":2},{"id":"ram","max":2},{"id":"disk","max":10}]}}]}]'
+      DOCKER_COMPUTE_ENVIRONMENTS: '[{"socketPath":"/var/run/docker.sock","scanImages":false,"paymentClaimInterval":300,"environments":[{"id":"mdx-kashiwa-cpu","description":"mdx (University of Tokyo, Kashiwa, Japan) mdx-kashiwa / CPU only","storageExpiry":604800,"minJobDuration":60,"maxJobDuration":900,"enableNetwork":false,"resources":[{"id":"cpu","total":2,"min":1,"max":2},{"id":"ram","total":2,"min":1,"max":2},{"id":"disk","total":20,"min":1,"max":10}],"free":{"maxJobDuration":600,"minJobDuration":10,"maxJobs":3,"access":{"addresses":${C2D_ALLOWED_ADDRESSES:?C2D_ALLOWED_ADDRESSES is required},"accessLists":[]},"resources":[{"id":"cpu","max":2},{"id":"ram","max":2},{"id":"disk","max":10}]}}]}]'
 
       HTTP_API_PORT: '8001'
       INTERFACES: '["HTTP"]'
@@ -173,6 +174,66 @@ services:
     depends_on: [graph-node, ipfs]
     networks: [cliox]
 
+  # --- Chatbot for /usecases/chatbot (optional) --------------------------------
+  # Started only when CHATBOT_API_KEY is set in .env (deploy.zsh adds the
+  # profile). The portal's API routes call it at the chatbot hostname in
+  # cloudflared/config.yml with header X-Chatbot-Key. Knowledge is held in
+  # memory; nothing is written to disk except the model files.
+  # Memory: the model (qwen2.5:1.5b, ~1 GB) needs ~1.5 GiB while answering.
+  # CHATBOT_BACKEND=anthropic answers with Claude through the Anthropic API
+  # instead (needs ANTHROPIC_API_KEY in .env); ollama then sits idle.
+  chatbot:
+    build: ./chatbot
+    image: cliox-chatbot:local
+    container_name: cliox-chatbot
+    restart: unless-stopped
+    profiles: [chatbot]
+    command: ['python', '/app/server.py']
+    volumes:
+      - ./chatbot/server.py:/app/server.py:ro
+      # today's question counts only (reset daily)
+      - chatbot-data:/data
+    environment:
+      API_KEY: '${CHATBOT_API_KEY:-}'
+      BACKEND: '${CHATBOT_BACKEND:-ollama}'
+      OLLAMA_URL: http://ollama:11434
+      # Empty means the backend's default (qwen2.5:1.5b / claude-opus-5-5 /
+      # gemma-4 on mdx-MaaS).
+      MODEL: '${CHATBOT_MODEL:-}'
+      ANTHROPIC_API_KEY: '${ANTHROPIC_API_KEY:-}'
+      # BACKEND=openai: an OpenAI-compatible API, mdx-MaaS unless the URL is set.
+      OPENAI_BASE_URL: '${CHATBOT_OPENAI_BASE_URL:-https://api.maas.mdx1.jp/v1}'
+      OPENAI_API_KEY: '${CHATBOT_OPENAI_API_KEY:-}'
+      # Optional limits (server.py). ALLOWED_USERS and DAILY_LIMIT_PER_USER need
+      # the portal's CHATBOT_REQUIRE_SIGNIN, which sends the signed-in wallet
+      # address; DAILY_LIMIT_TOTAL works without it. Empty = off.
+      ALLOWED_USERS: '${CHATBOT_ALLOWED_USERS:-}'
+      DAILY_LIMIT_PER_USER: '${CHATBOT_DAILY_LIMIT_PER_USER:-}'
+      DAILY_LIMIT_TOTAL: '${CHATBOT_DAILY_LIMIT_TOTAL:-}'
+      USAGE_FILE: /data/usage.json
+      PYTHONUNBUFFERED: '1'
+    ports:
+      - '127.0.0.1:8011:8001'
+    mem_limit: 256m
+    depends_on: [ollama]
+    networks: [cliox]
+
+  ollama:
+    image: ollama/ollama:0.34.2@sha256:da6e0dc5651df159e45686fd663c4dbe1624a52c44d7280eeac1551d8f865532
+    container_name: cliox-ollama
+    restart: unless-stopped
+    profiles: [chatbot]
+    environment:
+      OLLAMA_KEEP_ALIVE: 30m
+      OLLAMA_NUM_PARALLEL: '1'
+      OLLAMA_MAX_LOADED_MODELS: '1'
+    volumes:
+      - ollama-data:/root/.ollama
+    # Leave CPU for compute jobs (the C2D environment uses up to 2 CPUs).
+    cpus: 3
+    mem_limit: 2560m
+    networks: [cliox]
+
   # --- Public endpoints -------------------------------------------------------
   cloudflared:
     image: cloudflare/cloudflared:2026.9.3
@@ -204,6 +265,8 @@ volumes:
   node-sqlite:
   ipfs-data:
   postgres-data:
+  ollama-data:
+  chatbot-data:
 
 networks:
   cliox:

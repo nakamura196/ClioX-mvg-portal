@@ -36,7 +36,9 @@ export default function FileIcon({
     <ul className={styleClasses}>
       {!isLoading ? (
         <>
-          {isAccountWhitelisted &&
+          {/* ウォレット未接続（undefined）でも出す。ノードは誰にでもファイル情報を
+              返しており、隠す意味が無い。隠すのは拒否されたアカウント（false）だけ */}
+          {isAccountWhitelisted !== false &&
           (file?.contentType || file?.contentLength) ? (
             <>
               <li>{cleanupContentType(file.contentType)}</li>

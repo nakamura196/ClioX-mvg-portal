@@ -1,0 +1,105 @@
+{
+  "_about": "Values under 'source' are copied verbatim from the NDL IIIF manifest (single-language, not translated). Files are 1600px-wide copies fetched from the NDL IIIF Image API on 2026-09-26.",
+  "source": {
+    "manifest": "https://dl.ndl.go.jp/api/iiif/2534020/manifest.json",
+    "retrieved": "2026-09-26",
+    "label": "歳旦発句牒",
+    "attribution": "国立国会図書館 National Diet Library, JAPAN",
+    "license": "https://dl.ndl.go.jp/ja/help_iiif#api-%E3%81%AE%E5%88%A9%E7%94%A8%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6",
+    "metadata": {
+      "Persistent ID": "info:ndljp/pid/2534020",
+      "Title": "歳旦発句牒",
+      "Creator": "芭蕉 編",
+      "Publisher": "板木屋又兵衛",
+      "Publication Date": "天和2 [1682]",
+      "Publication Date (W3CDTF fortmat)": "1682",
+      "Call Number": "京-377",
+      "Bibliographic ID": "000007293876",
+      "DOI": "10.11501/2534020",
+      "Access Restrictions": "PDM",
+      "URL": "https://dl.ndl.go.jp/info:ndljp/pid/2534020"
+    }
+  },
+  "items": [
+    {
+      "file": "saitan-01.jpg",
+      "path": "/sample-collection/saitan/saitan-01.jpg",
+      "canvas": 1,
+      "iiifImage": "https://dl.ndl.go.jp/api/iiif/2534020/R0000001/full/1600,/0/default.jpg",
+      "width": 1600,
+      "height": 747,
+      "bytes": 350955,
+      "sha256": "803dfdb6ff6bae9dd1c02b757790462474655d2f5b072ca095d31fc2e2c7e1d4"
+    },
+    {
+      "file": "saitan-02.jpg",
+      "path": "/sample-collection/saitan/saitan-02.jpg",
+      "canvas": 2,
+      "iiifImage": "https://dl.ndl.go.jp/api/iiif/2534020/R0000002/full/1600,/0/default.jpg",
+      "width": 1600,
+      "height": 747,
+      "bytes": 359762,
+      "sha256": "6619a2ebb24930c1312d815f1c353d5e36ea73e5516d7c57564c861e351d6e35"
+    },
+    {
+      "file": "saitan-03.jpg",
+      "path": "/sample-collection/saitan/saitan-03.jpg",
+      "canvas": 3,
+      "iiifImage": "https://dl.ndl.go.jp/api/iiif/2534020/R0000003/full/1600,/0/default.jpg",
+      "width": 1600,
+      "height": 747,
+      "bytes": 423652,
+      "sha256": "26404488b2689c5e8c43ac5537f97567b934a105683b690cd4bc657ad33ce841"
+    },
+    {
+      "file": "saitan-04.jpg",
+      "path": "/sample-collection/saitan/saitan-04.jpg",
+      "canvas": 4,
+      "iiifImage": "https://dl.ndl.go.jp/api/iiif/2534020/R0000004/full/1600,/0/default.jpg",
+      "width": 1600,
+      "height": 747,
+      "bytes": 485994,
+      "sha256": "3928bd21b1f8b212847855bd5d6bb67f6173958e0d2211152e502fae53eb124b"
+    },
+    {
+      "file": "saitan-05.jpg",
+      "path": "/sample-collection/saitan/saitan-05.jpg",
+      "canvas": 5,
+      "iiifImage": "https://dl.ndl.go.jp/api/iiif/2534020/R0000005/full/1600,/0/default.jpg",
+      "width": 1600,
+      "height": 747,
+      "bytes": 488838,
+      "sha256": "2b00da57cf6d2096d61ea2d58a25d00cb7c4f6e18d42268be4d13b39349788af"
+    },
+    {
+      "file": "saitan-06.jpg",
+      "path": "/sample-collection/saitan/saitan-06.jpg",
+      "canvas": 6,
+      "iiifImage": "https://dl.ndl.go.jp/api/iiif/2534020/R0000006/full/1600,/0/default.jpg",
+      "width": 1600,
+      "height": 747,
+      "bytes": 389396,
+      "sha256": "d01da1e67437d6f07ebc3ac39779d963607d1769085c1be386b6e4069fdcf797"
+    },
+    {
+      "file": "saitan-07.jpg",
+      "path": "/sample-collection/saitan/saitan-07.jpg",
+      "canvas": 7,
+      "iiifImage": "https://dl.ndl.go.jp/api/iiif/2534020/R0000007/full/1600,/0/default.jpg",
+      "width": 1600,
+      "height": 747,
+      "bytes": 364579,
+      "sha256": "cd297f5baf8032d1d39d34de0c9ae555df3f5a3b23e8d7d8b28736dd6839c1a3"
+    },
+    {
+      "file": "saitan-08.jpg",
+      "path": "/sample-collection/saitan/saitan-08.jpg",
+      "canvas": 8,
+      "iiifImage": "https://dl.ndl.go.jp/api/iiif/2534020/R0000008/full/1600,/0/default.jpg",
+      "width": 1600,
+      "height": 747,
+      "bytes": 329933,
+      "sha256": "19067bfd15c5d33cd45d49e1a65421e6825a7cb50f58f70385bb498e38c71985"
+    }
+  ]
+}

@@ -10,6 +10,11 @@ export const TEXT_ANALYSIS_ALGO_DIDS = {
     // STALE: not found in Aquarius (404 as of 2026-05-26). Kept as a placeholder
     // pending re-upload by Chris (back from SF). Matches no jobs until re-indexed.
     'did:op:735d46e04de418f8f671fe2bd6828c40490c99729c93d0c42c92bd5fe3d6bcb8'
+  ],
+  // Sepolia 試用環境（deploy/trial/algorithm/text_analysis.py、
+  // 公開は deploy/trial/usecases.zsh）
+  11155111: [
+    'did:op:83879b6695a4aae100753eff91487feafe82d8cf7cbd679afaad9654c1c0f09b'
   ]
 }
 
@@ -20,6 +25,12 @@ export const TEXT_ANALYSIS_DATASET_DIDS: Record<number, string[]> = {
     // STALE: not found in Aquarius (404 as of 2026-05-26). Kept as a placeholder
     // pending re-upload by Chris (back from SF). Matches no jobs until re-indexed.
     'did:op:c5cebd876a1c7fd5dc7bc6fc3b9ca96871214f1299b0aaf779febdb91d12ec2a'
+  ],
+  11155111: [
+    // The Federalist Papers, 85 essays（日付付き。時系列の図が出る）
+    'did:op:88084b2a810deca76dde649e3598410445b199379c3709a6d9d9d948f8484a9c',
+    // Declaration of Independence（日付なし。語の雲と要約だけ）
+    'did:op:04f79245ba012ab323600b60bb537c865560ca18867025a3d31b38f4560b9787'
   ]
 }
 

@@ -6,7 +6,7 @@ import {
   formatEnergy,
   formatGCO2e,
   DataQuality
-} from '@utils/computeFootprint'
+} from './lib/computeFootprint'
 
 // 【重要】ラベルを日本語で直書きしていたため、英語 UI でも日本語が出ていた。
 // Victoria(UBC)向けのデモで露見(2026-08-12)。辞書は i18n の JSON に載せるのが

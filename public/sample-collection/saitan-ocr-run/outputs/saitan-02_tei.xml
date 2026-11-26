@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='utf-8'?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>Title</title>
+        <respStmt>
+          <resp>Automated Transcription</resp>
+          <name ref="https://github.com/ndl-lab/ndlkotenocr-lite">NDL古典籍OCR-Liteアプリケーション</name>
+        </respStmt>
+        <respStmt>
+          <resp>Conversion to TEI encoding</resp>
+          <name>Kiyonori Nagasaki</name>
+        </respStmt>
+      </titleStmt>
+      <publicationStmt>
+        <p>Publication Information</p>
+      </publicationStmt>
+      <sourceDesc>
+        <p>Information about the source</p>
+      </sourceDesc>
+    </fileDesc>
+  </teiHeader>
+  <facsimile>
+    <surface>
+      <graphic url="/data/inputs/saitan-02.jpg" width="1600px" height="747px" />
+      <zone xml:id="L0000_000" ulx="714" uly="81" lrx="743" lry="144" />
+    </surface>
+  </facsimile>
+  <text>
+    <body>
+      <p>
+        <pb n="saitan-02.jpg" facs="#saitan-02.jpg" />
+        <lb n="0" facs="#L0000_000" />京都</p>
+    </body>
+  </text>
+</TEI>

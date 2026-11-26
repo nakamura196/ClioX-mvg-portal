@@ -1,24 +1,38 @@
 module.exports = (phase, { defaultConfig }) => {
+  const isStaticExport = process.env.NEXT_STATIC_EXPORT === 'true'
   /**
    * @type {import('next').NextConfig}
    */
   const nextConfig = {
+    ...(isStaticExport
+      ? {
+          output: 'export',
+          trailingSlash: true,
+          images: { unoptimized: true }
+        }
+      : {
+          // Locale routing: English stays on the unprefixed paths, Japanese lives
+          // under /ja/*. Keep in sync with `src/i18n/index.ts`, which needs the same
+          // values at runtime for `appWithTranslation`.
+          i18n: {
+            locales: ['en', 'ja'],
+            defaultLocale: 'en',
+            localeDetection: false
+          }
+        }),
     env: {
       CHATBOT_API_URL: process.env.CHATBOT_API_URL
-    },
-    // Locale routing: English stays on the unprefixed paths, Japanese lives
-    // under /ja/*. Keep in sync with `src/i18n/index.ts`, which needs the same
-    // values at runtime for `appWithTranslation`.
-    i18n: {
-      locales: ['en', 'ja'],
-      defaultLocale: 'en',
-      localeDetection: false
     },
     // Server-only runtime config (not exposed to browser)
     serverRuntimeConfig: {
       RESEND_API_KEY: process.env.RESEND_API_KEY,
       RESEND_FROM_EMAIL: process.env.RESEND_FROM_EMAIL,
-      CONTACT_EMAIL: process.env.CONTACT_EMAIL
+      CONTACT_EMAIL: process.env.CONTACT_EMAIL,
+      // /api/chatbot/* → チャットボットへの共有鍵（src/@utils/chatbot/upstreamAuth.ts）
+      CHATBOT_API_KEY: process.env.CHATBOT_API_KEY,
+      // 任意: ウォレットの署名でサインインした人だけ質問できる（src/@utils/chatbot/signin.ts）
+      CHATBOT_REQUIRE_SIGNIN: process.env.CHATBOT_REQUIRE_SIGNIN,
+      CHATBOT_SIGNIN_SECRET: process.env.CHATBOT_SIGNIN_SECRET
     },
     webpack: (config, options) => {
       config.module.rules.push(
@@ -69,35 +83,75 @@ module.exports = (phase, { defaultConfig }) => {
         ? defaultConfig.webpack(config, options)
         : config
     },
-    async redirects() {
-      return [
-        {
-          source: '/publish',
-          destination: '/publish/1',
-          permanent: true
-        },
-        {
-          source: '/signup',
-          destination: '/coming-soon',
-          permanent: false
-        },
-        {
-          source: '/documentation',
-          destination: '/coming-soon',
-          permanent: false
-        },
-        {
-          source: '/docs',
-          destination: '/coming-soon',
-          permanent: false
-        },
-        {
-          source: '/newsletter',
-          destination: '/coming-soon',
-          permanent: false
+    ...(!isStaticExport
+      ? {
+          async redirects() {
+            return [
+              // [prototype] 試作のページは /experiment/<名前> にまとめた（2026-11-25）。
+              // 報告書や連絡に書いた古い URL を新しい場所へ送る。
+              // /experiment に ?view= や ?condition= が付いたものは、一覧ではなく
+              // 2 条件の実験のページへ送る（クエリはそのまま引き継がれる）。
+              ...['view', 'condition', 'sample'].map((key) => ({
+                source: '/experiment',
+                has: [{ type: 'query', key }],
+                destination: '/experiment/two-condition',
+                permanent: false
+              })),
+              ...[
+                'carbon-choice',
+                'carbon-report',
+                'archivist-qa',
+                'sample-collection',
+                'glossary'
+              ].map((name) => ({
+                source: `/${name}`,
+                destination: `/experiment/${name}`,
+                permanent: false
+              })),
+              // [prototype] Fig. 1 moved from /experiment/paper-fig to a real asset
+              // page with ?demo=1 (2026-11-25). ?env= is carried over.
+              ...['/paper-fig', '/experiment/paper-fig'].map((source) => ({
+                source,
+                destination:
+                  // colons encoded: Next reads ":op" as a parameter
+                  '/asset/did%3Aop%3A04f79245ba012ab323600b60bb537c865560ca18867025a3d31b38f4560b9787?demo=1',
+                permanent: false
+              })),
+              // [prototype] The finding aid is a prototype like the others (2026-11-25).
+              {
+                source: '/asset/:did/finding-aid',
+                destination: '/experiment/finding-aid/:did',
+                permanent: false
+              },
+              {
+                source: '/publish',
+                destination: '/publish/1',
+                permanent: true
+              },
+              {
+                source: '/signup',
+                destination: '/coming-soon',
+                permanent: false
+              },
+              {
+                source: '/documentation',
+                destination: '/coming-soon',
+                permanent: false
+              },
+              {
+                source: '/docs',
+                destination: '/coming-soon',
+                permanent: false
+              },
+              {
+                source: '/newsletter',
+                destination: '/coming-soon',
+                permanent: false
+              }
+            ]
+          }
         }
-      ]
-    }
+      : {})
 
     // Prefer loading of ES Modules over CommonJS
     // https://nextjs.org/blog/next-11-1#es-modules-support

@@ -8,7 +8,7 @@
 - 「代わりの場所」（既定）では最小と最大を比べます。これを切ると、各行を足し合わせます。見積もれない行は合計から外します。0 として数えることはしません。
 - どの値にも区分（実測 / 事業者の公表値 / ポータルの推計 / 求められない）と出典を付けたままにします。前提と限界も印刷されます。
 - 既存の `computeFootprint` の登録簿（コミット fe33bc82）を使っています。英語の報告書に日本語の注記が混ざらないよう、出典の注記に英語版を足しました。
-- 文章は `content/carbonReport(.ja).json`、計算と書き出しは `src/@utils/carbonReport.ts` にあります（テスト: `carbonReport.test.ts`）。
+- 文章は `content/carbonReport(.ja).json`、計算と書き出しは `src/experiment/carbon-report/lib/carbonReport.ts` にあります（テスト: `carbonReport.test.ts`）。
 
 ファイル: `report-en-compare.png`、`report-en-combined.png`、`print-ja-page1.png`、`page-en-full.png`、`sample-report-en.pdf`、`sample-ja.csv`。
 

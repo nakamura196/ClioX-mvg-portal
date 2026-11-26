@@ -10,6 +10,12 @@ import { ToastContainer } from 'react-toastify'
 import contentPurgatory from '../../../content/purgatory.json'
 import { useMarketMetadata } from '@context/MarketMetadata'
 import { useAccount } from 'wagmi'
+import { useRouter } from 'next/router'
+import FirstRunTour from '@experiment/tour' // [prototype]
+import { FirstRunTourProvider } from '@experiment/tour/context' // [prototype]
+import ArchivistModeBanner from '@experiment/archivist/Mode/Banner' // [prototype]
+import PrototypeBanner from '@experiment/shell/PrototypeBanner' // [prototype]
+import { isComputeDemo } from '@experiment/footprint/demoEnvs' // [prototype]
 
 export default function App({
   children
@@ -19,6 +25,27 @@ export default function App({
   const { siteContent, appConfig } = useMarketMetadata()
   const { address } = useAccount()
   const { isInPurgatory, purgatoryData } = useAccountPurgatory(address)
+  const router = useRouter()
+
+  // 実験の参加者画面では、ポータルの見出し・案内ツアー・フッターを出さない。
+  // 参加者が条件と関係のない情報（料金、案内、他のページ）を見ないようにするため。
+  // 研究者向けの ?view=design / ?view=receipt は通常の枠で出す。
+  const isExperimentParticipant =
+    router.pathname === '/experiment/two-condition' && !router.query.view
+  // 研究者向けの画面でも案内ツアーは出さない（ツアーの題材と関係がなく、ボタンも覆ってしまう）。
+  // ?demo=1 の見本の資料ページも同じ（図 1 の撮影・説明の邪魔になるため）。
+  const isExperiment =
+    router.pathname.startsWith('/experiment') || isComputeDemo(router.query)
+
+  if (isExperimentParticipant) {
+    return (
+      <FirstRunTourProvider>
+        <div className={styles.app}>
+          <main className={styles.main}>{children}</main>
+        </div>
+      </FirstRunTourProvider>
+    )
+  }
 
   const devPreviewAnnouncementText =
     siteContent?.devPreviewAnnouncement
@@ -26,32 +53,40 @@ export default function App({
       ?.replaceAll('SITE-LINK-PLACEHOLDER', siteContent.siteUrl) || ''
 
   return (
-    <div className={styles.app}>
-      {siteContent?.announcement !== '' && (
-        <AnnouncementBanner state="warning" text={siteContent?.announcement} />
-      )}
-      {appConfig.showPreviewAlert === 'true' &&
-        devPreviewAnnouncementText !== '' && (
-          <AnnouncementBanner text={devPreviewAnnouncementText} />
+    <FirstRunTourProvider>
+      <div className={styles.app}>
+        {siteContent?.announcement !== '' && (
+          <AnnouncementBanner
+            state="warning"
+            text={siteContent?.announcement}
+          />
         )}
-      <Header />
+        {appConfig.showPreviewAlert === 'true' &&
+          devPreviewAnnouncementText !== '' && (
+            <AnnouncementBanner text={devPreviewAnnouncementText} />
+          )}
+        <PrototypeBanner />
+        <Header />
+        <ArchivistModeBanner />
 
-      {isInPurgatory && (
-        <Alert
-          title={contentPurgatory.account.title}
-          badge={`Reason: ${purgatoryData?.reason}`}
-          text={contentPurgatory.account.description}
-          state="error"
-        />
-      )}
-      <main className={styles.main}>{children}</main>
-      <Footer />
+        {isInPurgatory && (
+          <Alert
+            title={contentPurgatory.account.title}
+            badge={`Reason: ${purgatoryData?.reason}`}
+            text={contentPurgatory.account.description}
+            state="error"
+          />
+        )}
+        <main className={styles.main}>{children}</main>
+        <Footer />
 
-      {appConfig?.privacyPreferenceCenter === 'true' && (
-        <PrivacyPreferenceCenter style="small" />
-      )}
+        {appConfig?.privacyPreferenceCenter === 'true' && (
+          <PrivacyPreferenceCenter style="small" />
+        )}
 
-      <ToastContainer position="bottom-right" newestOnTop />
-    </div>
+        <ToastContainer position="bottom-right" newestOnTop />
+        {!isExperiment && <FirstRunTour />}
+      </div>
+    </FirstRunTourProvider>
   )
 }

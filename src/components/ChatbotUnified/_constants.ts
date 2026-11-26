@@ -16,12 +16,22 @@ import {
   CHATBOT_NAMESPACE as UDL_NAMESPACE
 } from '../ChatbotUdL/_constants'
 
+import {
+  TRIAL_CHATBOT_ALGO_DIDS,
+  TRIAL_CHATBOT_DATASET_DIDS,
+  CHATBOT_NAMESPACE as TRIAL_NAMESPACE,
+  TRIAL_CHATBOT_SAMPLE
+} from '@experiment/chatbot-trial/_constants' // [prototype]
+import type { ChatbotSample } from '@experiment/chatbot-trial/SampleKnowledge' // [prototype]
+
 export interface ChatbotProject {
   id: string
   name: string
   namespace: string
   algoDidsByChain: Record<number, string | string[]>
   datasetDidsByChain?: Record<number, string[]>
+  // 任意: ジョブ無しで読み込める見本の資料
+  sample?: ChatbotSample
 }
 
 export const CHATBOT_PROJECTS: ChatbotProject[] = [
@@ -45,5 +55,13 @@ export const CHATBOT_PROJECTS: ChatbotProject[] = [
     namespace: UDL_NAMESPACE,
     algoDidsByChain: UDL_CHATBOT_ALGO_DIDS,
     datasetDidsByChain: UDL_CHATBOT_DATASET_DIDS
+  },
+  {
+    id: 'trial',
+    name: 'Trial samples (Sepolia)',
+    namespace: TRIAL_NAMESPACE,
+    algoDidsByChain: TRIAL_CHATBOT_ALGO_DIDS,
+    datasetDidsByChain: TRIAL_CHATBOT_DATASET_DIDS,
+    sample: TRIAL_CHATBOT_SAMPLE
   }
 ]

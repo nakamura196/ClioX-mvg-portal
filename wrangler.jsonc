@@ -1,0 +1,50 @@
+// cliox.ldas.jp — Clio-X Sepolia trial portal on Cloudflare Workers + Assets (free plan).
+// Static Next.js export is served from ./out with 0 ms Worker CPU; only /api/*,
+// /ja/*, dynamic asset/profile shells, and redirects invoke the Worker.
+{
+  "name": "cliox-portal",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-09-01",
+  "assets": {
+    "directory": "./out",
+    "binding": "ASSETS",
+    "run_worker_first": [
+      "/api/*",
+      "/robots.txt",
+      "/sitemap.xml",
+      "/publish",
+      "/signup",
+      "/documentation",
+      "/docs",
+      "/newsletter",
+      "/ja",
+      "/ja/*",
+      "/asset/*",
+      "/profile/*"
+    ]
+  },
+  "dev": {
+    "host": "localhost:8788",
+    "local_protocol": "http"
+  },
+  "workers_dev": true,
+  "preview_urls": false,
+  // cliox.ldas.jp was cut over from Vercel on 2026-11-24. cliox-cf.ldas.jp is kept
+  // as a staging alias.
+  "routes": [
+    { "pattern": "cliox.ldas.jp", "custom_domain": true },
+    { "pattern": "cliox-cf.ldas.jp", "custom_domain": true }
+  ],
+  "vars": {
+    "LDAS_ID_ORIGIN": "https://id.ldas.jp",
+    "CHATBOT_API_URL": "https://cliox-chatbot.ldas.jp",
+    "CHATBOT_REQUIRE_SIGNIN": "false",
+    "POLICY_REQUIRE_MEMBER": "false"
+  }
+  // Secrets (set via `op read ... | tr -d '\n' | npx wrangler secret put <NAME>`):
+  //   SESSION_SECRET    — HMAC key for cliox_ldas_session cookie
+  //   CHATBOT_API_KEY   — shared key for mdx chatbot (optional)
+  //   APPLICATION_SIGNING_KEY — HMAC key that signs application emails (see docs)
+  //   OPERATOR_EMAIL    — recipient of provider applications (sent via Resend)
+  //   RESEND_API_KEY, RESEND_FROM_EMAIL — Resend key and sender (contact form and applications)
+}

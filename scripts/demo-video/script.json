@@ -1,0 +1,118 @@
+{
+  "title": "Clio-X: a first look for archivists",
+  "viewport": { "width": 1280, "height": 720 },
+  "asset": "did:op:65e78d531a723c249afd18d1045dcb312912356b8b5fbf7f772287c3548bf43d",
+  "steps": [
+    {
+      "cover": {
+        "title": "Clio-X",
+        "lines": [
+          "A first look for archivists",
+          "No technical background needed · about 1½ minutes"
+        ]
+      },
+      "goto": "/",
+      "hold": 4.5
+    },
+    {
+      "uncover": true,
+      "en": "Clio-X is a place where archives share records for research, including research with AI.",
+      "ja": "Clio-X は、アーカイブズが研究のために記録を共有する場です。AI を使う研究も含みます。"
+    },
+    {
+      "en": "The key idea: researchers can analyse records without taking a copy home.",
+      "ja": "要点は、研究者が記録の写しを持ち帰らずに分析できることです。"
+    },
+    {
+      "highlight": [{ "role": "button", "name": "日本語", "exact": true }],
+      "en": "The screens are also available in Japanese.",
+      "ja": "画面は日本語でも表示できます。",
+      "then": {
+        "click": { "role": "button", "name": "日本語", "exact": true },
+        "waitText": "カタログ",
+        "hold": 3.5
+      }
+    },
+    {
+      "cover": {
+        "title": "",
+        "lines": ["Opening one dataset from the catalogue"]
+      },
+      "goto": "/asset/{asset}",
+      "hold": 2.5
+    },
+    {
+      "uncover": true,
+      "highlight": [
+        { "role": "heading", "name": "InterPARES Indexed Archival Dataset" }
+      ],
+      "en": "Each dataset has its own page, much like an entry in a catalogue.",
+      "ja": "データセットごとに、目録の 1 件にあたるページがあります。"
+    },
+    {
+      "highlight": [{ "text": "Owned by" }, { "text": "Accessed with Clio-X" }],
+      "en": "It names who holds the records: here, the University of British Columbia.",
+      "ja": "記録を持っている機関が示されます。ここではブリティッシュ・コロンビア大学です。"
+    },
+    {
+      "highlight": [
+        { "text": "DID", "exact": true },
+        { "text": "did:op:65e78d53", "exact": false }
+      ],
+      "en": "It gets a persistent identifier, like a reference code that never changes.",
+      "ja": "永続的な識別子が付きます。変わることのない請求記号のようなものです。"
+    },
+    {
+      "highlight": [
+        { "text": "Metadata History", "exact": false },
+        { "css": "h3 + ul[class*='EditHistory']" }
+      ],
+      "en": "Every change to the description is logged with its date, like an audit trail.",
+      "ja": "記述を直すたびに、日付つきで記録が残ります。監査証跡のようなものです。"
+    },
+    {
+      "highlight": [{ "text": "compute", "exact": true }],
+      "en": "This dataset is marked \"compute\": it cannot be downloaded.",
+      "ja": "このデータセットには「compute」と表示されています。ダウンロードはできません。"
+    },
+    {
+      "highlight": [
+        { "text": "Select a Compute Environment" },
+        { "text": "Arsys GPU Data Room" }
+      ],
+      "en": "Instead, an analysis is run inside a closed \"data room\".",
+      "ja": "代わりに、分析を閉じた「データルーム」の中で実行します。"
+    },
+    {
+      "en": "The researcher receives only the results, never the records themselves.",
+      "ja": "研究者が受け取るのは結果だけで、記録そのものは受け取りません。"
+    },
+    {
+      "highlight": [{ "text": "This dataset is free to use", "exact": false }],
+      "en": "This dataset is free. A small network fee still applies, and the page says so up front.",
+      "ja": "このデータセットは無料です。ネットワーク手数料が少しかかることも、先に書かれています。"
+    },
+    {
+      "highlight": [
+        { "text": "No account connected" },
+        { "text": "Please connect your wallet." }
+      ],
+      "en": "Looking around needs no account.",
+      "ja": "見て回るだけなら、アカウントは要りません。"
+    },
+    {
+      "en": "A wallet (a digital signing key) is needed only to run an analysis.",
+      "ja": "ウォレット（電子署名の鍵）が要るのは、分析を実行するときだけです。"
+    },
+    {
+      "cover": {
+        "title": "Clio-X",
+        "lines": [
+          "Browse freely · Analyse without copying · Every change on record",
+          "Prototype video, September 2026 · Satoru Nakamura (University of Tokyo)"
+        ]
+      },
+      "hold": 5
+    }
+  ]
+}

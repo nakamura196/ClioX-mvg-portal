@@ -108,7 +108,10 @@
       "updated": "updated",
       "stateUpdated": "state updated",
       "nftMetadataUpdated": "NFT metadata updated"
-    }
+    },
+    "invalidProviderUrl": "This asset cannot be downloaded or used for compute here: its provider address is not a server URL the portal can contact.",
+    "ipfsServiceEndpoint": "This asset is not served through a provider (the server that normally hands out files). Its content is published directly on IPFS, so the portal cannot download it or use it for compute. You can open the content here: [{{url}}]({{url}})",
+    "localServiceEndpoint": "This asset was registered with a provider running on the publisher's own computer (`{{url}}`). Nobody else can reach it, so the portal cannot download this asset or use it for compute, and does not try to connect."
   },
   "assetType": {
     "dataset": "dataset",
@@ -150,6 +153,7 @@
     "refresh": "Refresh",
     "refreshTitle": "Refresh compute jobs",
     "showDetails": "Show Details",
+    "payGreenFee": "Pay the environmental fee for this job",
     "results": "Results",
     "noResults": "No results found.",
     "waitingForResults": "Waiting for results...",
@@ -331,5 +335,15 @@
     "failedGettingAsset": "Failed getting asset.",
     "publisherAddress": "Publisher Address:",
     "assetStateSetBy": "This asset has been set as \"{{state}}\" by the publisher"
+  },
+  "chatbot": {
+    "signinNeeded": "Connect your wallet (top right) to ask questions. When you send your first question, your wallet asks you to sign a short message: a signature only, no transaction, no fee.",
+    "signinBusy": "Please sign the message in your wallet to send the question…",
+    "signinRequiredError": "Please sign in with your wallet (above the input box) to ask questions.",
+    "sampleOffer": "No compute job yet? You can try the chatbot with a prepared sample: {{name}} (85 essays, 930 passages).",
+    "sampleButton": "Load the sample",
+    "sampleLoading": "Loading…",
+    "sampleLoaded": "Sample loaded: {{name}}. Ask a question below.",
+    "sampleError": "Could not load the sample"
   }
 }

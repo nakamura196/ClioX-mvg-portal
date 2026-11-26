@@ -1,3 +1,4 @@
+// [local patch] Japanese / English interface (react-i18next). Not in upstream; see scripts/local-patches.txt.
 /**
  * next-i18next v16 publishes its Pages Router entry point only through the
  * package `exports` map. Webpack resolves that fine, but this project's

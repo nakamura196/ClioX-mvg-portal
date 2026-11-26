@@ -45,3 +45,14 @@ export default function ArticlePage(): ReactElement {
     </Page>
   )
 }
+
+export async function getStaticPaths() {
+  return {
+    paths: [{ params: { slug: 'web-evolution' } }],
+    fallback: false
+  }
+}
+
+export async function getStaticProps() {
+  return { props: {} }
+}

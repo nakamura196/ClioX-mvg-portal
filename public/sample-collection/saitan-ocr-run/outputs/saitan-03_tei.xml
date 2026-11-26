@@ -1,0 +1,49 @@
+<?xml version='1.0' encoding='utf-8'?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>Title</title>
+        <respStmt>
+          <resp>Automated Transcription</resp>
+          <name ref="https://github.com/ndl-lab/ndlkotenocr-lite">NDL古典籍OCR-Liteアプリケーション</name>
+        </respStmt>
+        <respStmt>
+          <resp>Conversion to TEI encoding</resp>
+          <name>Kiyonori Nagasaki</name>
+        </respStmt>
+      </titleStmt>
+      <publicationStmt>
+        <p>Publication Information</p>
+      </publicationStmt>
+      <sourceDesc>
+        <p>Information about the source</p>
+      </sourceDesc>
+    </fileDesc>
+  </teiHeader>
+  <facsimile>
+    <surface>
+      <graphic url="/data/inputs/saitan-03.jpg" width="1600px" height="747px" />
+      <zone xml:id="L0000_000" ulx="1134" uly="-10" lrx="1202" lry="253" />
+      <zone xml:id="L0000_001" ulx="1083" uly="-9" lrx="1139" lry="255" />
+      <zone xml:id="L0000_002" ulx="1053" uly="456" lrx="1113" lry="479" />
+      <zone xml:id="L0000_003" ulx="1080" uly="433" lrx="1133" lry="453" />
+      <zone xml:id="L0000_004" ulx="1081" uly="435" lrx="1140" lry="460" />
+      <zone xml:id="L0000_005" ulx="1080" uly="455" lrx="1142" lry="481" />
+      <zone xml:id="L0000_006" ulx="1070" uly="458" lrx="1138" lry="478" />
+      <zone xml:id="L0000_007" ulx="1076" uly="485" lrx="1129" lry="501" />
+      <zone xml:id="L0000_008" ulx="453" uly="219" lrx="571" lry="519" />
+      <zone xml:id="L0000_009" ulx="206" uly="433" lrx="246" lry="519" />
+      <zone xml:id="L0000_010" ulx="157" uly="434" lrx="199" lry="526" />
+      <zone xml:id="L0000_011" ulx="120" uly="70" lrx="237" lry="446" />
+      <zone xml:id="L0000_012" ulx="113" uly="435" lrx="151" lry="527" />
+    </surface>
+  </facsimile>
+  <text>
+    <body>
+      <p>
+        <pb n="saitan-03.jpg" facs="#saitan-03.jpg" />
+        <lb n="0" facs="#L0000_000" />一、、、、、、、、、、、、、、、、、、、、、、、、、、、、、、、、、、、、、、、、〇〇<lb n="1" facs="#L0000_001" />一、、、、、、、、、、、、、、、、、、、、、、、、、、、、、、、、、、、、、、、、〇〇<lb n="2" facs="#L0000_002" />11.3.<lb n="3" facs="#L0000_003" />大正<lb n="4" facs="#L0000_004" />大正<lb n="5" facs="#L0000_005" />3.31<lb n="6" facs="#L0000_006" />1.3.3<lb n="7" facs="#L0000_007" />脚水<lb n="8" facs="#L0000_008" />天和二歳<lb n="9" facs="#L0000_009" />通油町<lb n="10" facs="#L0000_010" />板木屋<lb n="11" facs="#L0000_011" />歳且発句牒<lb n="12" facs="#L0000_012" />又兵衛</p>
+    </body>
+  </text>
+</TEI>

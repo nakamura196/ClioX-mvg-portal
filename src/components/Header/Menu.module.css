@@ -73,6 +73,25 @@
   width: calc(100% + 2rem);
 }
 
+/* [local patch] The row bleeds by 1rem, which matches the menu's padding
+   only above 480px. Narrower, the padding is a third, then a quarter of a
+   spacer, so every page scrolled sideways by a few pixels on a phone. */
+@media screen and (max-width: 480px) {
+  .navigation {
+    margin-left: calc(var(--spacer) / -3);
+    margin-right: calc(var(--spacer) / -3);
+    width: calc(100% + var(--spacer) * 2 / 3);
+  }
+}
+
+@media screen and (max-width: 420px) {
+  .navigation {
+    margin-left: calc(var(--spacer) / -4);
+    margin-right: calc(var(--spacer) / -4);
+    width: calc(100% + var(--spacer) / 2);
+  }
+}
+
 .actions {
   order: 2;
   display: flex;

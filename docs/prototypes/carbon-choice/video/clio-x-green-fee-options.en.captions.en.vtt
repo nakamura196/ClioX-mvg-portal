@@ -1,0 +1,57 @@
+WEBVTT
+
+1
+00:00:09.431 --> 00:00:18.032
+The same analysis can run in several data centres. In Stockholm it emits about 14 g of CO2.
+
+2
+00:00:19.645 --> 00:00:24.695
+In Tokyo the same job emits about 618 g.
+
+3
+00:00:24.696 --> 00:00:32.247
+The aim: whoever picks the lower-emission place should pay less. The question is who covers the difference.
+
+4
+00:00:33.864 --> 00:00:42.314
+There are four options. Each can be switched on alone or combined. Each was deployed as its own scheme.
+
+5
+00:00:43.925 --> 00:00:51.676
+Option 1: the provider itself takes 10 % less for low-emission jobs.
+
+6
+00:00:53.289 --> 00:01:00.157
+Only the provider can set this share. A scheme can only choose whether to pass it on.
+
+7
+00:01:01.770 --> 00:01:11.273
+Option 2: the portal charges a 10 % fee on every job and waives it for low-emission places.
+
+8
+00:01:12.887 --> 00:01:20.513
+Note: Stockholm stays at the list price. It is only cheaper than the others, because they pay the fee.
+
+9
+00:01:22.128 --> 00:01:32.678
+Option 3: high-emission places pay a surcharge into a pool, which pays the discount. No outside money.
+
+10
+00:01:34.290 --> 00:01:44.867
+Option 4: a funder deposits money in advance, and it pays half of a low-emission job, up to 5 per job.
+
+11
+00:01:46.489 --> 00:01:54.689
+This table puts the options side by side for the same job: what the user pays, and who covers the rest.
+
+12
+00:01:56.312 --> 00:02:08.762
+In Stockholm, against a list price of 11.16: option 1 gives 10.04, option 3 gives 8.93, option 4 gives 6.16.
+
+13
+00:02:10.376 --> 00:02:17.827
+With all four together the user pays 3.91, while a Tokyo job costs 30.35.
+
+14
+00:02:19.439 --> 00:02:27.666
+Every payment stays on the public ledger, with a link to its transaction. A funder can show where its money went.

@@ -1,4 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
+import { chatbotAuthHeaders } from '../../../@utils/chatbot/upstreamAuth'
 
 export default async function handler(
   req: NextApiRequest,
@@ -27,7 +28,7 @@ export default async function handler(
       `${chatbotApiUrl}/api/v1/session/knowledge/session`,
       {
         method: 'DELETE',
-        headers: { 'X-Session-ID': sessionId }
+        headers: { ...chatbotAuthHeaders(), 'X-Session-ID': sessionId }
       }
     )
 

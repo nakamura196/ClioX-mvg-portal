@@ -1,3 +1,4 @@
+// [local patch] Japanese / English interface (react-i18next). Not in upstream; see scripts/local-patches.txt.
 import en from './locales/en.json'
 import ja from './locales/ja.json'
 

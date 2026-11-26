@@ -1,0 +1,30 @@
+入力ディレクトリ: /data/inputs
+対象画像: 8 件
+  - saitan-01.jpg
+  - saitan-02.jpg
+  - saitan-03.jpg
+  - saitan-04.jpg
+  - saitan-05.jpg
+  - saitan-06.jpg
+  - saitan-07.jpg
+  - saitan-08.jpg
+  saitan-01.jpg: 成功 / 4 行 / 13 文字 / 6.6 秒
+  saitan-02.jpg: 成功 / 1 行 / 2 文字 / 5.4 秒
+  saitan-03.jpg: 成功 / 13 行 / 124 文字 / 9.4 秒
+  saitan-04.jpg: 成功 / 31 行 / 336 文字 / 15.2 秒
+  saitan-05.jpg: 成功 / 34 行 / 405 文字 / 15.3 秒
+  saitan-06.jpg: 成功 / 10 行 / 144 文字 / 8.0 秒
+  saitan-07.jpg: 成功 / 1 行 / 2 文字 / 5.0 秒
+  saitan-08.jpg: 失敗 / 0 行 / 0 文字 / 4.5 秒
+onnxruntime cpuid_info warning: Unknown CPU vendor. cpuinfo_vendor value: 0
+Traceback (most recent call last):
+  File "/ndlkotenocr/src/ocr.py", line 203, in <module>
+    process(args)
+  File "/ndlkotenocr/src/ocr.py", line 159, in process
+    if tatelinecnt/alllinecnt>0.5:
+       ~~~~~~~~~~~^~~~~~~~~~~
+ZeroDivisionError: division by zero
+
+
+合計: 94 行 / 1026 文字
+出力: /data/outputs/ocr-summary.json

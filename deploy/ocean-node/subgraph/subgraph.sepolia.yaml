@@ -308,3 +308,46 @@ dataSources:
           handler: handleTokensDispensed
         - event: OwnerWithdrawed(indexed address,indexed address,uint256)
           handler: handleOwnerWinthdraw
+  # Local change: declare the FixedRateExchange singleton statically, like the
+  # Dispenser above. Upstream instantiates it from the router's
+  # FixedRateContractAdded event, which happened before our truncated
+  # startBlock, so without this no fixed-price exchange is ever indexed and the
+  # portal shows paid assets as "not supported" (found 2026-09-30).
+  - name: FixedRateExchange
+    kind: ethereum/contract
+    network: sepolia
+    source:
+      address: '0x80E63f73cAc60c1662f27D2DFd2EA834acddBaa8'
+      abi: FixedRateExchange
+      startBlock: 11459550
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/mappings/fixedRateExchange.ts
+      entities:
+        - FixedRateExchange
+      abis:
+        - name: FixedRateExchange
+          file: ./node_modules/@oceanprotocol/contracts/artifacts/contracts/pools/fixedRate/FixedRateExchange.sol/FixedRateExchange.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+      eventHandlers:
+        - event: ExchangeCreated(indexed bytes32,indexed address,indexed address,address,uint256)
+          handler: handleExchangeCreated
+        - event: ExchangeRateChanged(indexed bytes32,indexed address,uint256)
+          handler: handleRateChange
+        - event: ExchangeMintStateChanged(indexed bytes32,indexed address,bool)
+          handler: handleMintStateChanged
+        - event: ExchangeActivated(indexed bytes32,indexed address)
+          handler: handleActivated
+        - event: ExchangeDeactivated(indexed bytes32,indexed address)
+          handler: handleDeactivated
+        - event: ExchangeAllowedSwapperChanged(indexed bytes32,indexed address)
+          handler: handleAllowedSwapperChanged
+        - event: Swapped(indexed bytes32,indexed address,uint256,uint256,address,uint256,uint256,uint256)
+          handler: handleSwap
+        - event: PublishMarketFeeChanged(indexed bytes32,address,address,uint256)
+          handler: handlePublishMarketFeeChanged
+        - event: TokenCollected(indexed bytes32,indexed address,indexed address,uint256)
+          handler: handleTokenCollected

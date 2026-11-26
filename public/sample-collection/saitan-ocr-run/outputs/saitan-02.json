@@ -1,0 +1,37 @@
+{
+  "contents": [
+    [
+      {
+        "boundingBox": [
+          [
+            714,
+            81
+          ],
+          [
+            714,
+            144
+          ],
+          [
+            743,
+            81
+          ],
+          [
+            743,
+            144
+          ]
+        ],
+        "id": 0,
+        "isVertical": "true",
+        "text": "京都",
+        "isTextline": "true",
+        "confidence": 0.342
+      }
+    ]
+  ],
+  "imginfo": {
+    "img_width": 1600,
+    "img_height": 747,
+    "img_path": "/data/inputs/saitan-02.jpg",
+    "img_name": "saitan-02.jpg"
+  }
+}

@@ -4,7 +4,15 @@ import Download from './Download'
 import { FileInfo, LoggerInstance, Datatoken } from '@oceanprotocol/lib'
 import { compareAsBN } from '@utils/numbers'
 import { useAsset } from '@context/Asset'
-import { getFileDidInfo, getFileInfo } from '@utils/provider'
+import {
+  getFileDidInfo,
+  getFileInfo,
+  InvalidProviderUrlError,
+  isLocalProviderUrl
+} from '@utils/provider'
+import Alert from '@shared/atoms/Alert'
+import { useTranslation } from 'react-i18next'
+
 import { getOceanConfig } from '@utils/ocean'
 import { useCancelToken } from '@hooks/useCancelToken'
 import { useIsMounted } from '@hooks/useIsMounted'
@@ -19,11 +27,16 @@ import useBalance from '@hooks/useBalance'
 import { useAutomation } from '../../../@context/Automation/AutomationProvider'
 import { Signer } from 'ethers'
 
+// 本文が IPFS に直接置かれた資産（Provider を使わない公開）を開くための公開ゲートウェイ。
+// 校異源氏物語 54 件は Filebase に固定されているので、ここを既定にする。
+const IPFS_GATEWAY = 'https://ipfs.filebase.io/ipfs/'
+
 export default function AssetActions({
   asset
 }: {
   asset: AssetExtended
 }): ReactElement {
+  const { t } = useTranslation('common')
   const { address: accountId } = useAccount()
   const { data: signer } = useSigner()
   const { balance } = useBalance()
@@ -48,6 +61,7 @@ export default function AssetActions({
   const [dtBalance, setDtBalance] = useState<string>()
   const [fileMetadata, setFileMetadata] = useState<FileInfo>()
   const [fileIsLoading, setFileIsLoading] = useState<boolean>(false)
+  const [invalidProviderUrl, setInvalidProviderUrl] = useState<string>()
   const [isAccountIdWhitelisted, setIsAccountIdWhitelisted] =
     useState<boolean>()
   const [signerToUse, setSignerToUse] = useState<Signer>(signer)
@@ -69,6 +83,7 @@ export default function AssetActions({
 
     async function initFileInfo() {
       setFileIsLoading(true)
+      setInvalidProviderUrl(undefined)
       const providerUrl =
         formikState?.values?.services[0].providerUrl.url ||
         asset?.services[0]?.serviceEndpoint
@@ -118,6 +133,11 @@ export default function AssetActions({
         setFileIsLoading(false)
       } catch (error) {
         setFileIsLoading(false)
+        if (error instanceof InvalidProviderUrlError) {
+          setInvalidProviderUrl(providerUrl || '')
+          LoggerInstance.warn(error.message)
+          return
+        }
         LoggerInstance.error(error.message)
       }
     }
@@ -181,13 +201,34 @@ export default function AssetActions({
 
   // check for if user is whitelisted or blacklisted
   useEffect(() => {
-    if (!asset || !accountIdToUse) return
+    if (!asset) return
+    // 未接続は「分からない」（undefined）。false にするとファイル情報まで隠れる
+    if (!accountIdToUse) {
+      setIsAccountIdWhitelisted(undefined)
+      return
+    }
 
     setIsAccountIdWhitelisted(isAddressWhitelisted(asset, accountIdToUse))
   }, [accountIdToUse, asset])
 
   return (
-    <div className={styles.actions}>
+    <div className={styles.actions} data-tour="asset-access">
+      {invalidProviderUrl !== undefined && (
+        <div className={styles.providerAlert}>
+          <Alert
+            text={
+              /^ipfs:\/\/\S+$/i.test(invalidProviderUrl)
+                ? t('asset.ipfsServiceEndpoint', {
+                    url: `${IPFS_GATEWAY}${invalidProviderUrl.slice(7)}`
+                  })
+                : isLocalProviderUrl(invalidProviderUrl)
+                ? t('asset.localServiceEndpoint', { url: invalidProviderUrl })
+                : t('asset.invalidProviderUrl')
+            }
+            state="info"
+          />
+        </div>
+      )}
       {isCompute ? (
         <Compute
           accountId={accountIdToUse}

@@ -41,7 +41,7 @@
 | 可視化用・知識用のアルゴリズムと、ザ・フェデラリストの標本                                                                                         | `deploy/trial/algorithm/`、`deploy/trial/sample/`                                                                     | `dcf93888`             |
 | 小さな会話用サービスと Ollama。鍵を置いたときだけ起動                                                                                              | `deploy/ocean-node/chatbot/server.py`、`docker-compose.yml`（profile `chatbot`）                                      | `412841d5`             |
 | 3 つの資産を公開し、試しのジョブを 2 つ流すスクリプト                                                                                              | `deploy/trial/usecases.zsh`、`deploy/trial/metadata/*`                                                                | `7808ea0c`             |
-| Sepolia の DID。チャットボットに「Trial samples (Sepolia)」を足し、Sepolia では先頭に並べる                                                        | `src/components/TextAnalysis/_constants.ts`、`src/components/ChatbotTrial/`、`ChatbotUnified/`                        | `fb777a6d`             |
+| Sepolia の DID。チャットボットに「Trial samples (Sepolia)」を足し、Sepolia では先頭に並べる                                                        | `src/components/TextAnalysis/_constants.ts`、`src/experiment/chatbot-trial/`、`ChatbotUnified/`                       | `fb777a6d`             |
 | 無償ジョブを自前ノードから一覧に出す。ジョブのデータセットも控える。結果の取得を Ocean Node の署名方式にする。ウォレットをつないだら一覧を取り直す | `src/@utils/compute.ts`、`src/@utils/jobAlgorithmMemory.ts`、`src/@utils/computeResultFiles.ts`、3 つの `JobList.tsx` | `a64cb256`             |
 | 会話用の鍵を `serverRuntimeConfig` から読む。会話用サービスが分割送信の本文を読む                                                                  | `next.config.js`、`upstreamAuth.ts`、`server.py`                                                                      | `2357e5ee`、`d1fa37fb` |
 | 会話用のホスト名だけ、Vercel が Cloudflare のボット対策を通れるようにする                                                                          | `deploy/ocean-node/scripts/cloudflare-allow-chatbot.zsh`                                                              | `02a74775`             |
@@ -156,7 +156,7 @@ Claude は 1 問ごとに費用がかかるので、使える人と件数を絞�
 [Self-hosting on Sepolia](/developers/self-hosting)（英語）のノードと Cloudflare Tunnel があり、ポータルは Vercel にある前提です。
 
 1. **アルゴリズムとデータセットを公開する。** `zsh deploy/trial/usecases.zsh` が、試用ウォレットでザ・フェデラリストと 2 つのアルゴリズムを公開し、索引に載るのを待って、それぞれのアルゴリズムで無償のジョブを 1 つずつ流します。自分のファイルを使うなら、先に `metadata/*.json` を直します（ファイルの URL は固定したコミットを指すこと）。
-2. **DID をポータルに書く。** 表示された DID を、`src/components/TextAnalysis/_constants.ts`（アルゴリズムとデータセット）と `src/components/ChatbotTrial/_constants.ts` の `11155111` の下に足します。データセット側がそのアルゴリズムを信頼している必要があります。標本は「すべて可」（`"*"`）にしてあります。
+2. **DID をポータルに書く。** 表示された DID を、`src/components/TextAnalysis/_constants.ts`（アルゴリズムとデータセット）と `src/experiment/chatbot-trial/_constants.ts` の `11155111` の下に足します。データセット側がそのアルゴリズムを信頼している必要があります。標本は「すべて可」（`"*"`）にしてあります。
 3. **会話用サービスのホスト名を作る。** `deploy/ocean-node/cloudflared/config.yml` に足し（ここでは `cliox-chat.ldas.jp`）、DNS を作ります: `cloudflared tunnel route dns cliox-node cliox-chat.ldas.jp`
 4. **鍵を作り、VM と Vercel に渡す:**
    `zsh deploy/ocean-node/scripts/setup-chatbot.zsh mdx-clio https://cliox-chat.ldas.jp <Vercel のプロジェクト ID> <Vercel のチーム ID>`

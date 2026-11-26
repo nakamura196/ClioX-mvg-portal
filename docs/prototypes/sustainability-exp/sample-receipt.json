@@ -1,0 +1,92 @@
+{
+  "schema": "clio-x-transaction-receipt/0.2",
+  "transactionId": "demo-2026-10-09-0001",
+  "provider": "Shirakawa Cloud",
+  "location": {
+    "name": "Tokyo, Japan",
+    "jurisdiction": "Japan"
+  },
+  "startedAtTime": "2026-10-09T09:00:00Z",
+  "endedAtTime": "2026-10-09T10:00:00Z",
+  "allocation": {
+    "basis": "reserved-share",
+    "method": "clio-x-transaction-allocation/0.1",
+    "averageShare": 0.25,
+    "intervals": [
+      {
+        "powerKW": 0.45,
+        "hours": 0.2,
+        "share": 0.25
+      },
+      {
+        "powerKW": 0.25,
+        "hours": 0.8,
+        "share": 0.25
+      }
+    ]
+  },
+  "assumptions": {
+    "powerScope": "it-only",
+    "pue": 1.3,
+    "pueQuality": "provider-reported",
+    "powerQuality": "provider-reported",
+    "water": {
+      "kind": "flow",
+      "definition": "consumption",
+      "scope": "on-site",
+      "value": 2.5,
+      "unit": "L/h"
+    },
+    "gridIntensity": {
+      "gCO2ePerKWh": 429,
+      "label": "Tokyo, Japan",
+      "asOf": "see source",
+      "source": "Japan substitute factor FY2023"
+    }
+  },
+  "values": {
+    "itEnergy": {
+      "value": 0.07250000000000001,
+      "unit": "kWh",
+      "quality": "portal-estimated",
+      "basis": "sum of pool power x duration x reserved compute share"
+    },
+    "facilityEnergy": {
+      "value": 0.09425000000000001,
+      "unit": "kWh",
+      "quality": "portal-estimated",
+      "basis": "IT energy x PUE 1.3"
+    },
+    "water": {
+      "value": 0.625,
+      "unit": "L",
+      "quality": "portal-estimated",
+      "basis": "water allocated by compute share (an accounting estimate, not measured consumption)"
+    },
+    "carbon": {
+      "value": 40.43325000000001,
+      "unit": "gCO2e",
+      "quality": "portal-estimated",
+      "basis": "facility energy x grid factor 429 gCO2e/kWh (location-based)"
+    }
+  },
+  "notes": [],
+  "evidence": [
+    {
+      "ref": "demo://telemetry/pool-power/2026-10-09T09:00Z-10:00Z",
+      "description": "Pool power samples (demo placeholder, no real source)"
+    },
+    {
+      "ref": "demo://telemetry/water-flow/2026-10-09T09:00Z-10:00Z",
+      "description": "Cooling water flow samples (demo placeholder)"
+    }
+  ],
+  "source": {
+    "schema": "clio-x-transaction-source/0.1",
+    "sha256": "ca20562938f6b7fac789fb9427c9e0d57519f707678134dd9c53eeb00cd849b4",
+    "canonicalization": "RFC 8785 (JCS)"
+  },
+  "integrity": {
+    "statement": "A signature over this receipt shows who issued it and that it was not altered afterwards. It does not show that the provider sensors or reported figures are accurate."
+  }
+}

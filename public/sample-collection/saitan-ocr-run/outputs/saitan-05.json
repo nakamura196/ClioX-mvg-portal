@@ -1,0 +1,862 @@
+{
+  "contents": [
+    [
+      {
+        "boundingBox": [
+          [
+            1407,
+            448
+          ],
+          [
+            1407,
+            520
+          ],
+          [
+            1431,
+            448
+          ],
+          [
+            1431,
+            520
+          ]
+        ],
+        "id": 0,
+        "isVertical": "true",
+        "text": "井上氏",
+        "isTextline": "true",
+        "confidence": 0.526
+      },
+      {
+        "boundingBox": [
+          [
+            1367,
+            98
+          ],
+          [
+            1367,
+            539
+          ],
+          [
+            1415,
+            98
+          ],
+          [
+            1415,
+            539
+          ]
+        ],
+        "id": 1,
+        "isVertical": "true",
+        "text": "天筆や年号を以て和念楽任作",
+        "isTextline": "true",
+        "confidence": 0.724
+      },
+      {
+        "boundingBox": [
+          [
+            1350,
+            451
+          ],
+          [
+            1350,
+            543
+          ],
+          [
+            1373,
+            451
+          ],
+          [
+            1373,
+            543
+          ]
+        ],
+        "id": 2,
+        "isVertical": "true",
+        "text": "上総国久留里",
+        "isTextline": "true",
+        "confidence": 0.586
+      },
+      {
+        "boundingBox": [
+          [
+            1315,
+            100
+          ],
+          [
+            1315,
+            537
+          ],
+          [
+            1358,
+            100
+          ],
+          [
+            1358,
+            537
+          ]
+        ],
+        "id": 3,
+        "isVertical": "true",
+        "text": "子代尾ふる初は戌のあた哉岩",
+        "isTextline": "true",
+        "confidence": 0.776
+      },
+      {
+        "boundingBox": [
+          [
+            1297,
+            452
+          ],
+          [
+            1297,
+            504
+          ],
+          [
+            1319,
+            452
+          ],
+          [
+            1319,
+            504
+          ]
+        ],
+        "id": 4,
+        "isVertical": "true",
+        "text": "品川丁",
+        "isTextline": "true",
+        "confidence": 0.375
+      },
+      {
+        "boundingBox": [
+          [
+            1262,
+            101
+          ],
+          [
+            1262,
+            542
+          ],
+          [
+            1308,
+            101
+          ],
+          [
+            1308,
+            542
+          ]
+        ],
+        "id": 5,
+        "isVertical": "true",
+        "text": "御福もちかいくりおさめおめしの春",
+        "isTextline": "true",
+        "confidence": 0.787
+      },
+      {
+        "boundingBox": [
+          [
+            1209,
+            100
+          ],
+          [
+            1209,
+            522
+          ],
+          [
+            1254,
+            100
+          ],
+          [
+            1254,
+            522
+          ]
+        ],
+        "id": 6,
+        "isVertical": "true",
+        "text": "木そめ方てんははれ衣はら木の春日",
+        "isTextline": "true",
+        "confidence": 0.798
+      },
+      {
+        "boundingBox": [
+          [
+            1164,
+            102
+          ],
+          [
+            1164,
+            526
+          ],
+          [
+            1205,
+            102
+          ],
+          [
+            1205,
+            526
+          ]
+        ],
+        "id": 7,
+        "isVertical": "true",
+        "text": "犬の子や御もんのまゆうすみかさり日",
+        "isTextline": "true",
+        "confidence": 0.723
+      },
+      {
+        "boundingBox": [
+          [
+            1147,
+            460
+          ],
+          [
+            1147,
+            548
+          ],
+          [
+            1176,
+            460
+          ],
+          [
+            1176,
+            548
+          ]
+        ],
+        "id": 8,
+        "isVertical": "true",
+        "text": "│[世羽庄内佐藤",
+        "isTextline": "true",
+        "confidence": 0.631
+      },
+      {
+        "boundingBox": [
+          [
+            1111,
+            105
+          ],
+          [
+            1111,
+            546
+          ],
+          [
+            1154,
+            105
+          ],
+          [
+            1154,
+            546
+          ]
+        ],
+        "id": 9,
+        "isVertical": "true",
+        "text": "一御代なれや十露ねて紫金朝の春空嘯",
+        "isTextline": "true",
+        "confidence": 0.741
+      },
+      {
+        "boundingBox": [
+          [
+            1055,
+            107
+          ],
+          [
+            1055,
+            533
+          ],
+          [
+            1098,
+            107
+          ],
+          [
+            1098,
+            533
+          ]
+        ],
+        "id": 10,
+        "isVertical": "true",
+        "text": "紙なや世界の海を筆の水日",
+        "isTextline": "true",
+        "confidence": 0.727
+      },
+      {
+        "boundingBox": [
+          [
+            1040,
+            456
+          ],
+          [
+            1040,
+            539
+          ],
+          [
+            1066,
+            456
+          ],
+          [
+            1066,
+            539
+          ]
+        ],
+        "id": 11,
+        "isVertical": "true",
+        "text": "同塩野氏",
+        "isTextline": "true",
+        "confidence": 0.568
+      },
+      {
+        "boundingBox": [
+          [
+            1003,
+            105
+          ],
+          [
+            1003,
+            548
+          ],
+          [
+            1045,
+            105
+          ],
+          [
+            1045,
+            548
+          ]
+        ],
+        "id": 12,
+        "isVertical": "true",
+        "text": "一治れり弥勒も瓜を松の絵有望",
+        "isTextline": "true",
+        "confidence": 0.694
+      },
+      {
+        "boundingBox": [
+          [
+            976,
+            199
+          ],
+          [
+            976,
+            368
+          ],
+          [
+            1002,
+            199
+          ],
+          [
+            1002,
+            368
+          ]
+        ],
+        "id": 13,
+        "isVertical": "true",
+        "text": "戌ノ年なれは",
+        "isTextline": "true",
+        "confidence": 0.67
+      },
+      {
+        "boundingBox": [
+          [
+            980,
+            452
+          ],
+          [
+            980,
+            536
+          ],
+          [
+            1004,
+            452
+          ],
+          [
+            1004,
+            536
+          ]
+        ],
+        "id": 14,
+        "isVertical": "true",
+        "text": "本所大津氏",
+        "isTextline": "true",
+        "confidence": 0.666
+      },
+      {
+        "boundingBox": [
+          [
+            938,
+            106
+          ],
+          [
+            938,
+            540
+          ],
+          [
+            975,
+            106
+          ],
+          [
+            975,
+            540
+          ]
+        ],
+        "id": 15,
+        "isVertical": "true",
+        "text": "一目黒目白とりわけ君を気なり春関子",
+        "isTextline": "true",
+        "confidence": 0.818
+      },
+      {
+        "boundingBox": [
+          [
+            883,
+            112
+          ],
+          [
+            883,
+            519
+          ],
+          [
+            928,
+            112
+          ],
+          [
+            928,
+            519
+          ]
+        ],
+        "id": 16,
+        "isVertical": "true",
+        "text": "御代なれや拙者ときも松の陰同",
+        "isTextline": "true",
+        "confidence": 0.804
+      },
+      {
+        "boundingBox": [
+          [
+            870,
+            453
+          ],
+          [
+            870,
+            509
+          ],
+          [
+            892,
+            453
+          ],
+          [
+            892,
+            509
+          ]
+        ],
+        "id": 17,
+        "isVertical": "true",
+        "text": "浅草",
+        "isTextline": "true",
+        "confidence": 0.346
+      },
+      {
+        "boundingBox": [
+          [
+            829,
+            105
+          ],
+          [
+            829,
+            547
+          ],
+          [
+            879,
+            105
+          ],
+          [
+            879,
+            547
+          ]
+        ],
+        "id": 18,
+        "isVertical": "true",
+        "text": "一松又古今の宮猶増たり御城の春露始",
+        "isTextline": "true",
+        "confidence": 0.767
+      },
+      {
+        "boundingBox": [
+          [
+            780,
+            107
+          ],
+          [
+            780,
+            549
+          ],
+          [
+            827,
+            107
+          ],
+          [
+            827,
+            549
+          ]
+        ],
+        "id": 19,
+        "isVertical": "true",
+        "text": "今年より身代あつかふ大ふゝ東あつあふは",
+        "isTextline": "true",
+        "confidence": 0.802
+      },
+      {
+        "boundingBox": [
+          [
+            687,
+            129
+          ],
+          [
+            687,
+            466
+          ],
+          [
+            736,
+            129
+          ],
+          [
+            736,
+            466
+          ]
+        ],
+        "id": 20,
+        "isVertical": "true",
+        "text": "万物本蒼天自奇",
+        "isTextline": "true",
+        "confidence": 0.821
+      },
+      {
+        "boundingBox": [
+          [
+            629,
+            134
+          ],
+          [
+            629,
+            466
+          ],
+          [
+            679,
+            134
+          ],
+          [
+            679,
+            466
+          ]
+        ],
+        "id": 21,
+        "isVertical": "true",
+        "text": "朝来初共礼春可",
+        "isTextline": "true",
+        "confidence": 0.781
+      },
+      {
+        "boundingBox": [
+          [
+            576,
+            134
+          ],
+          [
+            576,
+            463
+          ],
+          [
+            626,
+            134
+          ],
+          [
+            626,
+            463
+          ]
+        ],
+        "id": 22,
+        "isVertical": "true",
+        "text": "鳥啼風暖氷浮水",
+        "isTextline": "true",
+        "confidence": 0.773
+      },
+      {
+        "boundingBox": [
+          [
+            518,
+            137
+          ],
+          [
+            518,
+            462
+          ],
+          [
+            572,
+            137
+          ],
+          [
+            572,
+            462
+          ]
+        ],
+        "id": 23,
+        "isVertical": "true",
+        "text": "花発江南梅一枝",
+        "isTextline": "true",
+        "confidence": 0.765
+      },
+      {
+        "boundingBox": [
+          [
+            472,
+            103
+          ],
+          [
+            472,
+            506
+          ],
+          [
+            517,
+            103
+          ],
+          [
+            517,
+            506
+          ]
+        ],
+        "id": 24,
+        "isVertical": "true",
+        "text": "行水のあはれはかなき月る哉",
+        "isTextline": "true",
+        "confidence": 0.79
+      },
+      {
+        "boundingBox": [
+          [
+            420,
+            132
+          ],
+          [
+            420,
+            500
+          ],
+          [
+            462,
+            132
+          ],
+          [
+            462,
+            500
+          ]
+        ],
+        "id": 25,
+        "isVertical": "true",
+        "text": "きのふはけふに春そ立けり",
+        "isTextline": "true",
+        "confidence": 0.821
+      },
+      {
+        "boundingBox": [
+          [
+            366,
+            94
+          ],
+          [
+            366,
+            523
+          ],
+          [
+            419,
+            94
+          ],
+          [
+            419,
+            523
+          ]
+        ],
+        "id": 26,
+        "isVertical": "true",
+        "text": "火消いかにときおとろかさず御代の春",
+        "isTextline": "true",
+        "confidence": 0.764
+      },
+      {
+        "boundingBox": [
+          [
+            315,
+            165
+          ],
+          [
+            315,
+            520
+          ],
+          [
+            364,
+            165
+          ],
+          [
+            364,
+            520
+          ]
+        ],
+        "id": 27,
+        "isVertical": "true",
+        "text": "武江野夫幽庵軒作之",
+        "isTextline": "true",
+        "confidence": 0.714
+      },
+      {
+        "boundingBox": [
+          [
+            290,
+            409
+          ],
+          [
+            290,
+            525
+          ],
+          [
+            313,
+            409
+          ],
+          [
+            313,
+            525
+          ]
+        ],
+        "id": 28,
+        "isVertical": "true",
+        "text": "□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□",
+        "isTextline": "true",
+        "confidence": 0.387
+      },
+      {
+        "boundingBox": [
+          [
+            253,
+            92
+          ],
+          [
+            253,
+            536
+          ],
+          [
+            304,
+            92
+          ],
+          [
+            304,
+            536
+          ]
+        ],
+        "id": 29,
+        "isVertical": "true",
+        "text": "三才純熟せり初春の恵み須弥一刻立操",
+        "isTextline": "true",
+        "confidence": 0.805
+      },
+      {
+        "boundingBox": [
+          [
+            201,
+            92
+          ],
+          [
+            201,
+            539
+          ],
+          [
+            249,
+            92
+          ],
+          [
+            249,
+            539
+          ]
+        ],
+        "id": 30,
+        "isVertical": "true",
+        "text": "夫は下恋愛則達の掟民の春謡を",
+        "isTextline": "true",
+        "confidence": 0.81
+      },
+      {
+        "boundingBox": [
+          [
+            185,
+            416
+          ],
+          [
+            185,
+            502
+          ],
+          [
+            211,
+            416
+          ],
+          [
+            211,
+            502
+          ]
+        ],
+        "id": 31,
+        "isVertical": "true",
+        "text": "日坂入氏",
+        "isTextline": "true",
+        "confidence": 0.373
+      },
+      {
+        "boundingBox": [
+          [
+            151,
+            90
+          ],
+          [
+            151,
+            535
+          ],
+          [
+            192,
+            90
+          ],
+          [
+            192,
+            535
+          ]
+        ],
+        "id": 32,
+        "isVertical": "true",
+        "text": "新暦の大将軍は東にあり遠雲",
+        "isTextline": "true",
+        "confidence": 0.779
+      },
+      {
+        "boundingBox": [
+          [
+            97,
+            91
+          ],
+          [
+            97,
+            531
+          ],
+          [
+            146,
+            91
+          ],
+          [
+            146,
+            531
+          ]
+        ],
+        "id": 33,
+        "isVertical": "true",
+        "text": "諸願詣詳明殿たり四方許極ぬ",
+        "isTextline": "true",
+        "confidence": 0.762
+      }
+    ]
+  ],
+  "imginfo": {
+    "img_width": 1600,
+    "img_height": 747,
+    "img_path": "/data/inputs/saitan-05.jpg",
+    "img_name": "saitan-05.jpg"
+  }
+}

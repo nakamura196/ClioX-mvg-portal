@@ -26,3 +26,10 @@
 .details {
   composes: did from '../AssetSelection/index.module.css';
 }
+
+/* [prototype] 論文の図 1 */
+.footprint {
+  border-bottom: 1px solid var(--border-color);
+  padding: 0 calc(var(--spacer) / 2) calc(var(--spacer) / 2)
+    calc(var(--spacer) * 1.5);
+}

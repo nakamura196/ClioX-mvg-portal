@@ -1,0 +1,7 @@
+pid,condition,trialIndex,trialId,displayedOrder,chosen,chosenIsEnergyLowest,chosenIsWaterLowest,chosenIsCarbonLowest,chosenIsCostLowest,energyWaterAgree,chosenEnergyKWh,chosenWaterL,chosenCostUSD,responseMs,firstChoiceMs,changedChoice,timestamp
+DEMO1,treatment,0,t1,d|b|c|a,d,true,false,false,false,false,0.15,0.072,1.85,158,141,false,2026-10-09T20:56:33.871Z
+DEMO1,treatment,1,t2,c|d|a|b,d,false,false,false,true,true,1.6500000000000001,0.6050000000000001,2.6,316,224,false,2026-10-09T20:56:34.187Z
+DEMO1,treatment,2,t3,c|b|d|a,d,false,false,false,false,true,0.35100000000000003,0.2565,1.5,233,217,false,2026-10-09T20:56:34.420Z
+DEMO1,treatment,3,t4,d|c|a|b,b,true,false,false,false,,0.09120000000000002,,1.1,241,225,false,2026-10-09T20:56:34.662Z
+DEMO1,treatment,4,t5,d|c|a|b,d,true,true,false,false,true,0.09425000000000001,0.625,1.35,233,217,false,2026-10-09T20:56:34.895Z
+DEMO1,treatment,5,t6,c|b|a|d,b,false,false,true,false,true,2.04,0.4895999999999999,3.9,242,225,false,2026-10-09T20:56:35.137Z

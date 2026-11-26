@@ -1,0 +1,21 @@
+const { EAS, Offchain, SchemaEncoder, OffchainAttestationVersion, SchemaRegistry, createOffchainURL } = require('@ethereum-attestation-service/eas-sdk')
+const { Wallet, HDNodeWallet, Mnemonic, keccak256, solidityPacked, ZeroAddress, ZeroHash, sha256, toUtf8Bytes } = require('ethers')
+const MN = 'test test test test test test test test test test test junk'
+const signer = HDNodeWallet.fromMnemonic(Mnemonic.fromPhrase(MN), "m/44'/60'/0'/0/0")
+const recipient = HDNodeWallet.fromMnemonic(Mnemonic.fromPhrase(MN), "m/44'/60'/0'/0/1").address
+const EAS_ADDR = '0xC2679fBD37d54388Ce493F1DB75320D236e1815e'
+const schema = 'bytes32 receiptSha256,bytes32 sourceSha256,string method'
+const schemaUid = keccak256(solidityPacked(['string','address','bool'],[schema, ZeroAddress, true]))
+const enc = new SchemaEncoder(schema)
+const receiptSha = sha256(toUtf8Bytes('receipt-test-vector'))
+const sourceSha = sha256(toUtf8Bytes('source-test-vector'))
+const data = enc.encodeData([
+ {name:'receiptSha256',value:receiptSha,type:'bytes32'},
+ {name:'sourceSha256',value:sourceSha,type:'bytes32'},
+ {name:'method',value:'clio-x-transaction-allocation/0.1',type:'string'}])
+const off = new Offchain({address:EAS_ADDR, version:'0.26', chainId:11155111n}, OffchainAttestationVersion.Version2, null)
+;(async()=>{
+ const salt = '0x'+'11'.repeat(32)
+ const sig = await off.signOffchainAttestation({schema:schemaUid, recipient, time:1791540000n, expirationTime:0n, revocable:true, refUID:ZeroHash, data, salt}, signer)
+ console.log(JSON.stringify({signer:signer.address, recipient, schemaUid, receiptSha, sourceSha, data, sig, url:createOffchainURL({sig, signer:signer.address})},(k,v)=>typeof v==='bigint'?v.toString():v,2))
+})()

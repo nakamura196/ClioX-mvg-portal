@@ -1,4 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
+import { chatbotAuthHeaders } from '../../../@utils/chatbot/upstreamAuth'
 
 interface KnowledgeStatus {
   has_knowledge: boolean
@@ -35,7 +36,7 @@ export default async function handler(
     const backendResponse = await fetch(
       `${chatbotApiUrl}/api/v1/session/knowledge/status`,
       {
-        headers: { 'X-Session-ID': sessionId }
+        headers: { ...chatbotAuthHeaders(), 'X-Session-ID': sessionId }
       }
     )
 

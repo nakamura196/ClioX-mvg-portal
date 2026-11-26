@@ -204,6 +204,11 @@
 @import './_emojipicker.css';
 @import './_typography.css';
 
+/* Archivist view (src/@context/ArchivistMode.tsx): crypto details are hidden */
+html[data-view='archivist'] [data-jargon] {
+  display: none !important;
+}
+
 /* prevent background scrolling */
 .ReactModal__Body--open {
   overflow: hidden;

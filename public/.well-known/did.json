@@ -1,0 +1,23 @@
+{
+  "@context": [
+    "https://www.w3.org/ns/did/v1",
+    "https://w3id.org/security/suites/jws-2020/v1"
+  ],
+  "id": "did:web:cliox.ldas.jp",
+  "verificationMethod": [
+    {
+      "@context": "https://w3c-ccg.github.io/lds-jws2020/contexts/v1/",
+      "id": "did:web:cliox.ldas.jp#X509-JWK2020",
+      "type": "JsonWebKey2020",
+      "controller": "did:web:cliox.ldas.jp",
+      "publicKeyJwk": {
+        "kty": "RSA",
+        "n": "rWrDIAyoRkyONLk_zx3u6_RpuiDja3iFeYGXiAu4uBynivwSvuHlqLOwWJzJoYwXKGhbcOAWbJ5jmIwDmfXdwmzPYeZUvmQXWY-TMiS5IworWWARs2emZcq9470XeR81HIEGg-7ucP4GF4HuQj_xM1Q-aslEXV8MrUWKZ2iTsPQ7gHBp8-D3GpiLgO2gYUZciD7Ms5pIS6kowJr-iqbj0CZJUk-FrO3R41b7FNVEaekO-Ebn8plJ3wGlVegF-r1IZnUVom1bRBgSEGIUMmuXfTLGlWzSfGh7TPwjBXuHKwFVFnuzoY0gZfHTRP6gTxcrxjxG3WGl5MdJb4pmnYS_yQ",
+        "e": "AQAB",
+        "alg": "PS256",
+        "x5u": "https://cliox.ldas.jp/.well-known/gaia-x-demo/certificate-chain.crt"
+      }
+    }
+  ],
+  "assertionMethod": ["did:web:cliox.ldas.jp#X509-JWK2020"]
+}

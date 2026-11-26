@@ -15,6 +15,7 @@ import {
   SortTermOptions
 } from '../../@types/aquarius/SearchQuery'
 import { filterSets, getInitialFilters } from './Filter'
+import { getVerifiedOwnersFilter } from '@experiment/verified-provider/lib/filter' // [prototype]
 
 export function updateQueryStringParameter(
   uri: string,
@@ -43,7 +44,8 @@ export function getSearchQuery(
   serviceType?: string | string[],
   accessType?: string | string[],
   filterSet?: string | string[],
-  showSaas?: boolean
+  showSaas?: boolean,
+  verifiedOwners?: string[]
 ): SearchQuery {
   text = escapeEsReservedCharacters(text)
   const emptySearchTerm = text === undefined || text === ''
@@ -124,6 +126,7 @@ export function getSearchQuery(
     ['accessType', 'serviceType', 'filterSet']
   )
   parseFilters(filtersList, filterSets).forEach((term) => filters.push(term))
+  if (verifiedOwners) filters.push(getVerifiedOwnersFilter(verifiedOwners))
 
   const baseQueryParams = {
     chainIds,
@@ -156,7 +159,8 @@ export async function getResults(
     filterSet?: string[]
   },
   chainIds: number[],
-  cancelToken?: CancelToken
+  cancelToken?: CancelToken,
+  verifiedOwners?: string[]
 ): Promise<PagedAssets> {
   const {
     text,
@@ -199,7 +203,8 @@ export async function getResults(
     sanitizedServiceType,
     accessType,
     filterSet,
-    showSaas
+    showSaas,
+    verifiedOwners
   )
 
   const queryResult = await queryMetadata(searchQuery, cancelToken)

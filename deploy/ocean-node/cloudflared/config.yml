@@ -7,4 +7,8 @@ ingress:
     service: http://ocean-node:8001
   - hostname: cliox-subgraph.ldas.jp
     service: http://graph-node:8000
+  # Chatbot for the portal's /usecases/chatbot (profile chatbot). Requests
+  # without the X-Chatbot-Key header are refused by the service itself.
+  - hostname: cliox-chat.ldas.jp
+    service: http://chatbot:8001
   - service: http_status:404

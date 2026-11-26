@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { chatbotApi, KnowledgeStatus } from '../../../../@utils/chatbot'
 import type { ChatMessage } from '../_types'
 
@@ -14,6 +15,7 @@ export function useChat(
   status: AssistantState,
   knowledgeStatus: KnowledgeStatus | null
 ) {
+  const { t } = useTranslation('common')
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [isTyping, setIsTyping] = useState(false)
   const [isStreaming, setIsStreaming] = useState(false)
@@ -172,7 +174,9 @@ export function useChat(
             'Sorry, I encountered an error processing your message.'
           const errorMsg = error?.message || 'Unknown error'
 
-          if (errorMsg.includes('no_knowledge')) {
+          if (errorMsg.includes('signin_required')) {
+            errorContent = t('chatbot.signinRequiredError')
+          } else if (errorMsg.includes('no_knowledge')) {
             errorContent =
               "I don't have access to any information for this session. Please add some compute job results first."
           } else if (errorMsg.includes('Cannot connect')) {
@@ -205,7 +209,7 @@ export function useChat(
         }
       }
     },
-    [hasKnowledge]
+    [hasKnowledge, t]
   )
 
   const retryMessage = useCallback(

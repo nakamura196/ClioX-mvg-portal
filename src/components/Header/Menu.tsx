@@ -13,7 +13,7 @@ import Button from '@components/@shared/atoms/Button'
 import UserPreferences from './UserPreferences'
 import Automation from './UserPreferences/Automation'
 import NetworkMenu from './NetworkMenu'
-import LanguageSwitcher from './LanguageSwitcher'
+import LdasIdButton from './LdasIdButton'
 const Wallet = loadable(() => import('./Wallet'))
 
 const cx = classNames.bind(styles)
@@ -64,7 +64,12 @@ export default function Menu(): ReactElement {
 
       <ul className={styles.navigation}>
         {siteContent?.menu.map((item: MenuItem) => (
-          <li key={item.name}>
+          <li
+            key={item.name}
+            data-tour={
+              item.link?.startsWith('/search') ? 'catalogue' : undefined
+            }
+          >
             {item?.subItems ? (
               <MenuDropdown label={item.name} items={item.subItems} />
             ) : (
@@ -75,13 +80,17 @@ export default function Menu(): ReactElement {
       </ul>
 
       <div className={styles.actions}>
-        <LanguageSwitcher />
         <SearchButton />
-        {appConfig.chainIdsSupported.length > 1 && <Networks />}
-        <NetworkMenu />
+        <span data-jargon style={{ display: 'contents' }}>
+          {appConfig.chainIdsSupported.length > 1 && <Networks />}
+          <NetworkMenu />
+        </span>
+        <LdasIdButton />
         <Wallet />
         {appConfig.automationConfig.enableAutomation === 'true' && (
-          <Automation />
+          <span data-jargon style={{ display: 'contents' }}>
+            <Automation />
+          </span>
         )}
         <UserPreferences />
       </div>

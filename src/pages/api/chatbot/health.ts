@@ -1,4 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
+import { chatbotAuthHeaders } from '../../../@utils/chatbot/upstreamAuth'
 
 interface HealthResponse {
   status: string
@@ -23,7 +24,9 @@ export default async function handler(
     }
 
     // Forward the request to the external chatbot service
-    const response = await fetch(`${chatbotApiUrl}/api/health`)
+    const response = await fetch(`${chatbotApiUrl}/api/health`, {
+      headers: chatbotAuthHeaders()
+    })
 
     if (!response.ok) {
       const errorText = await response.text()

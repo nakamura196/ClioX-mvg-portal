@@ -1,0 +1,66 @@
+{
+  "engine": "NDL古典籍OCR-Lite",
+  "engineUrl": "https://github.com/ndl-lab/ndlkotenocr-lite",
+  "license": "CC BY 4.0",
+  "images": 8,
+  "totalLines": 94,
+  "totalCharacters": 1026,
+  "perFile": [
+    {
+      "file": "saitan-01.jpg",
+      "ok": true,
+      "lines": 4,
+      "characters": 13,
+      "seconds": 6.6
+    },
+    {
+      "file": "saitan-02.jpg",
+      "ok": true,
+      "lines": 1,
+      "characters": 2,
+      "seconds": 5.4
+    },
+    {
+      "file": "saitan-03.jpg",
+      "ok": true,
+      "lines": 13,
+      "characters": 124,
+      "seconds": 9.4
+    },
+    {
+      "file": "saitan-04.jpg",
+      "ok": true,
+      "lines": 31,
+      "characters": 336,
+      "seconds": 15.2
+    },
+    {
+      "file": "saitan-05.jpg",
+      "ok": true,
+      "lines": 34,
+      "characters": 405,
+      "seconds": 15.3
+    },
+    {
+      "file": "saitan-06.jpg",
+      "ok": true,
+      "lines": 10,
+      "characters": 144,
+      "seconds": 8.0
+    },
+    {
+      "file": "saitan-07.jpg",
+      "ok": true,
+      "lines": 1,
+      "characters": 2,
+      "seconds": 5.0
+    },
+    {
+      "file": "saitan-08.jpg",
+      "ok": false,
+      "lines": 0,
+      "characters": 0,
+      "seconds": 4.5
+    }
+  ]
+}

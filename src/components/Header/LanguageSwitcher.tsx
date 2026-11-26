@@ -1,24 +1,44 @@
+// [local patch] Japanese / English interface (react-i18next). Not in upstream; see scripts/local-patches.txt.
 import { ReactElement } from 'react'
 import { useRouter } from 'next/router'
 import { useTranslation } from 'react-i18next'
 import { locales, localeNames, Locale } from '../../i18n'
+import useActiveLocale from '../../i18n/useActiveLocale'
 import styles from './LanguageSwitcher.module.css'
 
 /**
- * Switches between the locales configured in `next.config.js`. Navigating with
- * the `locale` option keeps the current route and query string, so the user
- * stays on the page they were reading.
+ * Switches between English and Japanese in both Next.js i18n-routed builds
+ * (Vercel/dev) and static-export builds (Cloudflare Workers Assets).
  */
 export default function LanguageSwitcher(): ReactElement {
   const router = useRouter()
-  const { t } = useTranslation('common')
-  const activeLocale = (router.locale || router.defaultLocale) as Locale
+  const { t, i18n } = useTranslation('common')
+  const activeLocale = useActiveLocale()
 
   function switchTo(locale: Locale) {
-    router.push({ pathname: router.pathname, query: router.query }, undefined, {
-      locale,
-      scroll: false
-    })
+    if (router.locale) {
+      router.push(
+        { pathname: router.pathname, query: router.query },
+        undefined,
+        {
+          locale,
+          scroll: false
+        }
+      )
+      return
+    }
+    i18n.changeLanguage(locale)
+    if (typeof window !== 'undefined') {
+      const { pathname, search, hash } = window.location
+      const stripped = pathname.replace(/^\/ja(?=\/|$)/, '') || '/'
+      const nextPath =
+        locale === 'ja'
+          ? stripped === '/'
+            ? '/ja/'
+            : `/ja${stripped}`
+          : stripped
+      window.history.replaceState(null, '', `${nextPath}${search}${hash}`)
+    }
   }
 
   return (

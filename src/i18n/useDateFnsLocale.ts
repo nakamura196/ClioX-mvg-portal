@@ -1,16 +1,17 @@
-import { useRouter } from 'next/router'
+// [local patch] Japanese / English interface (react-i18next). Not in upstream; see scripts/local-patches.txt.
 import type { Locale as DateFnsLocale } from 'date-fns'
 import { ja } from 'date-fns/locale'
+import useActiveLocale from './useActiveLocale'
 
 /**
- * date-fns の locale オブジェクトを、現在の Next.js locale に合わせて返す。
+ * date-fns の locale オブジェクトを、現在の locale に合わせて返す。
  *
  * `formatDistance` / `formatDuration` は locale を渡さないと必ず英語になるため、
  * 相対時刻 (「16 minutes ago」) や実行時間 (「10 minutes」) がここだけ英語で
  * 残ってしまう。`undefined` を返すと date-fns 既定の en-US が使われる。
  */
 export function useDateFnsLocale(): DateFnsLocale | undefined {
-  const { locale } = useRouter()
+  const locale = useActiveLocale()
 
   return locale === 'ja' ? ja : undefined
 }

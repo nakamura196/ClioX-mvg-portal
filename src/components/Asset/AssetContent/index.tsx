@@ -15,6 +15,8 @@ import NetworkName from '@shared/NetworkName'
 import content from '../../../../content/purgatory.json'
 import Button from '@shared/atoms/Button'
 import RelatedAssets from '../RelatedAssets'
+// [prototype] 論文の図 1・デモ用: ?demo=1 のときだけ計算環境の比較表を出す
+import CompareTable from '@experiment/footprint/CompareTable'
 import {
   getFormattedCodeString,
   getServiceCredential
@@ -23,6 +25,12 @@ import ServiceCredentialVisualizer from '@components/@shared/ServiceCredentialVi
 import Web3Feedback from '@components/@shared/Web3Feedback'
 import { useAccount } from 'wagmi'
 import DDODownloadButton from '@components/@shared/DDODownloadButton'
+import useFindingAid from '@experiment/finding-aid/useFindingAid' // [prototype]
+
+// Gaia-X Service Credentials only mean something on networks that belong to
+// the Gaia-X ecosystem (Pontus-X devnet/testnet, the old Gaia-X testnet).
+// On Sepolia nobody would verify them, so the button is hidden there.
+const gaiaXChainIds = [32456, 32457, 2021000]
 
 export default function AssetContent({
   asset
@@ -41,6 +49,7 @@ export default function AssetContent({
   const [receipts, setReceipts] = useState([])
   const [nftPublisher, setNftPublisher] = useState<string>()
   const [serviceCredential, setServiceCredential] = useState<string>()
+  const findingAid = useFindingAid()
 
   useEffect(() => {
     if (!receipts.length) return
@@ -69,13 +78,13 @@ export default function AssetContent({
 
   return (
     <>
-      <div className={styles.networkWrap}>
+      <div className={styles.networkWrap} data-jargon>
         <NetworkName networkId={asset?.chainId} className={styles.network} />
       </div>
 
       <article className={styles.grid}>
         <div>
-          <div className={styles.content}>
+          <div className={styles.content} data-tour="asset-record">
             <MetaMain asset={asset} nftPublisher={nftPublisher} />
             {asset?.accessDetails?.datatoken !== null && (
               <Bookmark did={asset?.id} />
@@ -117,10 +126,20 @@ export default function AssetContent({
               }}
             >
               <EditHistory receipts={receipts} setReceipts={setReceipts} />
-              <DDODownloadButton asset={asset} />
+              {gaiaXChainIds.includes(asset?.chainId) && (
+                <DDODownloadButton asset={asset} />
+              )}
             </div>
+            <Button
+              style="text"
+              size="small"
+              to={`/experiment/finding-aid/${asset?.id}`}
+            >
+              {findingAid.openLink} →
+            </Button>
             {debug === true && <DebugOutput title="DDO" output={asset} />}
           </div>
+          <CompareTable />
         </div>
 
         <div className={styles.actions}>

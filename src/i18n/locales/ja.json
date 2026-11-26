@@ -105,7 +105,10 @@
       "updated": "更新",
       "stateUpdated": "状態を変更",
       "nftMetadataUpdated": "NFT メタデータを更新"
-    }
+    },
+    "invalidProviderUrl": "この資産は、このポータルからはダウンロードも計算もできません。提供サーバの住所が、ポータルから問い合わせられるサーバの URL になっていません。",
+    "ipfsServiceEndpoint": "この資産は、提供サーバ（ファイルを渡す役のサーバ）を通さずに公開されています。本文は IPFS に直接置かれているため、ポータルからはダウンロードも計算もできません。本文はこちらで開けます: [{{url}}]({{url}})",
+    "localServiceEndpoint": "この資産は、登録した人が自分のパソコンで動かしていた提供サーバ（`{{url}}`）で登録されています。ほかの人からは届かないため、ポータルからはダウンロードも計算もできません。ポータルはそこへの接続を試みません。"
   },
   "assetType": {
     "dataset": "データセット",
@@ -147,6 +150,7 @@
     "refresh": "更新",
     "refreshTitle": "計算ジョブを再取得",
     "showDetails": "詳細を表示",
+    "payGreenFee": "このジョブの環境配慮料を払う",
     "results": "実行結果",
     "noResults": "結果がありません。",
     "waitingForResults": "結果を待っています...",
@@ -327,5 +331,15 @@
     "failedGettingAsset": "資産の取得に失敗しました。",
     "publisherAddress": "公開者アドレス:",
     "assetStateSetBy": "この資産は公開者によって「{{state}}」に設定されています"
+  },
+  "chatbot": {
+    "signinNeeded": "質問するには、右上からウォレットを接続してください。最初の質問を送るときに、ウォレットが短い文への署名を求めます。署名だけで、取引は送られず、手数料もかかりません。",
+    "signinBusy": "質問を送るには、ウォレットで署名してください…",
+    "signinRequiredError": "質問するには、入力欄の上の「ウォレットでサインイン」を押してください。",
+    "sampleOffer": "まだ Compute ジョブが無くても、用意した見本で試せます: {{name}}（85 編、930 個の抜粋）。",
+    "sampleButton": "見本を読み込む",
+    "sampleLoading": "読み込んでいます…",
+    "sampleLoaded": "見本を読み込みました: {{name}}。下の欄から質問してください。",
+    "sampleError": "見本を読み込めませんでした"
   }
 }

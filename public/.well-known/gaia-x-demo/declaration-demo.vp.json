@@ -1,0 +1,98 @@
+{
+  "@context": "https://www.w3.org/2018/credentials/v1",
+  "type": "VerifiablePresentation",
+  "verifiableCredential": [
+    {
+      "@context": [
+        "https://www.w3.org/2018/credentials/v1",
+        "https://w3id.org/security/suites/jws-2020/v1",
+        "https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#"
+      ],
+      "id": "https://cliox.ldas.jp/.well-known/gaia-x-demo/declaration-demo.vp.json#participant",
+      "type": "VerifiableCredential",
+      "issuer": "did:web:cliox.ldas.jp",
+      "issuanceDate": "2026-09-27T17:45:02.077Z",
+      "credentialSubject": {
+        "id": "https://cliox.ldas.jp/.well-known/gaia-x-demo/participant",
+        "type": "gx:LegalParticipant",
+        "gx:legalName": "Clio-X Sepolia trial (DEMO - not a legal entity)",
+        "gx:description": "DEMONSTRATION ONLY. Made for the Clio-X Sepolia trial to show the portal's Verify page. Not issued by a legal entity, signed with a self-signed certificate, and not Gaia-X compliant.",
+        "gx:legalRegistrationNumber": {
+          "id": "https://cliox.ldas.jp/.well-known/gaia-x-demo/participant#lrn"
+        },
+        "gx:headquarterAddress": {
+          "gx:countrySubdivisionCode": "JP-13"
+        },
+        "gx:legalAddress": {
+          "gx:countrySubdivisionCode": "JP-13"
+        }
+      },
+      "proof": {
+        "type": "JsonWebSignature2020",
+        "created": "2026-09-27T17:45:02.077Z",
+        "proofPurpose": "assertionMethod",
+        "verificationMethod": "did:web:cliox.ldas.jp#X509-JWK2020",
+        "jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..eXoqJTJBN0ulNTJWuphfdySpGg5uCSPnJXM8aEblsJvKR9PcQ-OE4JuE1A73gT9G9vgM81J8XfIEqqJWjNP_zDwwUKIbmehDZcnldFKMqm2AR09OP4RMoL6RaKQedrJd3esn8Otc87cAjO1jg4H2Zbl55-NeaRdr35WCl0BG6u0eFfZ-f7RceOAJdpGmTD7OLAAhb2-RSMYMvBnK6VHGdedRd11c9oIq7UtMKJnqtlk5HAh9tOngMcJaHBpx9JkuRN3xQWMT7Z5S3d66L2ne9mVBdB4TX5We-ifOHHHfxpG-P6mC8pLThtOjk4FZy6yAi4LpE8sQkh8RlyPM6LPeYA"
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/2018/credentials/v1",
+        "https://w3id.org/security/suites/jws-2020/v1",
+        "https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#"
+      ],
+      "id": "https://cliox.ldas.jp/.well-known/gaia-x-demo/declaration-demo.vp.json#tandc",
+      "type": "VerifiableCredential",
+      "issuer": "did:web:cliox.ldas.jp",
+      "issuanceDate": "2026-09-27T17:45:02.077Z",
+      "credentialSubject": {
+        "id": "https://cliox.ldas.jp/.well-known/gaia-x-demo/participant#tandc",
+        "type": "gx:GaiaXTermsAndConditions",
+        "gx:termsAndConditions": "The PARTICIPANT signing the Self-Description agrees as follows:\n- to update its descriptions about any changes, be it technical, organizational, or legal - especially but not limited to contractual in regards to the indicated attributes present in the descriptions.\n\nThe keypair used to sign Verifiable Credentials will be revoked where Gaia-X Association becomes aware of any inaccurate statements in regards to the claims which result in a non-compliance with the Trust Framework and policy rules defined in the Policy Rules and Labelling Document (PRLD)."
+      },
+      "proof": {
+        "type": "JsonWebSignature2020",
+        "created": "2026-09-27T17:45:02.077Z",
+        "proofPurpose": "assertionMethod",
+        "verificationMethod": "did:web:cliox.ldas.jp#X509-JWK2020",
+        "jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..VHvnyD5LHOEQh74K1LqrAYirqWwWb8_aXKbGs4v3DXvu6Cu6UrTGbsbb0-M2QcL1DuOb5faL811dJw2rDBmPPDJNhVvs9TXLdgie4bhLD02sgi3ZQJO05oA0pny5XUVpP14m-bn6ivGEmc6M_FMHHQ3eovUC4m1NAC0aVow3rk2QfCVtiK0yIsGvHVGfsNnnXWd3torqhPJFVc4lMgzyub93mwuAE-r72hhsFPrqDruQWTiYGMieBmnAl1C5Zmopotl73VfQtQiTzpSB9MuC9N6PUzgcqWpQKiIH_4JXNw8nQ8bxreNu7a1bKNwVzLxUb3f3OXCHsq89hbGarCihug"
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/2018/credentials/v1",
+        "https://w3id.org/security/suites/jws-2020/v1",
+        "https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#"
+      ],
+      "id": "https://cliox.ldas.jp/.well-known/gaia-x-demo/declaration-demo.vp.json#service",
+      "type": "VerifiableCredential",
+      "issuer": "did:web:cliox.ldas.jp",
+      "issuanceDate": "2026-09-27T17:45:02.077Z",
+      "credentialSubject": {
+        "id": "did:op:f40f45aac2acc57fd668ed5c41a0eb7bd39f4c5fae5614286a8e5ab0453f1486",
+        "type": "gx:ServiceOffering",
+        "gx:providedBy": {
+          "id": "https://cliox.ldas.jp/.well-known/gaia-x-demo/participant"
+        },
+        "gx:description": "DEMONSTRATION ONLY. Made for the Clio-X Sepolia trial to show the portal's Verify page. Not issued by a legal entity, signed with a self-signed certificate, and not Gaia-X compliant.",
+        "gx:policy": [""],
+        "gx:termsAndConditions": {
+          "gx:URL": "https://cliox-docs.ldas.jp/developers/verify",
+          "gx:hash": "71ce575d37c40a191e4685ac6efbdab92b70e0be8c96807444a37e58a15239a5"
+        },
+        "gx:dataAccountExport": {
+          "gx:requestType": "email",
+          "gx:accessType": "digital",
+          "gx:formatType": "application/json"
+        }
+      },
+      "proof": {
+        "type": "JsonWebSignature2020",
+        "created": "2026-09-27T17:45:02.077Z",
+        "proofPurpose": "assertionMethod",
+        "verificationMethod": "did:web:cliox.ldas.jp#X509-JWK2020",
+        "jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..oQ_D1ENxB93nLOscB2nXRICEmMDFLUFqnAHutZyVQZLkh1t2TqV-xXrDQ9Gv5GYF2jc0diyvs5cyFsCG_vz_MiCPaihThRQFG6mP8Dk6Wudf2ctrW-77666yz9YeK0F7vd0nmNYf0W9vcXcKlIGcz93wj3Rx_xjgZ0vRPl8275xfOO4v_R795u7SCa-BE8fHeuabw0FRwIsd26PPJ2AH6GFIEnpyOGNCAIgBdAPV2T0S3VtK_W0lL61T9SwY9q9hSisc6EGzTRO1g-kcwMJde40YSnhGSnoaj635gfwEFVROOlXG5BEDT-5YZe7C7Y-GhcMhI39NNzOqHzud6_3lQg"
+      }
+    }
+  ]
+}

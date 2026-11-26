@@ -9,3 +9,7 @@
 .termsAndConditionsCheckbox {
   margin-bottom: 0;
 }
+
+.providerAlert {
+  margin-bottom: calc(var(--spacer) * 1.5);
+}
