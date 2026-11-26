@@ -58,9 +58,9 @@ Japanese has no spaces between words, so the match is a substring match. Full-wi
 Counts checked on a local portal: "きりつぼ" 2, "キリツボ" 2, "genji" 60, "declaration" 1, "zzzz" 0.
 There is no relevance ranking (results keep the chosen sort order).
 
-## Downloading with MetaMask saves an error (file.json)
+## Downloading with MetaMask saves an error (file.json) {#kp-metamask-smart-account}
 
-**Where:** Ocean Node 4.2.0, partly the portal. **Status:** not fixed; workaround available.
+**Where:** Ocean Node 4.2.0, partly the portal. **Status:** fixed on our node by a patch (2026-11-25); the portal part is not fixed.
 
 On 2026-09-27 downloading an algorithm saved `file.json` instead of the file. It contains `CALL_EXCEPTION` for `getERC721Address()`.
 With a MetaMask smart account, the order transaction goes through MetaMask's delegation contract (`0xdb9B1e94…` on Sepolia, function `redeemDelegations`).
@@ -69,7 +69,13 @@ The order itself succeeded: transaction `0xe7d8721a…` carries the datatoken's 
 The same asset downloaded correctly from a wallet that sends transactions directly (checked with Playwright).
 The portal saves the node's error response as a file instead of showing it.
 
-Workaround: turn off MetaMask's smart account for the account you use on Sepolia (not yet tested).
+Seen again on 2026-11-25 when downloading 羅生門 (`did:op:4897cc9c…bf61`) from `/ja/asset/…`. The order transaction `0x37a84998…0eb5` went to `0xdb9B1e94…` and succeeded (the datatoken `0x560d…8AdD` emitted `OrderStarted`), and the node log shows the same `CALL_EXCEPTION` at 05:43:49 UTC. The wallet `0x6E43…32C3` has an EIP-7702 delegation (its code points to `0x63c0c19a…e32b`). Not related to the move to Cloudflare.
+
+**Fixed on the server (2026-11-25, 23:14 MST).** Turning the smart account off did not help: an order placed earlier through the relay is reused, and a second account's order (`0x61796ba5…26f9`) also went to `0xdb9B1e94…`.
+We now mount a patched `validateOrders.js` over the image (`deploy/ocean-node/patches/`, see its README).
+It takes the datatoken from the asset description when that contract emitted logs in the order transaction, and reads `OrderStarted` only from the datatoken's own logs.
+Tested inside the container on both real orders: upstream throws `CALL_EXCEPTION`; the patch answers "Transaction is valid." and still rejects a wrong user.
+The portal still saves an error answer as a file; that part is not fixed.
 Proposed fix: the node should take the datatoken from the contract that emitted `OrderStarted`, not from the recipient. The portal should show an error response instead of saving it.
 
 ## The indexer restarts from the first block every 90 seconds
@@ -297,6 +303,132 @@ Measured on 2026-11-25 against `https://cliox-node.ldas.jp/api/services/fileInfo
 The notice repeats because the check runs again whenever the form values change.
 The preview now skips the check when it has no file URL (`src/components/Asset/AssetActions/index.tsx`).
 The missing-method case was fixed earlier in `357abc99`.
+
+## Handover: what was found on 2026-11-25, by cause
+
+While publishing a new asset (羅生門, `did:op:4897cc9c…bf61`) through the portal on 2026-11-25, we hit the problems below.
+For whoever takes over the code, they are sorted by where the cause is.
+
+| Cause                                                                           | Problem                                                                                                          | Entry                               |
+| ------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- | ----------------------------------- |
+| Clio-X (upstream code), with Ocean Node 4.x                                     | URL files without `method` are rejected                                                                          | [below](#kp-url-method)             |
+| Clio-X (upstream code), with Ocean Node 4.x                                     | The DDO encrypt request is rejected because it is unsigned                                                       | [below](#kp-unsigned-encrypt)       |
+| Our hosting (Cloudflare static export, regression of `242e0054`)                | Submit on the last publish step answered 404                                                                     | [below](#kp-publish-step6)          |
+| Our hosting (Cloudflare static export, regression of `242e0054`)                | "Owned by" opens an empty profile                                                                                | [below](#kp-profile-owner)          |
+| Our hosting (Cloudflare static export, regression of `242e0054`)                | Nine smaller differences from Vercel, mostly on `/ja` pages                                                      | [below](#kp-static-export-audit)    |
+| Our hosting (server)                                                            | Index and subgraph stopped on RPC rate limits                                                                    | [below](#kp-rpc-rate-limit)         |
+| Ocean Node 4.x, with a MetaMask smart account (seen again; patched on our node) | Download saves an error file instead of the text                                                                 | [above](#kp-metamask-smart-account) |
+| Not a problem (upstream behaviour)                                              | "External content not allowed", empty token page on Etherscan, "No pricing schema" while the subgraph catches up | [below](#kp-expected-messages)      |
+
+The "regression" rows did not happen on the Vercel deployment before 23 November 2026.
+Upstream Clio-X does not have them.
+
+## URL files without a method are rejected by Ocean Node 4.x (fixed) {#kp-url-method}
+
+**Where:** Clio-X (upstream code), shown up by Ocean Node 4.x. **Status:** fixed and deployed on `deploy/hosting` in `1df55ba3` and `357abc99`.
+
+Ocean Node 4.x requires a `method` on every URL file.
+The upstream publish form and asset page send URL files without one.
+The node answers `Error validating the URL file: URL or method are missing` (measured on 2026-11-25 against `https://cliox-node.ldas.jp/api/services/fileInfo`).
+The file check on publish step 2 and on the asset page failed.
+URL files now default to `get` (`src/@utils/ddo.ts`, `FilesInput`, `src/components/Asset/AssetActions/index.tsx`).
+Any deployment of the upstream portal against Ocean Node 4.x will hit this.
+
+## Publishing fails at step 2 because the DDO encrypt request is unsigned (fixed) {#kp-unsigned-encrypt}
+
+**Where:** Clio-X (upstream code), shown up by Ocean Node 4.x. **Status:** fixed and deployed on `deploy/hosting` in `fd46e0fe` and `72935701`.
+
+Ocean Node 4.x accepts an encrypt request only when it is signed by the publisher's wallet.
+The upstream portal calls `ProviderInstance.encrypt` without a signature.
+ocean.js then returns the node's error text as if it were the encrypted DDO.
+The portal wrote that text on chain as the asset's metadata, and no node could index the asset.
+The portal now signs the request for our node (`encryptViaOceanNode`, `src/@utils/oceanNodeAuth.ts`), in both the publish flow and `setNFTMetadataAndTokenURI` (also used by Edit).
+It also refuses a result that is not hex, so the error can no longer reach the chain.
+Publishing reuses the DDO encrypted in step 2 instead of encrypting a second time.
+
+## Submit on the last publish step answers 404 (fixed) {#kp-publish-step6}
+
+**Where:** our hosting (the static export, a regression of `242e0054`). **Status:** fixed and deployed on `deploy/hosting` in `d4dfe27d`.
+
+The static export built only `/publish/1` to `/publish/5`.
+Submitting moves to `/publish/6`, which did not exist, so the Worker answered 404 and publishing could not finish.
+`getStaticPaths` in `src/pages/publish/[step].tsx` now lists step 6 too.
+
+## "Owned by" opens an empty profile (fixed, not yet deployed) {#kp-profile-owner}
+
+**Where:** our hosting (the static export, a regression of `242e0054`). **Status:** fixed on `deploy/hosting` (local check done; not yet deployed).
+
+On an asset page, the owner link opens `/profile/<address>/`.
+It showed 0 sales, 0 published and "Please connect your wallet.", while the header's profile link (`/profile/`) listed the same wallet's assets.
+The static export builds `/profile/[account]` once, as `_`, and the Worker serves that page for every address.
+The page read the address from `router.query.account`, which is `_` there, so it never knew whose profile to show.
+The move to Cloudflare added `useDynamicParam` (`src/@utils/useDynamicParam.ts`) for exactly this and used it on the asset pages, but not on the profile page.
+The profile page now uses it (`src/pages/profile/index.tsx`), and compares the address with the wallet regardless of letter case.
+Checked on 2026-11-25 on a local `wrangler dev`: `/profile/0x6E43…32C3/` lists 羅生門 (Free).
+
+## Smaller differences from Vercel after the move to the static export (fixed, not yet deployed) {#kp-static-export-audit}
+
+**Where:** our hosting (the static export, regressions of `242e0054`). **Status:** fixed on `deploy/hosting` (local check done; not yet deployed). Found by reading the code on 2026-11-25.
+
+The static export has no Next locale routing and exports one `_` page for each dynamic route. Several things that Vercel did for free stopped working:
+
+1. `/ja/asset/…` did not show the "External content" prompt, and `/ja/search` got the wrong search-bar mode. The page address keeps the `/ja` prefix, and `src/components/@shared/Page/index.tsx` compared it with `/asset` and `/search`. The prefix is now removed before the check.
+2. The guided tour on `/ja` said it was lost and jumped to the English page (`src/experiment/tour/steps.ts`, same cause).
+3. On `/ja`, clicking a link dropped `/ja` from the address. The page stayed Japanese, but a reload or a copied link came back in English. `src/i18n/useStaticExportLocale.ts` (called from `_app.tsx`) adds `/ja` back after each move.
+4. `<html>` had no `lang` attribute on any page. The same hook now sets `en` or `ja`.
+5. Opening an asset, profile or finding-aid page from a link reloaded the whole page, and on `/ja` the reload came back in English. Only the `_` page data was exported, so Next's data request answered 404. The Worker now serves the `_` data for any id.
+6. `/ja/imprint` and `/ja/terms` showed English text. `src/pages/[slug].tsx` now ships both languages and picks one in the browser.
+7. `/experiment?view=…` stayed on the index instead of going to the two-condition page, because the exported page answered before the Worker. `wrangler.jsonc` now sends `/experiment` to the Worker first.
+8. `/ja/publish` and `/ja/signup` answered 404. The Worker's old-address redirects now also match `/ja`.
+9. Every page requested Vercel's analytics script and got 404. It is no longer loaded in the static export.
+
+Checked on 2026-11-25 on a local `wrangler dev`: on `/ja/`, moving to search and then to an asset keeps `/ja` without a full reload; reload and Back stay Japanese; `/ja/asset/…` shows the External content prompt.
+
+## New assets do not appear because the RPC rate-limits our server (fixed) {#kp-rpc-rate-limit}
+
+**Where:** our hosting (the node server `mdx-clio`). **Status:** fixed on the server on 2026-11-25; the repository's `deploy/ocean-node/` has the same settings.
+
+The server runs two programs that both read Sepolia.
+
+- The **index** (inside Ocean Node) keeps the asset descriptions. Search and asset pages read it. When it stops, new assets are missing from search and their pages answer "Could not retrieve asset".
+- The **subgraph** (graph-node) keeps prices, orders and sales counts. When it stops, asset pages show "Data out of sync" and "No pricing schema available".
+
+Both used Tenderly's public gateway (`https://sepolia.gateway.tenderly.co`), which has no key and limits by IP address.
+The subgraph used up the limit: in 30 minutes, 44 answers were 429.
+The index then failed too: `599 CLIENT ESCALATED SERVER ERROR (429 Too Many Requests; exceeded maximum retry limit)`.
+From the server even `eth_blockNumber` answered 429, while the same request from another machine succeeded.
+
+What we measured for other free endpoints (2026-11-25):
+
+- publicnode refuses `eth_getLogs` without an address, which the index needs.
+- dRPC's free plan does not serve Sepolia (`chain is not available on free plan`).
+- Alchemy's free plan answers `eth_getLogs` for at most 10 blocks, and limits requests per second.
+
+What we set:
+
+- Both now use Alchemy (1Password item "sepolia rpc alchemy"; `SEPOLIA_SUBGRAPH_RPC` and `SEPOLIA_INDEXER_RPC` in the server's `.env`).
+- The index reads 10 blocks per request (`SEPOLIA_INDEXER_CHUNK_SIZE=10`, used as `chunkSize` in `RPCS`).
+- graph-node reads 10 blocks per request, polls every 6 s, and sends at most 2 requests at once (`GRAPH_ETHEREUM_MAX_BLOCK_RANGE_SIZE`, `ETHEREUM_POLLING_INTERVAL`, `ETHEREUM_RPC_MAX_PARALLEL_REQUESTS`). With the default of 64 parallel requests, the two programs together got 429 from Alchemy too.
+
+After the change, the asset was indexed within a minute.
+Both share one free Alchemy key.
+If 429 comes back, give the index its own key (a free Tenderly account, or a second Alchemy app).
+
+**Later the same day (22:50 MST):** sharing the key failed again.
+graph-node got 429 from Alchemy on `eth_getTransactionReceipt` and stopped at block 12214280 (about 300 blocks behind).
+Ocean Node uses the same RPC (`RPCS`) to answer downloads, and two downloads at 05:51 and 05:53 UTC failed with `Unable to detect provider network: (TIMEOUT)`.
+The portal then saved the node's answer `Download handler: TIMEOUT` (25 bytes) as `file.html` instead of showing an error.
+What we changed: graph-node went back to Tenderly's gateway with 500 blocks per request (`GRAPH_ETHEREUM_MAX_BLOCK_RANGE_SIZE: '500'`); the index and downloads stay on Alchemy.
+After the restart (05:54 UTC) no more timeouts were logged, and Alchemy answered `eth_chainId` from the server in about 40 ms.
+If a download saves a small `file.html` or `file.json`, open it: a one-line error means try again, not that the asset is broken.
+
+## Messages on a new asset page that are expected {#kp-expected-messages}
+
+**Where:** upstream behaviour. **Status:** not a problem.
+
+- **"External content not allowed … Do you want to allow it?"** appears on every asset page until the reader presses Allow (kept in a cookie). It is a privacy setting from upstream, not an error. Our Japanese pages (`/ja/asset/…`) did not show it; that was ours and is fixed ([above](#kp-static-export-audit), item 1).
+- **"Accessed with GXAT"** links to the datatoken on Etherscan. For a free asset, tokens are made only when someone gets access, so a new asset's token page shows no holders and a supply of 0 (seen on 2026-11-25 for `0x560d…8AdD`).
+- **"No pricing schema available"** and **"Data out of sync"** appear while the subgraph is behind the block where the asset was published (羅生門: block 12,214,097, subgraph at 12,213,272). They go away when it catches up.
 
 ## Smaller things
 

@@ -57,9 +57,9 @@ Pontus-X が Aquarius を Ocean Node に置き換えた時点で、本家の Cli
 手元の画面で確かめた件数: 「きりつぼ」2 件、「キリツボ」2 件、「genji」60 件、「declaration」1 件、「zzzz」0 件。
 関連度の順位づけはしていません（並び順は選んだ並び替えのまま）。
 
-## MetaMask でダウンロードすると、エラーの中身（file.json）が落ちてくる
+## MetaMask でダウンロードすると、エラーの中身（file.json）が落ちてくる {#kp-metamask-smart-account}
 
-**原因:** Ocean Node 4.2.0。ポータル側にも一部あり。**状態:** 未修正。回避策あり。
+**原因:** Ocean Node 4.2.0。ポータル側にも一部あり。**状態:** こちらのノードは手直しで修正済み（2026-11-25）。ポータル側は未修正。
 
 2026-09-27 に、アルゴリズムをダウンロードしたところ、本体の代わりに `file.json` が保存されました。中身は `CALL_EXCEPTION`（`getERC721Address()` の呼び出しが失敗）です。
 MetaMask の「スマートアカウント」が有効だと、注文の取引は MetaMask の中継の契約（Sepolia では `0xdb9B1e94…`、関数 `redeemDelegations`）を経由して送られます。
@@ -68,7 +68,13 @@ MetaMask の「スマートアカウント」が有効だと、注文の取引�
 同じ資料を、中継を使わないウォレットで操作すると、正しくダウンロードできました（Playwright で確認）。
 ポータルは、ノードが返したエラーを画面に出さず、そのままファイルとして保存してしまいます。
 
-回避策: Sepolia で使うアカウントでは、MetaMask のスマートアカウントを切ってください（未検証）。
+2026-11-25 に、羅生門（`did:op:4897cc9c…bf61`）を `/ja/asset/…` からダウンロードしたときにも起きました。注文の取引 `0x37a84998…0eb5` は `0xdb9B1e94…` 宛てで、成功しています（データトークン `0x560d…8AdD` が `OrderStarted` を出している）。ノードの記録にも、05:43:49 UTC に同じ `CALL_EXCEPTION` があります。ウォレット `0x6E43…32C3` には EIP-7702 の委任が設定されています（コードが `0x63c0c19a…e32b` を指す）。Cloudflare への移行とは関係ありません。
+
+**サーバで修正しました（2026-11-25 23:14 MST）。** スマートアカウントを切っても直りませんでした。前に中継を通して出した注文が使い回されるうえ、別のアカウントの注文（`0x61796ba5…26f9`）も `0xdb9B1e94…` 宛てでした。
+手直しした `validateOrders.js` をイメージに重ねて載せています（`deploy/ocean-node/patches/`、説明は同じ場所の README）。
+注文の取引の中でデータトークンが記録を出していれば、資料の記述にあるデータトークンの住所を使い、`OrderStarted` はデータトークン自身の記録からだけ読みます。
+実際の注文 2 件でコンテナの中で試しました。元のコードは `CALL_EXCEPTION` で落ち、手直し後は「Transaction is valid.」を返し、別の利用者は今までどおり断られました。
+ポータルがエラーの応答をファイルとして保存してしまう点は、まだ直していません。
 直し方の案: ノードは宛先ではなく、`OrderStarted` の記録を出した契約の住所を見るべきです。ポータルは、エラーの応答を受けたら保存せずに表示します。
 
 ## 索引づくりが 90 秒ごとに最初のブロックからやり直す
@@ -297,6 +303,132 @@ Cloudflare の Worker から配る静的書き出しでは `router.locale` が�
 フォームの値が変わるたびに確認が走り直すので、通知が何度も出ます。
 プレビューでファイルの URL が無いときは、確認をしないようにしました（`src/components/Asset/AssetActions/index.tsx`）。
 `method` が無い場合の失敗は、先に `357abc99` で直っています。
+
+## 引き継ぎ: 2026-11-25 に見つかったこと（原因の場所ごと）
+
+2026-11-25、ポータルから新しい資料（羅生門、`did:op:4897cc9c…bf61`）を公開したときに、次の問題に当たりました。
+コードを引き継ぐ方のために、原因の場所で分けています。
+
+| 原因の場所                                                                          | 問題                                                                                                           | 項目                             |
+| ----------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- | -------------------------------- |
+| Clio-X（本家のコード）。Ocean Node 4.x で表に出る                                   | `method` の無い URL のファイルが断られる                                                                       | [下](#kp-url-method)             |
+| Clio-X（本家のコード）。Ocean Node 4.x で表に出る                                   | DDO の暗号化の依頼に署名が無く、断られる                                                                       | [下](#kp-unsigned-encrypt)       |
+| こちらのホスティング（Cloudflare の静的書き出し。`242e0054` からのデグレ）          | 公開の最後の手順で 404 になる                                                                                  | [下](#kp-publish-step6)          |
+| こちらのホスティング（同上）                                                        | 「Owned by」から空のプロフィールが開く                                                                         | [下](#kp-profile-owner)          |
+| こちらのホスティング（同上）                                                        | Vercel との細かな違い 9 件（多くは `/ja` の頁）                                                                | [下](#kp-static-export-audit)    |
+| こちらのホスティング（サーバ）                                                      | RPC の回数制限で索引と subgraph が止まる                                                                       | [下](#kp-rpc-rate-limit)         |
+| Ocean Node 4.x と MetaMask のスマートアカウント（再発。こちらのノードは手直し済み） | ダウンロードすると本文ではなくエラーのファイルが保存される                                                     | [上](#kp-metamask-smart-account) |
+| 問題ではない（本家のふるまい）                                                      | 「External content not allowed」、Etherscan のトークンの頁が空、subgraph が追いつくまでの「No pricing schema」 | [下](#kp-expected-messages)      |
+
+「デグレ」の行は、2026-11-23 までの Vercel の配信では起きていませんでした。
+本家の Clio-X にもありません。
+
+## URL のファイルに method が無いと、Ocean Node 4.x に断られる（修正済み） {#kp-url-method}
+
+**原因の場所:** Clio-X（本家のコード）。Ocean Node 4.x で表に出る。**状態:** `deploy/hosting` の `1df55ba3`・`357abc99` で修正し、本番に反映済み。
+
+Ocean Node 4.x は、URL のファイルに `method` を必ず求めます。
+本家の公開フォームと資料の頁は、`method` の無い URL のファイルを送ります。
+ノードは `Error validating the URL file: URL or method are missing` と返します（2026-11-25 に `https://cliox-node.ldas.jp/api/services/fileInfo` で実測）。
+公開の手順 2 と資料の頁で、ファイルの確認が失敗していました。
+URL のファイルは、既定で `get` にしました（`src/@utils/ddo.ts`、`FilesInput`、`src/components/Asset/AssetActions/index.tsx`）。
+本家のポータルを Ocean Node 4.x とつなぐと、どこでも起きます。
+
+## 公開の手順 2 で失敗する: DDO の暗号化の依頼に署名が無い（修正済み） {#kp-unsigned-encrypt}
+
+**原因の場所:** Clio-X（本家のコード）。Ocean Node 4.x で表に出る。**状態:** `deploy/hosting` の `fd46e0fe`・`72935701` で修正し、本番に反映済み。
+
+Ocean Node 4.x は、公開者のウォレットで署名した暗号化の依頼だけを受け付けます。
+本家のポータルは、署名なしで `ProviderInstance.encrypt` を呼びます。
+すると ocean.js は、ノードのエラーの文字列を「暗号化した DDO」として返します。
+ポータルはその文字列を資料のメタデータとしてチェーンに書き込み、どのノードもその資料を索引できませんでした。
+今は、こちらのノードへの依頼に署名を付けます（`src/@utils/oceanNodeAuth.ts` の `encryptViaOceanNode`）。公開の流れと、編集でも使う `setNFTMetadataAndTokenURI` の両方です。
+16 進の文字列でない結果は受け付けないので、エラーの文字列がチェーンに載ることはもうありません。
+公開では、手順 2 で暗号化した DDO をそのまま使い、2 回暗号化しません。
+
+## 公開の最後の手順で 404 になる（修正済み） {#kp-publish-step6}
+
+**原因の場所:** こちらのホスティング（静的書き出し。`242e0054` からのデグレ）。**状態:** `deploy/hosting` の `d4dfe27d` で修正し、本番に反映済み。
+
+静的書き出しで、`/publish/1` から `/publish/5` までしか作っていませんでした。
+送信すると `/publish/6` に移りますが、その頁が無いので Worker が 404 を返し、公開を終えられませんでした。
+`src/pages/publish/[step].tsx` の `getStaticPaths` に手順 6 を足しました。
+
+## 「Owned by」から空のプロフィールが開く（修正済み・未反映） {#kp-profile-owner}
+
+**原因の場所:** こちらのホスティング（静的書き出し。`242e0054` からのデグレ）。**状態:** `deploy/hosting` で修正（手元で確認済み。本番には未反映）。
+
+資料の頁の持ち主のリンクは `/profile/<アドレス>/` を開きます。
+その頁は、売上 0・公開 0・「Please connect your wallet.」でした。いっぽう、ヘッダーのプロフィール（`/profile/`）には、同じウォレットの資料が並びます。
+静的書き出しでは、`/profile/[account]` を `_` として 1 つだけ作り、Worker がどのアドレスにもその頁を返します。
+頁はアドレスを `router.query.account` から読んでいましたが、そこは `_` なので、誰のプロフィールか分かりませんでした。
+Cloudflare への移行で、まさにこのための `useDynamicParam`（`src/@utils/useDynamicParam.ts`）を作り、資料の頁には使っていましたが、プロフィールの頁には使っていませんでした。
+プロフィールの頁でも使うようにしました（`src/pages/profile/index.tsx`）。ウォレットとの照合は、大文字・小文字を区別しません。
+2026-11-25 に手元の `wrangler dev` で確認: `/profile/0x6E43…32C3/` に羅生門（Free）が出る。
+
+## 静的書き出しに移したことによる、Vercel との細かな違い（修正済み・未反映） {#kp-static-export-audit}
+
+**どこの問題か:** こちらのホスティング（静的書き出し、`242e0054` のデグレ）。**状態:** `deploy/hosting` で修正済み（手元で確認済み、本番は未反映）。2026-11-25 にコードを読んで見つけました。
+
+静的書き出しには、Next の言語ごとの振り分けがありません。また、アドレスに ID を含む頁は `_` の 1 枚だけを書き出します。そのため、Vercel では自動で行われていたことが、いくつか動かなくなっていました。
+
+1. `/ja/asset/…` に「External content」の確認が出ず、`/ja/search` で検索欄の種類が違っていました。頁のアドレスに `/ja` が付いたまま、`src/components/@shared/Page/index.tsx` が `/asset`・`/search` と比べていたためです。比べる前に `/ja` を外すようにしました。
+2. `/ja` で案内ツアーが「迷子」になり、英語の頁に飛んでいました（`src/experiment/tour/steps.ts`、原因は同じ）。
+3. `/ja` でリンクを押すと、アドレスから `/ja` が落ちていました。表示は日本語のままですが、再読み込みやリンクのコピーで英語に戻っていました。`src/i18n/useStaticExportLocale.ts`（`_app.tsx` から呼ぶ）が、移動のたびに `/ja` を付け直します。
+4. どの頁も `<html>` に `lang` がありませんでした。同じ仕組みで `en` か `ja` を付けます。
+5. リンクから資料・プロフィール・目録の頁を開くと、頁全体を読み直していました。`/ja` では読み直した結果が英語になっていました。頁のデータが `_` の分しか書き出されず、Next のデータの取得が 404 になっていたためです。Worker が、どの ID にも `_` のデータを返すようにしました。
+6. `/ja/imprint` と `/ja/terms` が英語でした。`src/pages/[slug].tsx` が両方の言語を持ち、ブラウザで選ぶようにしました。
+7. `/experiment?view=…` が二条件の頁に移らず、一覧のままでした。書き出した頁が Worker より先に答えていたためです。`wrangler.jsonc` で `/experiment` を先に Worker に回すようにしました。
+8. `/ja/publish` と `/ja/signup` が 404 でした。Worker の旧アドレスの転送が `/ja` にも効くようにしました。
+9. どの頁も Vercel の利用統計のスクリプトを読みに行き、404 になっていました。静的書き出しでは読み込まないようにしました。
+
+2026-11-25 に手元の `wrangler dev` で確認しました。`/ja/` から検索、資料の頁へと移っても `/ja` が残り、頁全体の読み直しも起きません。再読み込みと「戻る」でも日本語のままです。`/ja/asset/…` に External content の確認が出ます。
+
+## 新しい資料が出てこない: RPC の回数制限（修正済み） {#kp-rpc-rate-limit}
+
+**原因の場所:** こちらのホスティング（ノードのサーバ `mdx-clio`）。**状態:** 2026-11-25 にサーバで修正。リポジトリの `deploy/ocean-node/` にも同じ設定。
+
+サーバでは、Sepolia を読むプログラムが 2 つ動いています。
+
+- **索引**（Ocean Node の中）は、資料の説明を持ちます。検索と資料の頁がここを読みます。止まると、新しい資料が検索に出ず、頁は「Could not retrieve asset」になります。
+- **subgraph**（graph-node）は、価格・注文・売上の数を持ちます。止まると、資料の頁に「Data out of sync」と「No pricing schema available」が出ます。
+
+どちらも Tenderly の公開の窓口（`https://sepolia.gateway.tenderly.co`）を使っていました。鍵が無く、IP アドレスごとに回数を制限します。
+subgraph が枠を使い切りました（30 分で 429 が 44 回）。
+続いて索引も失敗しました（`599 CLIENT ESCALATED SERVER ERROR (429 Too Many Requests; exceeded maximum retry limit)`）。
+サーバからは `eth_blockNumber` さえ 429 で、別の機械からの同じ依頼は通りました。
+
+ほかの無料の窓口の実測（2026-11-25）:
+
+- publicnode は、アドレスを指定しない `eth_getLogs` を断る。索引はこれを使う。
+- dRPC の無料プランは Sepolia を出さない（`chain is not available on free plan`）。
+- Alchemy の無料プランは、`eth_getLogs` を 10 ブロックまでしか返さず、1 秒あたりの回数も制限する。
+
+設定したこと:
+
+- どちらも Alchemy にした（1Password の「sepolia rpc alchemy」。サーバの `.env` の `SEPOLIA_SUBGRAPH_RPC` と `SEPOLIA_INDEXER_RPC`）。
+- 索引は 1 回に 10 ブロック読む（`SEPOLIA_INDEXER_CHUNK_SIZE=10`。`RPCS` の `chunkSize` に入る）。
+- graph-node は 1 回に 10 ブロック、6 秒ごとに問い合わせ、同時に送る依頼は 2 つまで（`GRAPH_ETHEREUM_MAX_BLOCK_RANGE_SIZE`、`ETHEREUM_POLLING_INTERVAL`、`ETHEREUM_RPC_MAX_PARALLEL_REQUESTS`）。既定の 64 のままだと、2 つ合わせて Alchemy からも 429 が返った。
+
+変更のあと、資料は 1 分ほどで索引に入りました。
+2 つで 1 本の無料の Alchemy の鍵を分け合っています。
+429 が戻ってきたら、索引に別の鍵を渡してください（無料の Tenderly のアカウントか、2 つ目の Alchemy のアプリ）。
+
+**同じ日の夜（22:50 MST）:** 鍵の分け合いで、また止まりました。
+graph-node が `eth_getTransactionReceipt` で Alchemy から 429 を受け、ブロック 12214280 で止まった（約 300 ブロック遅れ）。
+Ocean Node はダウンロードへの応答にも同じ RPC（`RPCS`）を使うので、05:51 と 05:53 UTC のダウンロードが `Unable to detect provider network: (TIMEOUT)` で失敗した。
+ポータルは、ノードの返した `Download handler: TIMEOUT`（25 バイト）を、エラーとして見せずに `file.html` として保存した。
+直したこと: graph-node を Tenderly の窓口に戻し、1 回に 500 ブロック読むようにした（`GRAPH_ETHEREUM_MAX_BLOCK_RANGE_SIZE: '500'`）。索引とダウンロードは Alchemy のまま。
+再起動（05:54 UTC）のあと、時間切れは記録されておらず、サーバから Alchemy への `eth_chainId` は約 40 ミリ秒で返った。
+ダウンロードで小さな `file.html` や `file.json` が保存されたら、中を開いてください。1 行のエラーなら、資料の故障ではなく、やり直せば済みます。
+
+## 新しい資料の頁に出る、想定どおりの表示 {#kp-expected-messages}
+
+**原因の場所:** 本家のふるまい。**状態:** 問題ではない。
+
+- **「External content not allowed … Do you want to allow it?」** は、読者が Allow を押すまで、どの資料の頁にも出ます（選んだ結果は Cookie に残る）。本家のプライバシーの設定で、エラーではありません。こちらの日本語の頁（`/ja/asset/…`）では出ていませんでしたが、これはこちらの不具合で、修正済みです（[上](#kp-static-export-audit) の 1）。
+- **「Accessed with GXAT」** は、Etherscan のデータトークンの頁に飛びます。無料の資料では、誰かが利用するときに初めてトークンが作られるので、新しい資料の頁は持ち主 0・発行量 0 です（2026-11-25、`0x560d…8AdD` で確認）。
+- **「No pricing schema available」と「Data out of sync」** は、subgraph が資料の公開されたブロックに追いつくまで出ます（羅生門は 12,214,097 で公開、subgraph は 12,213,272）。追いつけば消えます。
 
 ## 小さなこと
 
