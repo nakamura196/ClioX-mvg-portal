@@ -41,6 +41,11 @@ function sidebarEn(): DefaultTheme.Sidebar {
           },
           { text: 'Known problems', link: '/developers/known-problems' },
           {
+            text: 'How the price currency is chosen',
+            link: '/developers/price-tokens'
+          },
+          { text: 'Test money', link: '/developers/test-money' },
+          {
             text: 'The Gaia-X Service Credential button',
             link: '/developers/gaia-x-credential'
           },
@@ -118,6 +123,8 @@ function sidebarJa(): DefaultTheme.Sidebar {
           { text: 'API（OpenAPI）', link: '/ja/developers/api' },
           { text: 'CLI で登録と無償の計算', link: '/ja/developers/trial-run' },
           { text: '分かっている問題', link: '/ja/developers/known-problems' },
+          { text: '価格の通貨の決まり方', link: '/ja/developers/price-tokens' },
+          { text: '試験用のお金', link: '/ja/developers/test-money' },
           {
             text: 'Gaia-X サービスクレデンシャル',
             link: '/ja/developers/gaia-x-credential'
