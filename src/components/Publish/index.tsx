@@ -258,7 +258,8 @@ export default function PublishPage({
         accountIdToUse,
         signerToUse,
         values.metadata.nft,
-        newAbortController()
+        newAbortController(),
+        ddoEncrypted
       )
       const tx = await res.wait()
       if (!tx?.transactionHash)

@@ -13,6 +13,24 @@ import { customProviderUrl } from '../../app.config'
 import { Signer, ethers } from 'ethers'
 import { toast } from 'react-toastify'
 import { safeErrorMessage } from './safeError'
+// [local patch] Ocean Node 4.x: encrypt needs a signed request
+import { encryptViaOceanNode, isLocalOceanNode } from './oceanNodeAuth'
+
+// [local patch] Ocean Node 4.x rejects an unsigned encrypt, and ocean.js
+// returns the error text as if it were the encrypted DDO. Sign the request
+// for our node, and refuse anything that is not hex.
+async function encryptDdo(
+  asset: Asset | DDO,
+  signal: AbortSignal
+): Promise<string> {
+  const providerUrl = customProviderUrl || asset.services[0].serviceEndpoint
+  const encrypted = isLocalOceanNode(providerUrl)
+    ? await encryptViaOceanNode(asset, providerUrl)
+    : await ProviderInstance.encrypt(asset, asset.chainId, providerUrl, signal)
+  if (!encrypted || !/^0x[0-9a-f]*$/i.test(encrypted))
+    throw new Error(encrypted || 'No encrypted DDO received')
+  return encrypted
+}
 
 // https://docs.opensea.io/docs/metadata-standards
 export interface NftMetadata {
@@ -129,16 +147,12 @@ export async function setNftMetadata(
 ): Promise<ethers.providers.TransactionResponse> {
   let encryptedDdo
   try {
-    encryptedDdo = await ProviderInstance.encrypt(
-      asset,
-      asset.chainId,
-      customProviderUrl || asset.services[0].serviceEndpoint,
-      signal
-    )
+    encryptedDdo = await encryptDdo(asset, signal)
   } catch (err) {
     const message = safeErrorMessage(err.message)
     LoggerInstance.error('[Encrypt Data] Error:', message)
     toast.error(message)
+    throw new Error(message)
   }
   LoggerInstance.log('[setNftMetadata] Got encrypted DDO', encryptedDdo)
 
@@ -167,20 +181,18 @@ export async function setNFTMetadataAndTokenURI(
   accountId: string,
   signer: Signer,
   nftMetadata: NftMetadata | undefined,
-  signal: AbortSignal
+  signal: AbortSignal,
+  // [local patch] the publish flow already encrypted this DDO in step 2
+  preEncryptedDdo?: string
 ): Promise<ethers.providers.TransactionResponse> {
-  let encryptedDdo
+  let encryptedDdo = preEncryptedDdo
   try {
-    encryptedDdo = await ProviderInstance.encrypt(
-      asset,
-      asset.chainId,
-      customProviderUrl || asset.services[0].serviceEndpoint,
-      signal
-    )
+    if (!encryptedDdo) encryptedDdo = await encryptDdo(asset, signal)
   } catch (err) {
     const message = safeErrorMessage(err.message)
     LoggerInstance.error('[Encrypt Data] Error:', message)
     toast.error(message)
+    throw new Error(message)
   }
   LoggerInstance.log(
     '[setNFTMetadataAndTokenURI] Got encrypted DDO',
