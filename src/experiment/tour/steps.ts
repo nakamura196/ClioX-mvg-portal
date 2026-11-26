@@ -80,9 +80,15 @@ export const tourSteps: TourStep[] = [
   { id: 'finish' }
 ]
 
-/** Does the current route (Next's `asPath`, locale already stripped) match? */
+/**
+ * Does the current route (Next's `asPath`) match? The static export has no
+ * locale routing, so asPath keeps the /ja prefix there; strip it here.
+ */
 export function isOnStepPage(step: TourStep, asPath: string): boolean {
   if (!step.path) return true
-  const current = decodeURIComponent(asPath.split(/[?#]/)[0])
+  const current = decodeURIComponent(asPath.split(/[?#]/)[0]).replace(
+    /^\/ja(?=\/|$)/,
+    ''
+  )
   return current === step.path || current.startsWith(`${step.path}/`)
 }

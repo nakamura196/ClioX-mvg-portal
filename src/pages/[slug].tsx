@@ -5,13 +5,24 @@ import styles from '@shared/Page/PageMarkdown.module.css'
 import Container from '@shared/atoms/Container'
 import { useRouter } from 'next/router'
 import { markdownToHtmlWithToc } from '@utils/markdown'
+import useActiveLocale from '../i18n/useActiveLocale' // [local patch]
 
-export default function PageMarkdown(page: PageData): ReactElement | null {
+// [local patch] The static export has no locales, so getStaticProps also ships
+// the Japanese page (`<slug>.ja.md`) and the client picks it on /ja/<slug>.
+type LocalizedPageData = PageData & {
+  ja?: Pick<PageData, 'frontmatter' | 'content'> | null
+}
+
+export default function PageMarkdown(
+  page: LocalizedPageData
+): ReactElement | null {
   const router = useRouter()
+  const locale = useActiveLocale() // [local patch]
   if (!page || page.content === '') return null
 
-  const { title, description } = page.frontmatter
-  const { content } = page
+  const shown = locale === 'ja' && page.ja ? page.ja : page // [local patch]
+  const { title, description } = shown.frontmatter
+  const { content } = shown
 
   return (
     <Page
@@ -36,12 +47,24 @@ export async function getStaticProps({
 }: {
   params: { slug: string }
   locale: string
-}): Promise<{ props: PageData }> {
+}): Promise<{ props: LocalizedPageData }> {
   const page = getPageBySlug(params.slug, undefined, locale)
   const content = markdownToHtmlWithToc(page?.content || '')
 
+  // [local patch] see LocalizedPageData
+  let ja: LocalizedPageData['ja'] = null
+  if (!locale) {
+    const jaPage = getPageBySlug(params.slug, undefined, 'ja')
+    if (jaPage.content !== page.content) {
+      ja = {
+        frontmatter: jaPage.frontmatter,
+        content: markdownToHtmlWithToc(jaPage.content || '')
+      }
+    }
+  }
+
   return {
-    props: { ...page, content }
+    props: { ...page, content, ja }
   }
 }
 

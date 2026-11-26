@@ -17,6 +17,10 @@
       "/documentation",
       "/docs",
       "/newsletter",
+      // /experiment?view=… redirects to the two-condition page (prototypeRedirect);
+      // the exported /experiment/ page would otherwise answer first.
+      "/experiment",
+      "/experiment/",
       "/ja",
       "/ja/*",
       "/asset/*",

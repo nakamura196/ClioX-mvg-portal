@@ -1201,15 +1201,33 @@ function rewriteDynamicPath(pathname: string): string | null {
   return null
 }
 
+/**
+ * Client-side navigation to a dynamic page fetches its getStaticProps data
+ * (`/_next/data/<build>/asset/<did>.json`). Only the `_` file is exported, so
+ * the fetch 404ed and Next fell back to a full page load, which also dropped
+ * the /ja prefix (the page came back in English). The props are the same for
+ * every id, so serve the `_` file; Next then reads the id from the address.
+ */
+function rewriteDataPath(pathname: string): string | null {
+  const m = /^\/_next\/data\/([^/]+)\/(?:ja\/)?(.+)\.json$/.exec(pathname)
+  if (!m) return null
+  const [, build, page] = m
+  const shell = rewriteDynamicPath(`/${page}`)
+  if (!shell || shell === `/${page}`) return null
+  return `/_next/data/${build}${shell.replace(/\/$/, '')}.json`
+}
+
 export default {
   async fetch(req: Request, env: Env): Promise<Response> {
     const url = new URL(req.url)
     const { pathname } = url
 
-    // Legacy redirects
-    const redirect = LEGACY_REDIRECTS[pathname]
+    // Legacy redirects (also under /ja, as Next's locale routing did)
+    const jaPrefix = pathname === '/ja' || pathname.startsWith('/ja/')
+    const redirect = LEGACY_REDIRECTS[jaPrefix ? pathname.slice(3) : pathname]
     if (redirect) {
-      return Response.redirect(`${url.origin}${redirect.to}`, redirect.status)
+      const to = `${jaPrefix ? '/ja' : ''}${redirect.to}`
+      return Response.redirect(`${url.origin}${to}`, redirect.status)
     }
     const moved = prototypeRedirect(url)
     if (moved) {
@@ -1281,6 +1299,8 @@ export default {
     if (rewritten) {
       return serveAsset(req, env, rewritten)
     }
+    const data = rewriteDataPath(pathname)
+    if (data) return serveAsset(req, env, data)
 
     return env.ASSETS.fetch(req)
   }

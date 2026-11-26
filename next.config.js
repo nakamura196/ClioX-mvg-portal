@@ -21,7 +21,9 @@ module.exports = (phase, { defaultConfig }) => {
           }
         }),
     env: {
-      CHATBOT_API_URL: process.env.CHATBOT_API_URL
+      CHATBOT_API_URL: process.env.CHATBOT_API_URL,
+      // [local patch] lets _app skip Vercel Analytics in the Cloudflare export
+      NEXT_STATIC_EXPORT: isStaticExport ? 'true' : ''
     },
     // Server-only runtime config (not exposed to browser)
     serverRuntimeConfig: {

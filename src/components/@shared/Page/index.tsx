@@ -33,9 +33,11 @@ export default function Page({
   const { allowExternalContent } = useUserPreferences()
   const { t } = useTranslation('common')
 
-  const isHome = uri === '/'
-  const isSearchPage = uri.startsWith('/search')
-  const isAssetPage = uri.startsWith('/asset')
+  // [local patch] the static export has no locale routing, so asPath keeps /ja
+  const path = uri.replace(/^\/ja(?=\/|$)/, '') || '/'
+  const isHome = path === '/'
+  const isSearchPage = path.startsWith('/search')
+  const isAssetPage = path.startsWith('/asset')
 
   // Only hide page header on home page or if explicitly specified
   const shouldHidePageHeader = noPageHeader || isHome

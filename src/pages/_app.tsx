@@ -3,6 +3,7 @@ import type { AppProps } from 'next/app'
 import { appWithTranslation } from 'next-i18next/pages'
 import { useTranslation } from 'react-i18next'
 import nextI18NextConfig from '../i18n'
+import useStaticExportLocale from '../i18n/useStaticExportLocale' // [local patch]
 import { LdasAuthProvider } from '@context/LdasAuth'
 import { UserPreferencesProvider } from '@context/UserPreferences'
 import UrqlProvider from '@context/UrqlProvider'
@@ -41,6 +42,7 @@ function MyApp({ Component, pageProps }: AppProps): ReactElement {
       i18n.changeLanguage('ja')
     }
   }, [i18n])
+  useStaticExportLocale()
 
   return (
     <>
@@ -83,7 +85,8 @@ function MyApp({ Component, pageProps }: AppProps): ReactElement {
           </ConnectKitProvider>
         </WagmiConfig>
       </Theme>
-      <Analytics />
+      {/* [local patch] /_vercel/insights only exists on Vercel; 404 on Cloudflare */}
+      {process.env.NEXT_STATIC_EXPORT !== 'true' && <Analytics />}
     </>
   )
 }
