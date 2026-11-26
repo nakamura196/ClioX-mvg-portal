@@ -97,7 +97,9 @@ export default function AssetActions({
       const query = file?.query || undefined
       const abi = file?.abi || undefined
       const headers = file?.headers || undefined
-      const method = file?.method || undefined
+      // [local patch] Ocean Node 4.x rejects a URL file without a method
+      // (same as FilesInput); the preview on /publish/5 hit this.
+      const method = file?.method || (storageType === 'url' ? 'get' : undefined)
 
       try {
         const fileInfoResponse = formikState?.values?.services?.[0].files?.[0]
