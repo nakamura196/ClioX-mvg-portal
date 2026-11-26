@@ -61,11 +61,49 @@ After the fix the publish form's debug view still showed JPYC after switching to
 Ocean's fixed-rate exchange accepts any ERC-20 as the base token.
 Ocean's community contract keeps a list of "approved" tokens, and the community fee is lower for those.
 For WETH, which is not on that list, we measured 0.2% instead of 0.1% ([Known problems](/developers/known-problems#there-is-no-test-ocean-on-sepolia)).
-JPYC and USDC are not on the list either, so we expect the same 0.2%. This is a guess; we have not bought a JPYC- or USDC-priced asset yet.
+JPYC is not on the list either, and a JPYC-priced asset also paid 0.2% (measured on 25 Nov 2026, see [Where the money goes](#where-the-money-goes)). USDC is not on the list, so we expect the same 0.2%; this is a guess, as we have not bought a USDC-priced asset.
 
 The fee's label on the form changed from "Pontus-X Community Fee" to **Community Fee**, because on Sepolia the fee goes to Ocean Protocol's collector, not to Pontus-X.
 
+## Where the money goes {#where-the-money-goes}
+
+We published a test asset priced at 10 JPYC on https://cliox.ldas.jp
+(`did:op:41f53cfdbe808655e358ce113d4897b7b7adfc7b257a3f966618217d3fe14499`,
+publisher `0x6E43…32C3`) and bought it twice on 25 Nov 2026.
+The figures below come from the JPYC `Transfer` events and the exchange's state on Sepolia, read at block 12214705.
+
+The buyer pays **10.02 JPYC**: the price of 10 plus Ocean's community fee of 0.02 (0.2%).
+The publish fee and the market fee were both 0.
+`calcBaseInGivenOutDT` on the FixedRateExchange (`0x80E63f73cAc60c1662f27D2DFd2EA834acddBaa8`) gave the same 10.02 before the purchase.
+
+Each purchase is one transaction with three JPYC transfers:
+
+1. buyer → the asset's datatoken (`0x702Af0654507f59Cd30e066b089c72E202b70fda`): 10.02
+2. datatoken → FixedRateExchange: 10.02
+3. FixedRateExchange → publisher: **10**
+
+So the publisher is paid at once, in the same transaction; nothing waits in the exchange for a withdrawal.
+The 0.02 stays in the exchange as `oceanFeeAvailable` until someone collects it for Ocean's collector (`0x69B6E54Ad2b3c2801d11d8Ad56ea1d892555b776`); it had not been collected yet.
+
+| Purchase                                                           | Transaction                                                                                                             | Block    |
+| ------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------- | -------- |
+| A second account, `0x05f1…C085` (through a MetaMask smart account) | [`0x61796ba5…26f9`](https://sepolia.etherscan.io/tx/0x61796ba5deedaae4f51e7bc87b20caa00f3ade4734597a990a44edbf408426f9) | 12214659 |
+| The publisher buying its own asset                                 | [`0xe0dbaa5d…f1e9`](https://sepolia.etherscan.io/tx/0xe0dbaa5dce586e9f16a34c022f276fb4522ec73893d521af5ada5491e33ef1e9) | 12214693 |
+
+| Account                      | Before (block 12214639) | After (block 12214705) | Change                               |
+| ---------------------------- | ----------------------- | ---------------------- | ------------------------------------ |
+| Buyer `0x05f1…C085`          | 2,396                   | 2,385.98               | −10.02                               |
+| Publisher `0x6E43…32C3`      | 999,500                 | 999,509.98             | +10 (sale) −10.02 +10 (own purchase) |
+| FixedRateExchange, fees held | 0                       | 0.04                   | +0.02 × 2                            |
+
+In MetaMask the publisher sees this only as a higher JPYC balance (after JPYC is added as a custom token). The 10 JPYC is not listed in the publisher's Activity, because the transaction was sent by the buyer to the exchange, not to the publisher (this is how MetaMask behaves in general; we did not check it on screen). Etherscan's token transfers for the address do list it: [`0x6E43…32C3`](https://sepolia.etherscan.io/address/0x6E43f56B211d537C6B19Dc89414FE9506f5532C3#tokentxns).
+
+Buying your own asset costs only the 0.02 fee and gas: you pay 10.02 and get 10 back in the same transaction.
+
+For a few minutes after the purchases the asset page still said "No sales yet", while the ledger already showed both. We assume the subgraph had not indexed them yet (not checked).
+
 ## Not checked yet
 
-- Publishing with a wallet signature, priced in JPYC and free (only the form was checked).
-- Buying a JPYC- or USDC-priced asset, and the actual community fee.
+- Publishing a free asset with a wallet signature (a JPYC-priced one was published on 25 Nov 2026; for the free one only the form was checked).
+- Whether the second account could download the file after buying.
+- Buying a USDC-priced asset.
