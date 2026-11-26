@@ -8,7 +8,6 @@ import {
   useMemo,
   useState
 } from 'react'
-import { useRouter } from 'next/router'
 import { OpcQuery } from '../../../src/@types/subgraph/OpcQuery'
 import { OperationResult } from 'urql'
 import { opcQuery } from './_queries'
@@ -24,6 +23,7 @@ import {
 } from '@utils/subgraph'
 import { LoggerInstance } from '@oceanprotocol/lib'
 import { useNetwork, useConnect } from 'wagmi'
+import useActiveLocale from '../../i18n/useActiveLocale'
 
 const MarketMetadataContext = createContext({} as MarketMetadataProviderValue)
 
@@ -34,7 +34,7 @@ function MarketMetadataProvider({
 }): ReactElement {
   const { isLoading } = useConnect()
   const { chain } = useNetwork()
-  const { locale } = useRouter()
+  const locale = useActiveLocale()
 
   // Localized site copy: the `content/site.<locale>.json` files only carry the
   // strings that differ, everything else falls through to the English source.

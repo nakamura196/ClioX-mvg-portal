@@ -55,7 +55,7 @@ export default function PrototypeBanner(): ReactElement {
 
   if (kind === 'trial') {
     const on = [
-      router.locale && router.locale !== router.defaultLocale ? TEXT.ja[i] : '',
+      i === 1 ? TEXT.ja[i] : '',
       archivistMode ? TEXT.archivist[i] : ''
     ].filter(Boolean)
     return (

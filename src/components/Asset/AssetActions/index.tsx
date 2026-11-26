@@ -101,6 +101,15 @@ export default function AssetActions({
       // (same as FilesInput); the preview on /publish/5 hit this.
       const method = file?.method || (storageType === 'url' ? 'get' : undefined)
 
+      // [local patch] The publish preview has no file yet (e.g. step 5 opened
+      // directly). Its asset is not on chain, so asking the node about its DID
+      // only returns "Invalid request parameters" and raises error toasts.
+      if (formikState && !file?.url) {
+        setFileMetadata(undefined)
+        setFileIsLoading(false)
+        return
+      }
+
       try {
         const fileInfoResponse = formikState?.values?.services?.[0].files?.[0]
           .url
