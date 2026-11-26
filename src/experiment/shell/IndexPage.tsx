@@ -139,6 +139,25 @@ const ITEMS: Item[] = [
     illustrative: ['—', '—']
   },
   {
+    href: '/experiment/apply-provider',
+    title: [
+      'Verified providers (id.ldas.jp)',
+      '認証済みプロバイダー（id.ldas.jp）'
+    ],
+    what: [
+      'Providers who show an id.ldas.jp credential get a "Verified by id.ldas.jp" mark, and the catalogue can be limited to them. This page is where a provider applies.',
+      'id.ldas.jp の証明書を提示したプロバイダーに「確認済み」のマークを付け、カタログをその提供者に絞れます。このページは、提供者が申請する画面です。'
+    ],
+    real: [
+      'The credential check (signature, key binding, revocation) and the email to the operator.',
+      '証明書の確認（署名・鍵束縛・失効）と、運営者へのメール。'
+    ],
+    illustrative: [
+      'The list of verified providers is filled in by hand by the operator; until then it is empty or a test sample.',
+      '認証済みの一覧は運営者が手で書き足します。それまでは空か、試験用の例です。'
+    ]
+  },
+  {
     href: '/experiment/glossary',
     title: [
       'Clio-X words, in archival terms',

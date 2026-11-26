@@ -1,0 +1,21 @@
+.apply {
+  max-width: 44rem;
+  line-height: 1.7;
+}
+
+.apply h3 {
+  margin: 1.5rem 0 0.5rem;
+}
+
+.apply p {
+  margin: 0.75rem 0;
+}
+
+.apply ul {
+  margin: 0.5rem 0 0.75rem 1.5rem;
+  list-style: disc;
+}
+
+.error {
+  color: #c0392b;
+}

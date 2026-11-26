@@ -5,6 +5,7 @@
  * (0 ms Worker CPU). This Worker handles only:
  *   - /api/auth/ldas/*   (id.ldas.jp OID4VP 1.0 + dc+sd-jwt + kb+jwt sign-in)
  *   - /api/policy-server (Ocean Node POLICY_SERVER_URL verifier for id.ldas.jp VCs)
+ *   - /api/provider-application/* (verified-provider applications, [prototype])
  *   - /api/chatbot/*     (proxy to mdx chatbot service)
  *   - /api/contact*      (Resend / CF7 contact form)
  *   - /robots.txt, /sitemap.xml, legacy redirects
@@ -15,7 +16,24 @@ import {
   verifyLdasCredential,
   bytesToB64url,
   type VerifiedLdasUser
-} from './ldasVerify'
+} from './ldasVerify.ts'
+import {
+  allowApplication,
+  buildEntry,
+  composeEmailBody,
+  signApplication,
+  toChecksumAddress
+} from './providerApplication.ts'
+import {
+  ApplicationError,
+  assertLive,
+  assertReady,
+  consumeNonce,
+  messageFor,
+  newApplyState,
+  withSignature,
+  type ApplyState
+} from './applicationFlow.ts'
 
 export interface Env {
   ASSETS: { fetch: (req: Request | URL | string) => Promise<Response> }
@@ -29,12 +47,17 @@ export interface Env {
   RESEND_FROM_EMAIL?: string
   CONTACT_EMAIL?: string
   POLICY_REQUIRE_MEMBER?: string
+  /** Where applications are sent (secret/var; never hardcoded) */
+  OPERATOR_EMAIL?: string
+  /** HMAC key that signs each application email */
+  APPLICATION_SIGNING_KEY?: string
 }
 
 const LDAS_SESSION_COOKIE = 'cliox_ldas_session'
 const LDAS_AUTH_STATE_COOKIE = 'cliox_ldas_state'
 const SESSION_TTL_SEC = 24 * 60 * 60
 const STATE_TTL_SEC = 10 * 60
+const APPLY_STATE_COOKIE = 'cliox_ldas_apply'
 
 const LEGACY_REDIRECTS: Record<string, { to: string; status: number }> = {
   '/publish': { to: '/publish/1/', status: 308 },
@@ -357,12 +380,15 @@ async function handleLdasVerify(
     ''
   )
   try {
-    const user = await verifyLdasCredential(rawToken, {
-      issuerOrigin,
-      expectedAud: url.origin,
-      expectedNonce: saved.nonce,
-      requireKeyBinding: Boolean(body.vp_token)
-    })
+    const { verification: _evidence, ...user } = await verifyLdasCredential(
+      rawToken,
+      {
+        issuerOrigin,
+        expectedAud: url.origin,
+        expectedNonce: saved.nonce,
+        requireKeyBinding: Boolean(body.vp_token)
+      }
+    )
 
     const exp = Math.floor(Date.now() / 1000) + SESSION_TTL_SEC
     const sealedSession = await sealPayload(secret, { user, exp })
@@ -423,6 +449,333 @@ async function handleLdasLogout(url: URL): Promise<Response> {
       url.protocol === 'https:'
     )
   })
+}
+
+// ---------------------------------------------------------------------------
+// 1b. Verified-provider application (plan B: wallet signature + id.ldas.jp
+//     credential, both bound to one nonce; see worker/applicationFlow.ts)
+// ---------------------------------------------------------------------------
+
+function issuerOriginOf(env: Env): string {
+  return (env.LDAS_ID_ORIGIN || 'https://id.ldas.jp').replace(/\/+$/, '')
+}
+
+function isLocalHost(url: URL): boolean {
+  return url.hostname === 'localhost' || url.hostname === '127.0.0.1'
+}
+
+async function readApplyState(
+  req: Request,
+  env: Env,
+  url: URL
+): Promise<ApplyState | null> {
+  return unsealPayload<ApplyState>(
+    sessionSecret(env, url),
+    parseCookies(req)[APPLY_STATE_COOKIE]
+  )
+}
+
+async function applyStateHeaders(
+  env: Env,
+  url: URL,
+  state: ApplyState
+): Promise<Record<string, string>> {
+  const maxAge = Math.max(0, state.exp - Math.floor(Date.now() / 1000))
+  return {
+    'Set-Cookie': makeCookie(
+      APPLY_STATE_COOKIE,
+      await sealPayload(sessionSecret(env, url), state),
+      maxAge,
+      url.protocol === 'https:'
+    )
+  }
+}
+
+function clearApplyHeaders(url: URL): Record<string, string> {
+  return {
+    'Set-Cookie': makeCookie(
+      APPLY_STATE_COOKIE,
+      '',
+      0,
+      url.protocol === 'https:'
+    )
+  }
+}
+
+function applyStatus(state: ApplyState): Record<string, unknown> {
+  return {
+    active: true,
+    address: state.address,
+    message: messageFor(state),
+    signer: state.signer || null,
+    credential: state.credential
+      ? {
+          name: state.credential.entry.name,
+          method: state.credential.entry.method,
+          selfDeclaredName: state.credential.entry.selfDeclaredName
+        }
+      : null,
+    expiresAt: new Date(state.exp * 1000).toISOString()
+  }
+}
+
+/** Stage 1. POST {wallet, consent}: new nonce and the message to sign. */
+async function handleApplyStart(
+  req: Request,
+  env: Env,
+  url: URL
+): Promise<Response> {
+  const body = (await req.json().catch(() => ({}))) as {
+    wallet?: string
+    consent?: boolean
+  }
+  if (!body.wallet || !/^0x[0-9a-fA-F]{40}$/.test(body.wallet)) {
+    return json({ error: 'Connect your wallet first' }, 400)
+  }
+  if (body.consent !== true) {
+    return json({ error: 'Consent is required' }, 400)
+  }
+  const state = newApplyState(toChecksumAddress(body.wallet), url.origin)
+  return json(
+    { nonce: state.nonce, message: messageFor(state) },
+    200,
+    await applyStateHeaders(env, url, state)
+  )
+}
+
+/** Stage 2. POST {signature}: recover the signer of the message from stage 1. */
+async function handleApplySignature(
+  req: Request,
+  env: Env,
+  url: URL
+): Promise<Response> {
+  const body = (await req.json().catch(() => ({}))) as { signature?: string }
+  const state = withSignature(
+    assertLive(await readApplyState(req, env, url)),
+    String(body.signature || '')
+  )
+  return json(applyStatus(state), 200, await applyStateHeaders(env, url, state))
+}
+
+/** Stage 3a. POST: id.ldas.jp authorize URL whose nonce is the application nonce. */
+async function handleApplyPresent(
+  req: Request,
+  env: Env,
+  url: URL
+): Promise<Response> {
+  const state = assertLive(await readApplyState(req, env, url))
+  if (!state.signer) {
+    throw new ApplicationError('Sign the application with your wallet first')
+  }
+  const issuerOrigin = issuerOriginOf(env)
+  const oid4vpState = crypto.randomUUID()
+  // No wallet claim is requested: the wallet is proven by the signature.
+  const dcqlQuery = JSON.stringify({
+    credentials: [
+      {
+        id: 'cliox-ldas-member',
+        format: 'dc+sd-jwt',
+        meta: { vct_values: [`${issuerOrigin}/credentials/member/v1`] },
+        claims: [
+          { path: ['credentialSubject', 'name'] },
+          { path: ['credentialSubject', 'orcid'] },
+          { path: ['credentialSubject', 'affiliation'] },
+          { path: ['credentialSubject', 'emailDomain'] }
+        ]
+      }
+    ]
+  })
+  const authUrl = new URL(`${issuerOrigin}/authorize`)
+  authUrl.search = new URLSearchParams({
+    response_type: 'vp_token',
+    client_id: url.origin,
+    redirect_uri: `${url.origin}/ldas-callback/`,
+    nonce: state.nonce,
+    state: oid4vpState,
+    dcql_query: dcqlQuery
+  }).toString()
+  const next: ApplyState = { ...state, oid4vpState, credential: undefined }
+  return json(
+    { authorizeUrl: authUrl.toString() },
+    200,
+    await applyStateHeaders(env, url, next)
+  )
+}
+
+/** Stage 3b. POST {vp_token, state}: verify the credential, keep only the entry. */
+async function handleApplyCredential(
+  req: Request,
+  env: Env,
+  url: URL
+): Promise<Response> {
+  const body = (await req.json().catch(() => ({}))) as {
+    vp_token?: string
+    state?: string
+  }
+  if (!body.vp_token || typeof body.vp_token !== 'string') {
+    return json({ error: 'vp_token is required' }, 400)
+  }
+  const state = assertLive(await readApplyState(req, env, url))
+  if (
+    !state.oid4vpState ||
+    !body.state ||
+    !timingSafeEqualStr(body.state, state.oid4vpState)
+  ) {
+    return json({ error: 'OID4VP state mismatch' }, 400)
+  }
+  let user: VerifiedLdasUser
+  try {
+    user = await verifyLdasCredential(body.vp_token, {
+      issuerOrigin: issuerOriginOf(env),
+      expectedAud: url.origin,
+      expectedNonce: state.nonce,
+      requireKeyBinding: true
+    })
+  } catch (err) {
+    return json(
+      { error: err instanceof Error ? err.message : 'Verification failed' },
+      401
+    )
+  }
+  // The credential may still carry a wallet (did:pkh); it is ignored here.
+  const next: ApplyState = {
+    ...state,
+    oid4vpState: undefined,
+    credential: {
+      nonce: state.nonce,
+      entry: buildEntry(user, user.verification)
+    }
+  }
+  return json(applyStatus(next), 200, await applyStateHeaders(env, url, next))
+}
+
+/** GET: where the application in this browser stands (the cookie is HttpOnly). */
+async function handleApplyStatus(
+  req: Request,
+  env: Env,
+  url: URL
+): Promise<Response> {
+  const state = await readApplyState(req, env, url)
+  if (!state || state.v !== 2 || state.exp < Math.floor(Date.now() / 1000)) {
+    return json({ active: false })
+  }
+  return json(applyStatus(state))
+}
+
+/** Stage 4. POST {consent}: seal the registry line and email the operator. */
+async function handleApplySubmit(
+  req: Request,
+  env: Env,
+  url: URL
+): Promise<Response> {
+  const body = (await req.json().catch(() => ({}))) as { consent?: unknown }
+  const state = assertLive(await readApplyState(req, env, url))
+  const { wallet, entry } = assertReady(state, body.consent)
+  const clearState = clearApplyHeaders(url)
+  if (!consumeNonce(state.nonce, state.exp)) {
+    return json(
+      { error: 'This application was already submitted' },
+      409,
+      clearState
+    )
+  }
+  if (!allowApplication(wallet)) {
+    return json(
+      {
+        error:
+          'An application for this wallet was sent recently. Please wait a few minutes.'
+      },
+      429,
+      clearState
+    )
+  }
+
+  const signingKey =
+    env.APPLICATION_SIGNING_KEY ||
+    (isLocalHost(url) ? 'cliox-local-dev-application-key' : '')
+  if (!signingKey)
+    return json({ error: 'Applications are not configured' }, 503)
+  const signature = await signApplication(signingKey, wallet, entry)
+  const text = composeEmailBody(wallet, entry, signature)
+
+  if (env.RESEND_API_KEY && env.OPERATOR_EMAIL && env.RESEND_FROM_EMAIL) {
+    // Same Resend account and sender as the contact form (upstream uses
+    // Resend too), so the only settings are the key, sender and recipient.
+    let sent = false
+    try {
+      const res = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${env.RESEND_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          from: env.RESEND_FROM_EMAIL,
+          to: [env.OPERATOR_EMAIL],
+          subject: 'Clio-X verified-provider application',
+          text
+        })
+      })
+      sent = res.ok
+      if (!sent)
+        console.error('application email failed', res.status, await res.text())
+    } catch (err) {
+      console.error('application email failed', err)
+    }
+    if (!sent)
+      return json(
+        { error: 'Could not send the application. Please try again later.' },
+        502,
+        clearState
+      )
+  } else if (isLocalHost(url)) {
+    // Local dev without a Resend key: print what would be sent.
+    console.log(`[provider application] (local dev, not sent)\n${text}`)
+  } else {
+    return json({ error: 'Applications are not configured' }, 503, clearState)
+  }
+
+  return json(
+    { submitted: true, wallet, name: entry.name, method: entry.method },
+    200,
+    clearState
+  )
+}
+
+const APPLY_ROUTES: Record<
+  string,
+  {
+    method: string
+    handler: (req: Request, env: Env, url: URL) => Promise<Response>
+  }
+> = {
+  start: { method: 'POST', handler: handleApplyStart },
+  signature: { method: 'POST', handler: handleApplySignature },
+  present: { method: 'POST', handler: handleApplyPresent },
+  credential: { method: 'POST', handler: handleApplyCredential },
+  status: { method: 'GET', handler: handleApplyStatus },
+  submit: { method: 'POST', handler: handleApplySubmit }
+}
+
+async function handleProviderApplication(
+  req: Request,
+  env: Env,
+  url: URL
+): Promise<Response | null> {
+  const name = url.pathname.slice('/api/provider-application/'.length)
+  const route = APPLY_ROUTES[name]
+  if (!route) return null
+  if (req.method !== route.method) {
+    return json({ error: 'Method not allowed' }, 405)
+  }
+  try {
+    return await route.handler(req, env, url)
+  } catch (err) {
+    if (err instanceof ApplicationError) {
+      return json({ error: err.message }, err.status)
+    }
+    throw err
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -904,6 +1257,10 @@ export default {
     }
     if (pathname === '/api/auth/ldas/logout') {
       return handleLdasLogout(url)
+    }
+    if (pathname.startsWith('/api/provider-application/')) {
+      const res = await handleProviderApplication(req, env, url)
+      if (res) return res
     }
 
     // Ocean Node policy server

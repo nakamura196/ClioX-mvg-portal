@@ -24,6 +24,7 @@ const SHOTS = {
   'archivist-qa': '/experiment/archivist-qa',
   'finding-aid':
     '/experiment/finding-aid/did:op:88084b2a810deca76dde649e3598410445b199379c3709a6d9d9d948f8484a9c',
+  'apply-provider': '/experiment/apply-provider',
   glossary: '/experiment/glossary',
   'asset-demo':
     '/asset/did:op:04f79245ba012ab323600b60bb537c865560ca18867025a3d31b38f4560b9787?demo=1&env=a'

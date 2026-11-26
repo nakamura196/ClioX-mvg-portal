@@ -44,5 +44,7 @@
   // Secrets (set via `op read ... | tr -d '\n' | npx wrangler secret put <NAME>`):
   //   SESSION_SECRET    — HMAC key for cliox_ldas_session cookie
   //   CHATBOT_API_KEY   — shared key for mdx chatbot (optional)
-  //   RESEND_API_KEY    — Resend API key for /api/contact-resend (optional)
+  //   APPLICATION_SIGNING_KEY — HMAC key that signs application emails (see docs)
+  //   OPERATOR_EMAIL    — recipient of provider applications (sent via Resend)
+  //   RESEND_API_KEY, RESEND_FROM_EMAIL — Resend key and sender (contact form and applications)
 }

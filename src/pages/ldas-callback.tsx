@@ -4,6 +4,10 @@ import { useRouter } from 'next/router'
 import Page from '@shared/Page'
 import Container from '@shared/atoms/Container'
 import { consumeLdasReturnPath, useLdasAuth } from '@context/LdasAuth'
+import {
+  takeApplyReturn,
+  sendApplicationCredential
+} from '@experiment/verified-provider/lib/providerApply' // [prototype]
 import useActiveLocale from '../i18n/useActiveLocale'
 
 export default function LdasCallbackPage(): ReactElement {
@@ -31,6 +35,15 @@ export default function LdasCallbackPage(): ReactElement {
         ja
           ? 'id.ldas.jp からの証明書が受け取れませんでした。もう一度サインインしてください。'
           : 'No credential was returned from id.ldas.jp. Please try signing in again.'
+      )
+      return
+    }
+
+    // [prototype] An application started on /experiment/apply-provider gets its credential checked instead of signing in.
+    const applyReturn = vpToken ? takeApplyReturn() : null
+    if (applyReturn) {
+      sendApplicationCredential(vpToken, state || undefined, applyReturn).then(
+        (path) => router.replace(path)
       )
       return
     }
