@@ -1,5 +1,6 @@
 .findingAid {
-  max-width: 56rem;
+  /* same width and left edge as the portal pages and the page title */
+  width: 100%;
 }
 
 .toolbar {

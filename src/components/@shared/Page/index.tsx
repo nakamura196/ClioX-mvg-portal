@@ -6,6 +6,8 @@ import SearchBar from '@components/Header/SearchBar'
 import { useUserPreferences } from '@context/UserPreferences'
 import ExternalContentWarning from '../ExternalContentWarning'
 import { useTranslation } from 'react-i18next'
+// [prototype] breadcrumbs on /experiment pages
+import ExperimentBreadcrumb from '@experiment/shell/Breadcrumb'
 
 export interface PageProps {
   children: ReactNode
@@ -48,6 +50,7 @@ export default function Page({
         />
       )}
       {isAssetPage && !allowExternalContent && <ExternalContentWarning />}
+      <ExperimentBreadcrumb title={title} />
       {/* Display PageHeader when not hidden */}
       {!shouldHidePageHeader && title && (
         <PageHeader

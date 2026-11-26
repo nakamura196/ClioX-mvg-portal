@@ -243,8 +243,8 @@ export default function PageExperimentIndex(): ReactElement {
                 src={`/images/experiment/${thumbOf(it.href)}.jpg`}
                 alt=""
                 loading="lazy"
-                width={1280}
-                height={720}
+                width={1024}
+                height={576}
               />
             </Link>
             <div>
@@ -273,8 +273,8 @@ export default function PageExperimentIndex(): ReactElement {
               src="/images/experiment/asset-demo.jpg"
               alt=""
               loading="lazy"
-              width={1280}
-              height={720}
+              width={1024}
+              height={576}
             />
           </Link>
           <div>

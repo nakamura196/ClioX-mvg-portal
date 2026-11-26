@@ -1,7 +1,13 @@
 .list {
   display: grid;
+  /* as wide as the other pages; three cards a row on a wide screen */
+  grid-template-columns: repeat(auto-fill, minmax(24rem, 1fr));
   gap: var(--spacer);
-  max-width: 60rem;
+}
+
+/* the settings box spans both columns */
+.list > .settings {
+  grid-column: 1 / -1;
 }
 
 .item {
@@ -77,22 +83,18 @@
 }
 
 .withThumb {
-  display: grid;
-  grid-template-columns: 16rem 1fr;
-  gap: calc(var(--spacer) / 1.5);
-  align-items: start;
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacer) / 2);
 }
 
 .thumb img {
   display: block;
   width: 100%;
   height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  object-position: top;
   border: 1px solid var(--border-color);
   border-radius: calc(var(--border-radius) / 2);
-}
-
-@media (max-width: 40rem) {
-  .withThumb {
-    grid-template-columns: 1fr;
-  }
 }

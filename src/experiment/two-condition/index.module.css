@@ -1,6 +1,6 @@
 .page {
-  max-width: 60rem;
-  margin: 0 auto;
+  /* same width and left edge as the portal pages and the page title */
+  width: 100%;
 }
 
 .panel {

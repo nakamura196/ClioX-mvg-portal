@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /* eslint-disable no-console */
 // Takes the thumbnails shown on /experiment (src/experiment/shell/IndexPage.tsx).
-// One screenshot per prototype, below the site header, saved as
+// One screenshot per prototype (1024 px wide, below the site header), saved as
 // public/images/experiment/<slug>.jpg.
 //
 //   node scripts/capture-experiment-thumbnails.js [base-url]
@@ -43,10 +43,10 @@ const ONLY = process.env.ONLY ? process.env.ONLY.split(',') : null
   for (const [slug, p] of Object.entries(SHOTS)) {
     if (ONLY && !ONLY.includes(slug)) continue
     const page = await browser.newPage({
-      viewport: { width: 1280, height: 900 },
+      viewport: { width: 1024, height: 900 },
       locale: 'en'
     })
-    await page.goto(BASE + p, { waitUntil: 'networkidle', timeout: 120000 })
+    await page.goto(BASE + p, { waitUntil: 'load', timeout: 120000 })
     // the app shell renders client-side; wait for the page's own heading
     await page.waitForSelector('main h1, main h2', { timeout: 60000 })
     await page.waitForTimeout(3000)
@@ -67,7 +67,7 @@ const ONLY = process.env.ONLY ? process.env.ONLY.split(',') : null
       type: 'jpeg',
       quality: 70,
       fullPage: true,
-      clip: { x: 0, y: top, width: 1280, height: 720 }
+      clip: { x: 0, y: top, width: 1024, height: 576 }
     })
     console.log(`${slug}: ok`)
     await page.close()
