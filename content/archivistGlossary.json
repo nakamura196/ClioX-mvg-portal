@@ -21,7 +21,8 @@
     "safety": "Is it safe?",
     "interpares": "InterPARES definition",
     "more": "Read more in the glossary",
-    "jumpTo": "Jump to"
+    "jumpTo": "Jump to",
+    "seeIt": "See it in use"
   },
   "groups": [
     {
@@ -39,6 +40,10 @@
     {
       "title": "Underneath it all",
       "terms": ["blockchain"]
+    },
+    {
+      "title": "Energy and carbon",
+      "terms": ["pue"]
     }
   ],
   "terms": {
@@ -171,6 +176,17 @@
       "limits": "It shows that an entry was made and not altered. It cannot show that what was entered was true.",
       "safety": "You never interact with it directly; the site and your wallet do.",
       "interpares": "blockchain"
+    },
+    "pue": {
+      "term": "PUE",
+      "onScreen": ["PUE"],
+      "short": "Power Usage Effectiveness: the facility's total electricity divided by the electricity used by its IT equipment.",
+      "plain": "A PUE of 1.3 means that for every 1 kWh the servers use, another 0.3 kWh goes on cooling, power conversion and lighting. The figure is the operator's yearly average, not something measured for each job.",
+      "archival": "Like the overhead rate added to a project budget: a fixed share on top of the direct cost, taken from the institution's annual accounts rather than measured for each project.",
+      "limits": "It is a yearly average for the whole facility, as published by the operator. It does not change with the weather or with how busy the data centre is on the day your job runs.",
+      "safety": "Informational only.",
+      "interpares": null,
+      "link": "/experiment/two-condition/?view=receipt&sample=t4a&steps=1"
     }
   }
 }
