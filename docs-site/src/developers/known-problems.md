@@ -420,7 +420,7 @@ Ocean Node uses the same RPC (`RPCS`) to answer downloads, and two downloads at 
 The portal then saved the node's answer `Download handler: TIMEOUT` (25 bytes) as `file.html` instead of showing an error.
 What we changed: graph-node went back to Tenderly's gateway with 500 blocks per request (`GRAPH_ETHEREUM_MAX_BLOCK_RANGE_SIZE: '500'`); the index and downloads stay on Alchemy.
 After the restart (05:54 UTC) no more timeouts were logged, and Alchemy answered `eth_chainId` from the server in about 40 ms.
-If a download saves a small `file.html` or `file.json`, open it: a one-line error means try again, not that the asset is broken.
+**Fixed in the portal (`82d29a7b`, live 2026-11-26):** ocean.js `downloadFileBrowser` saved the node's reply whatever its status. The portal now fetches the download itself, and a non-2xx reply shows as a red notice instead of being saved. Checked on 2026-11-26 with Rashomon: a normal download still saves the text. The file may still be named `file.html` (the reason is not yet confirmed).
 
 ## Messages on a new asset page that are expected {#kp-expected-messages}
 
