@@ -166,7 +166,14 @@ export default function ExperimentReceipt({
                   <td>{num(iv.powerKW, c.missing)}</td>
                   <td>{num(iv.hours)}</td>
                   <td>{num(iv.share)}</td>
-                  <td>{num(iv.waterLPerHour ?? a.water?.value, c.missing)}</td>
+                  <td>
+                    {/* a WUE (L/kWh) is not a flow; it is listed under the assumptions */}
+                    {num(
+                      iv.waterLPerHour ??
+                        (a.water?.kind === 'wue' ? undefined : a.water?.value),
+                      c.missing
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>
