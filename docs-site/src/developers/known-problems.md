@@ -275,6 +275,7 @@ Checked on 2026-11-25: the Fig. 1 asset page with `?demo=1&env=a` and the findin
 
 ## Smaller things
 
+- Every page scrolled sideways by 8px on a phone (390px wide): the header's menu row bleeds by 1rem, more than the menu's padding at 480px and narrower. Cause in the portal's header (upstream). Fixed on `deploy/hosting` in `2b65e793`; checked on nine pages at 390px.
 - The profile sales counter showed the raw key `profile.sales`: before the count loads there is no number, so the translation could not be chosen. Fixed in 02abf67c.
 - Sepolia showed as “Unknown network” on asset cards: a custom chain was not added back to the network metadata. Fixed.
 - Subgraph `_meta.block` only moves on blocks with events, so it can look stalled. Read the graph-node logs instead.
