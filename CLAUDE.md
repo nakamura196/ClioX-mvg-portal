@@ -2,7 +2,10 @@
 
 This fork runs Clio-X on Sepolia: portal on branch `deploy/hosting`
 (https://cliox.ldas.jp), documentation site on branch `docs/site`
-(https://cliox-docs.ldas.jp, sources in `docs-site/`).
+(https://cliox-docs.ldas.jp, sources in `docs-site/`). The documentation site
+is static files on Cloudflare Workers Assets: run `npm run deploy` in
+`docs-site/` from branch `docs/site` (moved off Vercel on 2026-11-25; a push no
+longer deploys it).
 
 The portal is a static export served by Cloudflare Workers + Assets
 (`npm run deploy:cf`, see `docs/cloudflare-id-ldas.md`). It moved off Vercel

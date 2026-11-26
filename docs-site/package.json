@@ -6,9 +6,11 @@
     "sync": "node scripts/sync-sources.mjs",
     "dev": "npm run sync && vitepress dev",
     "build": "npm run sync && vitepress build",
-    "preview": "vitepress preview"
+    "preview": "vitepress preview",
+    "deploy": "npm run build && wrangler deploy"
   },
   "devDependencies": {
-    "vitepress": "1.6.4"
+    "vitepress": "1.6.4",
+    "wrangler": "4.77.0"
   }
 }

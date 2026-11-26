@@ -1,0 +1,16 @@
+// cliox-docs.ldas.jp — Clio-X documentation site (VitePress) on Cloudflare
+// Workers static assets (free plan). No Worker script: every request is served
+// from the built files with 0 ms Worker CPU. Moved off Vercel on 2026-11-25.
+{
+  "name": "cliox-docs",
+  "compatibility_date": "2026-09-01",
+  "assets": {
+    "directory": "./.vitepress/dist",
+    // /developers/verify serves developers/verify.html (VitePress cleanUrls)
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page"
+  },
+  "workers_dev": true,
+  "preview_urls": false,
+  "routes": [{ "pattern": "cliox-docs.ldas.jp", "custom_domain": true }]
+}
