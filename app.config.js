@@ -165,7 +165,9 @@ module.exports = {
   plausibleDataDomain: 'cliox.org',
 
   // token symbol used as fallback value in various components
-  defaultTokenSymbol: 'EURAU',
+  // [local patch] was 'EURAU' (Pontus-X). Each chain's preselected price token
+  // is set in chains.config.js (`defaultBaseTokenSymbol`).
+  defaultTokenSymbol: 'JPYC',
 
   // Default prefix added to published asset titles
   assetTitlePrefix: 'Clio-X',

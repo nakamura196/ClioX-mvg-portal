@@ -106,7 +106,8 @@ function MarketMetadataProvider({
 
   useEffect(() => {
     if (isLoading) return
-    getApprovedBaseTokens(chain?.id || 32457)
+    // [local patch] fall back to this portal's default chain, not Pontus-X
+    getApprovedBaseTokens(chain?.id || appConfig.chainIds[0])
   }, [chain?.id, getApprovedBaseTokens, isLoading])
 
   return (

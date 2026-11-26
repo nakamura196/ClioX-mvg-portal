@@ -11,12 +11,36 @@ const chains = [
     network: 'sepolia',
     oceanTokenSymbol: 'OCEAN',
     oceanTokenAddress: '0x1B083D8584dd3e6Ff37d04a6e7e82b5F622f3985',
-    // Other price tokens seen on this chain. Our Ocean Node's DDO only gives
-    // a price token's address, so list views look the symbol up here.
-    // Sepolia OCEAN can only be minted by its owner, so trial paid records
-    // are priced in WETH (deploy/trial/paid.mjs).
+    // [local patch] Price tokens offered on the publish form, in menu order.
+    // This list replaces the subgraph's "approved tokens" for this chain, so
+    // changing the currencies on offer is an edit here only. Any ERC-20 works
+    // as a fixed-rate base token; the Ocean community "approval" only changes
+    // the swap fee. List views also look a token's symbol up here, because
+    // our Ocean Node's DDO only gives its address.
+    // Sepolia OCEAN can only be minted by its owner, so it is not offered.
+    // WETH stays because the trial paid records use it (deploy/trial/paid.mjs).
+    // JPYC and USDC are the same Sepolia contracts ldas-pay uses
+    // (ldas-pay src/billing/rails/web3.ts).
+    defaultBaseTokenSymbol: 'JPYC',
     baseTokens: [
-      { address: '0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14', symbol: 'WETH' }
+      {
+        address: '0xE7C3D8C9a439feDe00D2600032D5dB0Be71C3c29',
+        symbol: 'JPYC',
+        name: 'JPY Coin',
+        decimals: 18
+      },
+      {
+        address: '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238',
+        symbol: 'USDC',
+        name: 'USD Coin',
+        decimals: 6
+      },
+      {
+        address: '0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14',
+        symbol: 'WETH',
+        name: 'Wrapped Ether',
+        decimals: 18
+      }
     ],
     nftFactoryAddress: '0xEF62FB495266C72a5212A11Dce8baa79Ec0ABeB1',
     fixedRateExchangeAddress: '0x80E63f73cAc60c1662f27D2DFd2EA834acddBaa8',
@@ -48,6 +72,16 @@ const chains = [
     isDefault: false,
     isCustom: true,
     network: 'pontusx-devnet',
+    // [local patch] Was mocked in src/@utils/subgraph.ts (tokenAddressesEUROe).
+    defaultBaseTokenSymbol: 'EUROe',
+    baseTokens: [
+      {
+        address: '0x8A4826071983655805bF4f29828577Cd6b1aC0cB',
+        symbol: 'EUROe',
+        name: 'EUROe',
+        decimals: 18
+      }
+    ],
     oceanTokenSymbol: 'OCEAN',
     oceanTokenAddress: '0xdF171F74a8d3f4e2A789A566Dce9Fa4945196112',
     nftFactoryAddress: '0xFdC4a5DEaCDfc6D82F66e894539461a269900E13',
@@ -83,6 +117,16 @@ const chains = [
     isDefault: false,
     isCustom: true,
     network: 'pontusx-testnet',
+    // [local patch] Was mocked in src/@utils/subgraph.ts (tokenAddressesEUROe).
+    defaultBaseTokenSymbol: 'EUROe',
+    baseTokens: [
+      {
+        address: '0xdd0a0278f6BAF167999ccd8Aa6C11A9e2fA37F0a',
+        symbol: 'EUROe',
+        name: 'EUROe',
+        decimals: 6
+      }
+    ],
     oceanTokenSymbol: 'OCEAN',
     oceanTokenAddress: '0x5B190F9E2E721f8c811E4d584383E3d57b865C69',
     nftFactoryAddress: '0x2C4d542ff791890D9290Eec89C9348A4891A6Fd2',

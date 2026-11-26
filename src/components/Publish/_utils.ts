@@ -342,9 +342,13 @@ export async function createTokensAndPricing(
     minter: accountId,
     paymentCollector: accountId,
     mpFeeAddress: marketFeeAddress,
+    // [local patch] A free asset may reach here with no base token (the
+    // network offered none); the order fee is 0, so the chain's OCEAN
+    // token is a safe fee token then.
     feeToken:
       process.env.NEXT_PUBLIC_OCEAN_TOKEN_ADDRESS ||
-      values.pricing.baseToken.address,
+      values.pricing.baseToken?.address ||
+      config.oceanTokenAddress,
     feeAmount: publisherMarketOrderFee,
     // max number
     cap: '115792089237316195423570985008687907853269984665640564039457',
