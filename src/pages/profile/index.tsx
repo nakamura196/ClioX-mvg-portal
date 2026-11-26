@@ -7,6 +7,8 @@ import { useRouter } from 'next/router'
 import { useAccount } from 'wagmi'
 import { isAddress } from 'ethers/lib/utils'
 import { useAutomation } from '../../@context/Automation/AutomationProvider'
+// [local patch] static export serves the '_' shell; read the address from the URL
+import { useDynamicParam } from '@utils/useDynamicParam'
 
 export default function PageProfile(): ReactElement {
   const router = useRouter()
@@ -14,6 +16,7 @@ export default function PageProfile(): ReactElement {
   const { autoWallet } = useAutomation()
   const [finalAccountId, setFinalAccountId] = useState<string>()
   const [ownAccount, setOwnAccount] = useState(false)
+  const pathAccount = useDynamicParam('account', 'profile')
 
   // Have accountId in path take over, if not present fall back to web3
   useEffect(() => {
@@ -27,19 +30,20 @@ export default function PageProfile(): ReactElement {
         return
       }
 
-      const pathAccount = router.query.account as string
-
       // Path has ETH address
       if (isAddress(pathAccount)) {
+        // addresses differ only in letter case between the URL and the wallet
+        const lower = pathAccount.toLowerCase()
         setOwnAccount(
-          pathAccount === accountId || pathAccount === autoWallet?.address
+          lower === accountId?.toLowerCase() ||
+            lower === autoWallet?.address?.toLowerCase()
         )
         const finalAccountId = pathAccount || accountId
         setFinalAccountId(finalAccountId)
       }
     }
     init()
-  }, [router, accountId, autoWallet?.address])
+  }, [router, pathAccount, accountId, autoWallet?.address])
 
   return (
     <Page
