@@ -3,7 +3,7 @@ import { useState, FormEvent } from 'react'
 import Button from '../Home/common/Button'
 import Container from '@components/@shared/atoms/Container'
 import { useLandingPageContent } from '@utils/landingPageContent'
-import { useRouter } from 'next/router'
+import useActiveLocale from '../../i18n/useActiveLocale'
 
 interface FormData {
   name: string
@@ -14,7 +14,7 @@ interface FormData {
 
 export default function ContactAndOnboarding() {
   const content = useLandingPageContent()
-  const { locale } = useRouter()
+  const locale = useActiveLocale()
   const contactForm = content.contact.form
   const { contact } = content
 

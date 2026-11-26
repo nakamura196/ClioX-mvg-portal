@@ -8,14 +8,14 @@ import styles from './Links.module.css'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
-import { useRouter } from 'next/router'
+import useActiveLocale from '../../i18n/useActiveLocale'
 
 export default function Links(): ReactElement {
   const { appConfig } = useMarketMetadata()
   const { setShowPPC, privacyPolicySlug } = useUserPreferences()
   const cookies = useGdprMetadata()
   const { t } = useTranslation('common')
-  const { locale } = useRouter()
+  const locale = useActiveLocale()
 
   // The legal pages carry their own language in the slug (/privacy/en,
   // /privacy/ja). Follow the UI locale, unless the visitor picked a policy

@@ -1,5 +1,4 @@
 import { ReactElement, useEffect, useMemo, useState } from 'react'
-import { useRouter } from 'next/router'
 import useLocaleContent from '../../i18n/useLocaleContent'
 import contentEn from '../../../content/carbonReport.json'
 import contentJa from '../../../content/carbonReport.ja.json'
@@ -19,6 +18,7 @@ import {
   sha256Hex
 } from './lib/carbonReport'
 import styles from './index.module.css'
+import useActiveLocale from '../../i18n/useActiveLocale'
 
 type Content = typeof contentEn
 
@@ -71,7 +71,7 @@ function Badge({
 
 export default function CarbonReport(): ReactElement {
   const c = useLocaleContent(contentEn, contentJa)
-  const { locale } = useRouter()
+  const locale = useActiveLocale()
   const ja = locale === 'ja'
 
   const [title, setTitle] = useState(c.defaults.reportTitle)

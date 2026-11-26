@@ -7,7 +7,6 @@ import {
   useRef,
   useState
 } from 'react'
-import { useRouter } from 'next/router'
 import Link from 'next/link'
 import Markdown from '@shared/Markdown'
 import useLocaleContent from '../../../i18n/useLocaleContent'
@@ -24,6 +23,7 @@ import uiEn from '../../../../content/archivistQa/ui.json'
 import uiJa from '../../../../content/archivistQa/ui.ja.json'
 import qaEn from '../../../../content/archivistQa/qa.json'
 import qaJa from '../../../../content/archivistQa/qa.ja.json'
+import useActiveLocale from '../../../i18n/useActiveLocale'
 
 type Ui = typeof uiEn
 
@@ -187,7 +187,7 @@ function Answer({
 }
 
 export default function ArchivistQa(): ReactElement {
-  const { locale } = useRouter()
+  const locale = useActiveLocale()
   const lang = locale === 'ja' ? 'ja' : 'en'
   const ui = useLocaleContent(uiEn, uiJa)
   const corpus: QaCorpus = lang === 'ja' ? qaJa : qaEn

@@ -15,6 +15,7 @@ import mergeLocaleContent from '../../i18n/mergeLocaleContent'
 import useLocaleContent from '../../i18n/useLocaleContent'
 import overlayEn from '../../../content/archivistMode.json'
 import overlayJa from '../../../content/archivistMode.ja.json'
+import useActiveLocale from '../../i18n/useActiveLocale'
 
 /**
  * "Archivist view": the same site, with crypto vocabulary replaced by archival
@@ -125,7 +126,7 @@ export function useArchivistContent<T>(
   key: keyof typeof overlayEn
 ): T {
   const { archivistMode } = useArchivistMode()
-  const { locale } = useRouter()
+  const locale = useActiveLocale()
   const localized = useLocaleContent(base, ja)
   if (!archivistMode) return localized
   const overlay = (locale === 'ja' ? overlayJa : overlayEn)[key]
