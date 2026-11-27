@@ -34,7 +34,10 @@ install-cleanup.zsh`, log /opt/cliox-node/cleanup.log). Still to do: a
    `cliox-node-osaka` in the console (Ubuntu 24.04, A1.Flex 2 OCPU / 12 GB, vcn01
    public subnet, SSH key ~/.ssh/oracle/id_ed25519 — owner copies the .pub to the
    clipboard). Check the console's "resource limit is critical" warning before
-   creating. Not created yet as of this line.
+   creating. 2026-11-27: Create failed — "Out of capacity for shape VM.Standard.A1.Flex
+   in AD-1" (Osaka has one AD). Existing: orardf-server-instance (E2.1.Micro, stopped,
+   2021). Next: retry later, or automate retries with the OCI CLI (needs an API key
+   in 1Password). Meanwhile build the two environments on mdx-clio.
 7. Reward contract + claim: design to be agreed (see the note's last section).
 
 # Clio-X（Sepolia 試用環境）TODO
