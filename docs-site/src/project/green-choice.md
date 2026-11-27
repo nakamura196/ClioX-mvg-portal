@@ -2,6 +2,7 @@
 
 At the meeting on 30 September 2026, Vicki asked for this: when people run an analysis, those who choose a place with lower emissions should benefit.
 This page sets out what we learned, what has been built, what comes next, and what we need the Clio-X team to decide.
+The options for rewarding the choice on real jobs, and the one running now (27 November 2026), are in [Rewarding greener choices: the options and what we chose now](./reward-options).
 
 ## What exists now: a prototype that records the choice
 
