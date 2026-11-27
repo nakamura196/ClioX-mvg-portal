@@ -15,6 +15,7 @@ export default async function handler(
     return res.status(405).json({ ok: false, reason: 'POST only' })
   // process['env'] on purpose: this build replaces `process.env.NAME` at
   // compile time (it came out undefined in next dev, 2026-11-27).
+  // eslint-disable-next-line prefer-destructuring, dot-notation
   const env = process['env']
   const r = await handleQuoteBody(
     req.body,

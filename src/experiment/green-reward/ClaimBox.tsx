@@ -204,6 +204,27 @@ export default function GreenReward({
     }
   }
 
+  function errorText(e: unknown): string {
+    const err = e as {
+      reason?: string
+      message?: string
+      errorName?: string
+      error?: { data?: string }
+      data?: string
+    }
+    let name = err.errorName
+    const data = err.data || err.error?.data
+    if (!name && typeof data === 'string') {
+      try {
+        ;({ name } = new ethers.utils.Interface(ABI).parseError(data))
+      } catch {}
+    }
+    if (!name && err.reason)
+      name = Object.keys(t.errors).find((k) => err.reason.includes(k))
+    if (name && t.errors[name]) return t.errors[name]
+    return err.reason ?? err.message?.split('\n')[0] ?? String(e)
+  }
+
   async function receive() {
     if (!loaded || !signer) return
     setStatus({ kind: 'busy', text: t.sending })
@@ -232,27 +253,6 @@ export default function GreenReward({
     } catch (e) {
       setStatus({ kind: 'error', text: errorText(e) })
     }
-  }
-
-  function errorText(e: unknown): string {
-    const err = e as {
-      reason?: string
-      message?: string
-      errorName?: string
-      error?: { data?: string }
-      data?: string
-    }
-    let name = err.errorName
-    const data = err.data || err.error?.data
-    if (!name && typeof data === 'string') {
-      try {
-        name = new ethers.utils.Interface(ABI).parseError(data).name
-      } catch {}
-    }
-    if (!name && err.reason)
-      name = Object.keys(t.errors).find((k) => err.reason.includes(k))
-    if (name && t.errors[name]) return t.errors[name]
-    return err.reason ?? err.message?.split('\n')[0] ?? String(e)
   }
 
   const q = loaded?.quote
