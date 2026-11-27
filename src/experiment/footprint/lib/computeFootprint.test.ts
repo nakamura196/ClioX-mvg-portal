@@ -124,6 +124,22 @@ describe('computeFootprint', () => {
     expect(fp.reason).toContain('消費電力')
   })
 
+  it('mdx は vCPU の数が分かるときだけ、1 vCPU あたりの推定で炭素を出す', () => {
+    // 実ジョブ: 1 vCPU で 99.559 秒 (mdx-clio、2026-11-26 のジョブ 2d402f0e…)
+    const fp = computeFootprint(env('mdx-kashiwa'), 99.559, undefined, {
+      cpuCount: 1
+    })
+    expect(fp.quality).toBe('portal-estimated')
+    expect(fp.power?.watts).toBeCloseTo(270 / 38, 6)
+    // 7.105 W × 99.559 s / 3600 = 0.1965 Wh、× 429 g/kWh = 0.0843 g
+    expect(fp.energyKWh).toBeCloseTo(0.0001965, 6)
+    expect(fp.gCO2e).toBeCloseTo(0.0843, 3)
+    const two = computeFootprint(env('mdx-kashiwa'), 99.559, undefined, {
+      cpuCount: 2
+    })
+    expect(two.gCO2e / fp.gCO2e).toBeCloseTo(2, 6)
+  })
+
   it('モックの「カナダ = 低炭素」という誤読を、実データで反証できる', () => {
     // Clio-X モックの事業者は Calgary, Alberta。
     // モックは "Canadian sovereign compute = Verified" と PUE 1.21 を並べるが、

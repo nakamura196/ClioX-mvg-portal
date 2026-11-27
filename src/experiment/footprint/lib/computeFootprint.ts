@@ -73,6 +73,11 @@ export interface ComputeLocation {
   usdPerHour?: number
   /** 電力プロファイルのキー */
   powerProfile?: string
+  /**
+   * 1 vCPU あたりの電力プロファイルのキー。ジョブが使った vCPU の数が分かるとき
+   * (実際のジョブ、options.cpuCount) だけ使う。powerProfile が無い場所の代わり。
+   */
+  perCpuPowerProfile?: string
   /** 事業者申告の PUE。検証経路は無いので provider-reported 扱い */
   reportedPUE?: number
   /** 事業者申告の水効率 (L/kWh) */
@@ -208,6 +213,17 @@ const POWER: Record<string, PowerProfile> = {
     source: 'NVIDIA L4 の TDP 72W からの仮置き。実測ではない',
     sourceEn: 'Placeholder from the NVIDIA L4 TDP of 72 W. Not measured'
   },
+  // 2026-11-27: mdx-clio の VM で lscpu を確かめた(Xeon Platinum 8368, VMware)。
+  // powercap / RAPL は VM に出ていないので測れない。TDP をコア数で割った推定。
+  // TDP は上限なので、軽いジョブでは多めに出る。メモリ・ディスク・ネットワークは含まない。
+  'mdx-xeon8368-per-vcpu': {
+    watts: 270 / 38,
+    quality: 'portal-estimated',
+    source:
+      'Intel Xeon Platinum 8368 の TDP 270 W ÷ 38 コア ≈ 7.1 W を 1 vCPU あたりとした推定。VM からは電力を測れない(RAPL 非露出、2026-11-27 確認)。CPU 以外は含まない',
+    sourceEn:
+      'Estimate: Intel Xeon Platinum 8368 TDP 270 W ÷ 38 cores ≈ 7.1 W per vCPU. Power cannot be measured from the VM (no RAPL, checked 2026-11-27). CPU only'
+  },
   'nvidia-l40s': {
     watts: 350,
     quality: 'portal-estimated',
@@ -293,7 +309,8 @@ const ENV_LOCATIONS: { match: string; location: ComputeLocation }[] = [
       },
       jurisdiction: 'Japan',
       // 50 ポイント/時間 = 50円/時間。USD 換算は為替に依存するため入れない。
-      powerProfile: undefined
+      powerProfile: undefined,
+      perCpuPowerProfile: 'mdx-xeon8368-per-vcpu'
     }
   },
   {
@@ -388,6 +405,23 @@ export function jobDurationSeconds(job: {
   return d > 0 ? d : undefined
 }
 
+/** 1 vCPU あたりの値に vCPU の数を掛けた電力。数が分からなければ undefined */
+function perCpuPower(
+  location: ComputeLocation,
+  cpuCount?: number
+): PowerProfile | undefined {
+  const per = location.perCpuPowerProfile
+    ? POWER[location.perCpuPowerProfile]
+    : undefined
+  if (!per || !cpuCount || !(cpuCount > 0)) return undefined
+  return {
+    ...per,
+    watts: per.watts * cpuCount,
+    source: `${per.source} × ${cpuCount} vCPU`,
+    sourceEn: per.sourceEn ? `${per.sourceEn} × ${cpuCount} vCPU` : undefined
+  }
+}
+
 /**
  * ジョブ1件のフットプリントを見積もる。
  *
@@ -401,7 +435,8 @@ export function computeFootprint(
     description?: string
   },
   durationSeconds: number,
-  pueOverride?: number
+  pueOverride?: number,
+  options: { cpuCount?: number } = {}
 ): Footprint {
   const location = resolveLocation(env)
   // 事業者が PUE を申告していればそれを使う。無ければ 1.0(= 施設側
@@ -417,7 +452,9 @@ export function computeFootprint(
   }
 
   const grid = GRID[location.regionCode]
-  const power = location.powerProfile ? POWER[location.powerProfile] : undefined
+  const power = location.powerProfile
+    ? POWER[location.powerProfile]
+    : perCpuPower(location, options.cpuCount)
 
   const hours = durationSeconds / 3600
   const usdCost =

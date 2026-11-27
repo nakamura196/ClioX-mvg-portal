@@ -1,3 +1,30 @@
+## TODO — feat/green-real (green choice on real jobs)
+
+Design and decisions: `docs/notes/green-choice-in-production.md`.
+
+Done (2026-11-27): mdx per-vCPU power estimate in
+`src/experiment/footprint/lib/computeFootprint.ts` (`options.cpuCount`), test added
+(footprint tests 21/21, carbon-choice unchanged).
+
+Next, in order:
+
+1. `src/experiment/green-real/lib/jobImpact.ts` (+ test): read run time / CPUs /
+   environment from a real job, estimate it on every real environment of the
+   portal's nodes (`chains.config.js` isCustom + providerUri →
+   `/api/services/computeEnvironments`), build the job receipt and the
+   `CarbonChoiceRecord.record` arguments (reuse `carbon-choice/lib/carbonChoice.ts`).
+2. `src/experiment/green-real/JobImpact.tsx`: block in
+   `src/components/Profile/History/ComputeJobs/Details.tsx` (one import + one call,
+   `// [prototype]`), en/ja; download receipt; "Keep a record" with the wallet.
+3. `ImpactSummary.tsx`: running total above the job list
+   (`ComputeJobs/index.tsx`).
+4. `npm run check:layout`, `npm run lint`, jest; check on `next dev` with a real
+   job of the consumer wallet (0x05f1…1085) before any deploy. Show the owner the
+   local URL first; no push or deploy without OK.
+5. Docs site page (en/ja) per the fork's CLAUDE.md.
+6. Second node: owner decides where (see the note, "Second node"). Then add its
+   location and power profile to the registry and to `chains.config.js`.
+
 # Clio-X（Sepolia 試用環境）TODO
 
 依頼を受けた順に並べる。終わったら `[x]` にして、日付と結果を 1 行添える。
