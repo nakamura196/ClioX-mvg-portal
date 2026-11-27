@@ -8,6 +8,7 @@ import {
 } from '@experiment/two-condition/lib/experiment'
 import { Quantity } from './lib/transactionFootprint'
 import { DataQuality } from './lib/computeFootprint'
+import { DummyInput, dummyFigures } from './lib/realEnvs'
 
 // [prototype] 論文の図 1 のための表示（2026-11-04）。
 // 計算環境の一覧で選んだ環境の下に、1 件の取引あたりの電力・水・炭素を出す。
@@ -42,6 +43,8 @@ const L = {
   },
   // 見本の値なので、どのラベルにも「見本」と添える（実在の事業者の申告・実測と誤読されないように）
   illustrative: ['illustrative', '見本'],
+  // 2026-11-27: real environments of the trial node; inputs listed as dummy get this instead
+  dummy: ['dummy', 'ダミー'],
   suit: {
     suitable: ['Suitable', '適している'],
     conditional: ['Conditional', '条件つき'],
@@ -58,18 +61,26 @@ function num(v?: number): string {
 
 export default function TransactionFootprint({
   option,
-  sample
+  sample,
+  dummy,
+  href
 }: {
   option: TrialOption
   /** 受領書の画面で開く見本（例: t4a） */
-  sample: string
+  sample?: string
+  /** Real environment: the inputs that are dummy. Other labels get no "illustrative". */
+  dummy?: DummyInput[]
+  /** Link for "View the calculation" (overrides sample) */
+  href?: string
 }): ReactElement {
   const { i18n } = useTranslation('common')
   const ja = (i18n?.language || 'en').startsWith('ja')
   const i = ja ? 1 : 0
   const f = optionFootprint(option)
 
-  const badge = (q: DataQuality) => (
+  const real = dummy !== undefined
+  const isDummy = dummyFigures(dummy)
+  const badge = (q: DataQuality, d = false) => (
     <span
       className={`${styles.badge} ${
         q === 'measured'
@@ -79,15 +90,21 @@ export default function TransactionFootprint({
           : styles.estimated
       }`}
     >
-      {q === 'unknown' ? L.q[q][i] : `${L.q[q][i]} · ${L.illustrative[i]}`}
+      {q === 'unknown'
+        ? L.q[q][i]
+        : real
+        ? d
+          ? `${L.q[q][i]} · ${L.dummy[i]}`
+          : L.q[q][i]
+        : `${L.q[q][i]} · ${L.illustrative[i]}`}
     </span>
   )
-  const qty = (label: string, q: Quantity, unit: string) => (
+  const qty = (label: string, q: Quantity, unit: string, d = false) => (
     <>
       <div className={styles.label}>{label}</div>
       <div className={styles.value}>
         {q.value !== undefined && `${num(q.value)} ${unit}`}
-        {badge(q.quality)}
+        {badge(q.quality, d)}
       </div>
     </>
   )
@@ -115,15 +132,15 @@ export default function TransactionFootprint({
         </div>
         <div className={styles.label}>{L.cost[i]}</div>
         <div className={styles.value}>USD {option.costUSD.toFixed(2)}</div>
-        {qty(L.energy[i], f.facilityEnergy, 'kWh')}
-        {qty(L.water[i], f.water, 'L')}
-        {qty(L.carbon[i], f.carbon, 'gCO2e')}
+        {qty(L.energy[i], f.facilityEnergy, 'kWh', isDummy.energy)}
+        {qty(L.water[i], f.water, 'L', isDummy.water)}
+        {qty(L.carbon[i], f.carbon, 'gCO2e', isDummy.carbon)}
         {c.pue != null && (
           <>
             <div className={styles.label}>{L.pue[i]}</div>
             <div className={styles.value}>
               {c.pue}
-              {badge(c.pueQuality ?? 'provider-reported')}
+              {badge(c.pueQuality ?? 'provider-reported', isDummy.pue)}
             </div>
           </>
         )}
@@ -132,7 +149,7 @@ export default function TransactionFootprint({
             <div className={styles.label}>{L.wue[i]}</div>
             <div className={styles.value}>
               {`${c.water.value} L/kWh`}
-              {badge(c.water.quality)}
+              {badge(c.water.quality, isDummy.wue)}
             </div>
           </>
         )}
@@ -145,7 +162,10 @@ export default function TransactionFootprint({
       <p className={styles.source}>{L.note[i]}</p>
       <p className={styles.source}>
         <Link
-          href={`/experiment/two-condition?view=receipt&sample=${sample}&steps=1`}
+          href={
+            href ||
+            `/experiment/two-condition?view=receipt&sample=${sample}&steps=1`
+          }
         >
           {L.view[i]}
         </Link>

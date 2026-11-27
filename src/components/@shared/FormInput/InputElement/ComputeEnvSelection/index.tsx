@@ -34,8 +34,8 @@ export default function ComputeEnvSelection({
   } = useMarketMetadata()
   // [prototype] デモの見本環境（?demo=1）を選んだら、情報カードの下の比較表に伝える
   useEffect(() => {
-    if (computeEnvs?.some((e) => (e as any).trialOption && e.id === selected))
-      setDemoSelected(selected)
+    // 左の比較表（見本の ?demo=1 と、本物の環境が 2 つ以上のとき）と選択を揃える
+    if (computeEnvs?.some((e) => e.id === selected)) setDemoSelected(selected)
   }, [computeEnvs, selected])
 
   const styleClassesWrapper = `${styles.selection} ${

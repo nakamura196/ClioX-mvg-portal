@@ -140,6 +140,29 @@ describe('computeFootprint', () => {
     expect(two.gCO2e / fp.gCO2e).toBeCloseTo(2, 6)
   })
 
+  it('仮の場所 B は mdx に当たらず、仮の係数で出す', () => {
+    // ノードの 2 つ目の計算環境の説明文そのもの (deploy/ocean-node/docker-compose.yml)
+    const desc =
+      'Provisional place B (values set by Clio-X for testing the choice; not a real site) / CPU only'
+    const fp = computeFootprint(env('0xhash-b', desc), 99.559, undefined, {
+      cpuCount: 1
+    })
+    expect(fp.location?.regionCode).toBe('provisional-place-b')
+    expect(fp.grid?.gCO2ePerKWh).toBe(30)
+    expect(fp.quality).toBe('portal-estimated')
+    const a = computeFootprint(
+      env(
+        '0xhash-a',
+        'mdx (University of Tokyo, Kashiwa, Japan) mdx-kashiwa / CPU only'
+      ),
+      99.559,
+      undefined,
+      { cpuCount: 1 }
+    )
+    expect(a.location?.regionCode).toBe('jp-national')
+    expect(fp.gCO2e / a.gCO2e).toBeCloseTo(30 / 429, 6)
+  })
+
   it('モックの「カナダ = 低炭素」という誤読を、実データで反証できる', () => {
     // Clio-X モックの事業者は Calgary, Alberta。
     // モックは "Canadian sovereign compute = Verified" と PUE 1.21 を並べるが、

@@ -66,7 +66,13 @@ services:
       #   - no network access from inside a job
       # The description must contain "mdx-kashiwa": the portal resolves the
       # processing location (for the carbon estimate) from this text.
-      DOCKER_COMPUTE_ENVIRONMENTS: '[{"socketPath":"/var/run/docker.sock","scanImages":false,"paymentClaimInterval":300,"environments":[{"id":"mdx-kashiwa-cpu","description":"mdx (University of Tokyo, Kashiwa, Japan) mdx-kashiwa / CPU only","storageExpiry":604800,"minJobDuration":60,"maxJobDuration":900,"enableNetwork":false,"resources":[{"id":"cpu","total":2,"min":1,"max":2},{"id":"ram","total":2,"min":1,"max":2},{"id":"disk","total":20,"min":1,"max":10}],"free":{"maxJobDuration":600,"minJobDuration":10,"maxJobs":3,"access":{"addresses":${C2D_ALLOWED_ADDRESSES:?C2D_ALLOWED_ADDRESSES is required},"accessLists":[]},"resources":[{"id":"cpu","max":2},{"id":"ram","max":2},{"id":"disk","max":10}]}}]}]'
+      # Second environment (2026-11-27, owner's decision): "Provisional place B"
+      # runs on this same VM. Its location and grid values are provisional, set
+      # by Clio-X so that a user has two places to choose between, until a real
+      # second node exists (Oracle Osaka, see TODO 6b). Its description must
+      # contain "Provisional place B" and must not contain "mdx". Free jobs are
+      # limited to 1 at a time (VM: 6 CPU / 8 GB, about 3 GB free).
+      DOCKER_COMPUTE_ENVIRONMENTS: '[{"socketPath":"/var/run/docker.sock","scanImages":false,"paymentClaimInterval":300,"environments":[{"id":"mdx-kashiwa-cpu","description":"mdx (University of Tokyo, Kashiwa, Japan) mdx-kashiwa / CPU only","storageExpiry":604800,"minJobDuration":60,"maxJobDuration":900,"enableNetwork":false,"resources":[{"id":"cpu","total":2,"min":1,"max":2},{"id":"ram","total":2,"min":1,"max":2},{"id":"disk","total":20,"min":1,"max":10}],"free":{"maxJobDuration":600,"minJobDuration":10,"maxJobs":3,"access":{"addresses":${C2D_ALLOWED_ADDRESSES:?C2D_ALLOWED_ADDRESSES is required},"accessLists":[]},"resources":[{"id":"cpu","max":2},{"id":"ram","max":2},{"id":"disk","max":10}]}},{"id":"provisional-place-b-cpu","description":"Provisional place B (values set by Clio-X for testing the choice; not a real site) / CPU only","storageExpiry":604800,"minJobDuration":60,"maxJobDuration":900,"enableNetwork":false,"resources":[{"id":"cpu","total":2,"min":1,"max":2},{"id":"ram","total":2,"min":1,"max":2},{"id":"disk","total":20,"min":1,"max":10}],"free":{"maxJobDuration":600,"minJobDuration":10,"maxJobs":1,"access":{"addresses":${C2D_ALLOWED_ADDRESSES:?C2D_ALLOWED_ADDRESSES is required},"accessLists":[]},"resources":[{"id":"cpu","max":2},{"id":"ram","max":2},{"id":"disk","max":10}]}}]}]'
 
       HTTP_API_PORT: '8001'
       INTERFACES: '["HTTP"]'

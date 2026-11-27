@@ -1,0 +1,64 @@
+/* [prototype] green reward box in the compute job details (2026-11-27) */
+.box {
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: calc(var(--spacer) / 2);
+  margin: calc(var(--spacer) / 2) 0;
+}
+.title {
+  margin: 0 0 calc(var(--spacer) / 4);
+  font-size: var(--font-size-base);
+}
+.intro,
+.small {
+  font-size: var(--font-size-small);
+  color: var(--color-secondary);
+  margin: 0 0 calc(var(--spacer) / 3);
+}
+.table {
+  width: 100%;
+  font-size: var(--font-size-small);
+  margin-bottom: calc(var(--spacer) / 3);
+}
+.table td {
+  padding: 0.2rem 0.4rem;
+  border-bottom: 1px solid var(--border-color);
+}
+.num {
+  text-align: right;
+  white-space: nowrap;
+}
+.chosen td {
+  background: rgba(46, 160, 67, 0.1);
+}
+.tag {
+  margin-left: 0.4rem;
+  font-size: 0.75em;
+  padding: 0 0.4rem;
+  border-radius: 0.6rem;
+  background: #2ea043;
+  color: #fff;
+}
+.button {
+  font: inherit;
+  font-size: var(--font-size-small);
+  padding: 0.35rem 0.8rem;
+  border-radius: var(--border-radius);
+  border: 1px solid var(--brand-primary, #2f6fb3);
+  background: var(--brand-primary, #2f6fb3);
+  color: #fff;
+  cursor: pointer;
+}
+.button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.error {
+  font-size: var(--font-size-small);
+  color: var(--brand-alert-red, #c00);
+}
+.done {
+  font-size: var(--font-size-small);
+  color: #2ea043;
+  font-weight: 600;
+}

@@ -1,0 +1,106 @@
+{
+  "version": "0.1",
+  "about": "Values for the two real compute environments of the trial node (mdx-clio). Same shape as an option in trials.json. 'key' names the environment in reward claims. 'match' is compared with the environment's description (letters and digits only, first match wins). 'intervals' is for 1 vCPU running 1 hour; the portal scales it by the job's vCPU count and duration. 'dummy' lists the inputs that are dummy values (not measured, not reported by anyone). 2026-11-27.",
+  "notice": {
+    "en": "Trial site: these values are dummy data (marked \"dummy\"), set by Clio-X to try the choice. Both environments run on the same machine at mdx. The calculation itself is the real one.",
+    "ja": "試験サイトです。「ダミー」の札の付いた値はダミーのデータで、選ぶ仕組みを試すために Clio-X が決めたものです。どちらの環境も、実際は mdx の同じ機械で動きます。計算そのものは本物です。"
+  },
+  "options": [
+    {
+      "id": "a",
+      "key": "mdx",
+      "match": "mdx",
+      "dummy": ["pue", "water"],
+      "provider": "mdx (The University of Tokyo)",
+      "location": {
+        "en": "Kashiwa II Campus, Chiba, Japan",
+        "ja": "柏Ⅱキャンパス（千葉県）"
+      },
+      "jurisdiction": {
+        "en": "Japan",
+        "ja": "日本"
+      },
+      "costUSD": 0,
+      "governance": {
+        "indigenousData": "unknown"
+      },
+      "certifications": [],
+      "compute": {
+        "allocation": "reserved-share",
+        "intervals": [
+          {
+            "powerKW": 0.00711,
+            "hours": 1,
+            "share": 1
+          }
+        ],
+        "powerScope": "it-only",
+        "pue": 1.3,
+        "powerQuality": "portal-estimated",
+        "pueQuality": "portal-estimated",
+        "water": {
+          "kind": "wue",
+          "value": 1.8,
+          "quality": "portal-estimated",
+          "definition": "unspecified",
+          "scope": "on-site",
+          "period": "dummy"
+        },
+        "grid": {
+          "gCO2ePerKWh": 429,
+          "label": "Japan (national substitute factor)",
+          "source": "Japan Ministry of the Environment / METI substitute factor, 0.000429 t-CO2/kWh (FY2023)",
+          "quality": "portal-estimated"
+        }
+      }
+    },
+    {
+      "id": "b",
+      "key": "provisional-place-b",
+      "match": "provisional place b",
+      "dummy": ["power", "pue", "water", "grid"],
+      "provider": "Provisional place B",
+      "location": {
+        "en": "Dummy (actually the same mdx machine)",
+        "ja": "ダミー（実際は mdx の同じ機械）"
+      },
+      "jurisdiction": {
+        "en": "Dummy (actually Japan)",
+        "ja": "ダミー（実際は日本）"
+      },
+      "costUSD": 0,
+      "governance": {
+        "indigenousData": "unknown"
+      },
+      "certifications": [],
+      "compute": {
+        "allocation": "reserved-share",
+        "intervals": [
+          {
+            "powerKW": 0.00711,
+            "hours": 1,
+            "share": 1
+          }
+        ],
+        "powerScope": "it-only",
+        "pue": 1.1,
+        "powerQuality": "portal-estimated",
+        "pueQuality": "portal-estimated",
+        "water": {
+          "kind": "wue",
+          "value": 0.2,
+          "quality": "portal-estimated",
+          "definition": "unspecified",
+          "scope": "on-site",
+          "period": "dummy"
+        },
+        "grid": {
+          "gCO2ePerKWh": 30,
+          "label": "Provisional place B (not a real grid)",
+          "source": "Dummy value set by Clio-X to test the choice. Not the factor of any real grid",
+          "quality": "portal-estimated"
+        }
+      }
+    }
+  ]
+}

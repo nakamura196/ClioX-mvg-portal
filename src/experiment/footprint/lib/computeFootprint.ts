@@ -169,6 +169,18 @@ const GRID: Record<string, GridIntensity> = {
       '環境省・経産省の代替値 0.000429 t-CO2/kWh。特定サイトの電力契約の実係数ではない',
     sourceEn:
       "Japan Ministry of the Environment / METI substitute factor, 0.000429 t-CO2/kWh. Not the actual factor of any specific site's electricity contract"
+  },
+  // 2026-11-27: 実在の系統ではない。「仮の場所 B」(mdx-clio の同じ VM に置いた
+  // 2 つ目の計算環境)のために Clio-X が決めた仮の値。選ぶ仕組みを試すためだけに使う。
+  // 本物の 2 つ目のノード(Oracle 大阪など)ができたら、出典のある値に置き換える。
+  'provisional-place-b': {
+    gCO2ePerKWh: 30,
+    label: 'Provisional place B (not a real grid)',
+    asOf: '2026-11-27 (provisional)',
+    source:
+      '仮の値。Clio-X が選ぶ仕組みを試すために決めたもので、実在の系統の排出係数ではない',
+    sourceEn:
+      'Provisional value set by Clio-X to test the choice. Not the factor of any real grid'
   }
   // 参考(AWS リージョン外): British Columbia は BC 州政府の Integrated Grid で
   //   2021: 9.7 / 2022: 11.5 / 2023: 11.3 / 2024: 9.9 / 2025: 22.8 gCO2e/kWh。
@@ -294,6 +306,25 @@ const ENV_LOCATIONS: { match: string; location: ComputeLocation }[] = [
       jurisdiction: 'United States',
       usdPerHour: 0.8048,
       powerProfile: 'aws-g6.xlarge'
+    }
+  },
+  {
+    // 2026-11-27: mdx-clio の同じ VM に置いた 2 つ目の計算環境。所在地と排出係数は
+    // 仮の値(Clio-X が決めた)。説明文に "mdx" を含めないので、下の mdx には当たらない。
+    // 電力は同じ VM なので mdx と同じ 1 vCPU あたりの推定を使う。
+    match: 'provisional place b',
+    location: {
+      provider: 'Clio-X (provisional)',
+      regionCode: 'provisional-place-b',
+      label: '仮の場所 B(仮の値)',
+      processingLocation: '仮の値(実際は mdx の同じ VM で動く)',
+      en: {
+        label: 'Provisional place B (provisional values)',
+        processingLocation: 'Provisional (actually runs on the same mdx VM)'
+      },
+      jurisdiction: 'Japan',
+      powerProfile: undefined,
+      perCpuPowerProfile: 'mdx-xeon8368-per-vcpu'
     }
   },
   {

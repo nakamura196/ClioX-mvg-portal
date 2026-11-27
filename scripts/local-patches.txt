@@ -41,3 +41,7 @@ src/pages/ldas-callback.tsx
 # Use-case DIDs on Sepolia from NEXT_PUBLIC_SEPOLIA_* variables (build time)
 src/@utils/useCaseDids.ts
 src/@utils/useCaseDids.test.ts
+
+# Green reward checker (2026-11-27): dev twin of the Worker POST /api/green-reward/quote
+src/pages/api/green-reward/quote.ts
+scripts/dev-green-reward.zsh

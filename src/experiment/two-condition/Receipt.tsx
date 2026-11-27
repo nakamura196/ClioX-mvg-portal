@@ -10,6 +10,7 @@ import {
   buildSourceData,
   buildTransactionReceipt
 } from '@experiment/footprint/lib/transactionFootprint'
+import { findRealEnvById, realOption } from '@experiment/footprint/lib/realEnvs'
 import Sign from './Sign'
 import Verify from './Verify'
 import { QualityBadge, download, num, pick } from './shared'
@@ -23,7 +24,17 @@ const TRIALS = trialsJson as unknown as TrialsFile
 const SAMPLE_TRIAL = 't5'
 const SAMPLE_OPTION = 'd'
 
-function findSample(sample: unknown) {
+// 2026-11-27: ?sample=real-<id>&sec=<seconds>&cpu=<n> opens one of the trial node's
+// real environments (content/experiment/real-envs.json, dummy values).
+function findSample(sample: unknown, sec?: unknown, cpu?: unknown) {
+  const real =
+    typeof sample === 'string' ? /^real-([a-z0-9]+)$/.exec(sample) : null
+  const entry = real && findRealEnvById(real[1])
+  if (entry) {
+    const s = Number(sec)
+    const c = Number(cpu)
+    return realOption(entry, s > 0 ? s : 3600, c > 0 ? c : 1)
+  }
   const m = typeof sample === 'string' ? /^(t\d+)([a-z])$/.exec(sample) : null
   const pickOption = (trial: string, option: string) =>
     TRIALS.trials
@@ -54,7 +65,8 @@ export default function ExperimentReceipt({
       scroll: false
     })
   }
-  const option = findSample(router.query.sample)
+  const { sample, sec, cpu } = router.query
+  const option = useMemo(() => findSample(sample, sec, cpu), [sample, sec, cpu])
   const { receipt, source } = useMemo(() => {
     const input = optionInput(option)
     const footprint = optionFootprint(option)

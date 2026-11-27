@@ -7,6 +7,7 @@ import Modal from '@shared/atoms/Modal'
 import External from '@images/external.svg'
 import { getAsset } from '@utils/aquarius'
 import Results from './Results'
+import GreenReward from '@experiment/green-reward/ClaimBox' // [prototype]
 import styles from './Details.module.css'
 import { useCancelToken } from '@hooks/useCancelToken'
 import MetaItem from '../../../Asset/AssetContent/MetaItem'
@@ -98,6 +99,7 @@ export default function Details({
       >
         <DetailsAssets job={job} />
         <Results job={job} />
+        {job.jobId && job.status === 70 && <GreenReward jobId={job.jobId} />}
 
         {job.jobId && (
           <p>

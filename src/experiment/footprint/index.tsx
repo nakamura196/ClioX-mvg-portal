@@ -22,6 +22,11 @@ const L = {
   pue: ['Energy efficiency (PUE)', 'PUE'],
   water: ['Water efficiency', '水効率'],
   undeclared: ['not declared', '未申告'],
+  dummyBadge: ['dummy', 'ダミー'],
+  dummy: [
+    'Dummy data: this place and its values were set by Clio-X to try the choice on this trial site. It is not a real site.',
+    'ダミーのデータです。この試験サイトで選ぶ仕組みを試すために Clio-X が決めた場所と値で、実在の場所ではありません。'
+  ],
   perHour: ['/hour', '/時'],
   measured: ['measured', '実測'],
   providerReported: ['provider-reported', '事業者申告'],
@@ -39,6 +44,11 @@ const L = {
     ' (lower bound; facility overhead not counted)',
     '（未計上の下限値）'
   ]
+}
+
+// 2026-11-27: 試験サイトの「仮の場所 B」はダミー。画面で必ずそう伝える
+export function isDummyLocation(loc?: { provider?: string }): boolean {
+  return !!loc?.provider && /provisional/i.test(loc.provider)
 }
 
 function useL() {
@@ -107,7 +117,8 @@ function Row({
 export default function ComputeFootprint({
   computeEnv,
   durationSeconds,
-  pue
+  pue,
+  cpuCount
 }: {
   computeEnv: Partial<Pick<ComputeEnvironmentExtended, 'id' | 'desc'>> & {
     description?: string
@@ -116,21 +127,35 @@ export default function ComputeFootprint({
   durationSeconds: number
   /** 明示指定が無ければ事業者申告 PUE、それも無ければ 1.0 */
   pue?: number
+  /** ジョブが使う vCPU の数。1 vCPU あたりの電力しか無い場所(mdx)で使う */
+  cpuCount?: number
 }): ReactElement {
   const t = useL()
-  const fp = computeFootprint(computeEnv, durationSeconds, pue)
+  const { i18n } = useTranslation('common')
+  const ja = (i18n?.language || 'en').startsWith('ja')
+  const fp = computeFootprint(computeEnv, durationSeconds, pue, { cpuCount })
   const loc = fp.location
 
   return (
     <div className={styles.container}>
       <div className={styles.heading}>
         {t('heading')}
-        <QualityBadge quality={fp.quality} />
+        {isDummyLocation(loc) ? (
+          <span className={`${styles.badge} ${styles.unknown}`}>
+            {t('dummyBadge')}
+          </span>
+        ) : (
+          <QualityBadge quality={fp.quality} />
+        )}
       </div>
 
       <div className={styles.grid}>
         <Row label={t('location')}>
-          {loc ? loc.processingLocation : t('undeclared')}
+          {loc
+            ? ja
+              ? loc.processingLocation
+              : loc.en?.processingLocation || loc.processingLocation
+            : t('undeclared')}
         </Row>
         {loc && <Row label={t('jurisdiction')}>{loc.jurisdiction}</Row>}
         {fp.grid && (
@@ -167,18 +192,22 @@ export default function ComputeFootprint({
         )}
       </div>
 
+      {isDummyLocation(loc) && <p className={styles.reason}>{t('dummy')}</p>}
       {fp.reason && <p className={styles.reason}>{fp.reason}</p>}
 
       {(fp.grid || fp.power) && (
         <div className={styles.source}>
           {fp.grid && (
             <div>
-              {t('gridNote')}: {fp.grid.source} ({fp.grid.asOf}, location-based)
+              {t('gridNote')}:{' '}
+              {ja ? fp.grid.source : fp.grid.sourceEn || fp.grid.source} (
+              {fp.grid.asOf}, location-based)
             </div>
           )}
           {fp.power && (
             <div>
-              {t('powerNote')}: {fp.power.source}
+              {t('powerNote')}:{' '}
+              {ja ? fp.power.source : fp.power.sourceEn || fp.power.source}
             </div>
           )}
           {loc?.reportedAsOf && (

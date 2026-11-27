@@ -1,4 +1,12 @@
-import { ReactElement } from 'react'
+import { ReactElement, useEffect, useState } from 'react'
+import { useAsset } from '@context/Asset'
+import { getComputeEnvironments } from '@utils/provider'
+import {
+  REAL_ENVS_NOTICE,
+  findRealEnv,
+  realOption,
+  realReceiptHref
+} from './lib/realEnvs'
 import { useRouter } from 'next/router'
 import { useTranslation } from 'react-i18next'
 import styles from './CompareTable.module.css'
@@ -46,11 +54,160 @@ function minOf(values: (number | undefined)[]): number | undefined {
   return known.length ? Math.min(...known) : undefined
 }
 
+// [prototype] 2026-11-27: 本物の計算環境が 2 つ以上あるとき(試験サイトの mdx と仮の場所 B)、
+// 見本の表と同じ場所・同じ項目(論文の図 1)で、本物の環境を見比べる表を出す。
+// 各環境の値は content/experiment/real-envs.json(trials.json と同じ形のダミーのデータ)。
+// 計算は見本と同じ部品(computeTransaction)で、1 vCPU が最長時間動いた場合の上限の見積もり。
+const R = {
+  heading: ['Compare where to run', 'どこで計算するかを比べる'],
+  note: [
+    'Upper estimate for one job: 1 vCPU running for the maximum time. Bold = lowest in the column. — = cannot be established. Select a row to choose it in the order box and see where each figure comes from.',
+    'ジョブ 1 件の上限の見積もり（1 vCPU が最長時間動いた場合）。太字は列で最小。— は算出不可。行を選ぶと右の欄でも選ばれ、各値の出どころが下に出ます。'
+  ],
+  noData: ['no values registered', '値の登録なし']
+}
+
+function RealCompareTable(): ReactElement {
+  const { asset } = useAsset()
+  const selected = useDemoSelected()
+  const { i18n } = useTranslation('common')
+  const [envs, setEnvs] = useState<any[]>([])
+  const endpoint =
+    asset?.services?.[0]?.type === 'compute'
+      ? asset.services[0].serviceEndpoint
+      : undefined
+
+  useEffect(() => {
+    if (!endpoint) return
+    let alive = true
+    getComputeEnvironments(endpoint, asset.chainId).then((list) => {
+      if (alive) setEnvs(Array.isArray(list) ? list : [])
+    })
+    return () => {
+      alive = false
+    }
+  }, [endpoint, asset?.chainId])
+
+  if (envs.length < 2) return null
+  const ja = (i18n?.language || 'en').startsWith('ja')
+  const i = ja ? 1 : 0
+
+  const rows = envs.map((env) => {
+    const seconds = env.maxJobDuration || 0
+    const entry = findRealEnv(env)
+    const option = entry ? realOption(entry, seconds, 1) : undefined
+    const f = option ? optionFootprint(option) : undefined
+    return {
+      env,
+      seconds,
+      entry,
+      option,
+      cost: option?.costUSD,
+      energy: f?.facilityEnergy.value,
+      water: f?.water.value,
+      carbon: f?.carbon.value
+    }
+  })
+  const min = {
+    cost: minOf(rows.map((r) => r.cost)),
+    energy: minOf(rows.map((r) => r.energy)),
+    water: minOf(rows.map((r) => r.water)),
+    carbon: minOf(rows.map((r) => r.carbon))
+  }
+  const cell = (v: number | undefined, m: number | undefined, s: string) => (
+    <td
+      className={`${styles.num} ${
+        v !== undefined && v === m ? styles.min : ''
+      }`}
+    >
+      {s}
+    </td>
+  )
+  const current = rows.find((r) => r.env.id === selected)
+
+  return (
+    <section className={styles.wrapper}>
+      <h3 className={styles.heading}>{R.heading[i]}</h3>
+      <p className={styles.note}>{REAL_ENVS_NOTICE[ja ? 'ja' : 'en']}</p>
+      <table className={styles.table}>
+        <thead>
+          <tr>
+            <th>{L.env[i]}</th>
+            <th>{L.location[i]}</th>
+            <th className={styles.num}>
+              {L.cost[i]}
+              <span className={styles.unit}>USD</span>
+            </th>
+            <th className={styles.num}>
+              {L.energy[i]}
+              <span className={styles.unit}>kWh</span>
+            </th>
+            <th className={styles.num}>
+              {L.water[i]}
+              <span className={styles.unit}>L</span>
+            </th>
+            <th className={styles.num}>
+              {L.carbon[i]}
+              <span className={styles.unit}>gCO2e</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => {
+            const isSelected = r.env.id === selected
+            return (
+              <tr
+                key={r.env.id}
+                className={isSelected ? styles.selected : ''}
+                onClick={() => setDemoSelected(r.env.id)}
+              >
+                <td>
+                  <label className={styles.envCell}>
+                    <input
+                      className={styles.radio}
+                      type="radio"
+                      name="real-compare"
+                      checked={isSelected}
+                      onChange={() => setDemoSelected(r.env.id)}
+                    />
+                    <span className={styles.name}>
+                      {r.option?.provider || r.env.description}
+                    </span>
+                  </label>
+                </td>
+                <td className={styles.place}>
+                  {r.option ? r.option.location[ja ? 'ja' : 'en'] : R.noData[i]}
+                </td>
+                {cell(
+                  r.cost,
+                  min.cost,
+                  r.cost === undefined ? '—' : r.cost.toFixed(2)
+                )}
+                {cell(r.energy, min.energy, num(r.energy))}
+                {cell(r.water, min.water, num(r.water))}
+                {cell(r.carbon, min.carbon, num(r.carbon))}
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
+      <p className={styles.note}>{R.note[i]}</p>
+      {current?.option && (
+        <TransactionFootprint
+          option={current.option}
+          dummy={current.entry.dummy}
+          href={realReceiptHref(current.entry, current.seconds, 1)}
+        />
+      )}
+    </section>
+  )
+}
+
 export default function CompareTable(): ReactElement {
   const router = useRouter()
   const selected = useDemoSelected()
   const { i18n } = useTranslation('common')
-  if (!isComputeDemo(router.query)) return null
+  if (!isComputeDemo(router.query)) return <RealCompareTable />
 
   const ja = (i18n?.language || 'en').startsWith('ja')
   const i = ja ? 1 : 0

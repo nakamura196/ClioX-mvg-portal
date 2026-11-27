@@ -96,10 +96,14 @@ export default function ComputeEnvDetails({
       {/*
         [prototype] 所在地・費用・カーボンフットプリント。
         maxJobDuration を占有時間の上限見積もりとして使う(実績時間ではない)。
+        CPU はジョブの最小の数(1 vCPU あたりの電力しか無い場所のため)。
       */}
       <ComputeFootprint
         computeEnv={computeEnv}
         durationSeconds={maxJobDuration}
+        cpuCount={
+          (computeEnv as any).resources?.find((r) => r.id === 'cpu')?.min ?? 1
+        }
       />
     </div>
   )

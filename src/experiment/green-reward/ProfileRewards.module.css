@@ -1,0 +1,8 @@
+/* [prototype] green reward line on the profile (2026-11-27) */
+.line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 1rem;
+  font-size: var(--font-size-small);
+  margin: calc(var(--spacer) / 3) 0 0;
+}

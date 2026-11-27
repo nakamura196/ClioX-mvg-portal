@@ -12,6 +12,10 @@
  *   - SPA-style rewrites for /ja/*, /asset/*, /profile/*, /experiment/finding-aid/*
  */
 
+// [local patch] green reward checker
+import { handleQuoteBody } from './greenReward'
+import type { RealEnvEntry } from '../src/experiment/footprint/lib/realEnvsCore'
+import realEnvs from '../content/experiment/real-envs.json'
 import {
   verifyLdasCredential,
   bytesToB64url,
@@ -51,6 +55,9 @@ export interface Env {
   OPERATOR_EMAIL?: string
   /** HMAC key that signs each application email */
   APPLICATION_SIGNING_KEY?: string
+  // [local patch] green reward checker (2026-11-27): signing-only key, no funds
+  GREEN_REWARD_CHECKER_KEY?: string
+  GREEN_REWARD_CONTRACT?: string
 }
 
 const LDAS_SESSION_COOKIE = 'cliox_ldas_session'
@@ -1279,6 +1286,22 @@ export default {
     if (pathname.startsWith('/api/provider-application/')) {
       const res = await handleProviderApplication(req, env, url)
       if (res) return res
+    }
+
+    // [local patch] Green reward: the checker signs a claim for a finished job
+    if (pathname === '/api/green-reward/quote') {
+      if (req.method !== 'POST')
+        return json({ ok: false, reason: 'POST only' }, 405)
+      const body = await req.json().catch(() => null)
+      const r = await handleQuoteBody(
+        body,
+        {
+          checkerKey: env.GREEN_REWARD_CHECKER_KEY,
+          contract: env.GREEN_REWARD_CONTRACT
+        },
+        realEnvs.options as RealEnvEntry[]
+      )
+      return json(r.body, r.status)
     }
 
     // Ocean Node policy server
