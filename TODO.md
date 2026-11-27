@@ -26,7 +26,10 @@ Next, in order:
    environment in the same Ocean Node on mdx-clio**, with provisional values,
    labelled as such. Oracle (account nakamura196, home region unknown) or a new
    mdx VM later. mdx-clio disk was 97 % full on 2026-11-27: graph-node block cache
-   `chain1.blocks` 40 GB; clean it (with the owner's OK) before adding jobs.
+   `chain1.blocks` 40 GB. Cleaned 2026-11-27 with the owner's OK (97 % → 52 %, 48 GB
+   free) and a weekly cleanup installed (Mon 03:00 JST, `deploy/ocean-node/scripts/
+install-cleanup.zsh`, log /opt/cliox-node/cleanup.log). Still to do: a
+   known-problems page on docs/site (en/ja); check the log after the first Monday.
 7. Reward contract + claim: design to be agreed (see the note's last section).
 
 # Clio-X（Sepolia 試用環境）TODO
