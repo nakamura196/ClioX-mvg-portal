@@ -162,11 +162,18 @@ GREEN_REWARD_CHECKER_KEY`), merge into deploy/hosting, deploy only with OK.
      (worker/greenReward.ts GREEN_REWARD_DEFAULTS, used by ProfileRewards, which now
      reads received/receivedCount: no getLogs). Checked locally: profile line OK,
      quote for the video job f3694005… = mdx 109.31 mg / B 6.47 mg (not claimed).
-     NEXT (ask the owner first, show the local URL): commit feat/green-real, merge
-     into deploy/hosting (check that worktree for others' uncommitted work), put
-     GREEN_REWARD_CHECKER_KEY on the Worker, deploy, check on cliox.ldas.jp. Then
-     update the address on docs reward-options (docs/site 0a56bff1) and push docs.
-     Then the video (new chapter ch15 in ~/git/blog/cliox README table + book).
+     2026-11-27 RELEASED (owner OK): deploy/hosting 663b70c3 (fast-forward from
+     feat/green-real), Worker cliox-portal Version 0107da09, secret
+     GREEN_REWARD_CHECKER_KEY set. Live check: POST cliox.ldas.jp/api/green-reward/quote
+     for the video job f3694005... gives mdx 109305 / B 6468 ug; eth_call of claim() on
+     0x5e80...fD40 with that signature returns 102837000 (102.837 PLAY, not sent).
+     Docs: docs/site 4b5a0066 (new address + sidebar entry), cliox-docs Version
+     49e6f130, built from a clean copy so the other session's asset-status draft is
+     not live. Pushed to the fork (remote `fork`; `origin` is ciferresearch, 403).
+     The production build first failed on two lint errors in ClaimBox (fixed in
+     663b70c3): run `npm run build:cf` before calling a branch ready.
+     NEXT: the video (new chapter ch15 in ~/git/blog/cliox README table + book);
+     claim job f3694005... on cliox.ldas.jp while recording (as 田中).
      2026-11-27 Fable review (no way found to get paid for another's job or twice).
      Fixed locally: stale quote after expiry (ClaimBox builds the tx from the fresh
      quote), contract errors shown in en/ja, pool balance checked before sending,
