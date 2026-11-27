@@ -156,7 +156,7 @@ Checked locally (2026-09-30, limit of 2 per address, throwaway wallets):
 Assumes the node from [Self-hosting on Sepolia](/developers/self-hosting) with its Cloudflare Tunnel, and the portal on Vercel.
 
 1. **Publish the algorithms and a dataset.** `zsh deploy/trial/usecases.zsh` publishes the Federalist sample and both algorithms with the trial wallet, waits for indexing, and runs one free job with each algorithm. Change `metadata/*.json` first if you use your own files (file URLs must point at a fixed commit).
-2. **Put the DIDs into the portal.** Add the printed DIDs under `11155111` in `src/components/TextAnalysis/_constants.ts` (algorithm and datasets) and `src/experiment/chatbot-trial/_constants.ts`. A dataset must trust the algorithm; the samples trust all algorithms (`"*"`).
+2. **Put the DIDs into the portal.** Set the printed DIDs as build-time variables (see [below](#use-case-dids-from-environment-variables)), or add them under `11155111` in `src/components/TextAnalysis/_constants.ts` (algorithm and datasets) and `src/experiment/chatbot-trial/_constants.ts`. A dataset must trust the algorithm; the samples trust all algorithms (`"*"`).
 3. **Create the chat service's hostname.** Add it to `deploy/ocean-node/cloudflared/config.yml` (here `cliox-chat.ldas.jp`) and create its DNS record: `cloudflared tunnel route dns cliox-node cliox-chat.ldas.jp`.
 4. **Create the key** and hand it to the VM and to Vercel:
    `zsh deploy/ocean-node/scripts/setup-chatbot.zsh mdx-clio https://cliox-chat.ldas.jp <vercel project id> <vercel team id>`.
@@ -165,6 +165,28 @@ Assumes the node from [Self-hosting on Sepolia](/developers/self-hosting) with i
 6. **Redeploy the portal** so its functions see `CHATBOT_API_URL` and `CHATBOT_API_KEY`.
 
 7. **Check that Vercel gets through Cloudflare.** On the trial, `https://cliox.ldas.jp/api/chatbot/health` first returned `Health check failed: Forbidden`: bot protection on the zone challenged Vercel's servers, as it had challenged the node VM ([known problem](/developers/known-problems)). `zsh deploy/ocean-node/scripts/cloudflare-allow-chatbot.zsh` adds a skip rule for the chat hostname only (rule `313d8c02…`, 2026-09-27). The service still refuses every call without the key.
+
+### Use-case DIDs from environment variables
+
+The DIDs for Sepolia (chain 11155111) can be set at build time instead of in code. Each variable replaces only the Sepolia entry of one list; when it is unset or empty, the value written in `_constants.ts` is used. A name ending in `_DID` takes one DID; `_DIDS` takes a comma-separated list. Entries that are not `did:op:` plus 64 hex characters are ignored (with a warning in the browser console). The site is a static export, so after changing a value you must build and deploy again.
+
+| Variable (`NEXT_PUBLIC_SEPOLIA_…`)                                | Page and project                   | Replaces             |
+| ----------------------------------------------------------------- | ---------------------------------- | -------------------- |
+| `TEXT_ANALYSIS_ALGO_DIDS`, `TEXT_ANALYSIS_DATASET_DIDS`           | Visualizations, _Email Text_       | algorithm, datasets  |
+| `CAMEROON_GAZETTE_ALGO_DID`                                       | Visualizations, _Cameroon Gazette_ | algorithm            |
+| `CHATBOT_TRIAL_ALGO_DID`, `CHATBOT_TRIAL_DATASET_DIDS`            | Chatbot, _Trial samples (Sepolia)_ | algorithm, datasets  |
+| `CHATBOT_CAMEROON_ALGO_DID`, `CHATBOT_CAMEROON_DATASET_DIDS`      | Chatbot, _Cameroon_                | algorithm, datasets  |
+| `CHATBOT_INTERPARES_ALGO_DIDS`, `CHATBOT_INTERPARES_DATASET_DIDS` | Chatbot, _InterPARES_              | algorithms, datasets |
+| `CHATBOT_UDL_ALGO_DID`, `CHATBOT_UDL_DATASET_DIDS`                | Chatbot, _UdL_                     | algorithm, datasets  |
+| `CHATBOT_ARST_ALGO_DIDS`                                          | Chatbot (ARST page)                | algorithms           |
+
+Example, for the build that is deployed:
+
+```
+NEXT_PUBLIC_SEPOLIA_TEXT_ANALYSIS_DATASET_DIDS="did:op:88084b2a…,did:op:04f79245…" npm run deploy:cf
+```
+
+The list of all variables is in `.env.example`; the code is `src/@utils/useCaseDids.ts` (portal branch `deploy/hosting`, commit `b89f5b5a`). Other chains (Pontus-X, 32456) still use the lists in the code.
 
 ## Use it (on the trial site)
 

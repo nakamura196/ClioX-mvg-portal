@@ -156,7 +156,7 @@ Claude は 1 問ごとに費用がかかるので、使える人と件数を絞�
 [Self-hosting on Sepolia](/developers/self-hosting)（英語）のノードと Cloudflare Tunnel があり、ポータルは Vercel にある前提です。
 
 1. **アルゴリズムとデータセットを公開する。** `zsh deploy/trial/usecases.zsh` が、試用ウォレットでザ・フェデラリストと 2 つのアルゴリズムを公開し、索引に載るのを待って、それぞれのアルゴリズムで無償のジョブを 1 つずつ流します。自分のファイルを使うなら、先に `metadata/*.json` を直します（ファイルの URL は固定したコミットを指すこと）。
-2. **DID をポータルに書く。** 表示された DID を、`src/components/TextAnalysis/_constants.ts`（アルゴリズムとデータセット）と `src/experiment/chatbot-trial/_constants.ts` の `11155111` の下に足します。データセット側がそのアルゴリズムを信頼している必要があります。標本は「すべて可」（`"*"`）にしてあります。
+2. **DID をポータルに書く。** 表示された DID を、組み立てるときの環境変数で指定します（[下記](#環境変数で-did-を指定する)）。または `src/components/TextAnalysis/_constants.ts`（アルゴリズムとデータセット）と `src/experiment/chatbot-trial/_constants.ts` の `11155111` の下に足します。データセット側がそのアルゴリズムを信頼している必要があります。標本は「すべて可」（`"*"`）にしてあります。
 3. **会話用サービスのホスト名を作る。** `deploy/ocean-node/cloudflared/config.yml` に足し（ここでは `cliox-chat.ldas.jp`）、DNS を作ります: `cloudflared tunnel route dns cliox-node cliox-chat.ldas.jp`
 4. **鍵を作り、VM と Vercel に渡す:**
    `zsh deploy/ocean-node/scripts/setup-chatbot.zsh mdx-clio https://cliox-chat.ldas.jp <Vercel のプロジェクト ID> <Vercel のチーム ID>`
@@ -165,6 +165,28 @@ Claude は 1 問ごとに費用がかかるので、使える人と件数を絞�
 6. **ポータルを配り直す。** 関数が `CHATBOT_API_URL` と `CHATBOT_API_KEY` を読めるようにするためです。
 
 7. **Vercel から Cloudflare を通れるか確かめる。** 試用環境では、`https://cliox.ldas.jp/api/chatbot/health` が最初 `Health check failed: Forbidden` を返しました。ゾーンのボット対策が Vercel のサーバーを止めていました（ノードの VM が止められたのと同じです。[分かっている問題](/ja/developers/known-problems)）。`zsh deploy/ocean-node/scripts/cloudflare-allow-chatbot.zsh` で、会話用のホスト名だけを対象に外しました（規則 `313d8c02…`、2026-09-27）。鍵の無い呼び出しは、サービス側で引き続き断ります。
+
+### 環境変数で DID を指定する
+
+Sepolia（チェーン 11155111）の DID は、コードを書き換えずに、組み立てるときの環境変数で指定できます。1 つの変数が差し替えるのは、1 つの一覧の Sepolia の分だけです。変数が無いか空なら、`_constants.ts` に書いてある値を使います。名前が `_DID` で終わる変数には DID を 1 つ、`_DIDS` で終わる変数にはカンマ区切りで複数を書きます。`did:op:` と 16 進 64 文字の形でないものは無視し、ブラウザのコンソールに警告を出します。サイトは静的に書き出しているので、値を変えたら組み立てと配布をやり直す必要があります。
+
+| 変数（`NEXT_PUBLIC_SEPOLIA_…`）                                   | ページと事業                               | 差し替えるもの                       |
+| ----------------------------------------------------------------- | ------------------------------------------ | ------------------------------------ |
+| `TEXT_ANALYSIS_ALGO_DIDS`, `TEXT_ANALYSIS_DATASET_DIDS`           | 可視化、 _Email Text_                      | アルゴリズム、データセット           |
+| `CAMEROON_GAZETTE_ALGO_DID`                                       | 可視化、 _Cameroon Gazette_                | アルゴリズム                         |
+| `CHATBOT_TRIAL_ALGO_DID`, `CHATBOT_TRIAL_DATASET_DIDS`            | チャットボット、 _Trial samples (Sepolia)_ | アルゴリズム、データセット           |
+| `CHATBOT_CAMEROON_ALGO_DID`, `CHATBOT_CAMEROON_DATASET_DIDS`      | チャットボット、 _Cameroon_                | アルゴリズム、データセット           |
+| `CHATBOT_INTERPARES_ALGO_DIDS`, `CHATBOT_INTERPARES_DATASET_DIDS` | チャットボット、 _InterPARES_              | アルゴリズム（複数可）、データセット |
+| `CHATBOT_UDL_ALGO_DID`, `CHATBOT_UDL_DATASET_DIDS`                | チャットボット、 _UdL_                     | アルゴリズム、データセット           |
+| `CHATBOT_ARST_ALGO_DIDS`                                          | チャットボット（ARST のページ）            | アルゴリズム（複数可）               |
+
+例（配布する組み立てで指定する）:
+
+```
+NEXT_PUBLIC_SEPOLIA_TEXT_ANALYSIS_DATASET_DIDS="did:op:88084b2a…,did:op:04f79245…" npm run deploy:cf
+```
+
+変数の一覧は `.env.example`、処理は `src/@utils/useCaseDids.ts` にあります（ポータルのブランチ `deploy/hosting`、コミット `b89f5b5a`）。ほかのチェーン（Pontus-X、32456）は、今までどおりコードの一覧を使います。
 
 ## 使い方（試用サイトで）
 
