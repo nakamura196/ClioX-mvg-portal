@@ -88,3 +88,27 @@ quality)`. No new contract.
 - mdx PUE: not entered; the estimate uses 1.0 (facility overhead not counted).
 - Kashiwa is in the TEPCO area; the registry uses Japan's national substitute
   factor (429 g/kWh).
+
+## 2026-11-27 (later) — owner's direction and free hosting
+
+Owner: two nodes, yes. Their power and other values are **provisional**
+(set by us, labelled as such). The choice between the two nodes must give the
+user a **real reward** (not only a record).
+
+Free hosting, checked with agy (Gemini; Copilot's monthly quota was used up),
+not yet confirmed against the official pages by us:
+
+- Oracle Cloud Always Free: no time limit after the trial; Ampere A1 Flex
+  (arm64) is enough for an Ocean Node (agy says 2 OCPU / 12 GB now, down from
+  4 / 24; **check**). Only in the home region, which cannot be changed. An
+  idle instance can be reclaimed (7 days with CPU, network and memory all
+  under 20 %). The owner's account exists (created 2021-11-11; after the trial
+  Oracle wrote that Always Free stays usable while the account is active).
+  Home region unknown (signed up from Japan, so probably Tokyo or Osaka).
+- Not usable: Google e2-micro (1 GB RAM), AWS (credits for 6 months only),
+  Azure (12 months), IBM (no VM in Lite).
+- Digital Research Alliance of Canada, Arbutus cloud (UVic, BC): free for a
+  project led by a Canadian PI (e.g. sponsored by a UBC faculty member);
+  whether a public Ocean Node fits its acceptable-use policy is unconfirmed.
+- arm64 pitfall: on A1, the Ocean Node image and every algorithm image
+  (e.g. ocean-c2d-ndlkotenocr-lite on ghcr.io) need linux/arm64 builds.
