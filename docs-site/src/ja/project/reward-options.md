@@ -25,7 +25,7 @@ Sepolia 上の `GreenReward` 契約は、ジョブの持ち主に（いちばん
 - **PLAY に価値はありません。** 試験用のネットワーク上の試験用のトークンです。
 - **数字は見積もりで、実測ではありません。** 電力は vCPU あたりで見積もっています（TDP ÷ コア数）。何も計っていません。
 
-契約は 2026 年 11 月 27 日に、守りを固めて配布し直しているところです。そのためアドレスが変わることがあります。今のアドレスはポータルで確かめてください（執筆時点では `0x428745BC1aa9B5465A211742f5Dde111340CD3A0`）。
+契約は 2026 年 11 月 27 日に、守りを固めて配布し直しました（空のアドレスや署名の確かめ、受け取った人ごとの合計）。今の契約は [`0x5e80A701fc5Cb3Bd1c3aC77fD510D0B2B202fD40`](https://eth-sepolia.blockscout.com/address/0x5e80A701fc5Cb3Bd1c3aC77fD510D0B2B202fD40) です。最初の受け取りの記録は新しい契約に引き継いだので、同じジョブで 2 回は受け取れません。最初の契約（`0x4287…D3A0`）は空にして、もう使っていません。
 
 コード（ポータル、ブランチ `feat/green-real`）: `contracts/carbon-choice/src/GreenReward.sol`（契約）、`worker/greenReward.ts`（確認役）、`src/experiment/green-reward/ClaimBox.tsx`（ジョブの詳細にある「報酬を受け取る」欄）、値は `content/experiment/real-envs.json`。
 設計の記録は、同じブランチの `docs/notes/green-choice-in-production.md` です。

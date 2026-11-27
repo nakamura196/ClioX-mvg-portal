@@ -25,7 +25,7 @@ Please read these figures with four limits in mind.
 - **PLAY has no value.** It is a test token on a test network.
 - **The figures are estimates, not measurements.** Power is estimated per vCPU (TDP ÷ cores); nothing is metered.
 
-The contract is being redeployed with hardening on 27 November 2026, so its address may change. See the portal for the current one (at the time of writing, `0x428745BC1aa9B5465A211742f5Dde111340CD3A0`).
+On 27 November 2026 the contract was redeployed with hardening (zero-address and signature checks, totals per recipient). The current contract is [`0x5e80A701fc5Cb3Bd1c3aC77fD510D0B2B202fD40`](https://eth-sepolia.blockscout.com/address/0x5e80A701fc5Cb3Bd1c3aC77fD510D0B2B202fD40). The first claim was carried over to it, so the same job cannot be paid again. The first contract (`0x4287…D3A0`) is emptied and no longer used.
 
 Code (portal, branch `feat/green-real`): `contracts/carbon-choice/src/GreenReward.sol` (contract), `worker/greenReward.ts` (checker), `src/experiment/green-reward/ClaimBox.tsx` ("Receive the reward" box in the job details), values in `content/experiment/real-envs.json`.
 The design log is `docs/notes/green-choice-in-production.md` on the same branch.

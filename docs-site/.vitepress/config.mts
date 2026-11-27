@@ -80,6 +80,10 @@ function sidebarEn(): DefaultTheme.Sidebar {
             link: '/project/green-choice'
           },
           {
+            text: 'Rewarding greener choices: the options',
+            link: '/project/reward-options'
+          },
+          {
             text: 'New here? What the prototypes do',
             link: '/project/carbon-choice-guide'
           },
@@ -163,6 +167,10 @@ function sidebarJa(): DefaultTheme.Sidebar {
           {
             text: '環境にやさしい選択に、利益を戻す',
             link: '/ja/project/green-choice'
+          },
+          {
+            text: '環境にやさしい選択への報酬: 選択肢',
+            link: '/ja/project/reward-options'
           },
           {
             text: '初めての方へ: 試作は何をしているか',
