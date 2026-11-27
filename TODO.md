@@ -30,6 +30,11 @@ Next, in order:
    free) and a weekly cleanup installed (Mon 03:00 JST, `deploy/ocean-node/scripts/
 install-cleanup.zsh`, log /opt/cliox-node/cleanup.log). Still to do: a
    known-problems page on docs/site (en/ja); check the log after the first Monday.
+   6b. Oracle (third place, owner 2026-11-27): home region ap-osaka-1. Creating
+   `cliox-node-osaka` in the console (Ubuntu 24.04, A1.Flex 2 OCPU / 12 GB, vcn01
+   public subnet, SSH key ~/.ssh/oracle/id_ed25519 — owner copies the .pub to the
+   clipboard). Check the console's "resource limit is critical" warning before
+   creating. Not created yet as of this line.
 7. Reward contract + claim: design to be agreed (see the note's last section).
 
 # Clio-X（Sepolia 試用環境）TODO
