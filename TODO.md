@@ -22,9 +22,11 @@ Next, in order:
    job of the consumer wallet (0x05f1…1085) before any deploy. Show the owner the
    local URL first; no push or deploy without OK.
 5. Docs site page (en/ja) per the fork's CLAUDE.md.
-6. Second node (owner agreed 2026-11-27; values provisional; the choice must give a
-   real reward). Owner: sign in to Oracle (account nakamura196) and tell the home
-   region. Then: A1 instance, Ocean Node (arm64 images), registry + chains.config.js.
+6. Second place to run: decided 2026-11-27 (owner) — for now a **second compute
+   environment in the same Ocean Node on mdx-clio**, with provisional values,
+   labelled as such. Oracle (account nakamura196, home region unknown) or a new
+   mdx VM later. mdx-clio disk was 97 % full on 2026-11-27: graph-node block cache
+   `chain1.blocks` 40 GB; clean it (with the owner's OK) before adding jobs.
 7. Reward contract + claim: design to be agreed (see the note's last section).
 
 # Clio-X（Sepolia 試用環境）TODO
